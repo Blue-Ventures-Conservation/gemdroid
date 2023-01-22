@@ -11,7 +11,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -29,29 +34,34 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignIn(failed: Boolean = false, onClick: () -> Unit) {
-    val host = remember { SnackbarHostState() }
+    val snackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    Log.e("signin", "snack = $failed")
+    val failedMsg = stringResource(R.string.sign_in_failed)
 
-    if (failed) {
-        val failedMsg = stringResource(R.string.sign_in_failed)
-        LaunchedEffect(scope) {
-            host.showSnackbar(failedMsg)
+    Scaffold(snackbarHost = { SnackbarHost(snackHostState) }) { padding ->
+
+        if (failed) {
+            LaunchedEffect(failed) {
+                scope.launch {
+                    snackHostState.showSnackbar(failedMsg)
+                }
+            }
         }
-    }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
-            modifier = Modifier.padding(56.dp),
+            modifier = Modifier.padding(padding).fillMaxSize(),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 stringResource(R.string.sign_in_prompt),
+                Modifier.padding(48.dp),
             )
             Button(onClick = {
                 onClick()
@@ -100,7 +110,7 @@ object Signer {
             .addOnFailureListener(activity) { e ->
                 // No saved credentials found. Launch the One Tap sign-up flow, or
                 // do nothing and continue presenting the signed-out UI.
-                Log.e(TAG, "onFail: ${e.message}")
+                Log.e(TAG, "no saved credentials found: ${e.message}")
             }
     }
 

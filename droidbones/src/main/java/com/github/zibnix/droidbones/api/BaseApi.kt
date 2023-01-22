@@ -3,6 +3,7 @@ package com.github.zibnix.droidbones.api
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.HttpException
@@ -42,6 +43,12 @@ object BaseApi {
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .writeTimeout(timeout, TimeUnit.SECONDS)
             .readTimeout(timeout, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val requestBuilder: Request.Builder = chain.request().newBuilder()
+                requestBuilder.header("Content-Type", "application/json")
+                requestBuilder.header("Accept", "application/json")
+                chain.proceed(requestBuilder.build())
+            }
         if (debug) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY

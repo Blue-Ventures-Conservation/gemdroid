@@ -58,5 +58,5 @@ fun GEMApp(activity: Activity) {
 fun NavHostController.navigateSingleTopTo(route: String) =
     this.navigate(route) { launchSingleTop = true }
 
-fun NavHostController.popUpTo(popTo: String, navTo: String) =
-    this.navigate(navTo) { popUpTo(popTo) }
+fun NavHostController.popUpTo(route: String) =
+    this.navigate(route) { popUpTo(route) { inclusive = true } }
