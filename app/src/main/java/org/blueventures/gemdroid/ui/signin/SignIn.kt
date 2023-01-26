@@ -39,17 +39,17 @@ import org.blueventures.gemdroid.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignIn(failed: Boolean = false, onClick: () -> Unit) {
+fun SignInScreen(failedMsg: String?, onClick: () -> Unit) {
     val snackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val failedMsg = stringResource(R.string.sign_in_failed)
 
-    Scaffold(snackbarHost = { SnackbarHost(snackHostState) }) { padding ->
-
-        if (failed) {
-            LaunchedEffect(failed) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackHostState) }
+    ) { padding ->
+        failedMsg?.let { message ->
+            LaunchedEffect(failedMsg) {
                 scope.launch {
-                    snackHostState.showSnackbar(failedMsg)
+                    snackHostState.showSnackbar(message)
                 }
             }
         }
@@ -60,8 +60,8 @@ fun SignIn(failed: Boolean = false, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                stringResource(R.string.sign_in_prompt),
-                Modifier.padding(48.dp),
+                text = stringResource(R.string.sign_in_prompt),
+                modifier = Modifier.padding(48.dp),
             )
             Button(onClick = {
                 onClick()
@@ -72,7 +72,7 @@ fun SignIn(failed: Boolean = false, onClick: () -> Unit) {
     }
 }
 
-object Signer {
+object SignIn {
     private const val TAG = "Signer"
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest

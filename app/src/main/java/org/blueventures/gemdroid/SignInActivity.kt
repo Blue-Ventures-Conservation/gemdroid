@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.ui.signin.SignIn
-import org.blueventures.gemdroid.ui.signin.Signer
+import org.blueventures.gemdroid.ui.signin.SignInScreen
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
 
 class SignInActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class SignInActivity : ComponentActivity() {
             signedIn()
         }
 
-        Signer.registerForSignIn(this, Firebase.auth) { user ->
+        SignIn.registerForSignIn(this, Firebase.auth) { user ->
             user?.let {
                 signedIn()
             } ?: run {
@@ -30,10 +30,15 @@ class SignInActivity : ComponentActivity() {
     }
 
     private fun content(failed: Boolean) {
+        var msg: String? = null
+        if (failed) {
+            msg = getString(R.string.sign_in_failed)
+        }
+
         setContent {
             GEMDroidTheme {
-                SignIn(failed) {
-                    Signer.doSignIn(this)
+                SignInScreen(msg) {
+                    SignIn.doSignIn(this)
                 }
             }
         }

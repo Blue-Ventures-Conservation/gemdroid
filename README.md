@@ -10,5 +10,5 @@ You will need `google-services.json` from Firebase added here:
 
 This file is excluded from github for privacy/security reasons.
 
-It can be foudn in the Firebase console:
+It can be found in the Firebase console:
 Gear Icon (Settings) > scroll down to Your Apps > Gem Droid
