@@ -139,7 +139,7 @@ object Roi {
         Button(
             onClick = { nextClick() }
         ) {
-            Text("Next", fontSize = 24.sp)
+            Text("Next", fontSize = 18.sp)
         }
     }
 
@@ -152,7 +152,7 @@ object Roi {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Select bounding years for contemporary data:", textAlign = TextAlign.Center, fontSize = 24.sp)
+            Text("Select bounding years (inclusive) for contemporary imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -170,11 +170,11 @@ object Roi {
                             snackbar("Please select years less than ${RoiViewModel.maxYearGap} years apart")
                         }
                     } else {
-                        snackbar("Please select an earlier year on the left than on the right")
+                        snackbar("Year on the left must be equal to or less than the one on right")
                     }
                 }
             ) {
-                Text("Next", fontSize = 24.sp)
+                Text("Next", fontSize = 18.sp)
             }
         }
 
@@ -218,7 +218,7 @@ object Roi {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Select bounding years for historical data:", textAlign = TextAlign.Center, fontSize = 24.sp)
+            Text("Select bounding years (inclusive) for historical imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -236,11 +236,11 @@ object Roi {
                             snackbar("Please select years less than ${RoiViewModel.maxYearGap} years apart")
                         }
                     } else {
-                        snackbar("Please select an earlier year on the left than on the right")
+                        snackbar("Year on the left must be equal to or less than the one on right")
                     }
                 }
             ) {
-                Text("Next", fontSize = 24.sp)
+                Text("Next", fontSize = 18.sp)
             }
         }
 
@@ -277,7 +277,64 @@ object Roi {
 
     @Composable
     fun Months(viewModel: RoiViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .padding(64.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Select range of months (inclusive) for imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MonthStart(viewModel)
+                MonthEnd(viewModel)
+            }
+            Button(
+                onClick = {
+                    if (viewModel.validateMonthsOrder()) {
+                        nextClick()
+                    } else {
+                        snackbar("Month on the left must be equal to or less than the one on the right")
+                    }
+                }
+            ) {
+                Text("Next", fontSize = 18.sp)
+            }
+        }
 
+        BackHandler {
+            backClick()
+        }
+    }
+
+    @Composable
+    fun MonthStart(viewModel: RoiViewModel) {
+        var month by remember { mutableStateOf(viewModel.state.value.monthStart) }
+        NumberPicker(
+            value = month,
+            range = 1..12,
+            onValueChange = {
+                viewModel.setMonthStart(it)
+                month = it
+            }
+        )
+    }
+
+    @Composable
+    fun MonthEnd(viewModel: RoiViewModel) {
+        var month by remember { mutableStateOf(viewModel.state.value.monthEnd) }
+        NumberPicker(
+            value = month,
+            range = 1..12,
+            onValueChange = {
+                viewModel.setMonthEnd(it)
+                month = it
+            }
+        )
     }
 
     @Composable
@@ -294,7 +351,6 @@ object Roi {
                 for (marker in markers) {
                     marker.remove()
                 }
-                viewModel.clearPoints()
             }
 
             Row(
@@ -304,11 +360,17 @@ object Roi {
             ) {
                 Button(onClick = {
                     clearFunc()
+                    viewModel.clearPoints()
                 }) {
                     Text(text = "Clear", fontSize = 18.sp)
                 }
                 Button(onClick = {
-
+                    if (viewModel.validatePolygon()) {
+                        clearFunc()
+                        nextClick()
+                    } else {
+                        snackbar("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
+                    }
                 }) {
                     Text(text = "Next", fontSize = 18.sp)
                 }
@@ -335,13 +397,57 @@ object Roi {
             }
 
             FloatingActionButton(
-                onClick = { drawing = !drawing }, modifier = Modifier.padding(24.dp).align(Alignment.BottomEnd)
+                onClick = { drawing = !drawing }, modifier = Modifier
+                    .padding(bottom = 64.dp, end = 24.dp)
+                    .align(Alignment.BottomEnd)
             ) {
                 if (drawing) {
                     Icon(Icons.Filled.Close, "")
                 } else {
                     Icon(Icons.Filled.Place, "")
                 }
+            }
+        }
+    }
+
+    @Composable
+    fun Overview(viewModel: RoiViewModel, doneClick: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Overview", fontSize = 32.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                val state by viewModel.state.collectAsState()
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(text = "Name: ", fontSize = 18.sp)
+                    Text(text = "Contemporary Years: ", fontSize = 18.sp)
+                    Text(text = "Historical Years: ", fontSize = 18.sp)
+                    Text(text = "Months: ", fontSize = 18.sp)
+                    Text(text = "Polygon ROI: ", fontSize = 18.sp)
+                }
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(text = state.name, fontSize = 18.sp)
+                    Text(text = "${state.contemporaryYearStart} - ${state.contemporaryYearEnd}", fontSize = 18.sp)
+                    Text(text = "${state.historicalYearStart} - ${state.historicalYearEnd}", fontSize = 18.sp)
+                    Text(text = "${state.monthStart} - ${state.monthEnd}", fontSize = 18.sp)
+                    Text(text = "${state.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
+                }
+            }
+            Button(onClick = {
+                doneClick()
+            }) {
+                Text(text = "Done", fontSize = 18.sp)
             }
         }
     }
@@ -366,7 +472,12 @@ class MapCallback(
     val drawingGetter: () -> Boolean,
 ): OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
-        for (latlng in viewModel.state.value.latLngs) {
+        // despite using clearFunc above whenever navigating away
+        // the map still seems to retain markers and polygon, so
+        // we clear everything here before added saved data to the map
+        map.clear()
+
+        for (latlng in viewModel.state.value.points) {
             map.addMarker(MarkerOptions().position(latlng))?.let { marker ->
                 markerAdd(marker)
             }
@@ -400,6 +511,7 @@ object RoiRoutes {
     const val historicalYears = "roi_hist_dates"
     const val months = "roi_months"
     const val polygon = "roi_polygon"
+    const val overview = "roi_overview"
 }
 
 object RoiView {

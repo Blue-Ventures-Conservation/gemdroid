@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -51,7 +52,7 @@ fun GEMApp(activity: ComponentActivity) {
     val scope = rememberCoroutineScope()
     val snackbar: (String) -> Unit = { msg ->
         scope.launch {
-            snackHostState.showSnackbar(msg)
+            snackHostState.showSnackbar(msg, duration = SnackbarDuration.Long)
         }
     }
 
@@ -62,7 +63,9 @@ fun GEMApp(activity: ComponentActivity) {
             NavHost(
                 navController = nav,
                 startDestination = RoiRoutes.list,
-                modifier = Modifier.padding(padding).fillMaxSize()
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
             ) {
                 // ROI list
                 composable(RoiRoutes.list) {
@@ -99,29 +102,38 @@ fun GEMApp(activity: ComponentActivity) {
                         roiViewModel.clearHistoricalYears()
                         nav.popBackStack()
                     }) {
+                        nav.navigate(RoiRoutes.months)
+                    }
+                }
+
+                // ROI months range selection
+                composable(RoiRoutes.months) {
+                    Roi.Months(roiViewModel, snackbar, backClick = {
+                        roiViewModel.clearMonths()
+                        nav.popBackStack()
+                    }) {
                         nav.navigate(RoiRoutes.polygon)
                     }
                 }
 
-//                composable(RoiRoutes.months) {
-//                    Roi.Months(roiViewModel, snackbar, backClick = {
-//                        roiViewModel.clearMonths()
-//                        nav.popBackStack()
-//                    }) {
-//                        nav.navigate(RoiRoutes.polygon)
-//                    }
-//                }
-
+                // ROI polygon creation
                 composable(RoiRoutes.polygon) {
                     Roi.Polygon(roiViewModel, snackbar, backClick = {
                         roiViewModel.clearPoints()
                         nav.popBackStack()
                     }) {
+                        nav.navigate(RoiRoutes.overview)
+                    }
+                }
+
+                // ROI overview
+                composable(RoiRoutes.overview) {
+                    Roi.Overview(roiViewModel) {
+                        roiViewModel.clear()
                         nav.popUpTo(RoiRoutes.list)
                     }
                 }
 
-                // ROI polygon creation
                 composable(Todoer.route) {
                     Todo {
                         Firebase.auth.signOut()

@@ -4,6 +4,7 @@ import android.location.Location
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
@@ -45,16 +46,21 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun clearHistoricalYears() = newState(_state.value.copy(historicalYearStart = defaultHistoricalYearStart, historicalYearEnd = defaultHistoricalYearEnd))
     fun setMonthStart(month: Int) = newState(_state.value.copy(monthStart = month))
     fun setMonthEnd(month: Int) = newState(_state.value.copy(monthEnd = month))
-    fun validateMonths() = validateDateIntsOrder(_state.value.monthStart, _state.value.monthEnd)
+    fun validateMonthsOrder() = validateDateIntsOrder(_state.value.monthStart, _state.value.monthEnd)
     fun clearMonths() = newState(_state.value.copy(monthStart = defaultMonthStart, monthEnd = defaultMonthEnd))
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
-    fun clearPoints() = newState(_state.value.copy(latLngs = arrayListOf()))
+    fun clearPoints() = newState(_state.value.copy(points = arrayListOf()))
+    fun polygonArea() = SphericalUtil.computeArea(_state.value.points)/1_000_000
+    fun validatePolygon(): Boolean {
+        val area = polygonArea()
+        return area > 0 && area <= maxROIArea
+    }
     fun polygonOpts(): PolygonOptions? {
-        if (_state.value.latLngs.size < 3) {
+        if (_state.value.points.size < 3) {
             return null
         }
         val opts = PolygonOptions().strokeWidth(2F).fillColor(0x7F00FF00)
-        for (latlng in _state.value.latLngs) {
+        for (latlng in _state.value.points) {
             opts.add(latlng)
         }
         return opts
@@ -67,12 +73,12 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
 
     fun clear() = newState(RoiState())
     private fun newState(state: RoiState) { _state.value = state }
-    private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 < d2
+    private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
 
     private fun adjustPolygonWithRespectTo(point: LatLng) {
-        val points = _state.value.latLngs
+        val points = _state.value.points
 
         if (points.size > 2) {
             var minDistance = 0F
@@ -114,21 +120,21 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
             // 4. move the nearest coordinate at the end by shifting array right
             val shiftByNumber: Int = points.size - position - 1
             if (shiftByNumber != points.size) {
-                newState(_state.value.copy(latLngs = rotate(points, shiftByNumber)))
+                newState(_state.value.copy(points = rotate(points, shiftByNumber)))
             }
         }
 
         // 5. Now add coordinated to be drawn
-        _state.value.latLngs.add(point)
+        _state.value.points.add(point)
     }
 
     private fun minIndex(list: ArrayList<Float>): Int {
         return list.indexOf(Collections.min(list))
     }
 
-    fun <T> rotate(aL: ArrayList<T>, shift: Int): ArrayList<T> {
+    private fun <T> rotate(aL: ArrayList<T>, shift: Int): ArrayList<T> {
         if (aL.size == 0) return aL
-        var element: T? = null
+        var element: T?
         for (i in 0 until shift) {
             // remove last element, add it to front of the ArrayList
             element = aL.removeAt(aL.size - 1)
@@ -149,6 +155,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
 
     companion object {
+        const val maxROIArea = 10_000 // square kilometers
         const val maxYearGap = 5
         const val defaultContemporaryYearStart = 2019
         const val defaultContemporaryYearEnd = 2021
@@ -169,6 +176,6 @@ data class RoiState(
     val historicalYearEnd: Int = RoiViewModel.defaultHistoricalYearEnd,
     val monthStart: Int = RoiViewModel.defaultMonthStart,
     val monthEnd: Int = RoiViewModel.defaultMonthEnd,
-    val latLngs: ArrayList<LatLng> = arrayListOf(),
+    val points: ArrayList<LatLng> = arrayListOf(),
     val indices: List<String> = listOf()
 )
