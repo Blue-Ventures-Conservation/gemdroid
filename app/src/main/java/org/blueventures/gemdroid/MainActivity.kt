@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,7 +14,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,7 +31,7 @@ import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
 import org.blueventures.gemdroid.ui.todo.Todo
 import org.blueventures.gemdroid.ui.todo.Todoer
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -75,15 +75,51 @@ fun GEMApp(activity: ComponentActivity) {
 
                 // ROI name creation
                 composable(RoiRoutes.name) {
-                    Roi.Name(roiViewModel, backClick = {
+                    Roi.Name(roiViewModel, snackbar, backClick = {
                         roiViewModel.clear()
                         nav.popBackStack()
                     }) {
-
+                        nav.navigate(RoiRoutes.contemporayYears)
                     }
                 }
 
-                // ROI dates selection
+                // ROI contemporary years selection
+                composable(RoiRoutes.contemporayYears) {
+                    Roi.ContemporaryDates(roiViewModel, snackbar, backClick = {
+                        roiViewModel.clearContemporaryYears()
+                        nav.popBackStack()
+                    }) {
+                        nav.navigate(RoiRoutes.historicalYears)
+                    }
+                }
+
+                // ROI historical years selection
+                composable(RoiRoutes.historicalYears) {
+                    Roi.HistoricalDates(roiViewModel, snackbar, backClick = {
+                        roiViewModel.clearHistoricalYears()
+                        nav.popBackStack()
+                    }) {
+                        nav.navigate(RoiRoutes.polygon)
+                    }
+                }
+
+//                composable(RoiRoutes.months) {
+//                    Roi.Months(roiViewModel, snackbar, backClick = {
+//                        roiViewModel.clearMonths()
+//                        nav.popBackStack()
+//                    }) {
+//                        nav.navigate(RoiRoutes.polygon)
+//                    }
+//                }
+
+                composable(RoiRoutes.polygon) {
+                    Roi.Polygon(roiViewModel, snackbar, backClick = {
+                        roiViewModel.clearPoints()
+                        nav.popBackStack()
+                    }) {
+                        nav.popUpTo(RoiRoutes.list)
+                    }
+                }
 
                 // ROI polygon creation
                 composable(Todoer.route) {

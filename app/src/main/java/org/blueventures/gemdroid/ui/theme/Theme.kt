@@ -19,7 +19,14 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Color(0xFF1C1B1F),
+    surface = Color(0xFF1C1B1F),
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black,
+    onBackground = Color(0xFFFFFBFE),
+    onSurface = Color(0xFFFFFBFE),
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -60,7 +67,7 @@ fun GEMDroidTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         typography = Typography,
         content = content
     )
