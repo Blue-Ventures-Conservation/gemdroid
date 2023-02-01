@@ -9,7 +9,7 @@ import com.github.zibnix.droidbones.ui.Dialogs
 class RationaleDialog(private val rationale: String, val callback: (Boolean) -> Unit): DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
-            val builder = AlertDialog.Builder(it, Dialogs.dialogTheme)
+            val builder = AlertDialog.Builder(it)
             builder.setMessage(rationale)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     callback(true)

@@ -7,9 +7,6 @@ import androidx.fragment.app.FragmentManager
 import com.github.zibnix.droidbones.R
 
 object Dialogs {
-    @StyleRes
-    var dialogTheme: Int = R.style.DialogTheme
-
     fun dismiss(fragment: Fragment) {
         if (fragment.isAdded) {
             dismiss(fragment.parentFragmentManager)

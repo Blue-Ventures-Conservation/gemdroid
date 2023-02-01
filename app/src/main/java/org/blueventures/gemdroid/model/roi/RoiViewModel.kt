@@ -48,6 +48,9 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun setMonthEnd(month: Int) = newState(_state.value.copy(monthEnd = month))
     fun validateMonthsOrder() = validateDateIntsOrder(_state.value.monthStart, _state.value.monthEnd)
     fun clearMonths() = newState(_state.value.copy(monthStart = defaultMonthStart, monthEnd = defaultMonthEnd))
+    fun setIndices(i: Indices) = newState(_state.value.copy(indices = i))
+    fun getIndices() = listOf(Indices.LS_BEST, Indices.LS_STANDARD, Indices.LS)
+    fun clearIndices() = newState(_state.value.copy(indices = defaultIndices))
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
     fun clearPoints() = newState(_state.value.copy(points = arrayListOf()))
     fun polygonArea() = SphericalUtil.computeArea(_state.value.points)/1_000_000
@@ -164,6 +167,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
+        val defaultIndices = Indices.LS_BEST
     }
 }
 
@@ -176,6 +180,31 @@ data class RoiState(
     val historicalYearEnd: Int = RoiViewModel.defaultHistoricalYearEnd,
     val monthStart: Int = RoiViewModel.defaultMonthStart,
     val monthEnd: Int = RoiViewModel.defaultMonthEnd,
+    val indices: Indices = RoiViewModel.defaultIndices,
     val points: ArrayList<LatLng> = arrayListOf(),
-    val indices: List<String> = listOf()
 )
+
+/**
+ * 1: the six Landsat bands on their own = ‘LS’
+ * 2: the six Landsat bands + the “best” index (CMRI) = ‘LS+best’
+ * 3: the six Landsat bands + three optimal indices MNDWI, MMRI, SAVI) = ‘LS+standard’
+ */
+enum class Indices {
+    LS {
+        override fun toLabel() = "Six Landsat Bands"
+        override fun toList() = emptyList<String>()
+    },
+
+    LS_BEST {
+        override fun toLabel() = "Six Landsat Bands + the best index (CMRI)"
+        override fun toList() = listOf("CMRI")
+    },
+
+    LS_STANDARD {
+        override fun toLabel() = "Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)"
+        override fun toList() = listOf("MNDWI", "MMRI", "SAVI")
+    };
+
+    abstract fun toLabel(): String
+    abstract fun toList(): List<String>
+}

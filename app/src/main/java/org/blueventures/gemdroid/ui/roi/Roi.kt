@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -189,6 +194,8 @@ object Roi {
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setContemporaryYearStart(it)
                 year = it
@@ -202,6 +209,8 @@ object Roi {
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setContemporaryYearEnd(it)
                 year = it
@@ -255,6 +264,8 @@ object Roi {
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setHistoricalYearStart(it)
                 year = it
@@ -268,6 +279,8 @@ object Roi {
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setHistoricalYearEnd(it)
                 year = it
@@ -317,6 +330,8 @@ object Roi {
         NumberPicker(
             value = month,
             range = 1..12,
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setMonthStart(it)
                 month = it
@@ -330,11 +345,63 @@ object Roi {
         NumberPicker(
             value = month,
             range = 1..12,
+            dividersColor = MaterialTheme.colorScheme.primary,
+            textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
                 viewModel.setMonthEnd(it)
                 month = it
             }
         )
+    }
+
+
+    @Composable
+    fun Indices(viewModel: RoiViewModel, backClick: () -> Unit, nextClick: () -> Unit) {
+        val choices = viewModel.getIndices()
+        val (choice, setChoice) = remember { mutableStateOf(viewModel.state.value.indices) }
+        Column(
+            modifier = Modifier
+                .padding(64.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Spectral Indices", fontSize = 32.sp)
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                choices.forEach { indices ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (indices == choice),
+                                onClick = {
+                                    setChoice(indices)
+                                }
+                            )
+                            .padding(top = 24.dp, bottom = 24.dp)
+                    ) {
+                        RadioButton(selected = (indices == choice), onClick = { setChoice(indices) })
+                        Text(text = indices.toLabel(), modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
+            }
+            Button(
+                onClick = {
+                    viewModel.setIndices(choice)
+                    nextClick()
+                }
+            ) {
+                Text("Next", fontSize = 18.sp)
+            }
+        }
+
+        BackHandler {
+            backClick()
+        }
     }
 
     @Composable
@@ -507,9 +574,10 @@ class MapCallback(
 object RoiRoutes {
     const val list = "roi"
     const val name = "roi_name"
-    const val contemporayYears = "roi_cont_dates"
+    const val contemporaryYears = "roi_cont_dates"
     const val historicalYears = "roi_hist_dates"
     const val months = "roi_months"
+    const val indices = "roi_indices"
     const val polygon = "roi_polygon"
     const val overview = "roi_overview"
 }

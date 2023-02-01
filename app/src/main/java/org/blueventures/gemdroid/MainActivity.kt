@@ -82,12 +82,12 @@ fun GEMApp(activity: ComponentActivity) {
                         roiViewModel.clear()
                         nav.popBackStack()
                     }) {
-                        nav.navigate(RoiRoutes.contemporayYears)
+                        nav.navigate(RoiRoutes.contemporaryYears)
                     }
                 }
 
                 // ROI contemporary years selection
-                composable(RoiRoutes.contemporayYears) {
+                composable(RoiRoutes.contemporaryYears) {
                     Roi.ContemporaryDates(roiViewModel, snackbar, backClick = {
                         roiViewModel.clearContemporaryYears()
                         nav.popBackStack()
@@ -110,6 +110,16 @@ fun GEMApp(activity: ComponentActivity) {
                 composable(RoiRoutes.months) {
                     Roi.Months(roiViewModel, snackbar, backClick = {
                         roiViewModel.clearMonths()
+                        nav.popBackStack()
+                    }) {
+                        nav.navigate(RoiRoutes.indices)
+                    }
+                }
+
+                // ROI indices selection
+                composable(RoiRoutes.indices) {
+                    Roi.Indices(roiViewModel, backClick = {
+                        roiViewModel.clearIndices()
                         nav.popBackStack()
                     }) {
                         nav.navigate(RoiRoutes.polygon)

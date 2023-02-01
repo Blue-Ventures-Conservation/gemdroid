@@ -14,7 +14,7 @@ import com.github.zibnix.droidbones.ui.Dialogs
 class LocationDisabledDialog() : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
-            val builder = AlertDialog.Builder(it, Dialogs.dialogTheme)
+            val builder = AlertDialog.Builder(it)
             builder.setMessage(getString(R.string.turn_on_location))
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val request = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
