@@ -15,4 +15,12 @@ class RoiRepository(
     fun getRois(filesDir: File): Flow<List<File>> = flow {
         emit(dataSource.getRois(filesDir))
     }.flowOn(ioDispatcher)
+
+    fun saveRoi(filesDir: File, roi: RoiState): Flow<Boolean>  = flow {
+        emit(dataSource.saveRoi(filesDir, roi))
+    }.flowOn(ioDispatcher)
+
+    fun deleteRoi(dir: File): Flow<Boolean> = flow {
+        emit(dataSource.deleteRoi(dir))
+    }.flowOn(ioDispatcher)
 }

@@ -52,7 +52,7 @@ fun GEMApp(activity: ComponentActivity) {
     val scope = rememberCoroutineScope()
     val snackbar: (String) -> Unit = { msg ->
         scope.launch {
-            snackHostState.showSnackbar(msg, duration = SnackbarDuration.Long)
+            snackHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
         }
     }
 
@@ -69,7 +69,7 @@ fun GEMApp(activity: ComponentActivity) {
             ) {
                 // ROI list
                 composable(RoiRoutes.list) {
-                    Roi.List(activity.filesDir, roiViewModel, roiClick = { dir ->
+                    Roi.List(roiViewModel, activity.filesDir, snackbar, roiClick = { dir ->
 
                     }) {
                         nav.navigate(RoiRoutes.name)
@@ -138,7 +138,7 @@ fun GEMApp(activity: ComponentActivity) {
 
                 // ROI overview
                 composable(RoiRoutes.overview) {
-                    Roi.Overview(roiViewModel) {
+                    Roi.Overview(roiViewModel, activity.filesDir, snackbar) {
                         roiViewModel.clear()
                         nav.popUpTo(RoiRoutes.list)
                     }

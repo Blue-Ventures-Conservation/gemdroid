@@ -1,6 +1,8 @@
 package org.blueventures.gemdroid.ui.roi
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,15 +13,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -37,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -52,26 +60,64 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
 import org.blueventures.gemdroid.databinding.FragmentContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
 object Roi {
     @Composable
-    fun List(filesDir : File, viewModel: RoiViewModel, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
-        Box(modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+    fun List(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+        val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }
+
+        if (toDelete != null) {
+            DeleteDialog(viewModel, snackbar, toDelete) { setDeleteRoi(null) }
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
             FloatingActionButton(onClick = floatingOnClick, modifier = Modifier
                 .padding(24.dp)
                 .align(Alignment.BottomEnd)) {
-                Icon(Icons.Filled.Add, "")
+                Icon(Icons.Filled.Add, "Add new ROI")
             }
-
-            ListView(filesDir, viewModel)
+            Column(modifier = Modifier.fillMaxSize()) {
+                Text(text = "Regions of Interest", fontSize = 24.sp, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 24.dp, bottom = 32.dp))
+                Divider(color = SkyBlue, thickness = 4.dp)
+                ListView(viewModel, filesDir, roiClick, setDeleteRoi)
+            }
         }
     }
 
     @Composable
-    fun ListView(filesDir: File, viewModel: RoiViewModel) {
+    fun DeleteDialog(viewModel: RoiViewModel, snackbar: (String) -> Unit, toDelete: File, onDismiss: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = "Delete ROI") },
+            text = { Text(text = "Really delete '${toDelete.name}'?") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.deleteRoi(toDelete) { success ->
+                        onDismiss()
+                        if (!success) {
+                            snackbar("Failed to delete ${toDelete.name}")
+                        }
+                    }
+                }) {
+                    Text("DELETE")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    onDismiss()
+                }) {
+                    Text(text = "Cancel")
+                }
+            },
+        )
+    }
+
+    @Composable
+    fun ListView(viewModel: RoiViewModel, filesDir: File, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
         val state by viewModel.state.collectAsState()
         if (state.rois == null) {
             Progress()
@@ -80,21 +126,44 @@ object Roi {
         } else {
             state.rois?.let { rois ->
                 if (rois.isEmpty()) {
-                    Text(
-                        text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(24.dp)
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(24.dp)
+                        )
+                    }
                 } else {
-
+                    LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                        items(rois) { dir ->
+                            RoiRow(dir, roiClick, setDeleteRoi)
+                            Divider(color = SkyBlue, thickness = 1.dp)
+                        }
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun Item() {
-
+    fun RoiRow(dir: File, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable { roiClick(dir) },
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp))
+            Icon(Icons.Filled.Delete, "Delete ROI", modifier = Modifier
+                .padding(20.dp)
+                .size(32.dp)
+                .clickable {
+                    setDeleteRoi(dir)
+                })
+        }
     }
 
     @Composable
@@ -478,7 +547,17 @@ object Roi {
     }
 
     @Composable
-    fun Overview(viewModel: RoiViewModel, doneClick: () -> Unit) {
+    fun Overview(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit) {
+        val state by viewModel.state.collectAsState()
+        if (state.saving) {
+            Progress()
+        } else {
+            OverviewDetails(viewModel, filesDir, snackbar, doneClick)
+        }
+    }
+
+    @Composable
+    fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -500,6 +579,7 @@ object Roi {
                     Text(text = "Historical Years: ", fontSize = 18.sp)
                     Text(text = "Months: ", fontSize = 18.sp)
                     Text(text = "Polygon ROI: ", fontSize = 18.sp)
+                    Text(text = "Spectral Indices: ", fontSize = 18.sp)
                 }
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly
@@ -509,10 +589,17 @@ object Roi {
                     Text(text = "${state.historicalYearStart} - ${state.historicalYearEnd}", fontSize = 18.sp)
                     Text(text = "${state.monthStart} - ${state.monthEnd}", fontSize = 18.sp)
                     Text(text = "${state.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
+                    Text(text = "${state.indices.toList()}", fontSize = 18.sp)
                 }
             }
             Button(onClick = {
-                doneClick()
+                viewModel.saveRoi(filesDir) { success ->
+                    if (success) {
+                        doneClick()
+                    } else {
+                        snackbar("Failed to save ROI")
+                    }
+                }
             }) {
                 Text(text = "Done", fontSize = 18.sp)
             }

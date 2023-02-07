@@ -1,5 +1,6 @@
 package com.github.zibnix.droidbones.mvvm
 
+import android.os.FileUtils
 import java.io.File
 
 open class FileService {
@@ -52,9 +53,14 @@ open class FileService {
     fun createFile(dir: File, name: String, ext: String): File? {
         return try {
             val f = File(dir, "$name.$ext")
-            when(f.createNewFile()) {
-                true -> f
-                false -> null
+
+            if (f.exists()) {
+                f
+            } else {
+                when (f.createNewFile()) {
+                    true -> f
+                    false -> null
+                }
             }
         } catch (e: Exception) {
             null
@@ -78,6 +84,29 @@ open class FileService {
     fun deleteFile(file: File): Boolean {
         return try {
             file.delete()
+        } catch(e: Exception) {
+            false
+        }
+    }
+
+    fun deleteDir(dir: File): Boolean {
+        return try {
+            val contents = dir.listFiles()
+
+            var allGone = true
+            if (contents != null) {
+                for (f in contents) {
+                    if (!deleteDir(f)) {
+                        allGone = false
+                    }
+                }
+            }
+
+            if (!allGone) {
+                false
+            } else {
+                dir.delete()
+            }
         } catch(e: Exception) {
             false
         }

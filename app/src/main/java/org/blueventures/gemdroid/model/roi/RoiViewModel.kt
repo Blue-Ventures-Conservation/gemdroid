@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.util.Calendar
 import java.util.Collections
@@ -18,6 +19,21 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun refreshRois(filesDir: File) = scoped {
         repo.getRois(filesDir).collect { files ->
             newState(RoiState(rois = files))
+        }
+    }
+
+    fun saveRoi(filesDir: File, callback: (Boolean) -> Unit) = scoped {
+        newState(_state.value.copy(saving = true))
+        repo.saveRoi(filesDir, _state.value).collect {
+            newState(_state.value.copy(saving = false))
+            callback(it)
+        }
+    }
+
+    fun deleteRoi(dir: File, callback: (Boolean) -> Unit) = scoped {
+        repo.deleteRoi(dir).collect {
+            newState(_state.value.copy(rois = null))
+            callback(it)
         }
     }
 
@@ -70,15 +86,10 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun saveRoi(): Boolean {
-        return false
-    }
-
     fun clear() = newState(RoiState())
     private fun newState(state: RoiState) { _state.value = state }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
-
 
     private fun adjustPolygonWithRespectTo(point: LatLng) {
         val points = _state.value.points
@@ -182,6 +193,7 @@ data class RoiState(
     val monthEnd: Int = RoiViewModel.defaultMonthEnd,
     val indices: Indices = RoiViewModel.defaultIndices,
     val points: ArrayList<LatLng> = arrayListOf(),
+    val saving: Boolean = false,
 )
 
 /**

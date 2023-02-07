@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import org.blueventures.gemdroid.data.ROIBuilder
 import java.io.File
 
 class RoiDatasource(private val files: FileService = FileService()) {
@@ -64,8 +65,30 @@ class RoiDatasource(private val files: FileService = FileService()) {
         }
     }
 
+    fun saveRoi(filesDir: File, roi: RoiState): Boolean {
+        return try {
+            val roiDir = File(filesDir, "$dirname/${roi.name}")
+
+            if (roiDir.exists() || roiDir.mkdirs()) {
+                val saveFile = files.createFile(roiDir, filename, fileSuffix)
+                if (saveFile == null) {
+                    false
+                } else {
+                    ROIBuilder.toFile(saveFile, ROIBuilder.fromState(roi))
+                }
+            } else {
+                false
+            }
+        } catch(e: Exception) {
+            false
+        }
+    }
+
+    fun deleteRoi(dir: File) = files.deleteDir(dir)
+
     companion object {
-        const val fileSuffix = ".geojson"
+        const val filename = "roi"
+        const val fileSuffix = "geojson"
         private const val dirname = "rois"
     }
 }

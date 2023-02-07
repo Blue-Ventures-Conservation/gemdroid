@@ -16,17 +16,17 @@ object BaseApi {
     /**
      * timeout in seconds
      */
-    fun resultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
-        return retrofit(baseUrl, timeout, debug, ResultCallAdapterFactory.create(), *factories)
+    fun resultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
+        return retrofit(baseUrl, timeout, debug, json, ResultCallAdapterFactory.create(), *factories)
     }
 
     /**
      * timeout in seconds
      */
-    fun retrofit(baseUrl: String, timeout: Long, debug: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
+    fun retrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
         val builder = Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(client(timeout, debug))
+            .client(client(timeout, debug, json))
             .addConverterFactory(MoshiConverterFactory.create(
                 Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
             ))
@@ -38,17 +38,19 @@ object BaseApi {
         return builder.build()
     }
 
-    private fun client(timeout: Long, debug: Boolean): OkHttpClient {
+    private fun client(timeout: Long, debug: Boolean, json: Boolean): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .writeTimeout(timeout, TimeUnit.SECONDS)
             .readTimeout(timeout, TimeUnit.SECONDS)
-            .addInterceptor { chain ->
+        if (json) {
+            builder.addInterceptor { chain ->
                 val requestBuilder: Request.Builder = chain.request().newBuilder()
                 requestBuilder.header("Content-Type", "application/json")
                 requestBuilder.header("Accept", "application/json")
                 chain.proceed(requestBuilder.build())
             }
+        }
         if (debug) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY

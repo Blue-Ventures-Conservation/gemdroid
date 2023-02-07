@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GEM Droid</string>
+    <string name="app_name">GEM</string>
     <string name="sign_in_prompt">This app requires you to log in with a Google Account. By logging in and using the app, you consent to give Blue Ventures access to some basic location data about the regions you are working with in the app.</string>
     <string name="sign_in_label">Sign In</string>
     <string name="sign_out_label">Sign Out</string>
