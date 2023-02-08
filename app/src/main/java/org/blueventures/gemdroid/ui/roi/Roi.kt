@@ -1,16 +1,13 @@
 package org.blueventures.gemdroid.ui.roi
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,9 +41,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,24 +64,34 @@ import java.io.File
 object Roi {
     @Composable
     fun List(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+        val state by viewModel.state.collectAsState()
         val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }
 
         if (toDelete != null) {
             DeleteDialog(viewModel, snackbar, toDelete) { setDeleteRoi(null) }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            FloatingActionButton(onClick = floatingOnClick, modifier = Modifier
-                .padding(24.dp)
-                .align(Alignment.BottomEnd)) {
-                Icon(Icons.Filled.Add, "Add new ROI")
-            }
-            Column(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Regions of Interest", fontSize = 24.sp, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 24.dp, bottom = 32.dp))
-                Divider(color = SkyBlue, thickness = 4.dp)
-                ListView(viewModel, filesDir, roiClick, setDeleteRoi)
+        if (state.rois == null) {
+            Progress()
+            viewModel.refreshRois(filesDir)
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                FloatingActionButton(
+                    onClick = floatingOnClick, modifier = Modifier
+                        .padding(24.dp)
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Icon(Icons.Filled.Add, "Add new ROI")
+                }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = "Regions of Interest", fontSize = 24.sp, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, top = 24.dp, bottom = 32.dp)
+                    )
+                    Divider(color = SkyBlue, thickness = 4.dp)
+                    ListView(viewModel, roiClick, setDeleteRoi)
+                }
             }
         }
     }
@@ -117,31 +125,26 @@ object Roi {
     }
 
     @Composable
-    fun ListView(viewModel: RoiViewModel, filesDir: File, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
+    fun ListView(viewModel: RoiViewModel, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
         val state by viewModel.state.collectAsState()
-        if (state.rois == null) {
-            Progress()
-
-            viewModel.refreshRois(filesDir)
-        } else {
-            state.rois?.let { rois ->
-                if (rois.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(24.dp)
-                        )
-                    }
-                } else {
-                    LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-                        items(rois) { dir ->
-                            RoiRow(dir, roiClick, setDeleteRoi)
-                            Divider(color = SkyBlue, thickness = 1.dp)
-                        }
+        state.rois?.let { rois ->
+            if (rois.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(24.dp)
+                    )
+                }
+            } else {
+                LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                    items(rois) { dir ->
+                        RoiRow(dir, roiClick, setDeleteRoi)
+                        Divider(color = SkyBlue, thickness = 1.dp)
                     }
                 }
             }
@@ -175,7 +178,7 @@ object Roi {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(0.dp))
+            Text(text = "Name your ROI", fontSize = 24.sp, textAlign = TextAlign.Center)
             NameField(viewModel = viewModel)
             NameButton {
                 val name = viewModel.state.value.name
@@ -203,8 +206,9 @@ object Roi {
             value = text,
             onValueChange = {  viewModel.setName(it); text = it },
             label = { Text("Please enter a name") },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focus.clearFocus() })
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, capitalization = KeyboardCapitalization.Words),
+            keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
+            textStyle = TextStyle.Default.copy(fontSize = 24.sp)
         )
     }
 
@@ -667,9 +671,4 @@ object RoiRoutes {
     const val indices = "roi_indices"
     const val polygon = "roi_polygon"
     const val overview = "roi_overview"
-}
-
-object RoiView {
-    const val roiArg = "roi"
-    const val routeWithArgs = "roi/{$roiArg}"
 }

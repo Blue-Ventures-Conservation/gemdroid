@@ -8,7 +8,7 @@ class RoiDatasource(private val files: FileService = FileService()) {
     /**
      * Each ROI has its own subdir in the ROI dir.
      *
-     * Within an ROI specific subdir, there should be a geojson file of the coarse ROI polygon
+     * Within an ROI specific subdir, there should be a json file of the coarse ROI polygon
      * as a Feature, with properties that include the historical and contemporary date ranges
      * (year range & month range).
      *
@@ -88,7 +88,7 @@ class RoiDatasource(private val files: FileService = FileService()) {
 
     companion object {
         const val filename = "roi"
-        const val fileSuffix = "geojson"
-        private const val dirname = "rois"
+        const val fileSuffix = "json"
+        const val dirname = "rois"
     }
 }
