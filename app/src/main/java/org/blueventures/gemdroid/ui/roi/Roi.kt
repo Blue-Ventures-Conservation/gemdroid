@@ -50,9 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.chargemap.compose.numberpicker.NumberPicker
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
@@ -641,7 +643,7 @@ class MapCallback(
             }
         }
 
-        addPolygon(map)
+        addPolygon(map, true)
 
         map.setOnMapClickListener { point ->
             if (drawingGetter()) {
@@ -654,10 +656,20 @@ class MapCallback(
         }
     }
 
-    private fun addPolygon(map: GoogleMap) {
+    private fun addPolygon(map: GoogleMap, zoom: Boolean = false) {
         viewModel.polygonOpts()?.let { opts ->
             polyGetter()?.remove()
-            polySetter(map.addPolygon(opts))
+            val poly = map.addPolygon(opts)
+
+            if (zoom) {
+                val builder = LatLngBounds.builder()
+                for (pt in opts.points) {
+                    builder.include(pt)
+                }
+                map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
+            }
+
+            polySetter(poly)
         }
     }
 }
