@@ -1,0 +1,87 @@
+package org.blueventures.gemdroid.ui.roi
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Progress
+import java.io.File
+
+object Overview {
+    @Composable
+    fun Screen(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit) {
+        val (saving, setSaving) = remember { mutableStateOf(false) }
+
+        if (saving) {
+            Progress()
+        } else {
+            OverviewDetails(viewModel, filesDir, snackbar, doneClick, setSaving)
+        }
+    }
+
+    @Composable
+    fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit, saving: (Boolean) -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Overview", fontSize = 32.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                val state by viewModel.state.collectAsState()
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(text = "Name: ", fontSize = 18.sp)
+                    Text(text = "Contemporary Years: ", fontSize = 18.sp)
+                    Text(text = "Historical Years: ", fontSize = 18.sp)
+                    Text(text = "Months: ", fontSize = 18.sp)
+                    Text(text = "Polygon ROI: ", fontSize = 18.sp)
+                    Text(text = "Spectral Indices: ", fontSize = 18.sp)
+                }
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(text = state.name, fontSize = 18.sp)
+                    Text(text = "${state.contemporaryYearStart} - ${state.contemporaryYearEnd}", fontSize = 18.sp)
+                    Text(text = "${state.historicalYearStart} - ${state.historicalYearEnd}", fontSize = 18.sp)
+                    Text(text = "${state.monthStart} - ${state.monthEnd}", fontSize = 18.sp)
+                    Text(text = "${state.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
+                    Text(text = "${state.indices.toList()}", fontSize = 18.sp)
+                }
+            }
+            Button(onClick = {
+                saving(true)
+                viewModel.saveRoi(filesDir) { success ->
+                    saving(false)
+                    if (success) {
+                        doneClick()
+                    } else {
+                        snackbar("Failed to save ROI")
+                    }
+                }
+            }) {
+                Text(text = "Done", fontSize = 18.sp)
+            }
+        }
+    }
+}

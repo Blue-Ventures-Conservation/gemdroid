@@ -3,33 +3,30 @@ package org.blueventures.gemdroid.api
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.BaseApi
 import org.blueventures.gemdroid.BuildConfig
-import org.blueventures.gemdroid.data.Todo
-import org.blueventures.gemdroid.data.User
-import retrofit2.http.GET
-import retrofit2.http.Path
+import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.data.ROI
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 object Api {
-    private const val placeholderBaseUrl = "https://jsonplaceholder.typicode.com/"
+    private const val backendBaseUrl = "http://192.168.10.174:8080/"
 
-    private fun placeholder(timeout: Long): PlaceholderService {
-        return BaseApi.resultRetrofit(placeholderBaseUrl, timeout, BuildConfig.DEBUG).create(PlaceholderService::class.java)
+    private fun backend(timeout: Long): BackendService {
+        return BaseApi.resultRetrofit(backendBaseUrl, timeout, BuildConfig.DEBUG).create(BackendService::class.java)
     }
 
-    interface PlaceholderService {
-        @GET("/todos/{id}")
-        suspend fun getTodo(@Path(value = "id") todoId: Int): ApiResult<Todo>
-
-        @GET("/users/{id}")
-        suspend fun getUser(@Path(value = "id") userId: Int): ApiResult<User>
+    interface BackendService {
+        @POST("/area_chart")
+        suspend fun getBuffers(@Body roi: ROI.Data): ApiResult<Buffers.Data>
 
         companion object {
-            private var timeout: Long = 20
+            private var timeout: Long = 600
 
-            private val service: PlaceholderService by lazy {
-                placeholder(timeout)
+            private val service: BackendService by lazy {
+                backend(timeout)
             }
 
-            fun instance(timeout: Long = 20): PlaceholderService {
+            fun instance(timeout: Long = 600): BackendService {
                 Companion.timeout = timeout
                 return service
             }

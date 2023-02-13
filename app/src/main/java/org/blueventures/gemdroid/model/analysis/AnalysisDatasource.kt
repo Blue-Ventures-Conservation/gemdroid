@@ -1,9 +1,17 @@
 package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.data.Buffer
+import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
 
-class AnalysisDatasource(private val files: FileService = FileService()) {
+class AnalysisDatasource(
+    private val files: FileService = FileService(),
+    private val backend: Api.BackendService = Api.BackendService.instance()
+) {
     fun getStage(roiDir: File): Stage {
         return try {
             when {
@@ -22,9 +30,23 @@ class AnalysisDatasource(private val files: FileService = FileService()) {
         }
     }
 
+    fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, roiFilename))
+
+    fun saveBuffersFile(roiDir: File, buffers: Buffers.Data) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
+
+    fun getBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
+
+    suspend fun getBuffers(roi: ROI.Data) = backend.getBuffers(roi)
+
+    fun saveBuffer(roiDir: File, buffer: Int): Boolean {
+        val f = files.createFile(roiDir, bufferFile) ?: return false
+        return Buffer.toFile(f, Buffer.Data(buffer))
+    }
+
     companion object {
         // Buffer Stage
         const val bufferFile = "buffer_dist.json"
+        const val buffersChartFile = "buffers_chart.json"
 
         // Visualize Stage
         const val visualizeDir = "visualize"
@@ -74,6 +96,9 @@ class AnalysisDatasource(private val files: FileService = FileService()) {
         const val gainTilesDir = "gain_tiles"
         const val lossTilesDir = "loss_tiles"
         const val persistenceTilesDir = "persistence_tiles"
+
+        // roi file details
+        const val roiFilename = RoiDatasource.filename
     }
 }
 

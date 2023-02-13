@@ -1,34 +1,32 @@
 package org.blueventures.gemdroid.data
 
 import com.squareup.moshi.Json
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.blueventures.gemdroid.model.roi.RoiState
 import java.io.File
 
-data class ROI(
-    @field:Json(name = "buff_dist") val buffDist: Int,
-    @field:Json(name = "name") val name: String,
-    @field:Json(name = "cont_year_start") val contYearStart: Int,
-    @field:Json(name = "cont_year_end") val contYearEnd: Int,
-    @field:Json(name = "hist_year_start") val histYearStart: Int,
-    @field:Json(name = "hist_year_end") val histYearEnd: Int,
-    @field:Json(name = "month_start") val monthStart: Int,
-    @field:Json(name = "month_end") val monthEnd: Int,
-    @field:Json(name = "indices") val indices: List<String>,
-    @field:Json(name = "polygon") val polygon: Polygon,
-)
+object ROI {
+    data class Data(
+        @Json(name = "buff_dist") val buffDist: Int,
+        @Json(name = "name") val name: String,
+        @Json(name = "cont_year_start") val contYearStart: Int,
+        @Json(name = "cont_year_end") val contYearEnd: Int,
+        @Json(name = "hist_year_start") val histYearStart: Int,
+        @Json(name = "hist_year_end") val histYearEnd: Int,
+        @Json(name = "month_start") val monthStart: Int,
+        @Json(name = "month_end") val monthEnd: Int,
+        @Json(name = "indices") val indices: List<String>,
+        @Json(name = "polygon") val polygon: Polygon,
+    )
 
-data class Polygon(
-    @field:Json(name = "type") val type: String,
-    @field:Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
-)
+    data class Polygon(
+        @Json(name = "type") val type: String,
+        @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
+    )
 
-object ROIBuilder {
-    private val adapter = Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(ROI::class.java)
+    private val adapter = FileData.adapter<Data>()
 
-    fun fromState(state: RoiState, buffDist: Int = -1): ROI {
-        return ROI(
+    fun fromState(state: RoiState, buffDist: Int = -1): Data {
+        return Data(
             buffDist,
             state.name,
             state.contemporaryYearStart,
@@ -42,22 +40,12 @@ object ROIBuilder {
         )
     }
 
-    fun fromFile(file: File): ROI? {
-        return try {
-            val json = file.bufferedReader().use { it.readText() }
-            adapter.fromJson(json)
-        } catch(e: Exception) {
-            null
-        }
+    fun fromFile(file: File): Data? {
+        return FileData.fromFile(file, adapter)
     }
 
-    fun toFile(file: File, roi: ROI): Boolean {
-        return try {
-            file.writeText(adapter.toJson(roi))
-            true
-        } catch(e: Exception) {
-            false
-        }
+    fun toFile(file: File, roi: Data): Boolean {
+        return FileData.toFile(file, roi, adapter)
     }
 
     private fun polygonFromState(state: RoiState): Polygon {

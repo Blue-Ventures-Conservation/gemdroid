@@ -7,7 +7,6 @@ import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.SphericalUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.util.Calendar
 import java.util.Collections
@@ -23,9 +22,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
 
     fun saveRoi(filesDir: File, callback: (Boolean) -> Unit) = scoped {
-        newState(_state.value.copy(saving = true))
         repo.saveRoi(filesDir, _state.value).collect {
-            newState(_state.value.copy(saving = false))
             callback(it)
         }
     }
@@ -193,7 +190,6 @@ data class RoiState(
     val monthEnd: Int = RoiViewModel.defaultMonthEnd,
     val indices: Indices = RoiViewModel.defaultIndices,
     val points: ArrayList<LatLng> = arrayListOf(),
-    val saving: Boolean = false,
 )
 
 /**

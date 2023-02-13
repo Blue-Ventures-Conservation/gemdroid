@@ -1,6 +1,5 @@
 package com.github.zibnix.droidbones.mvvm
 
-import android.os.FileUtils
 import java.io.File
 
 open class FileService {
@@ -50,9 +49,9 @@ open class FileService {
         }
     }
 
-    fun createFile(dir: File, name: String, ext: String): File? {
+    fun createFile(dir: File, child: String): File? {
         return try {
-            val f = File(dir, "$name.$ext")
+            val f = File(dir, child)
 
             if (f.exists()) {
                 f
