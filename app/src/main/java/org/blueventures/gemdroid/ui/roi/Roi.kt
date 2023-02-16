@@ -25,6 +25,7 @@ object Roi {
         // ROI list
         b.composable(Routes.list) {
             RoiList.Screen(roiModel, activity.filesDir, snackbar, roiClick = { dir ->
+                analysisModel.clear()
                 analysisModel.setRoiDir(dir)
                 nav.navigate(Analysis.Routes.dashboard)
             }) {

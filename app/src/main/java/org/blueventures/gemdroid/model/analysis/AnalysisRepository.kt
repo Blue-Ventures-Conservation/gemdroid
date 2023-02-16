@@ -18,23 +18,29 @@ class AnalysisRepository(
         emit(dataSource.getStage(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getROI(roiDir: File): Flow<ROI.Data?> = flow {
+    fun getROI(roiDir: File): Flow<ROI?> = flow {
         emit(dataSource.getROI(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffersFile(roiDir: File, buffers: Buffers.Data): Flow<Boolean> = flow {
+    fun saveBuffersFile(roiDir: File, buffers: Buffers): Flow<Boolean> = flow {
         emit(dataSource.saveBuffersFile(roiDir, buffers))
     }.flowOn(ioDispatcher)
 
-    fun getBuffersFile(roiDir: File): Flow<Buffers.Data?> = flow {
+    fun getBuffersFile(roiDir: File): Flow<Buffers?> = flow {
         emit(dataSource.getBuffersFile(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getBuffers(roi: ROI.Data): Flow<ApiResult<Buffers.Data>> = flow {
+    fun getBuffers(roi: ROI): Flow<ApiResult<Buffers>> = flow {
         emit(dataSource.getBuffers(roi))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffer(roiDir: File, buffer: Int): Flow<Boolean> = flow {
-        emit(dataSource.saveBuffer(roiDir, buffer))
+    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int): Flow<Boolean> = flow {
+        val roiCpy = roi.copy(buffDist = buffer)
+        val roiSaved = dataSource.saveROI(roiDir, roiCpy)
+        if (!roiSaved) {
+            emit(false)
+        } else {
+            emit(dataSource.saveBuffer(roiDir, buffer))
+        }
     }.flowOn(ioDispatcher)
 }

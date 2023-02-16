@@ -9,7 +9,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 object Api {
-    private const val backendBaseUrl = "http://192.168.10.174:8080/"
+    private const val backendBaseUrl = "http://192.168.0.54:8080/"
 
     private fun backend(timeout: Long): BackendService {
         return BaseApi.resultRetrofit(backendBaseUrl, timeout, BuildConfig.DEBUG).create(BackendService::class.java)
@@ -17,7 +17,7 @@ object Api {
 
     interface BackendService {
         @POST("/area_chart")
-        suspend fun getBuffers(@Body roi: ROI.Data): ApiResult<Buffers.Data>
+        suspend fun getBuffers(@Body roi: ROI): ApiResult<Buffers>
 
         companion object {
             private var timeout: Long = 600

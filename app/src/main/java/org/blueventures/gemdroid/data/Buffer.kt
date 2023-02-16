@@ -3,18 +3,18 @@ package org.blueventures.gemdroid.data
 import com.squareup.moshi.Json
 import java.io.File
 
-object Buffer {
-    data class Data(
-        @Json(name = "buffer_dist") val buffer: Int
-    )
+data class Buffer(
+    @Json(name = "buffer_dist") val buffer: Int
+){
+    companion object {
+        private val adapter = FileData.adapter<Buffer>()
 
-    private val adapter = FileData.adapter<Data>()
+        fun fromFile(file: File): Buffer? {
+            return FileData.fromFile(file, adapter)
+        }
 
-    fun fromFile(file: File): Data? {
-        return FileData.fromFile(file, adapter)
-    }
-
-    fun toFile(file: File, buffer: Data): Boolean {
-        return FileData.toFile(file, buffer, adapter)
+        fun toFile(file: File, buffer: Buffer): Boolean {
+            return FileData.toFile(file, buffer, adapter)
+        }
     }
 }

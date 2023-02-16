@@ -4,12 +4,20 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,6 +50,18 @@ import org.blueventures.gemdroid.ui.common.Progress
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit) {
+        viewModel.clearStage()
+        val (saving, setSaving) = remember { mutableStateOf(false) }
+
+        if (saving) {
+            Progress()
+        } else {
+            BuffersScreen(viewModel, snackbar, backClick, setSaving)
+        }
+    }
+
+    @Composable
+    fun BuffersScreen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
         val state by viewModel.state.collectAsState()
 
         when {
@@ -58,7 +78,7 @@ object Buffer {
                 viewModel.getBuffersFile()
             }
             !Buffers.isEmpty(state.buffers) -> {
-                Buffers(state.buffers!!)
+                BufferChoice(viewModel, state.buffers!!, snackbar, backClick, saving)
             }
             state.buffersResult == null -> {
                 Progress()
@@ -72,7 +92,7 @@ object Buffer {
             state.buffersResult is ApiResult.Success -> {
                 val buffers = state.buffersResult!!.data!!
                 viewModel.saveBuffersFile(buffers)
-                Buffers(buffers)
+                BufferChoice(viewModel, buffers, snackbar, backClick, saving)
             }
         }
 
@@ -82,7 +102,7 @@ object Buffer {
     }
 
     @Composable
-    fun RefreshableError(viewModel: AnalysisViewModel, roi: ROI.Data) {
+    fun RefreshableError(viewModel: AnalysisViewModel, roi: ROI) {
         var refreshing by remember { mutableStateOf(false) }
 
         SwipeRefresh(
@@ -119,60 +139,142 @@ object Buffer {
     }
 
     @Composable
-    fun Buffers(buffers: Buffers.Data) {
+    fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
+        val (doneEnabled, setDoneEnabled) = remember { mutableStateOf(false) }
+        val (bufferDist, setBufferDist) = remember { mutableStateOf(-1) }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "ROI Buffer", fontSize = 32.sp)
             Chart(buffers)
-            // TODO buffer choice
+            DropDown(buffers) {
+                setBufferDist(it)
+                setDoneEnabled(true)
+            }
+            Button(
+                enabled = doneEnabled,
+                onClick = {
+                    saving(true)
+                    viewModel.saveBuffer(bufferDist) { success ->
+                        saving(false)
+                        if (success) {
+                            backClick()
+                        } else {
+                            snackbar("Could not save buffer selection!")
+                        }
+                    }
+                },
+            ) {
+                Text(text = "Done", fontSize = 18.sp)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun DropDown(buffers: Buffers, setBufferDist: (Int) -> Unit) {
+        val (expanded, setExpanded) = remember { mutableStateOf(false) }
+        val (selected, setSelected) = remember { mutableStateOf("") }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Select buffer distance:",
+                Modifier.padding(start = 8.dp, bottom = 8.dp)
+            )
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { setExpanded(!expanded) }
+            ) {
+                TextField(
+                    selected,
+                    {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier.menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { setExpanded(false) }
+                ) {
+                    buffers.buffers.keys.forEachIndexed { i, label ->
+                        DropdownMenuItem(
+                            onClick = {
+                                setSelected(label)
+                                setBufferDist(buffers.buffers.vals[i])
+                                setExpanded(false)
+                            },
+                            text = {
+                                Text(text = label)
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 
     @Composable
-    fun Chart(buffers: Buffers.Data) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { context ->
-                AnyChartView(context)
-            },
-            update = { chart ->
-                val cartesian = AnyChart.column()
-                val sums = buffers.sums
-                val data = arrayListOf<DataEntry>()
-                sums.keys.forEachIndexed { i, key ->
-                    data.add(ValueDataEntry(key, sums.vals[i]))
+    fun Chart(buffers: Buffers) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "ROI Buffer",
+                fontSize = 32.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.67f),
+                factory = { context ->
+                    AnyChartView(context).apply {
+                        val chart = this
+
+                        val cartesian = AnyChart.column()
+                        val sums = buffers.sums
+                        val data = arrayListOf<DataEntry>()
+                        sums.keys.forEachIndexed { i, key ->
+                            data.add(ValueDataEntry(key, sums.vals[i]))
+                        }
+
+                        val column = cartesian.column(data)
+
+                        column.tooltip()
+                            .titleFormat("{%X}")
+                            .position(Position.CENTER_BOTTOM)
+                            .anchor(Anchor.CENTER_BOTTOM)
+                            .offsetX(0.0)
+                            .offsetY(5.0)
+                            .format("{%Value}{groupsSeparator: }")
+
+                        cartesian.animation(true)
+                        cartesian.title("Mangrove Area by Buffer")
+
+                        cartesian.yScale().minimum(0)
+
+                        cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
+
+                        cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
+                        cartesian.interactivity().hoverMode(HoverMode.BY_X)
+
+                        cartesian.xAxis(0).title("Shoreline Buffer (km)")
+                        cartesian.yAxis(0).title("Area (m²)")
+
+                        chart.setChart(cartesian)
+                    }
                 }
-
-                val column = cartesian.column(data)
-
-                column.tooltip()
-                    .titleFormat("{%X}")
-                    .position(Position.CENTER_BOTTOM)
-                    .anchor(Anchor.CENTER_BOTTOM)
-                    .offsetX(0.0)
-                    .offsetY(5.0)
-                    .format("{%Value}{groupsSeparator: }")
-
-                cartesian.animation(true)
-                cartesian.title("Mangrove Area by Buffer")
-
-                cartesian.yScale().minimum(0)
-
-                cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
-
-                cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
-                cartesian.interactivity().hoverMode(HoverMode.BY_X)
-
-                cartesian.xAxis(0).title("Shoreline Buffer (km)")
-                cartesian.yAxis(0).title("Area (m²)")
-
-                chart.setChart(cartesian)
-            }
-        )
+            )
+        }
     }
 }

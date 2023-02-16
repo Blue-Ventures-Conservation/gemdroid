@@ -47,7 +47,6 @@ object Analysis {
                     nav.navigate(route)
                 }
             }, backClick = {
-                viewModel.clear()
                 nav.popBackStack()
             }, visClick = {
                 nav.navigate(Routes.visualize)
@@ -63,7 +62,6 @@ object Analysis {
         // Buffer selection
         b.composable(Routes.buffer) {
             Buffer.Screen(viewModel, snackbar) {
-                viewModel.clearBuffer()
                 nav.popBackStack()
             }
         }

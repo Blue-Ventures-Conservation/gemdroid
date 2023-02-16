@@ -31,16 +31,17 @@ class AnalysisDatasource(
     }
 
     fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, roiFilename))
+    fun saveROI(roiDir: File, roi: ROI) = ROI.toFile(File(roiDir, roiFilename), roi)
 
-    fun saveBuffersFile(roiDir: File, buffers: Buffers.Data) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
+    fun saveBuffersFile(roiDir: File, buffers: Buffers) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
 
     fun getBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
 
-    suspend fun getBuffers(roi: ROI.Data) = backend.getBuffers(roi)
+    suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
 
     fun saveBuffer(roiDir: File, buffer: Int): Boolean {
         val f = files.createFile(roiDir, bufferFile) ?: return false
-        return Buffer.toFile(f, Buffer.Data(buffer))
+        return Buffer.toFile(f, Buffer(buffer))
     }
 
     companion object {

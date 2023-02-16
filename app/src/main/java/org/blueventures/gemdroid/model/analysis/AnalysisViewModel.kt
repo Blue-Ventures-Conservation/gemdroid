@@ -29,7 +29,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
         }
     }
 
-    fun saveBuffersFile(buffers: Buffers.Data) = scoped {
+    fun saveBuffersFile(buffers: Buffers) = scoped {
         repo.saveBuffersFile(_state.value.roiDir, buffers).collect()
     }
 
@@ -43,25 +43,23 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
         }
     }
 
-    fun getBuffers(roi: ROI.Data, callback: () -> Unit = {}) = scoped {
+    fun getBuffers(roi: ROI, callback: () -> Unit = {}) = scoped {
         repo.getBuffers(roi).collect { result ->
             newState(_state.value.copy(buffersResult = result))
             callback()
         }
     }
 
-    fun clearBuffer() {
-        newState(_state.value.copy(roi = null, buffers = null, buffersResult = null))
-    }
 
     fun saveBuffer(buffer: Int, callback: (Boolean) -> Unit) = scoped {
-        repo.saveBuffer(_state.value.roiDir, buffer).collect {
+        repo.saveBuffer(_state.value.roiDir, _state.value.roi!!.getOrNull()!!, buffer).collect {
             callback(it)
         }
     }
 
     fun setRoiDir(dir: File) = newState(AnalysisState(roiDir = dir))
 
+    fun clearStage() = newState(_state.value.copy(stage = null))
     fun clear() = newState(AnalysisState())
     private fun newState(state: AnalysisState) { _state.value = state }
 }
@@ -69,7 +67,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
 data class AnalysisState(
     val roiDir: File = File(""),
     val stage: Stage? = null,
-    val roi: Result<ROI.Data>? = null,
-    val buffers: Buffers.Data? = null,
-    val buffersResult: ApiResult<Buffers.Data>? = null,
+    val roi: Result<ROI>? = null,
+    val buffers: Buffers? = null,
+    val buffersResult: ApiResult<Buffers>? = null,
 )
