@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.tiles
 
-import android.util.Log
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider

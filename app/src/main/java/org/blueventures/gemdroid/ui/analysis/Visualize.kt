@@ -1,30 +1,23 @@
 package org.blueventures.gemdroid.ui.analysis
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -138,10 +131,10 @@ object Visualize {
                     val mapFragment = mapContainer.getFragment<SupportMapFragment>()
                     mapFragment.getMapAsync { map ->
                         map.clear()
-                        chot = map.addTileOverlay(tileOpts(viewModel.chotTileDir(), urls.chotURL))
-                        clot = map.addTileOverlay(tileOpts(viewModel.clotTileDir(), urls.clotURL))
-                        hhot = map.addTileOverlay(tileOpts(viewModel.hhotTileDir(), urls.hhotURL))
-                        hlot = map.addTileOverlay(tileOpts(viewModel.hlotTileDir(), urls.hlotURL))
+                        chot = map.addTileOverlay(tileOpts(viewModel.chotTileDir(), urls.chotURL, 4f))
+                        clot = map.addTileOverlay(tileOpts(viewModel.clotTileDir(), urls.clotURL, 3f))
+                        hhot = map.addTileOverlay(tileOpts(viewModel.hhotTileDir(), urls.hhotURL, 2f))
+                        hlot = map.addTileOverlay(tileOpts(viewModel.hlotTileDir(), urls.hlotURL, 1f))
 
                         val builder = LatLngBounds.builder()
                         for (pt in viewModel.state.value.roi!!.getOrNull()!!.polygon.coordinates[0]) {
@@ -195,7 +188,7 @@ object Visualize {
         }
     }
 
-    private fun tileOpts(tileDir: File, url: String): TileOverlayOptions {
+    private fun tileOpts(tileDir: File, url: String, zIndex: Float): TileOverlayOptions {
         return TileOverlayOptions().tileProvider(
             CachingUrlTileProvider(
                 tileDir,
@@ -203,6 +196,6 @@ object Visualize {
                 256,
                 256,
             )
-        )
+        ).zIndex(zIndex)
     }
 }
