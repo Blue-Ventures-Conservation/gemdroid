@@ -5,11 +5,11 @@ import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.Buffer
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
 
 class AnalysisDatasource(
-    private val files: FileService = FileService(),
     private val backend: Api.BackendService = Api.BackendService.instance()
 ) {
     fun getStage(roiDir: File): Stage {
@@ -20,8 +20,7 @@ class AnalysisDatasource(
                 File(roiDir, classificationDir).exists() -> Stage.COUNTRY
                 File(roiDir, separabilityDir).exists() -> Stage.CLASSIFICATION
                 File(roiDir, craFile).exists() -> Stage.SEPARABILITY
-                File(roiDir, colorsFiles).exists() -> Stage.CRAS
-                File(roiDir, visualizeDir).exists() -> Stage.COLORS
+                File(roiDir, visualizeDir).exists() -> Stage.CRAS
                 File(roiDir, bufferFile).exists() -> Stage.VISUALIZE
                 else -> Stage.BUFFER
             }
@@ -32,16 +31,27 @@ class AnalysisDatasource(
 
     fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, roiFilename))
     fun saveROI(roiDir: File, roi: ROI) = ROI.toFile(File(roiDir, roiFilename), roi)
-
     fun saveBuffersFile(roiDir: File, buffers: Buffers) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
-
-    fun getBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
-
+    fun loadBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
     suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
 
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Boolean {
+        visualizeTileDirs.forEach { subdir ->
+            FileService.createDir(File(roiDir, visualizeDir), subdir) ?: return false
+        }
+
+        return VisualizeURLs.toFile(File(File(roiDir, visualizeDir), visualizeURLsFile), urls)
+    }
+    fun loadVisualizeURLs(roiDir: File) = VisualizeURLs.fromFile(File(File(roiDir, visualizeDir), visualizeURLsFile))
+    fun deleteVisualizeURLs(roiDir: File) = FileService.deleteFile(File(File(roiDir, visualizeDir), visualizeURLsFile))
+    fun chotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), chotTilesDir)
+    fun clotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), clotTilesDir)
+    fun hhotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hhotTilesDir)
+    fun hlotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hlotTilesDir)
+    suspend fun getVisualizeURLs(roi: ROI) = backend.getVisualizeURLs(roi)
+
     fun saveBuffer(roiDir: File, buffer: Int): Boolean {
-        val f = files.createFile(roiDir, bufferFile) ?: return false
-        return Buffer.toFile(f, Buffer(buffer))
+        return Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
     }
 
     companion object {
@@ -50,14 +60,13 @@ class AnalysisDatasource(
         const val buffersChartFile = "buffers_chart.json"
 
         // Visualize Stage
+        const val visualizeURLsFile = "urls.json"
         const val visualizeDir = "visualize"
         const val chotTilesDir = "chot_tiles"
         const val clotTilesDir = "clot_tiles"
         const val hhotTilesDir = "hhot_tiles"
         const val hlotTilesDir = "hlot_tiles"
-
-        // Colors Stage
-        const val colorsFiles = "colors.json"
+        val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
         // CRAs Stage
         const val craFile = "cras.json"
@@ -104,5 +113,5 @@ class AnalysisDatasource(
 }
 
 enum class Stage {
-    ERROR, BUFFER, VISUALIZE, COLORS, CRAS, SEPARABILITY, CLASSIFICATION, COUNTRY, DYNAMICS, DONE
+    ERROR, BUFFER, VISUALIZE, CRAS, SEPARABILITY, CLASSIFICATION, COUNTRY, DYNAMICS, DONE
 }

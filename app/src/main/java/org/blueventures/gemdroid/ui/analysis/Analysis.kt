@@ -11,7 +11,6 @@ object Analysis {
         const val dashboard = "dashboard"
         const val buffer = "buffer"
         const val visualize = "visualize"
-        const val colors = "colors"
         const val cont_cra = "cont_cra"
         const val hist_cra = "hist_cra"
         const val separabilityDashboard = "sep_dashboard"
@@ -28,7 +27,6 @@ object Analysis {
             return when(stage) {
                 Stage.BUFFER -> buffer
                 Stage.VISUALIZE -> visualize
-                Stage.COLORS -> colors
                 Stage.CRAS -> cont_cra
                 Stage.SEPARABILITY -> separabilityDashboard
                 Stage.CLASSIFICATION -> classification
@@ -64,6 +62,18 @@ object Analysis {
             Buffer.Screen(viewModel, snackbar) {
                 nav.popBackStack()
             }
+        }
+
+        // Visualization
+        b.composable(Routes.visualize) {
+            Visualize.Screen(viewModel, snackbar) {
+                nav.popBackStack()
+            }
+        }
+
+        // CRAs
+        b.composable(Routes.cont_cra) {
+
         }
     }
 }

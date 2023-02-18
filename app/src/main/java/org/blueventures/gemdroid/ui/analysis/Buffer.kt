@@ -3,14 +3,10 @@ package org.blueventures.gemdroid.ui.analysis
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,10 +19,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -39,13 +33,11 @@ import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.api.ApiResult
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.RefreshableError
 
 object Buffer {
     @Composable
@@ -56,12 +48,12 @@ object Buffer {
         if (saving) {
             Progress()
         } else {
-            BuffersScreen(viewModel, snackbar, backClick, setSaving)
+            Buffer(viewModel, snackbar, backClick, setSaving)
         }
     }
 
     @Composable
-    fun BuffersScreen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
+    fun Buffer(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
         val state by viewModel.state.collectAsState()
 
         when {
@@ -75,19 +67,21 @@ object Buffer {
             }
             state.buffers == null -> {
                 Progress()
-                viewModel.getBuffersFile()
+                viewModel.loadBuffersFile()
             }
-            !Buffers.isEmpty(state.buffers) -> {
+            !Buffers.isEmpty(state.buffers!!) -> {
                 BufferChoice(viewModel, state.buffers!!, snackbar, backClick, saving)
             }
             state.buffersResult == null -> {
-                Progress()
+                PleaseWait()
                 state.roi!!.getOrNull()?.let {
                     viewModel.getBuffers(it)
                 }
             }
             state.buffersResult is ApiResult.Error -> {
-                RefreshableError(viewModel, state.roi!!.getOrNull()!!)
+                RefreshableError("ROI Buffer", state.roi!!.getOrNull()!!) { roi, callback ->
+                    viewModel.getBuffers(roi, callback)
+                }
             }
             state.buffersResult is ApiResult.Success -> {
                 val buffers = state.buffersResult!!.data!!
@@ -98,43 +92,6 @@ object Buffer {
 
         BackHandler {
             backClick()
-        }
-    }
-
-    @Composable
-    fun RefreshableError(viewModel: AnalysisViewModel, roi: ROI) {
-        var refreshing by remember { mutableStateOf(false) }
-
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing = refreshing),
-            onRefresh = {
-                refreshing = true
-                viewModel.getBuffers(roi) {
-                    refreshing = false
-                }
-            },
-            indicator = { st, trigger ->
-                SwipeRefreshIndicator(state = st, refreshTriggerDistance = trigger)
-            },
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "ROI Buffer", fontSize = 32.sp)
-                Text(
-                    text = "Could not reach our server! You can swipe down to try again.",
-                    fontSize = 18.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(24.dp)
-                )
-                Spacer(modifier = Modifier.size(0.dp))
-            }
         }
     }
 

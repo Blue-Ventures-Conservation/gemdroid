@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.data
 
+import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import java.io.File
 
@@ -10,14 +11,14 @@ data class CRA(
     @Json(name = "hist_storage_key") val histStorageKey: Boolean,
 ){
     companion object {
-        private val adapter = FileData.adapter<CRA>()
+        private val adapter = FileService.adapter<CRA>()
 
         fun fromFile(file: File): CRA? {
-            return FileData.fromFile(file, adapter)
+            return FileService.fromFile(file, adapter)
         }
 
         fun toFile(file: File, cra: CRA): Boolean {
-            return FileData.toFile(file, cra, adapter)
+            return FileService.toFile(file, cra, adapter)
         }
     }
 }

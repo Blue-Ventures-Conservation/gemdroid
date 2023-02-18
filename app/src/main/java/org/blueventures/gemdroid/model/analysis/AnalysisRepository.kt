@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.data.VisualizeURLs
 import java.io.File
 
 class AnalysisRepository(
@@ -26,8 +27,8 @@ class AnalysisRepository(
         emit(dataSource.saveBuffersFile(roiDir, buffers))
     }.flowOn(ioDispatcher)
 
-    fun getBuffersFile(roiDir: File): Flow<Buffers?> = flow {
-        emit(dataSource.getBuffersFile(roiDir))
+    fun loadBuffersFile(roiDir: File): Flow<Buffers?> = flow {
+        emit(dataSource.loadBuffersFile(roiDir))
     }.flowOn(ioDispatcher)
 
     fun getBuffers(roi: ROI): Flow<ApiResult<Buffers>> = flow {
@@ -35,12 +36,32 @@ class AnalysisRepository(
     }.flowOn(ioDispatcher)
 
     fun saveBuffer(roiDir: File, roi: ROI, buffer: Int): Flow<Boolean> = flow {
-        val roiCpy = roi.copy(buffDist = buffer)
-        val roiSaved = dataSource.saveROI(roiDir, roiCpy)
+        val roiSaved = dataSource.saveROI(roiDir, roi)
         if (!roiSaved) {
             emit(false)
         } else {
             emit(dataSource.saveBuffer(roiDir, buffer))
         }
     }.flowOn(ioDispatcher)
+
+    fun getVisualizeURLs(roi: ROI): Flow<ApiResult<VisualizeURLs>> = flow {
+        emit(dataSource.getVisualizeURLs(roi))
+    }.flowOn(ioDispatcher)
+
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Flow<Boolean> = flow {
+        emit(dataSource.saveVisualizeURLs(roiDir, urls))
+    }.flowOn(ioDispatcher)
+
+    fun loadVisualizeURLs(roiDir: File): Flow<VisualizeURLs?> = flow {
+        emit(dataSource.loadVisualizeURLs(roiDir))
+    }.flowOn(ioDispatcher)
+
+    fun deleteVisualizeURLs(roiDir: File): Flow<Boolean> = flow {
+        emit(dataSource.deleteVisualizeURLs(roiDir))
+    }.flowOn(ioDispatcher)
+
+    fun chotTileDir(roiDir: File): File = dataSource.chotTileDir(roiDir)
+    fun clotTileDir(roiDir: File): File = dataSource.clotTileDir(roiDir)
+    fun hhotTileDir(roiDir: File): File = dataSource.hhotTileDir(roiDir)
+    fun hlotTileDir(roiDir: File): File = dataSource.hlotTileDir(roiDir)
 }

@@ -80,9 +80,6 @@ object Dashboard {
                                     Stage.VISUALIZE -> {
                                         VisualizeRow(visClick)
                                     }
-                                    Stage.COLORS -> {
-                                        VisualizeRow(visClick)
-                                    }
                                     Stage.CRAS -> {
                                         VisualizeRow(visClick)
                                     }

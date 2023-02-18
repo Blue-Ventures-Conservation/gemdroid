@@ -4,6 +4,7 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.BaseApi
 import org.blueventures.gemdroid.BuildConfig
 import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.data.ROI
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -18,6 +19,9 @@ object Api {
     interface BackendService {
         @POST("/area_chart")
         suspend fun getBuffers(@Body roi: ROI): ApiResult<Buffers>
+
+        @POST("/ls_imagery")
+        suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
         companion object {
             private var timeout: Long = 600

@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.data
 
+import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import java.io.File
 
@@ -22,14 +23,14 @@ data class Buffers(
             return b.sums.keys.isEmpty() && b.sums.vals.isEmpty() && b.buffers.keys.isEmpty() && b.buffers.vals.isEmpty()
         }
 
-        private val adapter = FileData.adapter<Buffers>()
+        private val adapter = FileService.adapter<Buffers>()
 
         fun fromFile(file: File): Buffers? {
-            return FileData.fromFile(file, adapter)
+            return FileService.fromFile(file, adapter)
         }
 
         fun toFile(file: File, buffer: Buffers): Boolean {
-            return FileData.toFile(file, buffer, adapter)
+            return FileService.toFile(file, buffer, adapter)
         }
     }
 }

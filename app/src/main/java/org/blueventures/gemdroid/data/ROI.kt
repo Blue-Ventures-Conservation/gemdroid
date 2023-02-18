@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.data
 
+import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.model.roi.RoiState
 import java.io.File
@@ -22,7 +23,7 @@ data class ROI(
             @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
         )
 
-        private val adapter = FileData.adapter<ROI>()
+        private val adapter = FileService.adapter<ROI>()
 
         fun fromState(state: RoiState, buffDist: Int = -1): ROI {
             return ROI(
@@ -40,11 +41,11 @@ data class ROI(
         }
 
         fun fromFile(file: File): ROI? {
-            return FileData.fromFile(file, adapter)
+            return FileService.fromFile(file, adapter)
         }
 
         fun toFile(file: File, roi: ROI): Boolean {
-            return FileData.toFile(file, roi, adapter)
+            return FileService.toFile(file, roi, adapter)
         }
 
         private fun polygonFromState(state: RoiState): Polygon {
