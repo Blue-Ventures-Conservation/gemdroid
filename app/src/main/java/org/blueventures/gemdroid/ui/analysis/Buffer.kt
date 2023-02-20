@@ -15,6 +15,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,13 +36,18 @@ import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.RefreshableError
 
 object Buffer {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit) {
+    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
+        LaunchedEffect(key1 = true) {
+            setAppBarState(AppBarUpdate(title = "ROI Buffer"))
+        }
+
         viewModel.clearStage()
         val (saving, setSaving) = remember { mutableStateOf(false) }
 
@@ -79,7 +85,7 @@ object Buffer {
                 }
             }
             state.buffersResult is ApiResult.Error -> {
-                RefreshableError("ROI Buffer", state.roi!!.getOrNull()!!) { roi, callback ->
+                RefreshableError(state.roi!!.getOrNull()!!) { roi, callback ->
                     viewModel.getBuffers(roi, callback)
                 }
             }
@@ -185,11 +191,6 @@ object Buffer {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "ROI Buffer",
-                fontSize = 32.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()

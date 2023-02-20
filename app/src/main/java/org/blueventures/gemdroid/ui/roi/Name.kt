@@ -12,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,10 +27,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 
 object Name {
     @Composable
-    fun Screen(viewModel: RoiViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+        LaunchedEffect(key1 = true) {
+            setAppBarState(AppBarUpdate(title = "Create ROI"))
+        }
+
         Column(
             modifier = Modifier
                 .padding(64.dp)

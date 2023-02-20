@@ -21,6 +21,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,14 +32,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.Header
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
 object RoiList {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, filesDir: File, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+        LaunchedEffect(key1 = true) {
+            setAppBarState(AppBarUpdate(title = "Regions of Interest"))
+        }
+
         val state by viewModel.state.collectAsState()
         val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }
 
@@ -59,7 +64,6 @@ object RoiList {
                     Icon(Icons.Filled.Add, "Add new ROI")
                 }
                 Column(modifier = Modifier.fillMaxSize()) {
-                    Header(title = "Regions of Interest")
                     ListView(viewModel, roiClick, setDeleteRoi)
                 }
             }

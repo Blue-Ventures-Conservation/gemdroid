@@ -105,9 +105,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
 
     fun setRoiDir(dir: File) = newState(AnalysisState(roiDir = dir))
 
-    fun clearVisualizeURLs() = scoped {
-        newState(_state.value.copy(visualizeURLs = VisualizeURLs.empty(), visualizeURLsResult = null))
-    }
+    fun clearVisualizeURLs() = newState(_state.value.copy(visualizeURLs = VisualizeURLs.empty(), visualizeURLsResult = null))
     fun clearBuffers() = newState(_state.value.copy(buffers = null, buffersResult = null))
     fun clearStage() = newState(_state.value.copy(stage = null))
     fun clear() = newState(AnalysisState())

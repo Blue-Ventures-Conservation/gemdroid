@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.ui.signin
 
 import android.app.Activity
+import android.content.Intent
 import android.content.IntentSender
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -35,44 +36,46 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
+import org.blueventures.gemdroid.MainActivity
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.SignInActivity
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SignInScreen(failedMsg: String?, onClick: () -> Unit) {
-    val snackHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+object SignIn {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun Screen(failedMsg: String?, onClick: () -> Unit) {
+        val snackHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackHostState) }
-    ) { padding ->
-        failedMsg?.let { message ->
-            LaunchedEffect(failedMsg) {
-                scope.launch {
-                    snackHostState.showSnackbar(message)
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackHostState) }
+        ) { padding ->
+            failedMsg?.let { message ->
+                LaunchedEffect(failedMsg) {
+                    scope.launch {
+                        snackHostState.showSnackbar(message)
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier.padding(padding).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.sign_in_prompt),
+                    modifier = Modifier.padding(48.dp),
+                )
+                Button(onClick = {
+                    onClick()
+                }) {
+                    Text(stringResource(R.string.sign_in_label), fontSize = 24.sp)
                 }
             }
         }
-
-        Column(
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(R.string.sign_in_prompt),
-                modifier = Modifier.padding(48.dp),
-            )
-            Button(onClick = {
-                onClick()
-            }) {
-                Text(stringResource(R.string.sign_in_label), fontSize = 24.sp)
-            }
-        }
     }
-}
 
-object SignIn {
     private const val TAG = "Signer"
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
@@ -149,5 +152,24 @@ object SignIn {
                 Log.d(TAG, "result not OK")
             }
         }
+    }
+
+    fun signedIn(activity: ComponentActivity) {
+        val intent = Intent(activity, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        activity.startActivity(intent)
+        activity.finish()
+    }
+
+    fun signOut(activity: ComponentActivity, auth: FirebaseAuth) {
+        auth.signOut()
+        signedOut(activity)
+    }
+
+    private fun signedOut(activity: ComponentActivity) {
+        val intent = Intent(activity, SignInActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        activity.startActivity(intent)
+        activity.finish()
     }
 }

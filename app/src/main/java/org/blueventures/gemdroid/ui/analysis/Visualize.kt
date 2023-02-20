@@ -5,19 +5,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +35,7 @@ import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.RefreshableError
@@ -45,14 +43,15 @@ import java.io.File
 
 object Visualize {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit) {
+    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
+        setAppBarState(AppBarUpdate(title = "Visualize Imagery"))
         viewModel.clearStage()
         viewModel.clearBuffers()
-        Visualize(viewModel, snackbar, backClick)
+        Visualize(viewModel, setAppBarState, snackbar, backClick)
     }
 
     @Composable
-    fun Visualize(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit) {
+    fun Visualize(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
         val state by viewModel.state.collectAsState()
 
         when {
@@ -69,7 +68,7 @@ object Visualize {
                 viewModel.loadVisualizeURLs()
             }
             !VisualizeURLs.isEmpty(state.visualizeURLs!!) -> {
-                VisualizeMap(viewModel, state.visualizeURLs!!, snackbar)
+                VisualizeMap(viewModel, state.visualizeURLs!!, setAppBarState)
             }
             state.visualizeURLsResult == null -> {
                 PleaseWait()
@@ -78,14 +77,14 @@ object Visualize {
                 }
             }
             state.visualizeURLsResult is ApiResult.Error -> {
-                RefreshableError("Visualize Imagery", state.roi!!.getOrNull()!!) { roi, callback ->
+                RefreshableError(state.roi!!.getOrNull()!!) { roi, callback ->
                     viewModel.getVisualizeURLs(roi, callback)
                 }
             }
             state.visualizeURLsResult is ApiResult.Success -> {
                 val urls = state.visualizeURLsResult!!.data!!
                 viewModel.saveVisualizeURLs(urls)
-                VisualizeMap(viewModel, urls, snackbar)
+                VisualizeMap(viewModel, urls, setAppBarState)
             }
         }
 
@@ -94,103 +93,128 @@ object Visualize {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    private fun chotCheck(check: Boolean) = chotCheckCall(check)
+    private var chotCheckCall: ((Boolean) -> Unit) = {}
+    private fun clotCheck(check: Boolean) = clotCheckCall(check)
+    private var clotCheckCall: ((Boolean) -> Unit) = {}
+    private fun hhotCheck(check: Boolean) = hhotCheckCall(check)
+    private var hhotCheckCall: ((Boolean) -> Unit) = {}
+    private fun hlotCheck(check: Boolean) = hlotCheckCall(check)
+    private var hlotCheckCall: ((Boolean) -> Unit) = {}
+    private fun chotChecked() = chotCheckedCall()
+    private var chotCheckedCall: (() -> Boolean) = { true }
+    private fun clotChecked() = clotCheckedCall()
+    private var clotCheckedCall: (() -> Boolean) = { true }
+    private fun hhotChecked() = hhotCheckedCall()
+    private var hhotCheckedCall: (() -> Boolean) = { true }
+    private fun hlotChecked() = hlotCheckedCall()
+    private var hlotCheckedCall: (() -> Boolean) = { true }
+
     @Composable
-    fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, snackbar: (String) -> Unit) {
+    fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, setAppBarState: (AppBarUpdate) -> Unit) {
+        LaunchedEffect(key1 = true) {
+            setAppBarState(AppBarUpdate(
+                title = "VisualizeImagery",
+                actions = {
+                    MapVisualizeDropDown(
+                        Visualize::chotChecked, Visualize::chotCheck,
+                        Visualize::clotChecked, Visualize::clotCheck,
+                        Visualize::hhotChecked, Visualize::hhotCheck,
+                        Visualize::hlotChecked, Visualize::hlotCheck
+                    )
+                }
+            ))
+        }
+
         var chot: TileOverlay? = null
         var clot: TileOverlay? = null
         var hhot: TileOverlay? = null
         var hlot: TileOverlay? = null
+        var isChotChecked by remember { mutableStateOf(true) }
+        var isClotChecked by remember { mutableStateOf(true) }
+        var isHhotChecked by remember { mutableStateOf(true) }
+        var isHlotChecked by remember { mutableStateOf(true) }
+        chotCheckCall = {
+            chot?.isVisible = it
+            isChotChecked = it
+        }
+        chotCheckedCall = {
+            isChotChecked
+        }
+        clotCheckCall = {
+            clot?.isVisible = it
+            isClotChecked = it
+        }
+        clotCheckedCall = {
+            isClotChecked
+        }
+        hhotCheckCall = {
+            hhot?.isVisible = it
+            isHhotChecked = it
+        }
+        hhotCheckedCall = {
+            isHhotChecked
+        }
+        hlotCheckCall = {
+            hlot?.isVisible = it
+            isHlotChecked = it
+        }
+        hlotCheckedCall = {
+            isHlotChecked
+        }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    title = { Text("Visualize Imagery") },
-                    actions = {
-                        MapVisualizeDropDown(
-                            chotCheck = {
-                                chot?.isVisible = it
-                        },clotCheck = {
-                            clot?.isVisible = it
-                        }, hhotCheck = {
-                            hhot?.isVisible = it
-                        }, hlotCheck = {
-                            hlot?.isVisible = it
-                        })
-                    }
-                )
-            }
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-            ) {
-                AndroidViewBinding(MapContainerBinding::inflate) {
-                    val mapFragment = mapContainer.getFragment<SupportMapFragment>()
-                    mapFragment.getMapAsync { map ->
-                        map.clear()
-                        chot = map.addTileOverlay(tileOpts(viewModel.chotTileDir(), urls.chotURL, 4f))
-                        clot = map.addTileOverlay(tileOpts(viewModel.clotTileDir(), urls.clotURL, 3f))
-                        hhot = map.addTileOverlay(tileOpts(viewModel.hhotTileDir(), urls.hhotURL, 2f))
-                        hlot = map.addTileOverlay(tileOpts(viewModel.hlotTileDir(), urls.hlotURL, 1f))
+            AndroidViewBinding(MapContainerBinding::inflate) {
+                val mapFragment = mapContainer.getFragment<SupportMapFragment>()
+                mapFragment.getMapAsync { map ->
+                    map.clear()
+                    val roiDir = viewModel.state.value.roiDir
+                    chot = map.addTileOverlay(tileOpts(roiDir, viewModel.chotTileDir(), urls.chotURL, 4f))
+                    clot = map.addTileOverlay(tileOpts(roiDir, viewModel.clotTileDir(), urls.clotURL, 3f))
+                    hhot = map.addTileOverlay(tileOpts(roiDir, viewModel.hhotTileDir(), urls.hhotURL, 2f))
+                    hlot = map.addTileOverlay(tileOpts(roiDir, viewModel.hlotTileDir(), urls.hlotURL, 1f))
 
-                        val builder = LatLngBounds.builder()
-                        for (pt in viewModel.state.value.roi!!.getOrNull()!!.polygon.coordinates[0]) {
-                            builder.include(LatLng(pt[1], pt[0]))
-                        }
-                        map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
+                    val builder = LatLngBounds.builder()
+                    for (pt in viewModel.state.value.roi!!.getOrNull()!!.polygon.coordinates[0]) {
+                        builder.include(LatLng(pt[1], pt[0]))
                     }
+                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
                 }
             }
         }
     }
 
     @Composable
-    fun MapVisualizeDropDown(chotCheck: (Boolean) -> Unit, clotCheck: (Boolean) -> Unit, hhotCheck: (Boolean) -> Unit, hlotCheck: (Boolean) -> Unit) {
+    fun MapVisualizeDropDown(chotChecked: () -> Boolean, chotCheck: (Boolean) -> Unit, clotChecked: () -> Boolean, clotCheck: (Boolean) -> Unit, hhotChecked: () -> Boolean, hhotCheck: (Boolean) -> Unit, hlotChecked: () -> Boolean, hlotCheck: (Boolean) -> Unit) {
         val (menu, setMenu) = remember { mutableStateOf(false) }
-        var chotChecked by remember { mutableStateOf(true) }
-        var clotChecked by remember { mutableStateOf(true) }
-        var hhotChecked by remember { mutableStateOf(true) }
-        var hlotChecked by remember { mutableStateOf(true) }
         IconButton(onClick = { setMenu(!menu) }) {
             Icon(Icons.Filled.MoreVert, "")
         }
         DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }) {
-            MapVisualizeMenuItem("Contemporary High Tide", chotChecked) {
-                chotChecked = it
-                chotCheck(it)
-            }
-            MapVisualizeMenuItem("Contemporary Low Tide", clotChecked) {
-                clotChecked = it
-                clotCheck(it)
-            }
-            MapVisualizeMenuItem("Historical High Tide", hhotChecked) {
-                hhotChecked = it
-                hhotCheck(it)
-            }
-            MapVisualizeMenuItem("Historical Low Tide", hlotChecked) {
-                hlotChecked = it
-                hlotCheck(it)
-            }
+            MapVisualizeMenuItem("Contemporary High Tide", chotChecked, chotCheck)
+            MapVisualizeMenuItem("Contemporary Low Tide", clotChecked, clotCheck)
+            MapVisualizeMenuItem("Historical High Tide", hhotChecked, hhotCheck)
+            MapVisualizeMenuItem("Historical Low Tide", hlotChecked, hlotCheck)
         }
     }
 
     @Composable
-    fun MapVisualizeMenuItem(title: String, checked: Boolean, onCheck: (Boolean) -> Unit) {
+    fun MapVisualizeMenuItem(title: String, checked: () -> Boolean, onCheck: (Boolean) -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Checkbox(checked = checked, onCheckedChange = onCheck)
+            Checkbox(checked = checked(), onCheckedChange = onCheck)
             Text(title, modifier = Modifier.padding(end = 8.dp))
         }
     }
 
-    private fun tileOpts(tileDir: File, url: String, zIndex: Float): TileOverlayOptions {
+    private fun tileOpts(roiDir: File, tileDir: File, url: String, zIndex: Float): TileOverlayOptions {
         return TileOverlayOptions().tileProvider(
             CachingUrlTileProvider(
+                roiDir,
                 tileDir,
                 url,
                 256,

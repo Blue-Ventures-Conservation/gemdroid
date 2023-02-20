@@ -20,6 +20,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,14 +30,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
-import org.blueventures.gemdroid.ui.common.Header
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
+    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
         val state by viewModel.state.collectAsState()
+
+        LaunchedEffect(key1 = true) {
+            setAppBarState(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
+        }
 
         if (state.stage == null) {
             Progress()
@@ -45,7 +50,6 @@ object Dashboard {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                Header("${state.roiDir.name} Analysis")
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -176,8 +180,8 @@ object Dashboard {
             Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(24.dp))
             Icon(
                 Icons.Filled.ArrowForward, "Go to $title", modifier = Modifier
-                .padding(20.dp)
-                .size(32.dp))
+                    .padding(20.dp)
+                    .size(32.dp))
         }
         Divider(color = SkyBlue, thickness = 1.dp)
     }

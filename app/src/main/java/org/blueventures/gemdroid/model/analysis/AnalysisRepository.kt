@@ -56,10 +56,6 @@ class AnalysisRepository(
         emit(dataSource.loadVisualizeURLs(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun deleteVisualizeURLs(roiDir: File): Flow<Boolean> = flow {
-        emit(dataSource.deleteVisualizeURLs(roiDir))
-    }.flowOn(ioDispatcher)
-
     fun chotTileDir(roiDir: File): File = dataSource.chotTileDir(roiDir)
     fun clotTileDir(roiDir: File): File = dataSource.clotTileDir(roiDir)
     fun hhotTileDir(roiDir: File): File = dataSource.hhotTileDir(roiDir)

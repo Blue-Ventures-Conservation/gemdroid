@@ -15,14 +15,14 @@ class AnalysisDatasource(
     fun getStage(roiDir: File): Stage {
         return try {
             when {
-                File(roiDir, dynamicsDir).exists() -> Stage.DONE
-                File(roiDir, countryFile).exists() -> Stage.DYNAMICS
-                File(roiDir, classificationDir).exists() -> Stage.COUNTRY
-                File(roiDir, separabilityDir).exists() -> Stage.CLASSIFICATION
-                File(roiDir, craFile).exists() -> Stage.SEPARABILITY
-                File(roiDir, visualizeDir).exists() -> Stage.CRAS
-                File(roiDir, bufferFile).exists() -> Stage.VISUALIZE
-                else -> Stage.BUFFER
+                !File(roiDir, bufferFile).exists() -> Stage.BUFFER
+                !File(roiDir, visualizeDir).exists() -> Stage.VISUALIZE
+                !File(roiDir, craFile).exists() -> Stage.CRAS
+                !File(roiDir, separabilityDir).exists() -> Stage.SEPARABILITY
+                !File(roiDir, classificationDir).exists() -> Stage.CLASSIFICATION
+                !File(roiDir, countryFile).exists() -> Stage.COUNTRY
+                !File(roiDir, dynamicsDir).exists() -> Stage.DYNAMICS
+                else -> Stage.DONE
             }
         } catch(e: Exception) {
             Stage.ERROR
@@ -43,7 +43,6 @@ class AnalysisDatasource(
         return VisualizeURLs.toFile(File(File(roiDir, visualizeDir), visualizeURLsFile), urls)
     }
     fun loadVisualizeURLs(roiDir: File) = VisualizeURLs.fromFile(File(File(roiDir, visualizeDir), visualizeURLsFile))
-    fun deleteVisualizeURLs(roiDir: File) = FileService.deleteFile(File(File(roiDir, visualizeDir), visualizeURLsFile))
     fun chotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), chotTilesDir)
     fun clotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), clotTilesDir)
     fun hhotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hhotTilesDir)

@@ -25,7 +25,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.blueventures.gemdroid.data.ROI
 
 @Composable
-fun RefreshableError(title: String, roi: ROI, fetchFunc: (ROI, () -> Unit) -> Unit) {
+fun RefreshableError(roi: ROI, fetchFunc: (ROI, () -> Unit) -> Unit) {
     var refreshing by remember { mutableStateOf(false) }
 
     SwipeRefresh(
@@ -49,7 +49,6 @@ fun RefreshableError(title: String, roi: ROI, fetchFunc: (ROI, () -> Unit) -> Un
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = title, fontSize = 32.sp)
             Text(
                 text = "Could not reach our server! You can swipe down to try again.",
                 fontSize = 18.sp,

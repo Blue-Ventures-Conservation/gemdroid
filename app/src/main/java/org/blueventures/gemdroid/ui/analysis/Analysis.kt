@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 
 object Analysis {
     object Routes {
@@ -37,10 +38,10 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
         // Dashboard
         b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, snackbar, nextClick = { stage ->
+            Dashboard.Screen(viewModel, setAppBarState, snackbar, nextClick = { stage ->
                 Routes.dashboardNext(stage)?.let { route ->
                     nav.navigate(route)
                 }
@@ -59,14 +60,14 @@ object Analysis {
 
         // Buffer selection
         b.composable(Routes.buffer) {
-            Buffer.Screen(viewModel, snackbar) {
+            Buffer.Screen(viewModel, setAppBarState, snackbar) {
                 nav.popBackStack()
             }
         }
 
         // Visualization
         b.composable(Routes.visualize) {
-            Visualize.Screen(viewModel, snackbar) {
+            Visualize.Screen(viewModel, setAppBarState, snackbar) {
                 nav.popBackStack()
             }
         }

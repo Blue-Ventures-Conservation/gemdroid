@@ -8,6 +8,7 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popUpTo
 import org.blueventures.gemdroid.ui.analysis.Analysis
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 
 object Roi {
     object Routes {
@@ -21,10 +22,10 @@ object Roi {
         const val overview = "roi_overview"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: ComponentActivity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: ComponentActivity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
         // ROI list
         b.composable(Routes.list) {
-            RoiList.Screen(roiModel, activity.filesDir, snackbar, roiClick = { dir ->
+            RoiList.Screen(roiModel, activity.filesDir, setAppBarState, snackbar, roiClick = { dir ->
                 analysisModel.clear()
                 analysisModel.setRoiDir(dir)
                 nav.navigate(Analysis.Routes.dashboard)
@@ -35,7 +36,7 @@ object Roi {
 
         // ROI name creation
         b.composable(Routes.name) {
-            Name.Screen(roiModel, snackbar, backClick = {
+            Name.Screen(roiModel, setAppBarState, snackbar, backClick = {
                 roiModel.clear()
                 nav.popBackStack()
             }) {
