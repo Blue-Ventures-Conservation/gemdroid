@@ -40,9 +40,7 @@ import java.io.File
 object RoiList {
     @Composable
     fun Screen(viewModel: RoiViewModel, filesDir: File, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
-        LaunchedEffect(key1 = true) {
-            setAppBarState(AppBarUpdate(title = "Regions of Interest"))
-        }
+        setAppBarState(AppBarUpdate(title = "Regions of Interest"))
 
         val state by viewModel.state.collectAsState()
         val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }

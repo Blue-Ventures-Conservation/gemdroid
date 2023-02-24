@@ -39,9 +39,7 @@ object Dashboard {
     fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
         val state by viewModel.state.collectAsState()
 
-        LaunchedEffect(key1 = true) {
-            setAppBarState(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
-        }
+        setAppBarState(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
 
         if (state.stage == null) {
             Progress()
@@ -60,8 +58,10 @@ object Dashboard {
                     val stage = state.stage!!
                     when (stage) {
                         Stage.ERROR -> {
-                            snackbar("Could not read filesystem state!")
-                            backClick()
+                            LaunchedEffect(key1 = true) {
+                                snackbar("Could not read filesystem state!")
+                                backClick()
+                            }
                         }
                         Stage.BUFFER -> {
                             Spacer(modifier = Modifier.height(0.dp))

@@ -52,10 +52,12 @@ android {
 
 dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
+    implementation 'org.osmdroid:osmdroid-shape:6.1.14'
 
     implementation platform('com.google.firebase:firebase-bom:31.2.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
 
     def nav_version = "2.5.3"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"

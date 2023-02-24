@@ -44,9 +44,7 @@ import org.blueventures.gemdroid.ui.common.RefreshableError
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
-        LaunchedEffect(key1 = true) {
-            setAppBarState(AppBarUpdate(title = "ROI Buffer"))
-        }
+        setAppBarState(AppBarUpdate(title = "ROI Buffer"))
 
         viewModel.clearStage()
         val (saving, setSaving) = remember { mutableStateOf(false) }
@@ -68,8 +66,11 @@ object Buffer {
                 viewModel.getROI()
             }
             state.roi!!.isFailure -> {
-                snackbar(state.roi!!.toString())
-                backClick()
+                Progress()
+                LaunchedEffect(key1 = true) {
+                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
+                    backClick()
+                }
             }
             state.buffers == null -> {
                 Progress()

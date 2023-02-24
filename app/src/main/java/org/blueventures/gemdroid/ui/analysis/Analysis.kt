@@ -5,7 +5,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
+import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.navigateSingleTopTo
+import org.blueventures.gemdroid.popPreviousTo
+import org.blueventures.gemdroid.popUpTo
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
     object Routes {
@@ -38,7 +43,7 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, roiModel: RoiViewModel, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
         // Dashboard
         b.composable(Routes.dashboard) {
             Dashboard.Screen(viewModel, setAppBarState, snackbar, nextClick = { stage ->
@@ -46,7 +51,8 @@ object Analysis {
                     nav.navigate(route)
                 }
             }, backClick = {
-                nav.popBackStack()
+                roiModel.clear()
+                nav.popPreviousTo(Roi.Routes.list)
             }, visClick = {
                 nav.navigate(Routes.visualize)
             }, sepClick = {

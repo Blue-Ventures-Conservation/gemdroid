@@ -60,8 +60,10 @@ object Visualize {
                 viewModel.getROI()
             }
             state.roi!!.isFailure -> {
-                snackbar(state.roi!!.toString())
-                backClick()
+                LaunchedEffect(key1 = true) {
+                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
+                    backClick()
+                }
             }
             state.visualizeURLs == null -> {
                 Progress()

@@ -69,8 +69,10 @@ fun GEMApp(activity: ComponentActivity) {
         )) }
 
         val setAppBarState: (AppBarUpdate) -> Unit = {
-            val acts = it.actions ?: appBarState.update.actions
-            abs(appBarState.copy(update = AppBarUpdate(it.title, acts)))
+            if (it.title != appBarState.update.title) {
+                val acts = it.actions ?: appBarState.update.actions
+                abs(appBarState.copy(update = AppBarUpdate(it.title, acts)))
+            }
         }
 
         Scaffold(
@@ -92,7 +94,7 @@ fun GEMApp(activity: ComponentActivity) {
                     .fillMaxSize()
             ) {
                 Roi.screens(this, nav, activity, roiModel, analysisModel, setAppBarState, snackbar)
-                Analysis.screens(this, nav, analysisModel, setAppBarState, snackbar)
+                Analysis.screens(this, nav, roiModel, analysisModel, setAppBarState, snackbar)
             }
         }
     }
@@ -103,3 +105,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
 
 fun NavHostController.popUpTo(route: String) =
     this.navigate(route) { popUpTo(route) { inclusive = true } }
+
+fun NavHostController.popPreviousTo(route: String) {
+    this.navigate(route) { popUpTo(this@popPreviousTo.currentBackStackEntry?.destination?.route ?: route) { inclusive = true } }
+}

@@ -32,9 +32,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 object Name {
     @Composable
     fun Screen(viewModel: RoiViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
-        LaunchedEffect(key1 = true) {
-            setAppBarState(AppBarUpdate(title = "Create ROI"))
-        }
+        setAppBarState(AppBarUpdate(title = "Create ROI"))
 
         Column(
             modifier = Modifier

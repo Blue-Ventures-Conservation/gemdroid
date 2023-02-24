@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.navigateSingleTopTo
+import org.blueventures.gemdroid.popPreviousTo
 import org.blueventures.gemdroid.popUpTo
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -28,9 +30,9 @@ object Roi {
             RoiList.Screen(roiModel, activity.filesDir, setAppBarState, snackbar, roiClick = { dir ->
                 analysisModel.clear()
                 analysisModel.setRoiDir(dir)
-                nav.navigate(Analysis.Routes.dashboard)
+                nav.popPreviousTo(Analysis.Routes.dashboard)
             }) {
-                nav.navigate(Routes.name)
+                nav.popPreviousTo(Routes.name)
             }
         }
 
@@ -38,7 +40,7 @@ object Roi {
         b.composable(Routes.name) {
             Name.Screen(roiModel, setAppBarState, snackbar, backClick = {
                 roiModel.clear()
-                nav.popBackStack()
+                nav.popPreviousTo(Routes.list)
             }) {
                 nav.navigate(Routes.contemporaryYears)
             }
