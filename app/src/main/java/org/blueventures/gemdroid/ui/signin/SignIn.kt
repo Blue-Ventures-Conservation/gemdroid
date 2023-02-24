@@ -4,7 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.util.Log
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +21,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -35,6 +37,8 @@ import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.MainActivity
 import org.blueventures.gemdroid.R
@@ -43,7 +47,7 @@ import org.blueventures.gemdroid.SignInActivity
 object SignIn {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Screen(message: String, onClick: () -> Unit) {
+    fun Screen(activity: Activity) {
         val snackHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
         val snackbar: (String) -> Unit = { msg ->
@@ -51,16 +55,30 @@ object SignIn {
                 snackHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
             }
         }
+        val (msg, setMsg) = remember { mutableStateOf("") }
+
+        val oneTapClient = Identity.getSignInClient(activity)
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            onSignInResult(activity, result, oneTapClient, Firebase.auth) { user ->
+                user?.let {
+                    signedIn(activity)
+                } ?: run {
+                    setMsg(activity.getString(R.string.sign_in_failed))
+                }
+            }
+        }
 
         Scaffold(
             snackbarHost = { SnackbarHost(snackHostState) }
         ) { padding ->
-            if (message.isNotEmpty()) {
-                snackbar(message)
+            if (msg.isNotEmpty()) {
+                snackbar(msg)
             }
 
             Column(
-                modifier = Modifier.padding(padding).fillMaxSize(),
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -69,7 +87,8 @@ object SignIn {
                     modifier = Modifier.padding(48.dp),
                 )
                 Button(onClick = {
-                    onClick()
+                    setMsg("")
+                    doSignIn(activity, oneTapClient, launcher)
                 }) {
                     Text(stringResource(R.string.sign_in_label), fontSize = 24.sp)
                 }
@@ -78,17 +97,12 @@ object SignIn {
     }
 
     private const val TAG = "Signer"
-    private lateinit var oneTapClient: SignInClient
-    private lateinit var signInRequest: BeginSignInRequest
-    private var launcher: ActivityResultLauncher<IntentSenderRequest>? = null
 
-    fun doSignIn(activity: Activity) {
-        oneTapClient = Identity.getSignInClient(activity);
-        signInRequest = BeginSignInRequest.builder()
+    private fun doSignIn(activity: Activity, oneTapClient: SignInClient, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        val signInRequest = BeginSignInRequest.builder()
             .setPasswordRequestOptions(
                 BeginSignInRequest.PasswordRequestOptions.builder()
-                    .setSupported(false)
-                    .build()
+                    .setSupported(false).build()
             )
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
@@ -96,17 +110,15 @@ object SignIn {
                     // Your server's client ID, not your Android client ID.
                     .setServerClientId(activity.getString(R.string.default_web_client_id))
                     // Only show accounts previously used to sign in?
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
+                    .setFilterByAuthorizedAccounts(false).build()
             )
             // Automatically sign in when exactly one credential is retrieved.
-            .setAutoSelectEnabled(false)
-            .build();
+            .setAutoSelectEnabled(false).build()
 
         oneTapClient.beginSignIn(signInRequest)
             .addOnSuccessListener(activity) { result ->
                 try {
-                    launcher?.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
+                    launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e(TAG, "could not send intent: ${e.message}")
                 }
@@ -118,56 +130,51 @@ object SignIn {
             }
     }
 
-    fun registerForSignIn(activity: ComponentActivity, auth: FirebaseAuth, onResult: (user: FirebaseUser?) -> Unit) {
-        launcher = activity.registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                try {
-                    val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                    val idToken = credential.googleIdToken
-                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                    auth.signInWithCredential(firebaseCredential)
-                        .addOnCompleteListener(activity) { task ->
-                            if (task.isSuccessful) {
-                                onResult(auth.currentUser)
-                            } else {
-                                onResult(null)
-                            }
-                        }
-                } catch (e: ApiException) {
-                    when (e.statusCode) {
-                        CommonStatusCodes.CANCELED -> {
-                            Log.d(TAG, "One-tap dialog was closed.")
-                        }
-                        CommonStatusCodes.NETWORK_ERROR -> {
-                            Log.d(TAG, "One-tap encountered a network error.")
-                        }
-                        else -> {
-                            Log.d(
-                                TAG, "Couldn't get credential from result." +
-                                        " (${e.localizedMessage})"
-                            )
+    private fun onSignInResult(activity: Activity, result: ActivityResult, oneTapClient: SignInClient, auth: FirebaseAuth, setUser: (FirebaseUser?) -> Unit) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            try {
+                val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
+                val idToken = credential.googleIdToken
+                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                auth.signInWithCredential(firebaseCredential)
+                    .addOnCompleteListener(activity) { task ->
+                        if (task.isSuccessful) {
+                            setUser(auth.currentUser)
+                        } else {
+                            setUser(null)
                         }
                     }
+            } catch (e: ApiException) {
+                when (e.statusCode) {
+                    CommonStatusCodes.CANCELED -> {
+                        Log.d(TAG, "One-tap dialog was closed.")
+                    }
+                    CommonStatusCodes.NETWORK_ERROR -> {
+                        Log.d(TAG, "One-tap encountered a network error.")
+                    }
+                    else -> {
+                        Log.d(TAG, "Couldn't get credential from result." + " (${e.localizedMessage})")
+                    }
                 }
-            } else {
-                Log.d(TAG, "result not OK")
             }
+        } else {
+            Log.d(TAG, "result not OK")
         }
     }
 
-    fun signedIn(activity: ComponentActivity) {
+    fun signedIn(activity: Activity) {
         val intent = Intent(activity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         activity.startActivity(intent)
         activity.finish()
     }
 
-    fun signOut(activity: ComponentActivity, auth: FirebaseAuth) {
+    fun signOut(activity: Activity, auth: FirebaseAuth) {
         auth.signOut()
         signedOut(activity)
     }
 
-    private fun signedOut(activity: ComponentActivity) {
+    private fun signedOut(activity: Activity) {
         val intent = Intent(activity, SignInActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         activity.startActivity(intent)

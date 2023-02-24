@@ -219,8 +219,6 @@ object Visualize {
                 roiDir,
                 tileDir,
                 url,
-                256,
-                256,
             )
         ).zIndex(zIndex)
     }

@@ -94,7 +94,7 @@ fun GEMApp(activity: ComponentActivity) {
                     .fillMaxSize()
             ) {
                 Roi.screens(this, nav, activity, roiModel, analysisModel, setAppBarState, snackbar)
-                Analysis.screens(this, nav, roiModel, analysisModel, setAppBarState, snackbar)
+                Analysis.screens(this, nav, activity, roiModel, analysisModel, setAppBarState, snackbar)
             }
         }
     }

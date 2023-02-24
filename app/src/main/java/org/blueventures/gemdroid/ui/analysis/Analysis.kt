@@ -1,14 +1,13 @@
 package org.blueventures.gemdroid.ui.analysis
 
+import android.app.Activity
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.navigateSingleTopTo
 import org.blueventures.gemdroid.popPreviousTo
-import org.blueventures.gemdroid.popUpTo
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.roi.Roi
 
@@ -43,7 +42,7 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, roiModel: RoiViewModel, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
         // Dashboard
         b.composable(Routes.dashboard) {
             Dashboard.Screen(viewModel, setAppBarState, snackbar, nextClick = { stage ->

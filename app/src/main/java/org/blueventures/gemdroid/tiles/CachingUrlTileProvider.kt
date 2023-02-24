@@ -16,8 +16,8 @@ class CachingUrlTileProvider(
     private val roiDir: File,
     private val tileDir: File,
     private val baseUrl: String,
-    private val width: Int,
-    private val height: Int,
+    private val width: Int = 256,
+    private val height: Int = 256,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): TileProvider {
     private val urlProvider: UrlTileProvider = UrlProvider()

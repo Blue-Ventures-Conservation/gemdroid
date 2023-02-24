@@ -1,12 +1,11 @@
 package org.blueventures.gemdroid.ui.roi
 
-import androidx.activity.ComponentActivity
+import android.app.Activity
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.navigateSingleTopTo
 import org.blueventures.gemdroid.popPreviousTo
 import org.blueventures.gemdroid.popUpTo
 import org.blueventures.gemdroid.ui.analysis.Analysis
@@ -24,7 +23,7 @@ object Roi {
         const val overview = "roi_overview"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: ComponentActivity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
         // ROI list
         b.composable(Routes.list) {
             RoiList.Screen(roiModel, activity.filesDir, setAppBarState, snackbar, roiClick = { dir ->
