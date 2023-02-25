@@ -44,7 +44,7 @@ object Overview {
         ) {
             Text(text = "Overview", fontSize = 32.sp)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 val state by viewModel.state.collectAsState()
@@ -80,7 +80,7 @@ object Overview {
                     }
                 }
             }) {
-                Text(text = "Done", fontSize = 18.sp)
+                Text(text = "Done", fontSize = 20.sp)
             }
         }
     }

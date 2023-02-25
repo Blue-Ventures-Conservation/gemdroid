@@ -62,7 +62,7 @@ object Polygon {
                     clearFunc()
                     viewModel.clearPoints()
                 }) {
-                    Text(text = "Clear", fontSize = 18.sp)
+                    Text(text = "Clear", fontSize = 20.sp)
                 }
                 Button(onClick = {
                     if (viewModel.validatePolygon()) {
@@ -72,7 +72,7 @@ object Polygon {
                         snackbar("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
                     }
                 }) {
-                    Text(text = "Next", fontSize = 18.sp)
+                    Text(text = "Next", fontSize = 20.sp)
                 }
             }
 

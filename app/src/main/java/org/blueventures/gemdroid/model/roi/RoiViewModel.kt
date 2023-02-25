@@ -46,6 +46,11 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         return true
     }
 
+    private val nameRegex = Regex("[a-zA-Z\\d]+[a-zA-Z\\d\\s]*")
+    fun notSpecial(name: String): Boolean {
+        return nameRegex.matches(name)
+    }
+
     fun setName(name: String) = newState(_state.value.copy(name = name))
     fun setContemporaryYearStart(year: Int) = newState(_state.value.copy(contemporaryYearStart = year))
     fun setContemporaryYearEnd(year: Int) = newState(_state.value.copy(contemporaryYearEnd = year))

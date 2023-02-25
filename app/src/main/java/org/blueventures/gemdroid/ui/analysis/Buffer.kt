@@ -46,7 +46,6 @@ object Buffer {
     fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
         setAppBarState(AppBarUpdate(title = "ROI Buffer"))
 
-        viewModel.clearStage()
         val (saving, setSaving) = remember { mutableStateOf(false) }
 
         if (saving) {
@@ -61,17 +60,6 @@ object Buffer {
         val state by viewModel.state.collectAsState()
 
         when {
-            state.roi == null -> {
-                Progress()
-                viewModel.getROI()
-            }
-            state.roi!!.isFailure -> {
-                Progress()
-                LaunchedEffect(key1 = true) {
-                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
-                    backClick()
-                }
-            }
             state.buffers == null -> {
                 Progress()
                 viewModel.loadBuffersFile()
@@ -81,8 +69,10 @@ object Buffer {
             }
             state.buffersResult == null -> {
                 PleaseWait()
-                state.roi!!.getOrNull()?.let {
-                    viewModel.getBuffers(it)
+                LaunchedEffect(key1 = true) {
+                    state.roi!!.getOrNull()?.let {
+                        viewModel.getBuffers(it)
+                    }
                 }
             }
             state.buffersResult is ApiResult.Error -> {
@@ -126,6 +116,7 @@ object Buffer {
                     viewModel.saveBuffer(bufferDist) { success ->
                         saving(false)
                         if (success) {
+                            viewModel.clearStage()
                             backClick()
                         } else {
                             snackbar("Could not save buffer selection!")
@@ -133,7 +124,7 @@ object Buffer {
                     }
                 },
             ) {
-                Text(text = "Done", fontSize = 18.sp)
+                Text(text = "Done", fontSize = 20.sp)
             }
         }
     }
@@ -150,7 +141,8 @@ object Buffer {
         ) {
             Text(
                 text = "Select buffer distance:",
-                Modifier.padding(start = 8.dp, bottom = 8.dp)
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
             )
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -178,7 +170,7 @@ object Buffer {
                                 setExpanded(false)
                             },
                             text = {
-                                Text(text = label)
+                                Text(text = label, fontSize = 16.sp)
                             },
                         )
                     }

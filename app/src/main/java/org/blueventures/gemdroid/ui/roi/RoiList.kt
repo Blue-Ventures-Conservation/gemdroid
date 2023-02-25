@@ -21,7 +21,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Progress
@@ -39,7 +39,7 @@ import java.io.File
 
 object RoiList {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, analysisModel: AnalysisViewModel, filesDir: File, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
         setAppBarState(AppBarUpdate(title = "Regions of Interest"))
 
         val state by viewModel.state.collectAsState()
@@ -107,7 +107,7 @@ object RoiList {
                 ) {
                     Text(
                         text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(24.dp)
                     )

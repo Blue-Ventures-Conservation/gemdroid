@@ -98,6 +98,16 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
         }
     }
 
+    fun getRemoteCRAs() = scoped {
+        repo.getRemoteCRAs { files, err ->
+            files?.let {
+                newState(_state.value.copy(remoteCRAs = Result.success(it)))
+            } ?: run {
+                newState(_state.value.copy(remoteCRAs = Result.failure(Throwable(err))))
+            }
+        }.collect()
+    }
+
     fun chotTileDir(): File = repo.chotTileDir(_state.value.roiDir)
     fun clotTileDir(): File = repo.clotTileDir(_state.value.roiDir)
     fun hhotTileDir(): File = repo.hhotTileDir(_state.value.roiDir)
@@ -108,7 +118,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
     fun clearVisualizeURLs() = newState(_state.value.copy(visualizeURLs = VisualizeURLs.empty(), visualizeURLsResult = null))
     fun clearBuffers() = newState(_state.value.copy(buffers = null, buffersResult = null))
     fun clearStage() = newState(_state.value.copy(stage = null))
-    fun clear() = newState(AnalysisState())
+    fun clear() = newState(AnalysisState(_state.value.roiDir))
     private fun newState(state: AnalysisState) { _state.value = state }
 }
 
@@ -119,5 +129,8 @@ data class AnalysisState(
     val buffers: Buffers? = null,
     val buffersResult: ApiResult<Buffers>? = null,
     val visualizeURLs: VisualizeURLs? = null,
-    val visualizeURLsResult: ApiResult<VisualizeURLs>? = null
+    val visualizeURLsResult: ApiResult<VisualizeURLs>? = null,
+    val remoteCRAs: Result<List<String>>? = null,
+    val contemporaryCRA: CRAFile? = null,
+    val historicalCRA: CRAFile? = null,
 )

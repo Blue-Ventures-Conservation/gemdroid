@@ -8,7 +8,7 @@ data class CRA(
     @Json(name = "spatio_temporal_invariant") val spatioTemporalInvariant: Boolean,
     @Json(name = "use_cont_spec") val useContSpec: Boolean,
     @Json(name = "cont_storage_key") val contStorageKey: String,
-    @Json(name = "hist_storage_key") val histStorageKey: Boolean,
+    @Json(name = "hist_storage_key") val histStorageKey: String,
 ){
     companion object {
         private val adapter = FileService.adapter<CRA>()

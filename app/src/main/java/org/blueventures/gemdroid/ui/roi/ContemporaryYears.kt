@@ -57,7 +57,7 @@ object ContemporaryYears {
                     }
                 }
             ) {
-                Text("Next", fontSize = 18.sp)
+                Text("Next", fontSize = 20.sp)
             }
         }
 

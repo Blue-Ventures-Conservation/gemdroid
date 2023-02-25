@@ -43,28 +43,17 @@ import java.io.File
 
 object Visualize {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
+    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, backClick: () -> Unit) {
         setAppBarState(AppBarUpdate(title = "Visualize Imagery"))
-        viewModel.clearStage()
         viewModel.clearBuffers()
-        Visualize(viewModel, setAppBarState, snackbar, backClick)
+        Visualize(viewModel, setAppBarState, backClick)
     }
 
     @Composable
-    fun Visualize(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
+    fun Visualize(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, backClick: () -> Unit) {
         val state by viewModel.state.collectAsState()
 
         when {
-            state.roi == null -> {
-                Progress()
-                viewModel.getROI()
-            }
-            state.roi!!.isFailure -> {
-                LaunchedEffect(key1 = true) {
-                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
-                    backClick()
-                }
-            }
             state.visualizeURLs == null -> {
                 Progress()
                 viewModel.loadVisualizeURLs()
@@ -74,8 +63,10 @@ object Visualize {
             }
             state.visualizeURLsResult == null -> {
                 PleaseWait()
-                state.roi!!.getOrNull()?.let {
-                    viewModel.getVisualizeURLs(it)
+                LaunchedEffect(key1 = true) {
+                    state.roi!!.getOrNull()?.let {
+                        viewModel.getVisualizeURLs(it)
+                    }
                 }
             }
             state.visualizeURLsResult is ApiResult.Error -> {
@@ -91,6 +82,7 @@ object Visualize {
         }
 
         BackHandler {
+            viewModel.clearStage()
             backClick()
         }
     }
@@ -116,7 +108,7 @@ object Visualize {
     fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, setAppBarState: (AppBarUpdate) -> Unit) {
         LaunchedEffect(key1 = true) {
             setAppBarState(AppBarUpdate(
-                title = "VisualizeImagery",
+                title = "Visualize Imagery",
                 actions = {
                     MapVisualizeDropDown(
                         Visualize::chotChecked, Visualize::chotCheck,

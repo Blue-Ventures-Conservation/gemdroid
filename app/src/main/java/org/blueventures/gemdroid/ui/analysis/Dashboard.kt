@@ -38,98 +38,111 @@ object Dashboard {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
         val state by viewModel.state.collectAsState()
-
         setAppBarState(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
 
-        if (state.stage == null) {
-            Progress()
-            viewModel.refreshStage()
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 64.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val stage = state.stage!!
-                    when (stage) {
-                        Stage.ERROR -> {
-                            LaunchedEffect(key1 = true) {
-                                snackbar("Could not read filesystem state!")
-                                backClick()
-                            }
-                        }
-                        Stage.BUFFER -> {
-                            Spacer(modifier = Modifier.height(0.dp))
-                            Text(
-                                text = "Click Next to start!",
-                                fontSize = 18.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .padding(24.dp)
-                                    .fillMaxWidth()
-                            )
-                        }
-                        else -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .verticalScroll(rememberScrollState())
-                            ) {
-                                when (stage) {
-                                    Stage.VISUALIZE -> {
-                                        VisualizeRow(visClick)
-                                    }
-                                    Stage.CRAS -> {
-                                        VisualizeRow(visClick)
-                                    }
-                                    Stage.SEPARABILITY -> {
-                                        VisualizeRow(visClick)
-                                        SeparabilityRow(sepClick)
-                                    }
-                                    Stage.CLASSIFICATION -> {
-                                        VisualizeRow(visClick)
-                                        SeparabilityRow(sepClick)
-                                        ClassificationRow(classClick)
-                                    }
-                                    Stage.COUNTRY -> {
-                                        VisualizeRow(visClick)
-                                        SeparabilityRow(sepClick)
-                                        ClassificationRow(classClick)
-                                    }
-                                    Stage.DYNAMICS -> {
-                                        VisualizeRow(visClick)
-                                        SeparabilityRow(sepClick)
-                                        ClassificationRow(classClick)
-                                        DynamicsRow(dynClick)
-                                    }
-                                    Stage.DONE -> {
-                                        VisualizeRow(visClick)
-                                        SeparabilityRow(sepClick)
-                                        ClassificationRow(classClick)
-                                        DynamicsRow(dynClick)
-                                    }
-                                    else -> {}
-                                }
-                            }
-                        }
-                    }
-
-                    if (stage != Stage.DONE) {
-                        DashboardNextButton {
-                            nextClick(stage)
-                        }
-                    }
+        when {
+            state.roi == null -> {
+                Progress()
+                viewModel.getROI()
+            }
+            state.roi!!.isFailure -> {
+                Progress()
+                LaunchedEffect(key1 = true) {
+                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
+                    backClick()
                 }
+            }
+            state.stage == null -> {
+                Progress()
+                viewModel.refreshStage()
+            }
+            else -> {
+                Dashboard(state.stage!!, snackbar, nextClick, backClick, visClick, sepClick, classClick, dynClick)
             }
         }
 
         BackHandler {
             backClick()
+        }
+    }
+
+    @Composable
+    fun Dashboard(stage: Stage, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            when (stage) {
+                Stage.ERROR -> {
+                    LaunchedEffect(key1 = true) {
+                        snackbar("Could not read filesystem state!")
+                        backClick()
+                    }
+                }
+                Stage.BUFFER -> {
+                    Spacer(modifier = Modifier.height(0.dp))
+                    Text(
+                        text = "Click Next to start!",
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth()
+                    )
+                }
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        when (stage) {
+                            Stage.VISUALIZE -> {
+                                VisualizeRow(visClick)
+                            }
+                            Stage.CRAS -> {
+                                VisualizeRow(visClick)
+                            }
+                            Stage.SEPARABILITY -> {
+                                VisualizeRow(visClick)
+                                SeparabilityRow(sepClick)
+                            }
+                            Stage.CLASSIFICATION -> {
+                                VisualizeRow(visClick)
+                                SeparabilityRow(sepClick)
+                                ClassificationRow(classClick)
+                            }
+                            Stage.COUNTRY -> {
+                                VisualizeRow(visClick)
+                                SeparabilityRow(sepClick)
+                                ClassificationRow(classClick)
+                            }
+                            Stage.DYNAMICS -> {
+                                VisualizeRow(visClick)
+                                SeparabilityRow(sepClick)
+                                ClassificationRow(classClick)
+                                DynamicsRow(dynClick)
+                            }
+                            Stage.DONE -> {
+                                VisualizeRow(visClick)
+                                SeparabilityRow(sepClick)
+                                ClassificationRow(classClick)
+                                DynamicsRow(dynClick)
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+            }
+
+            if (stage != Stage.DONE) {
+                DashboardNextButton {
+                    nextClick(stage)
+                }
+            }
         }
     }
 
@@ -140,11 +153,9 @@ object Dashboard {
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = {
-                    nextClick()
-                }
+                onClick = nextClick
             ) {
-                Text("Next", fontSize = 18.sp)
+                Text("Next", fontSize = 20.sp)
             }
         }
     }

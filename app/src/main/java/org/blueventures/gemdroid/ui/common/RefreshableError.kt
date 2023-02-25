@@ -51,7 +51,7 @@ fun RefreshableError(roi: ROI, fetchFunc: (ROI, () -> Unit) -> Unit) {
         ) {
             Text(
                 text = "Could not reach our server! You can swipe down to try again.",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(24.dp)
             )

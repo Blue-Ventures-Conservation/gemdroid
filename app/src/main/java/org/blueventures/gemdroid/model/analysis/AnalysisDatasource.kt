@@ -1,6 +1,11 @@
 package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.Buffer
 import org.blueventures.gemdroid.data.Buffers
@@ -10,7 +15,9 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
 
 class AnalysisDatasource(
-    private val backend: Api.BackendService = Api.BackendService.instance()
+    private val backend: Api.BackendService = Api.BackendService.instance(),
+    private val storage: FirebaseStorage = Firebase.storage,
+    private val auth: FirebaseAuth = Firebase.auth,
 ) {
     fun getStage(roiDir: File): Stage {
         return try {
@@ -33,6 +40,9 @@ class AnalysisDatasource(
     fun saveROI(roiDir: File, roi: ROI) = ROI.toFile(File(roiDir, roiFilename), roi)
     fun saveBuffersFile(roiDir: File, buffers: Buffers) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
     fun loadBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
+    fun saveBuffer(roiDir: File, buffer: Int): Boolean {
+        return Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
+    }
     suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
 
     fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Boolean {
@@ -49,8 +59,22 @@ class AnalysisDatasource(
     fun hlotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hlotTilesDir)
     suspend fun getVisualizeURLs(roi: ROI) = backend.getVisualizeURLs(roi)
 
-    fun saveBuffer(roiDir: File, buffer: Int): Boolean {
-        return Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
+    fun getRemoteCRAs(callback: (List<String>?, String) -> Unit) {
+        auth.currentUser?.uid?.let { uid ->
+            storage.reference.child("users/$uid/cras").listAll()
+                .addOnSuccessListener { result ->
+                    val files = arrayListOf<String>()
+                    result.items.forEach {
+                        files.add(it.name)
+                    }
+                    callback(files, "")
+                }
+                .addOnFailureListener {
+                    callback(null, it.message ?: "Error communicating with Cloud Storage")
+                }
+        } ?: run {
+            callback(null, "You don't appear to be logged in!")
+        }
     }
 
     companion object {
@@ -68,6 +92,7 @@ class AnalysisDatasource(
         val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
         // CRAs Stage
+        const val craUploading = "cras_uploading"
         const val craFile = "cras.json"
 
         // Separability Stage

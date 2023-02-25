@@ -12,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +44,11 @@ object Name {
             NameField(viewModel = viewModel)
             NameButton {
                 val name = viewModel.state.value.name
-                if (name.isNotEmpty() && viewModel.isUnique(name)) {
+                if (viewModel.notSpecial(name) && viewModel.isUnique(name)) {
                     viewModel.setName(name)
                     nextClick()
                 } else {
-                    snackbar("Please enter a unique name.")
+                    snackbar("Please enter a unique name without any special characters.")
                 }
             }
         }
@@ -80,7 +79,7 @@ object Name {
         Button(
             onClick = { nextClick() }
         ) {
-            Text("Next", fontSize = 18.sp)
+            Text("Next", fontSize = 20.sp)
         }
     }
 }

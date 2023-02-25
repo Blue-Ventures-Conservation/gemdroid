@@ -56,6 +56,10 @@ class AnalysisRepository(
         emit(dataSource.loadVisualizeURLs(roiDir))
     }.flowOn(ioDispatcher)
 
+    fun getRemoteCRAs(callback: (List<String>?, String) -> Unit) = flow {
+        emit(dataSource.getRemoteCRAs(callback))
+    }.flowOn(ioDispatcher)
+
     fun chotTileDir(roiDir: File): File = dataSource.chotTileDir(roiDir)
     fun clotTileDir(roiDir: File): File = dataSource.clotTileDir(roiDir)
     fun hhotTileDir(roiDir: File): File = dataSource.hhotTileDir(roiDir)
