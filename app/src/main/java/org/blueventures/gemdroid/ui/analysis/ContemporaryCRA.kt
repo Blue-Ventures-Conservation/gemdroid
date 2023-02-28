@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis
 
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,8 +25,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,9 +35,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.model.analysis.AnalysisState
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.analysis.CRAFile
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Progress
+import java.io.InputStream
 
 object ContemporaryCRA {
     @Composable
@@ -49,24 +51,24 @@ object ContemporaryCRA {
 
     @Composable
     fun ContemporaryCRA(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, nextClick: () -> Unit, backClick: () -> Unit) {
-        val state by viewModel.state.collectAsState()
+        val state = viewModel.state.collectAsState()
 
         when {
-            state.remoteCRAs == null -> {
+            state.value.remoteCRAs == null -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
                     viewModel.getRemoteCRAs()
                 }
             }
-            state.remoteCRAs!!.isFailure -> {
+            state.value.remoteCRAs!!.isFailure -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    snackbar(state.remoteCRAs!!.exceptionOrNull()!!.message!!)
+                    snackbar(state.value.remoteCRAs!!.exceptionOrNull()!!.message!!)
                     backClick()
                 }
             }
             else -> {
-                SelectCRA(state.remoteCRAs!!.getOrNull()!!, viewModel, snackbar, nextClick)
+                SelectCRA(state, state.value.remoteCRAs!!.getOrNull()!!, viewModel, snackbar, nextClick)
             }
         }
 
@@ -76,26 +78,56 @@ object ContemporaryCRA {
     }
 
     @Composable
-    fun SelectCRA(remoteCRAs: List<String>, viewModel: AnalysisViewModel, snackbar: (String) -> Unit, nextClick: () -> Unit) {
+    fun SelectCRA(state: State<AnalysisState>, remoteCRAs: List<String>, viewModel: AnalysisViewModel, snackbar: (String) -> Unit, nextClick: () -> Unit) {
         val result = remember { mutableStateOf<List<Uri>?>(null) }
         val (validating, setValidating) = remember { mutableStateOf(false) }
 
         if (validating) {
             Progress()
-            // validate CRAs
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (remoteCRAs.isEmpty()) {
-                    LocalCRA(viewModel, result, setValidating, nextClick)
-                } else {
-                    LocalRemoteSwitch(remoteCRAs, viewModel, result, setValidating, nextClick)
+            if (state.value.localCRAValidation == null) {
+                val streams = arrayListOf<InputStream?>()
+                val names = arrayListOf<String?>()
+                result.value?.forEach { uri ->
+                    streams.add(LocalContext.current.contentResolver.openInputStream(uri))
+                    names.add(CRA.contentDisplayName(LocalContext.current, uri))
                 }
+                viewModel.validateLocalCRA(state.value.roiDir, streams, names)
+            } else {
+                when {
+                    state.value.localCRAValidation!!.isFailure -> {
+                        LaunchedEffect(state.value.localCRAValidation) {
+                            snackbar(state.value.localCRAValidation!!.exceptionOrNull()!!.message!!)
+                            setValidating(false)
+                            result.value = null
+                            viewModel.clearLocalCRAValidation()
+                        }
+                    }
+                    state.value.localCRAValidation!!.isSuccess -> {
+                        LaunchedEffect(key1 = state.value.localCRAValidation) {
+                            viewModel.setContemporaryCRA(CRAFile(localFile = state.value.localCRAValidation!!.getOrNull()))
+                            nextClick()
+                        }
+                    }
+                }
+            }
+        } else {
+            CRASelection(remoteCRAs, viewModel, result, setValidating, nextClick)
+        }
+    }
+
+    @Composable
+    fun CRASelection(remoteCRAs: List<String>, viewModel: AnalysisViewModel, result: MutableState<List<Uri>?>, setValidating: (Boolean) -> Unit, nextClick: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (remoteCRAs.isEmpty()) {
+                LocalCRA(viewModel, result, setValidating, nextClick)
+            } else {
+                LocalRemoteSwitch(remoteCRAs, viewModel, result, setValidating, nextClick)
             }
         }
     }
@@ -120,7 +152,7 @@ object ContemporaryCRA {
         }
 
         if (checkedState.value) {
-            RemoteCRA(remoteCRAs, nextClick)
+            RemoteCRA(viewModel, remoteCRAs, nextClick)
         } else {
             LocalCRA(viewModel, result, setValidating, nextClick)
         }
@@ -157,12 +189,8 @@ object ContemporaryCRA {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            result.value?.forEach {
-                LocalContext.current.contentResolver.query(it, null, null, null, null)?.let { cursor ->
-                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    cursor.moveToFirst()
-                    val name = cursor.getString(nameIndex)
-                    cursor.close()
+            result.value?.forEach { uri ->
+                CRA.contentDisplayName(LocalContext.current, uri)?.let { name ->
                     Text(text = name, fontSize = 16.sp)
                 }
             }
@@ -185,7 +213,7 @@ object ContemporaryCRA {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun RemoteCRA(remoteCRAs: List<String>, nextClick: () -> Unit) {
+    fun RemoteCRA(viewModel: AnalysisViewModel, remoteCRAs: List<String>, nextClick: () -> Unit) {
         val (expanded, setExpanded) = remember { mutableStateOf(false) }
         val (selected, setSelected) = remember { mutableStateOf("") }
         val nextEnabled = remember { mutableStateOf(false) }
@@ -235,7 +263,10 @@ object ContemporaryCRA {
 
         Button(
             enabled = nextEnabled.value,
-            onClick = nextClick,
+            onClick = {
+                viewModel.setContemporaryCRA(CRAFile(storageKey = selected))
+                nextClick()
+            }
         ) {
             Text(text = "Next", fontSize = 16.sp)
         }

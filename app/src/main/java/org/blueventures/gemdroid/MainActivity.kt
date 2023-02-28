@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,6 +34,7 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.SignOut
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
@@ -69,8 +71,8 @@ fun GEMApp(activity: ComponentActivity) {
         )) }
 
         val setAppBarState: (AppBarUpdate) -> Unit = {
-            if (it.title != appBarState.update.title || (appBarState.update.actions == null && it.actions != null)) {
-                val acts = it.actions ?: appBarState.update.actions
+            if (it.title != appBarState.update.title || it.actions != null) {
+                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { SignOut(appBarState.signOut) }
                 abs(appBarState.copy(update = AppBarUpdate(it.title, acts)))
             }
         }

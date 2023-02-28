@@ -10,6 +10,7 @@ import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import java.io.File
+import java.io.InputStream
 
 class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepository()): BaseViewModel() {
     private val _state = MutableStateFlow(AnalysisState())
@@ -108,6 +109,16 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
         }.collect()
     }
 
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>) = scoped {
+        repo.validateLocalCRA(roiDir, files, names).collect {
+            newState(_state.value.copy(localCRAValidation = it))
+        }
+    }
+
+    fun clearLocalCRAValidation() = newState(state.value.copy(localCRAValidation = null))
+    fun setContemporaryCRA(f: CRAFile) = newState(state.value.copy(contemporaryCRA = f))
+    fun setHistoricalCRA(f: CRAFile) = newState(state.value.copy(historicalCRA = f))
+
     fun chotTileDir(): File = repo.chotTileDir(_state.value.roiDir)
     fun clotTileDir(): File = repo.clotTileDir(_state.value.roiDir)
     fun hhotTileDir(): File = repo.hhotTileDir(_state.value.roiDir)
@@ -131,6 +142,7 @@ data class AnalysisState(
     val visualizeURLs: VisualizeURLs? = null,
     val visualizeURLsResult: ApiResult<VisualizeURLs>? = null,
     val remoteCRAs: Result<List<String>>? = null,
+    val localCRAValidation: Result<File>? = null,
     val contemporaryCRA: CRAFile? = null,
     val historicalCRA: CRAFile? = null,
 )

@@ -3,10 +3,18 @@ package com.github.zibnix.droidbones.mvvm
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 object FileService {
     val sep: String = File.separator
+    val buf: Int = 16_384
 
     fun getSubdirs(dir: File): List<File> {
         return try {
@@ -140,6 +148,57 @@ object FileService {
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    fun zip(files: Array<InputStream>, names: List<String?>, path: String): Boolean {
+        if (createFile(File(path.substringBeforeLast(sep)), path.substringAfterLast(sep)) == null) {
+            return false
+        }
+
+        return try {
+            val dest = FileOutputStream(path)
+            val out = ZipOutputStream(BufferedOutputStream(dest))
+            val data = ByteArray(buf)
+            files.forEachIndexed { i, fi ->
+                val origin = BufferedInputStream(fi, buf)
+                val entry = ZipEntry(names[i])
+                out.putNextEntry(entry)
+                var count: Int
+                while (origin.read(data, 0, buf).also { count = it } != -1) {
+                    out.write(data, 0, count)
+                }
+                origin.close()
+            }
+            out.close()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun unzip(zip: InputStream, path: String): List<String>? {
+        return try {
+            val zin = ZipInputStream(zip)
+            val paths = arrayListOf<String>()
+            var ze = zin.nextEntry
+            while (ze != null) {
+                val fpath = path+sep+ze.name
+                val fout = FileOutputStream(fpath)
+                var c: Int = zin.read()
+                while (c != -1) {
+                    fout.write(c)
+                    c = zin.read()
+                }
+                zin.closeEntry()
+                fout.close()
+                paths.add(fpath)
+                ze = zin.nextEntry
+            }
+            zin.close()
+            paths
+        } catch (e: Exception) {
+            null
         }
     }
 

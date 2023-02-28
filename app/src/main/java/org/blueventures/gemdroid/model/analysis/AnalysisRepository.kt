@@ -10,6 +10,7 @@ import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import java.io.File
+import java.io.InputStream
 
 class AnalysisRepository(
     private val dataSource: AnalysisDatasource = AnalysisDatasource(),
@@ -58,6 +59,10 @@ class AnalysisRepository(
 
     fun getRemoteCRAs(callback: (List<String>?, String) -> Unit) = flow {
         emit(dataSource.getRemoteCRAs(callback))
+    }.flowOn(ioDispatcher)
+
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>) = flow {
+        emit(dataSource.validateLocalCRA(roiDir, files, names))
     }.flowOn(ioDispatcher)
 
     fun chotTileDir(roiDir: File): File = dataSource.chotTileDir(roiDir)
