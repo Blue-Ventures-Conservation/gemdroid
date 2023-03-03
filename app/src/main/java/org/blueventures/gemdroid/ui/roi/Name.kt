@@ -27,11 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Name {
     @Composable
-    fun Screen(viewModel: RoiViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
-        setAppBarState(AppBarUpdate(title = "Create ROI"))
+    fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, nextClick: Click) {
+        appBar(AppBarUpdate(title = "Create ROI"))
 
         Column(
             modifier = Modifier
@@ -48,13 +51,13 @@ object Name {
                     viewModel.setName(name)
                     nextClick()
                 } else {
-                    snackbar("Please enter a unique name without any special characters.")
+                    snack("Please enter a unique name without any special characters.")
                 }
             }
         }
 
         BackHandler {
-            backClick()
+            back()
         }
     }
 

@@ -1,0 +1,123 @@
+package org.blueventures.gemdroid.ui.analysis
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.analysis.Fields
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Dropdown
+import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.SnackFun
+
+object CRAFields {
+    @Composable
+    fun Screen(viewModel: AnalysisViewModel, snack: SnackFun, done: Click, back: Click) {
+        val (saving, setSaving) = remember{ mutableStateOf(false) }
+
+        if (saving) {
+            Progress()
+        } else {
+            CRAFields(viewModel, snack, setSaving, done, back)
+        }
+    }
+
+    @Composable
+    fun CRAFields(viewModel: AnalysisViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
+        val state = viewModel.state.collectAsState()
+
+        when {
+            state.value.fields == null -> {
+                Progress()
+                LaunchedEffect(key1 = true) {
+                    viewModel.getCRAFields()
+                }
+            }
+            state.value.fields!!.isFailure -> {
+                Progress()
+                LaunchedEffect(key1 = true) {
+                    snack(state.value.fields!!.exceptionOrNull()!!.message!!)
+                    back()
+                }
+            }
+            state.value.fields!!.getOrNull()!!.complete() -> {
+                Progress()
+                LaunchedEffect(key1 = true) {
+                    viewModel.setFields(state.value.fields!!.getOrNull()!!)
+                    viewModel.saveCRAs {
+                        when {
+                            it.isSuccess -> done()
+                            else -> {
+                                snack(it.exceptionOrNull()!!.message!!)
+                                back()
+                            }
+                        }
+                    }
+                }
+            }
+            else -> {
+                SelectFields(viewModel, state.value.fields!!.getOrNull()!!.list!!, setSaving, snack, done)
+            }
+        }
+
+        BackHandler {
+            back()
+        }
+    }
+
+    @Composable
+    fun SelectFields(viewModel: AnalysisViewModel, fields: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val numeric = remember { mutableStateOf("") }
+            val string = remember { mutableStateOf("") }
+            Dropdown(title = "Select Class Field:", labels = fields) { i ->
+                numeric.value = fields[i]
+            }
+            Dropdown(title = "Select Numeric Class Field:", labels = fields) { i ->
+                string.value = fields[i]
+            }
+
+            Button(
+                enabled = numeric.value.isNotEmpty() && string.value.isNotEmpty(),
+                onClick = {
+                    if (numeric.value == string.value) {
+                        snack("These cannot both be the same field")
+                    } else {
+                        setSaving(true)
+                        viewModel.setFields(Fields(numeric = numeric.value, string = string.value))
+                        viewModel.saveCRAs {
+                            when {
+                                it.isSuccess -> done()
+                                else -> {
+                                    setSaving(false)
+                                    snack(it.exceptionOrNull()!!.message!!)
+                                }
+                            }
+                        }
+                    }
+                }
+            ) {
+                Text(text = "Done", fontSize = 16.sp)
+            }
+        }
+    }
+}

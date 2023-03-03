@@ -30,39 +30,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
 object RoiList {
     @Composable
-    fun Screen(viewModel: RoiViewModel, analysisModel: AnalysisViewModel, filesDir: File, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
-        setAppBarState(AppBarUpdate(title = "Regions of Interest"))
+    fun Screen(viewModel: RoiViewModel, filesDir: File, appbar: AppBarFun, snack: SnackFun, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+        appbar(AppBarUpdate(title = "Regions of Interest"))
 
         val state by viewModel.state.collectAsState()
         val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }
 
         if (toDelete != null) {
-            DeleteDialog(viewModel, snackbar, toDelete) { setDeleteRoi(null) }
+            DeleteDialog(viewModel, snack, toDelete) { setDeleteRoi(null) }
         }
 
-        if (state.rois == null) {
-            Progress()
-            viewModel.refreshRois(filesDir)
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                FloatingActionButton(
-                    onClick = floatingOnClick, modifier = Modifier
-                        .padding(24.dp)
-                        .align(Alignment.BottomEnd)
-                ) {
-                    Icon(Icons.Filled.Add, "Add new ROI")
-                }
-                Column(modifier = Modifier.fillMaxSize()) {
-                    ListView(viewModel, roiClick, setDeleteRoi)
+        when {
+            state.rois == null -> {
+                Progress()
+                viewModel.refreshRois(filesDir)
+            }
+            state.rois!!.isFailure -> {
+                snack(state.rois!!.exceptionOrNull()!!.message!!)
+            }
+            else -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    FloatingActionButton(
+                        onClick = floatingOnClick, modifier = Modifier
+                            .padding(24.dp)
+                            .align(Alignment.BottomEnd)
+                    ) {
+                        Icon(Icons.Filled.Add, "Add new ROI")
+                    }
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        ListView(state.rois!!.getOrNull()!!, roiClick, setDeleteRoi)
+                    }
                 }
             }
         }
@@ -92,32 +99,29 @@ object RoiList {
                 }) {
                     Text(text = "Cancel")
                 }
-            },
+            }
         )
     }
 
     @Composable
-    fun ListView(viewModel: RoiViewModel, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
-        val state by viewModel.state.collectAsState()
-        state.rois?.let { rois ->
-            if (rois.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(24.dp)
-                    )
-                }
-            } else {
-                LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-                    items(rois) { dir ->
-                        RoiRow(dir, roiClick, setDeleteRoi)
-                        Divider(color = SkyBlue, thickness = 1.dp)
-                    }
+    fun ListView(rois: List<File>, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
+        if (rois.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(24.dp)
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                items(rois) { dir ->
+                    RoiRow(dir, roiClick, setDeleteRoi)
+                    Divider(color = SkyBlue, thickness = 1.dp)
                 }
             }
         }

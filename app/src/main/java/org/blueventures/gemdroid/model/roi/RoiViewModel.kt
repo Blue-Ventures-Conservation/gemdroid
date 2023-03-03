@@ -16,8 +16,8 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     val state: StateFlow<RoiState> = _state
 
     fun refreshRois(filesDir: File) = scoped {
-        repo.getRois(filesDir).collect { files ->
-            newState(RoiState(rois = files))
+        repo.getRois(filesDir).collect { result ->
+            newState(_state.value.copy(rois = result))
         }
     }
 
@@ -35,7 +35,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
 
     fun isUnique(name: String): Boolean {
-        _state.value.rois?.let { dirs ->
+        _state.value.rois?.getOrNull()?.let { dirs ->
             for (dir in dirs) {
                 if (dir.name == name) {
                     return@isUnique false
@@ -46,7 +46,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         return true
     }
 
-    private val nameRegex = Regex("[a-zA-Z\\d]+[a-zA-Z\\d\\s]*")
+    private val nameRegex by lazy { Regex("[a-zA-Z\\d]+[a-zA-Z\\d\\s]*") }
     fun notSpecial(name: String): Boolean {
         return nameRegex.matches(name)
     }
@@ -185,7 +185,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
 }
 
 data class RoiState(
-    val rois: List<File>? = null, // nullable so we can detect when no files yet exist bt we have checked
+    val rois: Result<List<File>>? = null, // nullable so we can detect when no files yet exist but we have checked
     val name: String = "",
     val contemporaryYearStart: Int = RoiViewModel.defaultContemporaryYearStart,
     val contemporaryYearEnd: Int = RoiViewModel.defaultContemporaryYearEnd,
@@ -204,20 +204,20 @@ data class RoiState(
  */
 enum class Indices {
     LS {
-        override fun toLabel() = "Six Landsat Bands"
-        override fun toList() = emptyList<String>()
+        override fun label() = "Six Landsat Bands"
+        override fun list() = emptyList<String>()
     },
 
     LS_BEST {
-        override fun toLabel() = "Six Landsat Bands + the best index (CMRI)"
-        override fun toList() = listOf("CMRI")
+        override fun label() = "Six Landsat Bands + the best index (CMRI)"
+        override fun list() = listOf("CMRI")
     },
 
     LS_STANDARD {
-        override fun toLabel() = "Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)"
-        override fun toList() = listOf("MNDWI", "MMRI", "SAVI")
+        override fun label() = "Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)"
+        override fun list() = listOf("MNDWI", "MMRI", "SAVI")
     };
 
-    abstract fun toLabel(): String
-    abstract fun toList(): List<String>
+    abstract fun label(): String
+    abstract fun list(): List<String>
 }

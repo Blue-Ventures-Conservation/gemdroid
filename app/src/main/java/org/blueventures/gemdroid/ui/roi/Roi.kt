@@ -8,7 +8,8 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Roi {
     object Routes {
@@ -22,10 +23,10 @@ object Roi {
         const val overview = "roi_overview"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
         // ROI list
         b.composable(Routes.list) {
-            RoiList.Screen(roiModel, analysisModel, activity.filesDir, setAppBarState, snackbar, roiClick = { dir ->
+            RoiList.Screen(roiModel, activity.filesDir, appBar, snack, roiClick = { dir ->
                 analysisModel.clear()
                 analysisModel.setRoiDir(dir)
                 nav.popClear(Analysis.Routes.dashboard)
@@ -36,7 +37,7 @@ object Roi {
 
         // ROI name creation
         b.composable(Routes.name) {
-            Name.Screen(roiModel, setAppBarState, snackbar, backClick = {
+            Name.Screen(roiModel, appBar, snack, back = {
                 roiModel.clear()
                 nav.popClear(Routes.list)
             }) {
@@ -46,7 +47,7 @@ object Roi {
 
         // ROI contemporary years selection
         b.composable(Routes.contemporaryYears) {
-            ContemporaryYears.Screen(roiModel, snackbar, backClick = {
+            ContemporaryYears.Screen(roiModel, snack, back = {
                 roiModel.clearContemporaryYears()
                 nav.popBackStack()
             }) {
@@ -56,7 +57,7 @@ object Roi {
 
         // ROI historical years selection
         b.composable(Routes.historicalYears) {
-            HistoricalYears.Screen(roiModel, snackbar, backClick = {
+            HistoricalYears.Screen(roiModel, snack, back = {
                 roiModel.clearHistoricalYears()
                 nav.popBackStack()
             }) {
@@ -66,7 +67,7 @@ object Roi {
 
         // ROI months range selection
         b.composable(Routes.months) {
-            Months.Screen(roiModel, snackbar, backClick = {
+            Months.Screen(roiModel, snack, back = {
                 roiModel.clearMonths()
                 nav.popBackStack()
             }) {
@@ -76,7 +77,7 @@ object Roi {
 
         // ROI indices selection
         b.composable(Routes.indices) {
-            Indices.Screen(roiModel, backClick = {
+            Indices.Screen(roiModel, back = {
                 roiModel.clearIndices()
                 nav.popBackStack()
             }) {
@@ -86,7 +87,7 @@ object Roi {
 
         // ROI polygon creation
         b.composable(Routes.polygon) {
-            Polygon.Screen(roiModel, snackbar, backClick = {
+            Polygon.Screen(roiModel, snack, back = {
                 roiModel.clearPoints()
                 nav.popBackStack()
             }) {
@@ -96,7 +97,7 @@ object Roi {
 
         // ROI overview
         b.composable(Routes.overview) {
-            Overview.Screen(roiModel, activity.filesDir, snackbar) {
+            Overview.Screen(roiModel, activity.filesDir, snack) {
                 roiModel.clear()
                 nav.popClear(Routes.list)
             }

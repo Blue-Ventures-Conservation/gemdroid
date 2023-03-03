@@ -1,10 +1,17 @@
 package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.data.ROI
 import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
 
-class RoiDatasource() {
+class RoiDatasource(
+    private val auth: FirebaseAuth = Firebase.auth
+) {
     /**
      * Each ROI has its own subdir in the ROI dir.
      *
@@ -51,32 +58,53 @@ class RoiDatasource() {
      *
      * With testing we might try to bump that to 10,000 km² for a nice round number.
      */
-    fun getRois(filesDir: File): List<File> {
+    fun getRois(filesDir: File): Result<List<File>> {
         return try {
-            val roiDir = File(filesDir, dirname)
-
-            if (roiDir.exists() || roiDir.mkdirs()) {
-                FileService.getSubdirs(roiDir)
+            val roisDir = roisDir(filesDir)
+            if (roisDir == null) {
+                Result.failure(Throwable("You don't appear to be logged in"))
             } else {
-                emptyList()
+                if (roisDir.exists() || roisDir.mkdirs()) {
+                    Result.success(FileService.getSubdirs(roisDir))
+                } else {
+                    Result.failure(Throwable("Could not read filesystem"))
+                }
             }
         } catch (e: Exception) {
-            emptyList()
+            Result.failure(Throwable(e))
         }
     }
 
     fun saveRoi(filesDir: File, roi: RoiState): Boolean {
         return try {
-            val roiDir = File(filesDir, "$dirname${FileService.sep}${roi.name}")
-
-            if (roiDir.exists() || roiDir.mkdirs()) {
-                ROI.toFile(File(roiDir, filename), ROI.fromState(roi))
-            } else {
+            val roisDir = roisDir(filesDir)
+            if (roisDir == null) {
                 false
+            } else {
+                val roiDir = File(roisDir, roi.name)
+
+                if (roiDir.exists() || roiDir.mkdirs()) {
+                    ROI.toFile(File(roiDir, filename), ROI.fromState(roi))
+                } else {
+                    false
+                }
             }
         } catch(e: Exception) {
             false
         }
+    }
+
+    private fun roisDir(filesDir: File): File? {
+        val uid = auth.uid ?: return null
+        return File(File(filesDir, md5(uid)), dirname)
+    }
+
+    private fun md5(str: String): String {
+        val digest = MessageDigest.getInstance("MD5")
+        digest.update(str.encodeToByteArray())
+        val magnitude = digest.digest()
+        val bi = BigInteger(1, magnitude)
+        return String.format("%0" + (magnitude.size shl 1) + "x", bi)
     }
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)

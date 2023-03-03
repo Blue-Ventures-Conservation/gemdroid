@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import java.io.File
@@ -57,12 +58,28 @@ class AnalysisRepository(
         emit(dataSource.loadVisualizeURLs(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getRemoteCRAs(callback: (List<String>?, String) -> Unit) = flow {
+    fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = flow {
         emit(dataSource.getRemoteCRAs(callback))
     }.flowOn(ioDispatcher)
 
     fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>) = flow {
         emit(dataSource.validateLocalCRA(roiDir, files, names))
+    }.flowOn(ioDispatcher)
+
+    fun getCRAFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Fields>) -> Unit) = flow {
+        emit(dataSource.getCRAFields(cont, hist, callback))
+    }.flowOn(ioDispatcher)
+
+    fun uploadCRAs(c1: CRAFile, c2: CRAFile, callback: (Result<Unit>) -> Unit) = flow {
+        emit(dataSource.uploadCRAs(c1, c2, callback))
+    }.flowOn(ioDispatcher)
+
+    fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) = flow {
+        emit(dataSource.uploadCRA(cra, callback))
+    }.flowOn(ioDispatcher)
+
+    fun saveCRAs(roiDir: File, cra: CRA) = flow {
+        emit(dataSource.saveCRAs(roiDir, cra))
     }.flowOn(ioDispatcher)
 
     fun chotTileDir(roiDir: File): File = dataSource.chotTileDir(roiDir)

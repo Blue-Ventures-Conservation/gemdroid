@@ -30,15 +30,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
         val state by viewModel.state.collectAsState()
-        setAppBarState(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
+        appBar(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
 
         when {
             state.roi == null -> {
@@ -48,8 +51,8 @@ object Dashboard {
             state.roi!!.isFailure -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    snackbar(state.roi!!.exceptionOrNull()!!.message!!)
-                    backClick()
+                    snack(state.roi!!.exceptionOrNull()!!.message!!)
+                    back()
                 }
             }
             state.stage == null -> {
@@ -57,17 +60,17 @@ object Dashboard {
                 viewModel.refreshStage()
             }
             else -> {
-                Dashboard(state.stage!!, snackbar, nextClick, backClick, visClick, sepClick, classClick, dynClick)
+                Dashboard(state.stage!!, snack, next, back, vis, sep, clazz, dyn)
             }
         }
 
         BackHandler {
-            backClick()
+            back()
         }
     }
 
     @Composable
-    fun Dashboard(stage: Stage, snackbar: (String) -> Unit, nextClick: (Stage) -> Unit, backClick: () -> Unit, visClick: () -> Unit, sepClick: () -> Unit, classClick: () -> Unit, dynClick: () -> Unit) {
+    fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,8 +81,8 @@ object Dashboard {
             when (stage) {
                 Stage.ERROR -> {
                     LaunchedEffect(key1 = true) {
-                        snackbar("Could not read filesystem state!")
-                        backClick()
+                        snack("Could not read filesystem state!")
+                        back()
                     }
                 }
                 Stage.BUFFER -> {
@@ -101,36 +104,36 @@ object Dashboard {
                     ) {
                         when (stage) {
                             Stage.VISUALIZE -> {
-                                VisualizeRow(visClick)
+                                VisualizeRow(vis)
                             }
                             Stage.CRAS -> {
-                                VisualizeRow(visClick)
+                                VisualizeRow(vis)
                             }
                             Stage.SEPARABILITY -> {
-                                VisualizeRow(visClick)
-                                SeparabilityRow(sepClick)
+                                VisualizeRow(vis)
+                                SeparabilityRow(sep)
                             }
                             Stage.CLASSIFICATION -> {
-                                VisualizeRow(visClick)
-                                SeparabilityRow(sepClick)
-                                ClassificationRow(classClick)
+                                VisualizeRow(vis)
+                                SeparabilityRow(sep)
+                                ClassificationRow(clazz)
                             }
                             Stage.COUNTRY -> {
-                                VisualizeRow(visClick)
-                                SeparabilityRow(sepClick)
-                                ClassificationRow(classClick)
+                                VisualizeRow(vis)
+                                SeparabilityRow(sep)
+                                ClassificationRow(clazz)
                             }
                             Stage.DYNAMICS -> {
-                                VisualizeRow(visClick)
-                                SeparabilityRow(sepClick)
-                                ClassificationRow(classClick)
-                                DynamicsRow(dynClick)
+                                VisualizeRow(vis)
+                                SeparabilityRow(sep)
+                                ClassificationRow(clazz)
+                                DynamicsRow(dyn)
                             }
                             Stage.DONE -> {
-                                VisualizeRow(visClick)
-                                SeparabilityRow(sepClick)
-                                ClassificationRow(classClick)
-                                DynamicsRow(dynClick)
+                                VisualizeRow(vis)
+                                SeparabilityRow(sep)
+                                ClassificationRow(clazz)
+                                DynamicsRow(dyn)
                             }
                             else -> {}
                         }
@@ -147,13 +150,13 @@ object Dashboard {
     }
 
     @Composable
-    fun DashboardNextButton(nextClick: () -> Unit) {
+    fun DashboardNextButton(next: Click) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
-                onClick = nextClick
+                onClick = next
             ) {
                 Text("Next", fontSize = 20.sp)
             }
@@ -161,31 +164,31 @@ object Dashboard {
     }
 
     @Composable
-    fun VisualizeRow(visClick: () -> Unit) {
-        DashboardRow("Visualize", visClick)
+    fun VisualizeRow(vis: Click) {
+        DashboardRow("Visualize", vis)
     }
 
     @Composable
-    fun SeparabilityRow(sepClick: () -> Unit) {
-        DashboardRow("Spectral Separability", sepClick)
+    fun SeparabilityRow(sep: Click) {
+        DashboardRow("Spectral Separability", sep)
     }
 
     @Composable
-    fun ClassificationRow(classClick: () -> Unit) {
-        DashboardRow("Classification", classClick)
+    fun ClassificationRow(clazz: Click) {
+        DashboardRow("Classification", clazz)
     }
 
     @Composable
-    fun DynamicsRow(dynClick: () -> Unit) {
-        DashboardRow("Dynamics", dynClick)
+    fun DynamicsRow(dyn: Click) {
+        DashboardRow("Dynamics", dyn)
     }
 
     @Composable
-    fun DashboardRow(title: String, rowClick: () -> Unit) {
+    fun DashboardRow(title: String, row: Click) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { rowClick() },
+                .clickable { row() },
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(24.dp))

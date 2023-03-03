@@ -34,7 +34,7 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
-import org.blueventures.gemdroid.ui.common.SignOut
+import org.blueventures.gemdroid.ui.common.BasicActions
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
@@ -67,12 +67,13 @@ fun GEMApp(activity: ComponentActivity) {
 
     GEMDroidTheme {
         val (appBarState, abs) = remember { mutableStateOf(AppBarState(
+            // add settings nav here
             signOut = { SignIn.signOut(activity, Firebase.auth) },
         )) }
 
         val setAppBarState: (AppBarUpdate) -> Unit = {
             if (it.title != appBarState.update.title || it.actions != null) {
-                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { SignOut(appBarState.signOut) }
+                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(appBarState.settings, appBarState.signOut) }
                 abs(appBarState.copy(update = AppBarUpdate(it.title, acts)))
             }
         }

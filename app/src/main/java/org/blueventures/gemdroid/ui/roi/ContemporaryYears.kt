@@ -24,10 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object ContemporaryYears {
     @Composable
-    fun Screen(viewModel: RoiViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
         Column(
             modifier = Modifier
                 .padding(64.dp)
@@ -48,12 +50,12 @@ object ContemporaryYears {
                 onClick = {
                     if (viewModel.validateContemporaryYearsOrder()) {
                         if (viewModel.validateContemporaryYearsGap()) {
-                            nextClick()
+                            next()
                         } else {
-                            snackbar("Please select years less than ${RoiViewModel.maxYearGap} years apart")
+                            snack("Please select years less than ${RoiViewModel.maxYearGap} years apart")
                         }
                     } else {
-                        snackbar("Year on the left must be equal to or less than the one on right")
+                        snack("Year on the left must be equal to or less than the one on right")
                     }
                 }
             ) {
@@ -62,7 +64,7 @@ object ContemporaryYears {
         }
 
         BackHandler {
-            backClick()
+            back()
         }
     }
 

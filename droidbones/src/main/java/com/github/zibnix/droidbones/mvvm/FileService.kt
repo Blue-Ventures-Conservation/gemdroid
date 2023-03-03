@@ -6,8 +6,11 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -151,7 +154,25 @@ object FileService {
         }
     }
 
-    fun zip(files: Array<InputStream>, names: List<String?>, path: String): Boolean {
+    fun streamToFile(stream: InputStream, path: String): Boolean {
+        return try {
+            val bufStream = BufferedInputStream(stream, 8192)
+            val out = BufferedOutputStream(FileOutputStream(path))
+            val data = ByteArray(buf)
+            var c: Int = bufStream.read(data)
+            while (c != -1) {
+                out.write(data, 0, c)
+                c = bufStream.read(data)
+            }
+            bufStream.close()
+            out.close()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun zip(files: Array<String>, path: String): Boolean {
         if (createFile(File(path.substringBeforeLast(sep)), path.substringAfterLast(sep)) == null) {
             return false
         }
@@ -160,9 +181,9 @@ object FileService {
             val dest = FileOutputStream(path)
             val out = ZipOutputStream(BufferedOutputStream(dest))
             val data = ByteArray(buf)
-            files.forEachIndexed { i, fi ->
-                val origin = BufferedInputStream(fi, buf)
-                val entry = ZipEntry(names[i])
+            files.forEach { fpath ->
+                val origin = BufferedInputStream(FileInputStream(fpath), 8192)
+                val entry = ZipEntry(File(fpath).name)
                 out.putNextEntry(entry)
                 var count: Int
                 while (origin.read(data, 0, buf).also { count = it } != -1) {

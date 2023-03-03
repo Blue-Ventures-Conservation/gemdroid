@@ -11,7 +11,7 @@ class RoiRepository(
     private val dataSource: RoiDatasource = RoiDatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    fun getRois(filesDir: File): Flow<List<File>> = flow {
+    fun getRois(filesDir: File): Flow<Result<List<File>>> = flow {
         emit(dataSource.getRois(filesDir))
     }.flowOn(ioDispatcher)
 

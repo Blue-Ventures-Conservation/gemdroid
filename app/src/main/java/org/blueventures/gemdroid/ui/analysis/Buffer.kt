@@ -8,12 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,27 +31,31 @@ import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.RefreshableError
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit, backClick: () -> Unit) {
-        setAppBarState(AppBarUpdate(title = "ROI Buffer"))
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, back: Click) {
+        appBar(AppBarUpdate(title = "ROI Buffer"))
 
         val (saving, setSaving) = remember { mutableStateOf(false) }
 
         if (saving) {
             Progress()
         } else {
-            Buffer(viewModel, snackbar, backClick, setSaving)
+            Buffer(viewModel, snack, back, setSaving)
         }
     }
 
     @Composable
-    fun Buffer(viewModel: AnalysisViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
+    fun Buffer(viewModel: AnalysisViewModel, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
         val state by viewModel.state.collectAsState()
 
         when {
@@ -65,7 +64,7 @@ object Buffer {
                 viewModel.loadBuffersFile()
             }
             !Buffers.isEmpty(state.buffers!!) -> {
-                BufferChoice(viewModel, state.buffers!!, snackbar, backClick, saving)
+                BufferChoice(viewModel, state.buffers!!, snack, back, saving)
             }
             state.buffersResult == null -> {
                 PleaseWait()
@@ -83,17 +82,17 @@ object Buffer {
             state.buffersResult is ApiResult.Success -> {
                 val buffers = state.buffersResult!!.data!!
                 viewModel.saveBuffersFile(buffers)
-                BufferChoice(viewModel, buffers, snackbar, backClick, saving)
+                BufferChoice(viewModel, buffers, snack, back, saving)
             }
         }
 
         BackHandler {
-            backClick()
+            back()
         }
     }
 
     @Composable
-    fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snackbar: (String) -> Unit, backClick: () -> Unit, saving: (Boolean) -> Unit) {
+    fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
         val (doneEnabled, setDoneEnabled) = remember { mutableStateOf(false) }
         val (bufferDist, setBufferDist) = remember { mutableStateOf(-1) }
 
@@ -105,8 +104,8 @@ object Buffer {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Chart(buffers)
-            DropDown(buffers) {
-                setBufferDist(it)
+            Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
+                setBufferDist(buffers.buffers.vals[i])
                 setDoneEnabled(true)
             }
             Button(
@@ -117,64 +116,14 @@ object Buffer {
                         saving(false)
                         if (success) {
                             viewModel.clearStage()
-                            backClick()
+                            back()
                         } else {
-                            snackbar("Could not save buffer selection!")
+                            snack("Could not save buffer selection!")
                         }
                     }
                 },
             ) {
                 Text(text = "Done", fontSize = 20.sp)
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun DropDown(buffers: Buffers, setBufferDist: (Int) -> Unit) {
-        val (expanded, setExpanded) = remember { mutableStateOf(false) }
-        val (selected, setSelected) = remember { mutableStateOf("") }
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Select buffer distance:",
-                fontSize = 16.sp,
-                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
-            )
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { setExpanded(!expanded) }
-            ) {
-                TextField(
-                    selected,
-                    {},
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    modifier = Modifier.menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { setExpanded(false) }
-                ) {
-                    buffers.buffers.keys.forEachIndexed { i, label ->
-                        DropdownMenuItem(
-                            onClick = {
-                                setSelected(label)
-                                setBufferDist(buffers.buffers.vals[i])
-                                setExpanded(false)
-                            },
-                            text = {
-                                Text(text = label, fontSize = 16.sp)
-                            },
-                        )
-                    }
-                }
             }
         }
     }

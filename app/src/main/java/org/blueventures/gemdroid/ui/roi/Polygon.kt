@@ -35,10 +35,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Polygon {
     @Composable
-    fun Screen(viewModel: RoiViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -67,9 +69,9 @@ object Polygon {
                 Button(onClick = {
                     if (viewModel.validatePolygon()) {
                         clearFunc()
-                        nextClick()
+                        next()
                     } else {
-                        snackbar("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
+                        snack("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
                     }
                 }) {
                     Text(text = "Next", fontSize = 20.sp)
@@ -80,7 +82,7 @@ object Polygon {
 
             BackHandler {
                 clearFunc()
-                backClick()
+                back()
             }
         }
     }

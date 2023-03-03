@@ -24,10 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Months {
     @Composable
-    fun Screen(viewModel: RoiViewModel, snackbar: (String) -> Unit, backClick: () -> Unit, nextClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
         Column(
             modifier = Modifier
                 .padding(64.dp)
@@ -47,9 +49,9 @@ object Months {
             Button(
                 onClick = {
                     if (viewModel.validateMonthsOrder()) {
-                        nextClick()
+                        next()
                     } else {
-                        snackbar("Month on the left must be equal to or less than the one on the right")
+                        snack("Month on the left must be equal to or less than the one on the right")
                     }
                 }
             ) {
@@ -58,7 +60,7 @@ object Months {
         }
 
         BackHandler {
-            backClick()
+            back()
         }
     }
 

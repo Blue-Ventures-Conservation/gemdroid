@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.roi
+package org.blueventures.gemdroid.ui.analysis
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -16,16 +16,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.Click
 
-object Indices {
+object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: RoiViewModel, back: Click, next: Click) {
-        val choices = viewModel.getIndices()
-        val (choice, setChoice) = remember { mutableStateOf(viewModel.state.value.indices) }
+    fun Screen(viewModel: AnalysisViewModel, next: Click, back: Click) {
+        val choices = viewModel.getHistoricalChoices()
+        val (choice, setChoice) = remember { mutableStateOf(viewModel.state.value.historicalChoice) }
 
         Column(
             modifier = Modifier
@@ -34,32 +35,33 @@ object Indices {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Spectral Indices", fontSize = 32.sp)
+            Text("Is a historical CRA shapefile available?", fontSize = 24.sp, textAlign = TextAlign.Center)
+            Text("(Fields must match contemporary shapefile)", fontSize = 16.sp, textAlign = TextAlign.Center)
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                choices.forEach { indices ->
+                choices.forEach { option ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
                             .selectable(
-                                selected = (indices == choice),
+                                selected = (option == choice),
                                 onClick = {
-                                    setChoice(indices)
+                                    setChoice(option)
                                 }
                             )
                             .padding(top = 24.dp, bottom = 24.dp)
                     ) {
-                        RadioButton(selected = (indices == choice), onClick = { setChoice(indices) })
-                        Text(text = indices.label(), modifier = Modifier.padding(start = 16.dp))
+                        RadioButton(selected = (option == choice), onClick = { setChoice(option) })
+                        Text(text = option.label(), modifier = Modifier.padding(start = 16.dp))
                     }
                 }
             }
             Button(
                 onClick = {
-                    viewModel.setIndices(choice)
+                    viewModel.setHistoricalChoice(choice)
                     next()
                 }
             ) {

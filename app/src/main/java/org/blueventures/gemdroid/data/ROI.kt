@@ -18,11 +18,6 @@ data class ROI(
     @Json(name = "polygon") val polygon: Polygon,
 ){
     companion object {
-        data class Polygon(
-            @Json(name = "type") val type: String,
-            @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
-        )
-
         private val adapter = FileService.adapter<ROI>()
 
         fun fromState(state: RoiState, buffDist: Int = -1): ROI {
@@ -35,7 +30,7 @@ data class ROI(
                 state.historicalYearEnd,
                 state.monthStart,
                 state.monthEnd,
-                state.indices.toList(),
+                state.indices.list(),
                 polygonFromState(state)
             )
         }
@@ -66,3 +61,8 @@ data class ROI(
         }
     }
 }
+
+data class Polygon(
+    @Json(name = "type") val type: String,
+    @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
+)

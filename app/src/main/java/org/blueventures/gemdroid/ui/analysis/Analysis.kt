@@ -4,10 +4,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.analysis.HistoricalChoice
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
@@ -16,7 +18,9 @@ object Analysis {
         const val buffer = "buffer"
         const val visualize = "visualize"
         const val cont_cra = "cont_cra"
+        const val hist_choice = "hist_choice"
         const val hist_cra = "hist_cra"
+        const val cra_fields = "fields"
         const val separabilityDashboard = "sep_dashboard"
         const val correlation = "corr"
         const val lsSeparation = "ls_sep"
@@ -41,51 +45,80 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, roiModel: RoiViewModel, viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, snackbar: (String) -> Unit) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, roiModel: RoiViewModel, viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
         // Dashboard
         b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, setAppBarState, snackbar, nextClick = { stage ->
+            Dashboard.Screen(viewModel, appBar, snack, next = { stage ->
                 Routes.dashboardNext(stage)?.let { route ->
                     nav.popClear(route)
                 }
-            }, backClick = {
+            }, back = {
                 roiModel.clear()
                 nav.popClear(Roi.Routes.list)
-            }, visClick = {
+            }, vis = {
                 nav.popClear(Routes.visualize)
-            }, sepClick = {
+            }, sep = {
                 nav.popClear(Routes.separabilityDashboard)
-            }, classClick = {
+            }, clazz = {
                 nav.popClear(Routes.classification)
-            }, dynClick = {
+            }, dyn = {
                 nav.popClear(Routes.dynamics)
             })
         }
 
         // Buffer selection
         b.composable(Routes.buffer) {
-            Buffer.Screen(viewModel, setAppBarState, snackbar) {
+            Buffer.Screen(viewModel, appBar, snack) {
                 nav.popClear(Routes.dashboard)
             }
         }
 
         // Visualization
         b.composable(Routes.visualize) {
-            Visualize.Screen(viewModel, setAppBarState) {
+            Visualize.Screen(viewModel, appBar) {
                 nav.popClear(Routes.dashboard)
             }
         }
 
         // CRAs
         b.composable(Routes.cont_cra) {
-            ContemporaryCRA.Screen(viewModel, setAppBarState, snackbar, {
-                nav.navigate(Routes.hist_cra)
+            ContemporaryCRA.Screen(viewModel, appBar, snack, {
+                nav.navigate(Routes.hist_choice)
             }) {
+                viewModel.clearLocalContemporaryCRA()
                 nav.popClear(Routes.dashboard)
             }
         }
+        b.composable(Routes.hist_choice) {
+            ChooseHistorical.Screen(viewModel, {
+                when(viewModel.state.value.historicalChoice) {
+                    HistoricalChoice.SEPARATE -> {
+                        nav.navigate(Routes.hist_cra)
+                    }
+                    else -> {
+                        nav.navigate(Routes.cra_fields)
+                    }
+                }
+            }) {
+                viewModel.clearHistoricalChoice()
+                nav.popBackStack()
+            }
+        }
         b.composable(Routes.hist_cra) {
-            HistoricalCRA.Screen()
+            HistoricalCRA.Screen(viewModel, snack, {
+                nav.navigate(Routes.cra_fields)
+            }) {
+                viewModel.clearLocalHistoricalCRA()
+                nav.popBackStack()
+            }
+        }
+        b.composable(Routes.cra_fields) {
+            CRAFields.Screen(viewModel, snack, {
+                viewModel.clear()
+                nav.popClear(Routes.dashboard)
+            }) {
+                nav.popBackStack()
+            }
         }
     }
 }

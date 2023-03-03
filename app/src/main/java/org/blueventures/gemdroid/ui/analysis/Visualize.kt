@@ -35,7 +35,9 @@ import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.RefreshableError
@@ -43,14 +45,14 @@ import java.io.File
 
 object Visualize {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, backClick: () -> Unit) {
-        setAppBarState(AppBarUpdate(title = "Visualize Imagery"))
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
+        appBar(AppBarUpdate(title = "Visualize Imagery"))
         viewModel.clearBuffers()
-        Visualize(viewModel, setAppBarState, backClick)
+        Visualize(viewModel, appBar, back)
     }
 
     @Composable
-    fun Visualize(viewModel: AnalysisViewModel, setAppBarState: (AppBarUpdate) -> Unit, backClick: () -> Unit) {
+    fun Visualize(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         val state by viewModel.state.collectAsState()
 
         when {
@@ -59,7 +61,7 @@ object Visualize {
                 viewModel.loadVisualizeURLs()
             }
             !VisualizeURLs.isEmpty(state.visualizeURLs!!) -> {
-                VisualizeMap(viewModel, state.visualizeURLs!!, setAppBarState)
+                VisualizeMap(viewModel, state.visualizeURLs!!, appBar)
             }
             state.visualizeURLsResult == null -> {
                 PleaseWait()
@@ -77,13 +79,13 @@ object Visualize {
             state.visualizeURLsResult is ApiResult.Success -> {
                 val urls = state.visualizeURLsResult!!.data!!
                 viewModel.saveVisualizeURLs(urls)
-                VisualizeMap(viewModel, urls, setAppBarState)
+                VisualizeMap(viewModel, urls, appBar)
             }
         }
 
         BackHandler {
             viewModel.clearStage()
-            backClick()
+            back()
         }
     }
 
@@ -105,9 +107,9 @@ object Visualize {
     private var hlotCheckedCall: (() -> Boolean) = { true }
 
     @Composable
-    fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, setAppBarState: (AppBarUpdate) -> Unit) {
+    fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, appBar: AppBarFun) {
         LaunchedEffect(key1 = true) {
-            setAppBarState(AppBarUpdate(
+            appBar(AppBarUpdate(
                 title = "Visualize Imagery",
                 actions = {
                     MapVisualizeDropDown(

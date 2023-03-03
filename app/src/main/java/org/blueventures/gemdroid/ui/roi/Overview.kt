@@ -18,23 +18,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.File
 
 object Overview {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click) {
         val (saving, setSaving) = remember { mutableStateOf(false) }
 
         if (saving) {
             Progress()
         } else {
-            OverviewDetails(viewModel, filesDir, snackbar, doneClick, setSaving)
+            OverviewDetails(viewModel, filesDir, snack, done, setSaving)
         }
     }
 
     @Composable
-    fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snackbar: (String) -> Unit, doneClick: () -> Unit, saving: (Boolean) -> Unit) {
+    fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click, saving: (Boolean) -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,7 +68,7 @@ object Overview {
                     Text(text = "${state.historicalYearStart} - ${state.historicalYearEnd}", fontSize = 18.sp)
                     Text(text = "${state.monthStart} - ${state.monthEnd}", fontSize = 18.sp)
                     Text(text = "${state.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
-                    Text(text = "${state.indices.toList()}", fontSize = 18.sp)
+                    Text(text = "${state.indices.list()}", fontSize = 18.sp)
                 }
             }
             Button(onClick = {
@@ -74,9 +76,9 @@ object Overview {
                 viewModel.saveRoi(filesDir) { success ->
                     saving(false)
                     if (success) {
-                        doneClick()
+                        done()
                     } else {
-                        snackbar("Failed to save ROI")
+                        snack("Failed to save ROI")
                     }
                 }
             }) {

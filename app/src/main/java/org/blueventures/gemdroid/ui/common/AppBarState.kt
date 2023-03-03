@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,14 +16,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.ui.theme.DarkSlate
 
 data class AppBarState(
-    val signOut: () -> Unit = {},
+    val settings: Click = {},
+    val signOut: Click = {},
     val update: AppBarUpdate = AppBarUpdate(""
     ) {
-        SignOut {
-            signOut()
-        }
+        BasicActions(settings, signOut)
     }
 )
 
@@ -32,14 +33,27 @@ data class AppBarUpdate(
 )
 
 @Composable
-fun SignOut(signOut: () -> Unit) {
+fun BasicActions(settings: Click, signOut: Click) {
     val (menu, setMenu) = remember { mutableStateOf(false) }
     IconButton(onClick = { setMenu(!menu) }) {
         Icon(Icons.Filled.MoreVert, "")
     }
-    DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }) {
-        Text(text = "Logout", fontSize = 24.sp, modifier = Modifier.padding(8.dp).clickable {
+    DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }, modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+        ActionItem(label = "Settings") {
+            setMenu(false)
+            settings()
+        }
+        Divider(color = DarkSlate, thickness = 1.dp)
+        ActionItem(label = "Logout") {
+            setMenu(false)
             signOut()
-        })
+        }
     }
+}
+
+@Composable
+fun ActionItem(label: String, onClick: Click) {
+    Text(text = label, fontSize = 24.sp, modifier = Modifier
+        .padding(bottom = 8.dp)
+        .clickable(onClick = onClick))
 }

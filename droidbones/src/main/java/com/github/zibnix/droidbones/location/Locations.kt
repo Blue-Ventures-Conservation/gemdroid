@@ -98,15 +98,9 @@ object Locations {
         }
 
         when {
-            !params.isGPS && !params.isNetwork -> {
-                callback(null)
-            }
-            params.isGPS && !params.isNetwork -> {
-                gpsRequest(params, manager, callback)
-            }
-            !params.isGPS && params.isNetwork -> {
-                networkRequest(params, manager, callback)
-            }
+            !params.isGPS && !params.isNetwork -> callback(null)
+            params.isGPS && !params.isNetwork -> gpsRequest(params, manager, callback)
+            !params.isGPS && params.isNetwork -> networkRequest(params, manager, callback)
             params.isGPS && params.isNetwork -> {
                 var loc: Location? = null
                 var locCount = 0
