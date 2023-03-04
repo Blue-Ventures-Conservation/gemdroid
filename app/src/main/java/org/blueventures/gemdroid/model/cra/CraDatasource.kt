@@ -205,9 +205,16 @@ class CraDatasource(
                      }
                 }
             }
-
         } catch (e: Exception) {
             return Result.failure(e)
+        }
+
+        if (numerics.size <= 0) {
+            return Result.failure(Throwable("Shapefile has no candidate fields for the numeric class field."))
+        }
+
+        if (strings.size <= 0) {
+            return Result.failure(Throwable("Shapefile has no candidate fields for the character class field."))
         }
 
         val zipFile = File(crasDir, "$shpName.zip")
