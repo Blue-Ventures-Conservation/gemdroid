@@ -68,7 +68,8 @@ object CRAFields {
                 }
             }
             else -> {
-                SelectFields(viewModel, fields.getOrNull()!!.list!!, setSaving, snack, done)
+                val lists = fields.getOrNull()!!
+                SelectFields(viewModel, lists.numerics!!, lists.strings!!, setSaving, snack, done)
             }
         }
 
@@ -78,7 +79,7 @@ object CRAFields {
     }
 
     @Composable
-    fun SelectFields(viewModel: CraViewModel, fields: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
+    fun SelectFields(viewModel: CraViewModel, numerics: List<String>, strings: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -88,11 +89,11 @@ object CRAFields {
         ) {
             val numeric = remember { mutableStateOf("") }
             val string = remember { mutableStateOf("") }
-            Dropdown(title = "Select Class Field:", labels = fields) { i ->
-                numeric.value = fields[i]
+            Dropdown(title = "Select Character Class Field:", labels = strings) { i ->
+                numeric.value = strings[i]
             }
-            Dropdown(title = "Select Numeric Class Field:", labels = fields) { i ->
-                string.value = fields[i]
+            Dropdown(title = "Select Numeric Class Field:", labels = numerics) { i ->
+                string.value = numerics[i]
             }
 
             Button(
@@ -102,7 +103,7 @@ object CRAFields {
                         snack("These cannot both be the same field")
                     } else {
                         setSaving(true)
-                        viewModel.setFields(Fields(numeric = numeric.value, string = string.value))
+                        viewModel.setFields(Fields(chosenNumeric = numeric.value, chosenString = string.value))
                         viewModel.saveCRAs {
                             when {
                                 it.isSuccess -> done()

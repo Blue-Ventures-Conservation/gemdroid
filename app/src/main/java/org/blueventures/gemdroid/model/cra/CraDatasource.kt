@@ -7,6 +7,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Shapefile
@@ -159,20 +160,54 @@ class CraDatasource(
             return Result.failure(Throwable("Please use the previously uploaded shapefile by that name."))
         }
 
-        val fields = arrayListOf<String>()
+        val numerics = arrayListOf<String>()
+        val strings = arrayListOf<String>()
         try {
             // these constructors will inspect the file header
             val shpStream = FileInputStream(shp)
-            ShapeFileReader(shpStream)
-            shpStream.close()
+            val sr = ShapeFileReader(shpStream)
+            val dr = DbfReader(FileInputStream(dbf))
 
-            val r = DbfReader(FileInputStream(dbf))
-            r.metadata.fields.forEach { field ->
-                fields.add(field.name)
+            val numericsMap = mutableMapOf<String, MutableMap<String, Int>>()
+            val stringsMap = mutableMapOf<String, MutableMap<String, Int>>()
+            var count = 0
+
+            var s = sr.next()
+            while(s != null) {
+                count++
+
+                val rec = dr.read()
+                rec.fields.forEach { field ->
+                    val name = field.name
+                    when(field.type) {
+                        DbfFieldTypeEnum.Numeric -> {
+                            addToMap(numericsMap, name, rec.getString(name).toFloat().toInt().toString())
+                        }
+                        DbfFieldTypeEnum.Character -> {
+                            addToMap(stringsMap, name, rec.getString(name))
+                        }
+                        else -> {}
+                    }
+                }
+
+                s = sr.next()
             }
-            r.close()
+            shpStream.close()
+            dr.close()
+
+            numericsMap.forEach { (nf, nc) ->
+                if (nc.size < count) {
+                     stringsMap.forEach { (sf, sc) ->
+                         if (nc.size == sc.size) {
+                             numerics.add(nf)
+                             strings.add(sf)
+                         }
+                     }
+                }
+            }
+
         } catch (e: Exception) {
-            return Result.failure(Throwable("Shapefile and dbf could not be parsed, and may be corrupted!"))
+            return Result.failure(e)
         }
 
         val zipFile = File(crasDir, "$shpName.zip")
@@ -184,12 +219,24 @@ class CraDatasource(
 
         FileService.deleteDir(File(crasDir, crasUnzipDir))
 
-        return Result.success(
-            CRAFile(
+        return Result.success(CRAFile(
             localFile = zipFile,
-            fields = Fields(fields)
-        )
-        )
+            fields = Fields(numerics, strings)
+        ))
+    }
+
+    private fun addToMap(m: MutableMap<String, MutableMap<String, Int>>, field: String, value: String) {
+        var fieldMap = m[field]
+        if (fieldMap == null) {
+            fieldMap = mutableMapOf()
+            m[field] = fieldMap
+        }
+        val count = fieldMap[value]
+        if (count == null) {
+            fieldMap[value] = 1
+        } else {
+            fieldMap[value] = count + 1
+        }
     }
 
     fun getCRAFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Fields>) -> Unit) {
@@ -243,30 +290,32 @@ class CraDatasource(
         val mismatch = Throwable("Please select shapefiles that have matching fields")
         return when {
             f1.complete() && f2.complete() -> {
-                if (f1.numeric == f2.numeric && f1.string == f2.string) {
+                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f1.complete() && !f2.complete() -> {
-                if (f2.list!!.containsAll(listOf(f1.numeric!!, f1.string!!))) {
+                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString)) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f2.complete() && !f1.complete() -> {
-                if (f1.list!!.containsAll(listOf(f2.numeric!!, f2.string!!))) {
+                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString)) {
                     Result.success(f2)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             !f1.complete() && !f2.complete() -> {
-                val l1 = f1.list!!
-                val l2 = f2.list!!
-                if (l1.size == l2.size && l1.containsAll(l2)) {
+                val n1 = f1.numerics!!
+                val n2 = f2.numerics!!
+                val s1 = f1.strings!!
+                val s2 = f2.strings!!
+                if (n1.size == n2.size && n1.containsAll(n2) && s1.size == s2.size && s1.containsAll(s2)) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
@@ -280,7 +329,7 @@ class CraDatasource(
     }
 
     private fun craFields(cra: CRAFile, callback: (Result<Fields>) -> Unit) {
-        if (cra.fields.list != null) {
+        if (cra.fields.numerics != null && cra.fields.strings != null) {
             callback(Result.success(cra.fields))
         } else {
             cra.storageKey?.let { key ->
@@ -295,9 +344,9 @@ class CraDatasource(
                                 val shp = shpRes.getOrNull()!!
                                 callback(Result.success(
                                     Fields(
-                                    numeric = shp.numericClassField,
-                                    string = shp.stringClassField
-                                )
+                                        chosenNumeric = shp.numericClassField,
+                                        chosenString = shp.stringClassField
+                                    )
                                 ))
                             }
                         }.addOnFailureListener {
@@ -346,7 +395,7 @@ class CraDatasource(
     }
 
     fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) {
-        if (cra.localFile == null || cra.fields.numeric == null || cra.fields.string == null) {
+        if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
             callback(Result.failure(Throwable("Internal shapefile error, sorry!")))
         }
 
@@ -354,7 +403,7 @@ class CraDatasource(
         val zip = cra.localFile!!
         uploadShapefile(key, zip) { result ->
             when {
-                result.isSuccess -> uploadFields(key, cra.fields.numeric!!, cra.fields.string!!, callback)
+                result.isSuccess -> uploadFields(key, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, callback)
                 result.isFailure -> callback(result)
             }
         }

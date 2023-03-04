@@ -41,7 +41,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
             callback(Result.failure(badState))
             return
         }
-        val contShp = Shapefile(cont.key(), cont.fields.numeric!!, cont.fields.string!!)
+        val contShp = Shapefile(cont.key(), cont.fields.chosenNumeric!!, cont.fields.chosenString!!)
 
         val hist = historicalCRA
         if (hist != null && hist.badFinalState()) {
@@ -49,7 +49,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
             return
         }
 
-        val histShp = if (hist == null) null else Shapefile(hist.key(), hist.fields.numeric!!, hist.fields.string!!)
+        val histShp = if (hist == null) null else Shapefile(hist.key(), hist.fields.chosenNumeric!!, hist.fields.chosenString!!)
         val cra = CRA(contShp, histShp)
 
         when {

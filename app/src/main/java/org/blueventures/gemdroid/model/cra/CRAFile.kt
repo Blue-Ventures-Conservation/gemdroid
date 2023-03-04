@@ -36,11 +36,12 @@ data class CRAFile(
 }
 
 data class Fields(
-    val list: List<String>? = null,
-    val numeric: String? = null,
-    val string: String? = null
+    val numerics: List<String>? = null,
+    val strings: List<String>? = null,
+    val chosenNumeric: String? = null,
+    val chosenString: String? = null
 ) {
     fun complete(): Boolean {
-        return numeric != null && string != null
+        return chosenNumeric != null && chosenString != null
     }
 }
