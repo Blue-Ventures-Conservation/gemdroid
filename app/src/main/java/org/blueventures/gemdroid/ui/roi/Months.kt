@@ -66,14 +66,14 @@ object Months {
 
     @Composable
     fun MonthStart(viewModel: RoiViewModel) {
-        var month by remember { mutableStateOf(viewModel.state.value.monthStart) }
+        var month by remember { mutableStateOf(viewModel.monthStart) }
         NumberPicker(
             value = month,
             range = 1..12,
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setMonthStart(it)
+                viewModel.monthStart = it
                 month = it
             }
         )
@@ -81,14 +81,14 @@ object Months {
 
     @Composable
     fun MonthEnd(viewModel: RoiViewModel) {
-        var month by remember { mutableStateOf(viewModel.state.value.monthEnd) }
+        var month by remember { mutableStateOf(viewModel.monthEnd) }
         NumberPicker(
             value = month,
             range = 1..12,
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setMonthEnd(it)
+                viewModel.monthEnd = it
                 month = it
             }
         )

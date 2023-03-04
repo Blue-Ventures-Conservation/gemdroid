@@ -17,11 +17,11 @@ data class CRA(
     companion object {
         private val adapter = FileService.adapter<CRA>()
 
-        fun fromFile(file: File): CRA? {
+        fun fromFile(file: File): Result<CRA> {
             return FileService.fromFile(file, adapter)
         }
 
-        fun toFile(file: File, cra: CRA): Boolean {
+        fun toFile(file: File, cra: CRA): Result<Unit> {
             return FileService.toFile(file, cra, adapter)
         }
     }
@@ -35,11 +35,11 @@ data class Shapefile(
     companion object {
         private val adapter = FileService.adapter<Shapefile>()
 
-        fun fromFile(file: File): Shapefile? {
+        fun fromFile(file: File): Result<Shapefile> {
             return FileService.fromFile(file, adapter)
         }
 
-        fun toFile(file: File, shp: Shapefile): Boolean {
+        fun toFile(file: File, shp: Shapefile): Result<Unit> {
             return FileService.toFile(file, shp, adapter)
         }
     }

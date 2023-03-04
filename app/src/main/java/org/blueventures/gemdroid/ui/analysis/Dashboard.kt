@@ -23,11 +23,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -40,27 +43,29 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 object Dashboard {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
-        val state by viewModel.state.collectAsState()
-        appBar(AppBarUpdate(title = "${state.roiDir.name} Analysis"))
+        appBar(AppBarUpdate(title = "${viewModel.roiDir.name} Analysis"))
+        val (roi, setRoi) = remember { mutableStateOf<Result<ROI>?>(null) }
+        val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
 
         when {
-            state.roi == null -> {
+            roi == null -> {
                 Progress()
-                viewModel.getROI()
+                viewModel.getROI(setRoi)
             }
-            state.roi!!.isFailure -> {
+            roi.isFailure -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    snack(state.roi!!.exceptionOrNull()!!.message!!)
+                    snack(roi.exceptionOrNull()!!.message!!)
                     back()
                 }
             }
-            state.stage == null -> {
+            stage == null -> {
                 Progress()
-                viewModel.refreshStage()
+                viewModel.refreshStage(setStage)
             }
             else -> {
-                Dashboard(state.stage!!, snack, next, back, vis, sep, clazz, dyn)
+                viewModel.roi = roi.getOrNull()!!
+                Dashboard(stage, snack, next, back, vis, sep, clazz, dyn)
             }
         }
 

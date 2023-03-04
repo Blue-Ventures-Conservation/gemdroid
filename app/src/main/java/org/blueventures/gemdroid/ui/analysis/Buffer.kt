@@ -11,8 +11,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +28,7 @@ import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -56,31 +55,33 @@ object Buffer {
 
     @Composable
     fun Buffer(viewModel: AnalysisViewModel, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
-        val state by viewModel.state.collectAsState()
+        val (localBuffers, setLocalBuffers) = remember { mutableStateOf<Result<Buffers>?>(null) }
+        val (remoteBuffers, setRemoteBuffers) = remember { mutableStateOf<ApiResult<Buffers>?>(null) }
 
         when {
-            state.buffers == null -> {
+            localBuffers == null -> {
                 Progress()
-                viewModel.loadBuffersFile()
+                viewModel.loadBuffersFile(setLocalBuffers)
             }
-            !Buffers.isEmpty(state.buffers!!) -> {
-                BufferChoice(viewModel, state.buffers!!, snack, back, saving)
+            localBuffers.isSuccess -> {
+                BufferChoice(viewModel, localBuffers.getOrNull()!!, snack, back, saving)
             }
-            state.buffersResult == null -> {
+            remoteBuffers == null -> {
                 PleaseWait()
                 LaunchedEffect(key1 = true) {
-                    state.roi!!.getOrNull()?.let {
-                        viewModel.getBuffers(it)
+                    viewModel.getBuffers(setRemoteBuffers)
+                }
+            }
+            remoteBuffers is ApiResult.Error -> {
+                RefreshableError { stopRefresh ->
+                    viewModel.getBuffers { result ->
+                        stopRefresh()
+                        setRemoteBuffers(result)
                     }
                 }
             }
-            state.buffersResult is ApiResult.Error -> {
-                RefreshableError(state.roi!!.getOrNull()!!) { roi, callback ->
-                    viewModel.getBuffers(roi, callback)
-                }
-            }
-            state.buffersResult is ApiResult.Success -> {
-                val buffers = state.buffersResult!!.data!!
+            else -> {
+                val buffers = remoteBuffers.data!!
                 viewModel.saveBuffersFile(buffers)
                 BufferChoice(viewModel, buffers, snack, back, saving)
             }
@@ -112,13 +113,12 @@ object Buffer {
                 enabled = doneEnabled,
                 onClick = {
                     saving(true)
-                    viewModel.saveBuffer(bufferDist) { success ->
+                    viewModel.saveBuffer(bufferDist) { result ->
                         saving(false)
-                        if (success) {
-                            viewModel.clearStage()
+                        if (result.isSuccess) {
                             back()
                         } else {
-                            snack("Could not save buffer selection!")
+                            snack(result.exceptionOrNull()!!.message!!)
                         }
                     }
                 },
@@ -140,8 +140,11 @@ object Buffer {
                 factory = { context ->
                     AnyChartView(context).apply {
                         val chart = this
+                        chart.setLicenceKey(Licenses.anychart)
 
                         val cartesian = AnyChart.column()
+                        cartesian.credits().text("")
+
                         val sums = buffers.sums
                         val data = arrayListOf<DataEntry>()
                         sums.keys.forEachIndexed { i, key ->

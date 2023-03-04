@@ -32,21 +32,22 @@ class CachingUrlTileProvider(
 
         val tile: Tile?
         val cachedTile = deferred.await()
-        if (cachedTile == null) {
+        if (cachedTile.isFailure) {
             tile = urlProvider.getTile(x, y, z)
             tile?.let {
                 it.data?.let { img ->
                     launch(ioDispatcher) {
                         if (roiDir.exists()) {
-                            FileService.createDir(tileDir, "$z$sep$x")?.let { dir ->
-                                FileService.writeFile(File(dir, "$y"), img)
+                            val result = FileService.createDir(tileDir, "$z$sep$x")
+                            if (result.isSuccess) {
+                                FileService.writeFile(File(result.getOrNull()!!, "$y"), img)
                             }
                         }
                     }
                 }
             }
         } else {
-            tile = Tile(width, height, cachedTile)
+            tile = Tile(width, height, cachedTile.getOrNull()!!)
         }
 
         tile

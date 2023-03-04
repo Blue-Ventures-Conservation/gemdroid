@@ -14,16 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,36 +27,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.AnalysisState
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.analysis.CRAFile
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-
-typealias SelectCRA = @Composable (AnalysisViewModel, State<AnalysisState>, List<String>, SnackFun) -> Unit
+import java.io.InputStream
 
 object CRA {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, snack: SnackFun, back: Click, selectCRA: SelectCRA) {
-        val state = viewModel.state.collectAsState()
+    fun Screen(viewModel: AnalysisViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+        val (remoteCRAs, setRemoteCRAs) = remember { mutableStateOf<Result<List<String>>?>(null) }
 
         when {
-            state.value.remoteCRAs == null -> {
+            remoteCRAs == null -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    viewModel.getRemoteCRAs()
+                    viewModel.getRemoteCRAs(setRemoteCRAs)
                 }
             }
-            state.value.remoteCRAs!!.isFailure -> {
+            remoteCRAs.isFailure -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    snack(state.value.remoteCRAs!!.exceptionOrNull()!!.message!!)
+                    snack(remoteCRAs.exceptionOrNull()!!.message!!)
                     back()
                 }
             }
             else -> {
-                selectCRA(viewModel, state, state.value.remoteCRAs!!.getOrNull()!!, snack)
+                SelectCRA(viewModel, temporal, remoteCRAs.getOrNull()!!, snack, next, previous, setLocal, setRemote)
             }
         }
 
@@ -71,7 +65,55 @@ object CRA {
     }
 
     @Composable
-    fun Selection(viewModel: AnalysisViewModel, temporal: String, remoteCRAs: List<String>, result: MutableState<List<Uri>?>, setValidating: (Boolean) -> Unit, next: Click, fromStorage: (String) -> Unit) {
+    fun SelectCRA(viewModel: AnalysisViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+        val (selectedFiles, setSelectedFiles) = remember { mutableStateOf<List<Uri>?>(null) }
+        val (validating, setValidating) = remember { mutableStateOf(false) }
+        val (localCRA, setLocalCRA) = remember { mutableStateOf<Result<CRAFile>?>(null) }
+
+        if (validating) {
+            Progress()
+            when {
+                localCRA == null -> {
+                    val streams = arrayListOf<InputStream?>()
+                    val names = arrayListOf<String?>()
+                    selectedFiles?.forEach { uri ->
+                        streams.add(LocalContext.current.contentResolver.openInputStream(uri))
+                        names.add(contentDisplayName(LocalContext.current, uri))
+                    }
+                    viewModel.validateLocalCRA(streams, names, remoteCRAs, previous, setLocalCRA)
+                }
+                localCRA.isFailure -> {
+                    val e = localCRA.exceptionOrNull()!!
+                    LaunchedEffect(key1 = e) {
+                        snack(e.message!!)
+                        setLocalCRA(null)
+                        setSelectedFiles(null)
+                        setValidating(false)
+                    }
+                }
+                localCRA.isSuccess -> {
+                    val cra = localCRA.getOrNull()!!
+                    LaunchedEffect(key1 = cra) {
+                        setLocal(cra)
+                        setLocalCRA(null)
+                        setSelectedFiles(null)
+                        setValidating(false)
+                        next()
+                    }
+                }
+            }
+        } else {
+            val remotes = remoteCRAs.toMutableList()
+            if (previous != null && remotes.contains(previous)) {
+                remotes.remove(previous)
+            }
+
+            Selection(temporal, remotes, setSelectedFiles, setValidating, next, setRemote)
+        }
+    }
+
+    @Composable
+    fun Selection(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -80,15 +122,15 @@ object CRA {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (remoteCRAs.isEmpty()) {
-                LocalCRA(viewModel, temporal, result, setValidating, next)
+                LocalCRA(temporal, setSelectedFiles, setValidating)
             } else {
-                LocalRemoteSwitch(viewModel, temporal, remoteCRAs, result, setValidating, next, fromStorage)
+                LocalRemoteSwitch(temporal, remoteCRAs, setSelectedFiles, setValidating, next, setRemote)
             }
         }
     }
 
     @Composable
-    fun LocalRemoteSwitch(viewModel: AnalysisViewModel, temporal: String, remoteCRAs: List<String>, result: MutableState<List<Uri>?>, setValidating: (Boolean) -> Unit, next: Click, fromStorage: (String) -> Unit) {
+    fun LocalRemoteSwitch(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
         val checkedState = remember { mutableStateOf(true) }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -107,17 +149,17 @@ object CRA {
         }
 
         if (checkedState.value) {
-            RemoteCRA(remoteCRAs, next, fromStorage)
+            RemoteCRA(temporal, remoteCRAs, next, setRemote)
         } else {
-            LocalCRA(viewModel, temporal, result, setValidating, next)
+            LocalCRA(temporal, setSelectedFiles, setValidating)
         }
     }
 
     @Composable
-    fun LocalCRA(viewModel: AnalysisViewModel, temporal: String, result: MutableState<List<Uri>?>, setValidating: (Boolean) -> Unit, next: Click) {
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
+    fun LocalCRA(temporal: String, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit) {
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { files ->
             setValidating(true)
-            result.value = it
+            setSelectedFiles(files)
         }
 
         Column(
@@ -139,38 +181,19 @@ object CRA {
                 textAlign = TextAlign.Center
             )
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            result.value?.forEach { uri ->
-                contentDisplayName(LocalContext.current, uri)?.let { name ->
-                    Text(text = name, fontSize = 16.sp)
-                }
-            }
-        }
-        if (result.value?.isEmpty() != false) {
-            Button(onClick = {
-                launcher.launch(arrayOf("*/*"))
-            }) {
-                Text(text = "Select Shapefile", fontSize = 20.sp)
-            }
-        } else {
-            Button(onClick = {
-                viewModel.clearStage()
-                next()
-            }) {
-                Text(text = "Next", fontSize = 20.sp)
-            }
+        Spacer(modifier = Modifier.height(0.dp))
+        Button(onClick = {
+            launcher.launch(arrayOf("*/*"))
+        }) {
+            Text(text = "Select Shapefile", fontSize = 20.sp)
         }
     }
 
     @Composable
-    fun RemoteCRA(remoteCRAs: List<String>, next: Click, fromStorage: (String) -> Unit) {
+    fun RemoteCRA(temporal: String, remoteCRAs: List<String>, next: Click, setRemote: (String) -> Unit) {
         val nextEnabled = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf("") }
-        Dropdown(title = "Select Shapefile:", labels = remoteCRAs) { i ->
+        Dropdown(title = "Select $temporal Shapefile:", labels = remoteCRAs) { i ->
             selected.value = remoteCRAs[i]
             nextEnabled.value = true
         }
@@ -178,7 +201,7 @@ object CRA {
         Button(
             enabled = nextEnabled.value,
             onClick = {
-                fromStorage(selected.value)
+                setRemote(selected.value)
                 next()
             }
         ) {

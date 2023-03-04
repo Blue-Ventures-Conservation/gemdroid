@@ -70,14 +70,14 @@ object HistoricalYears {
 
     @Composable
     fun HistoricalYearStart(viewModel: RoiViewModel) {
-        var year by remember { mutableStateOf(viewModel.state.value.historicalYearStart) }
+        var year by remember { mutableStateOf(viewModel.historicalYearStart) }
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setHistoricalYearStart(it)
+                viewModel.historicalYearStart = it
                 year = it
             }
         )
@@ -85,14 +85,14 @@ object HistoricalYears {
 
     @Composable
     fun HistoricalYearEnd(viewModel: RoiViewModel) {
-        var year by remember { mutableStateOf(viewModel.state.value.historicalYearEnd) }
+        var year by remember { mutableStateOf(viewModel.historicalYearEnd) }
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setHistoricalYearEnd(it)
+                viewModel.historicalYearEnd = it
                 year = it
             }
         )

@@ -1,10 +1,12 @@
 package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.model.SignIn
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -60,10 +62,11 @@ class RoiDatasource(
      */
     fun getRois(filesDir: File): Result<List<File>> {
         return try {
-            val roisDir = roisDir(filesDir)
-            if (roisDir == null) {
-                Result.failure(Throwable("You don't appear to be logged in"))
+            val roisDirRes = roisDir(filesDir)
+            if (roisDirRes.isFailure) {
+                Result.failure(roisDirRes.exceptionOrNull()!!)
             } else {
+                val roisDir = roisDirRes.getOrNull()!!
                 if (roisDir.exists() || roisDir.mkdirs()) {
                     Result.success(FileService.getSubdirs(roisDir))
                 } else {
@@ -75,28 +78,49 @@ class RoiDatasource(
         }
     }
 
-    fun saveRoi(filesDir: File, roi: RoiState): Boolean {
+    fun saveRoi(
+        filesDir: File,
+        name: String,
+        contYearStart: Int,
+        contYearEnd: Int,
+        histYearStart: Int,
+        histYearEnd: Int,
+        monthStart: Int,
+        monthEnd: Int,
+        indices: List<String>,
+        points: List<LatLng>
+    ): Result<Unit> {
         return try {
-            val roisDir = roisDir(filesDir)
-            if (roisDir == null) {
-                false
+            val roisDirRes = roisDir(filesDir)
+            if (roisDirRes.isFailure) {
+                Result.failure(roisDirRes.exceptionOrNull()!!)
             } else {
-                val roiDir = File(roisDir, roi.name)
-
+                val roisDir = roisDirRes.getOrNull()!!
+                val roiDir = File(roisDir, name)
                 if (roiDir.exists() || roiDir.mkdirs()) {
-                    ROI.toFile(File(roiDir, filename), ROI.fromState(roi))
+                    ROI.toFile(File(roiDir, filename), ROI.fromState(
+                        name,
+                        contYearStart,
+                        contYearEnd,
+                        histYearStart,
+                        histYearEnd,
+                        monthStart,
+                        monthEnd,
+                        indices,
+                        points
+                    ))
                 } else {
-                    false
+                    Result.failure(Throwable("Could not read filesystem"))
                 }
             }
         } catch(e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    private fun roisDir(filesDir: File): File? {
-        val uid = auth.uid ?: return null
-        return File(File(filesDir, md5(uid)), dirname)
+    private fun roisDir(filesDir: File): Result<File> {
+        val uid = auth.uid ?: return Result.failure(SignIn.not)
+        return Result.success(File(File(filesDir, md5(uid)), dirname))
     }
 
     private fun md5(str: String): String {

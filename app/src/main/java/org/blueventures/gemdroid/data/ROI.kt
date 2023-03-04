@@ -1,68 +1,78 @@
 package org.blueventures.gemdroid.data
 
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.model.roi.RoiState
 import java.io.File
 
 data class ROI(
-    @Json(name = "buff_dist") val buffDist: Int,
-    @Json(name = "name") val name: String,
-    @Json(name = "cont_year_start") val contYearStart: Int,
-    @Json(name = "cont_year_end") val contYearEnd: Int,
-    @Json(name = "hist_year_start") val histYearStart: Int,
-    @Json(name = "hist_year_end") val histYearEnd: Int,
-    @Json(name = "month_start") val monthStart: Int,
-    @Json(name = "month_end") val monthEnd: Int,
-    @Json(name = "indices") val indices: List<String>,
-    @Json(name = "polygon") val polygon: Polygon,
+    @Json(name = "buff_dist") val buffDist: Int = 0,
+    @Json(name = "name") val name: String = "",
+    @Json(name = "cont_year_start") val contYearStart: Int = 0,
+    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @Json(name = "hist_year_start") val histYearStart: Int = 0,
+    @Json(name = "hist_year_end") val histYearEnd: Int = 0,
+    @Json(name = "month_start") val monthStart: Int = 0,
+    @Json(name = "month_end") val monthEnd: Int = 0,
+    @Json(name = "indices") val indices: List<String> = emptyList(),
+    @Json(name = "polygon") val polygon: Polygon = Polygon(),
 ){
     companion object {
         private val adapter = FileService.adapter<ROI>()
 
-        fun fromState(state: RoiState, buffDist: Int = -1): ROI {
+        fun fromState(
+            name: String,
+            contYearStart: Int,
+            contYearEnd: Int,
+            histYearStart: Int,
+            histYearEnd: Int,
+            monthStart: Int,
+            monthEnd: Int,
+            indices: List<String>,
+            points: List<LatLng>,
+            buffDist: Int = -1
+        ): ROI {
             return ROI(
                 buffDist,
-                state.name,
-                state.contemporaryYearStart,
-                state.contemporaryYearEnd,
-                state.historicalYearStart,
-                state.historicalYearEnd,
-                state.monthStart,
-                state.monthEnd,
-                state.indices.list(),
-                polygonFromState(state)
+                name,
+                contYearStart,
+                contYearEnd,
+                histYearStart,
+                histYearEnd,
+                monthStart,
+                monthEnd,
+                indices,
+                polygonFromState(points)
             )
         }
 
-        fun fromFile(file: File): ROI? {
+        fun fromFile(file: File): Result<ROI> {
             return FileService.fromFile(file, adapter)
         }
 
-        fun toFile(file: File, roi: ROI): Boolean {
+        fun toFile(file: File, roi: ROI): Result<Unit> {
             return FileService.toFile(file, roi, adapter)
         }
 
-        private fun polygonFromState(state: RoiState): Polygon {
+        private fun polygonFromState(points: List<LatLng>): Polygon {
             val coordinates: ArrayList<List<Double>> = arrayListOf()
-            for (point in state.points) {
+            for (point in points) {
                 coordinates.add(listOf(point.longitude, point.latitude))
             }
 
-            val first = state.points.first()
-            if (first != state.points.last()) {
+            val first = points.first()
+            if (first != points.last()) {
                 coordinates.add(listOf(first.longitude, first.latitude))
             }
 
             return Polygon(
-                "Polygon",
-                listOf(coordinates.toList())
+                coordinates = listOf(coordinates.toList())
             )
         }
     }
 }
 
 data class Polygon(
-    @Json(name = "type") val type: String,
-    @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
+    @Json(name = "type") val type: String = "Polygon",
+    @Json(name = "coordinates") val coordinates: List<List<List<Double>>> = emptyList(),
 )

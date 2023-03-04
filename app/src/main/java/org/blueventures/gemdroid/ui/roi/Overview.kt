@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,7 +47,6 @@ object Overview {
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                val state by viewModel.state.collectAsState()
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
@@ -63,22 +60,22 @@ object Overview {
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(text = state.name, fontSize = 18.sp)
-                    Text(text = "${state.contemporaryYearStart} - ${state.contemporaryYearEnd}", fontSize = 18.sp)
-                    Text(text = "${state.historicalYearStart} - ${state.historicalYearEnd}", fontSize = 18.sp)
-                    Text(text = "${state.monthStart} - ${state.monthEnd}", fontSize = 18.sp)
-                    Text(text = "${state.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
-                    Text(text = "${state.indices.list()}", fontSize = 18.sp)
+                    Text(text = viewModel.name, fontSize = 18.sp)
+                    Text(text = "${viewModel.contemporaryYearStart} - ${viewModel.contemporaryYearEnd}", fontSize = 18.sp)
+                    Text(text = "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}", fontSize = 18.sp)
+                    Text(text = "${viewModel.monthStart} - ${viewModel.monthEnd}", fontSize = 18.sp)
+                    Text(text = "${viewModel.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
+                    Text(text = "${viewModel.indices.list()}", fontSize = 18.sp)
                 }
             }
             Button(onClick = {
                 saving(true)
-                viewModel.saveRoi(filesDir) { success ->
+                viewModel.saveRoi(filesDir) { result ->
                     saving(false)
-                    if (success) {
+                    if (result.isSuccess) {
                         done()
                     } else {
-                        snack("Failed to save ROI")
+                        snack(result.exceptionOrNull()!!.message!!)
                     }
                 }
             }) {

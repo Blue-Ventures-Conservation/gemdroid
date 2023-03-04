@@ -53,7 +53,6 @@ object Analysis {
                     nav.popClear(route)
                 }
             }, back = {
-                roiModel.clear()
                 nav.popClear(Roi.Routes.list)
             }, vis = {
                 nav.popClear(Routes.visualize)
@@ -85,13 +84,12 @@ object Analysis {
             ContemporaryCRA.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.hist_choice)
             }) {
-                viewModel.clearLocalContemporaryCRA()
                 nav.popClear(Routes.dashboard)
             }
         }
         b.composable(Routes.hist_choice) {
             ChooseHistorical.Screen(viewModel, {
-                when(viewModel.state.value.historicalChoice) {
+                when(viewModel.historicalChoice) {
                     HistoricalChoice.SEPARATE -> {
                         nav.navigate(Routes.hist_cra)
                     }
@@ -108,7 +106,6 @@ object Analysis {
             HistoricalCRA.Screen(viewModel, snack, {
                 nav.navigate(Routes.cra_fields)
             }) {
-                viewModel.clearLocalHistoricalCRA()
                 nav.popBackStack()
             }
         }

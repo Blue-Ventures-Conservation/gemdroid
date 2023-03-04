@@ -21,15 +21,15 @@ class AnalysisRepository(
         emit(dataSource.getStage(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getROI(roiDir: File): Flow<ROI?> = flow {
+    fun getROI(roiDir: File): Flow<Result<ROI>> = flow {
         emit(dataSource.getROI(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffersFile(roiDir: File, buffers: Buffers): Flow<Boolean> = flow {
+    fun saveBuffersFile(roiDir: File, buffers: Buffers): Flow<Result<Unit>> = flow {
         emit(dataSource.saveBuffersFile(roiDir, buffers))
     }.flowOn(ioDispatcher)
 
-    fun loadBuffersFile(roiDir: File): Flow<Buffers?> = flow {
+    fun loadBuffersFile(roiDir: File): Flow<Result<Buffers>> = flow {
         emit(dataSource.loadBuffersFile(roiDir))
     }.flowOn(ioDispatcher)
 
@@ -37,10 +37,10 @@ class AnalysisRepository(
         emit(dataSource.getBuffers(roi))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int): Flow<Boolean> = flow {
+    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int): Flow<Result<Unit>> = flow {
         val roiSaved = dataSource.saveROI(roiDir, roi)
-        if (!roiSaved) {
-            emit(false)
+        if (roiSaved.isFailure) {
+            emit(roiSaved)
         } else {
             emit(dataSource.saveBuffer(roiDir, buffer))
         }
@@ -50,11 +50,11 @@ class AnalysisRepository(
         emit(dataSource.getVisualizeURLs(roi))
     }.flowOn(ioDispatcher)
 
-    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Flow<Boolean> = flow {
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Flow<Result<Unit>> = flow {
         emit(dataSource.saveVisualizeURLs(roiDir, urls))
     }.flowOn(ioDispatcher)
 
-    fun loadVisualizeURLs(roiDir: File): Flow<VisualizeURLs?> = flow {
+    fun loadVisualizeURLs(roiDir: File): Flow<Result<VisualizeURLs>> = flow {
         emit(dataSource.loadVisualizeURLs(roiDir))
     }.flowOn(ioDispatcher)
 
@@ -62,8 +62,8 @@ class AnalysisRepository(
         emit(dataSource.getRemoteCRAs(callback))
     }.flowOn(ioDispatcher)
 
-    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>) = flow {
-        emit(dataSource.validateLocalCRA(roiDir, files, names))
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?) = flow {
+        emit(dataSource.validateLocalCRA(roiDir, files, names, remoteCRAs, previous))
     }.flowOn(ioDispatcher)
 
     fun getCRAFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Fields>) -> Unit) = flow {

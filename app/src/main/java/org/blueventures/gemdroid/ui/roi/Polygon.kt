@@ -125,7 +125,7 @@ object Polygon {
             // we clear everything here before added saved data to the map
             map.clear()
 
-            for (latlng in viewModel.state.value.points) {
+            for (latlng in viewModel.points) {
                 map.addMarker(MarkerOptions().position(latlng))?.let { marker ->
                     markerAdd(marker)
                 }

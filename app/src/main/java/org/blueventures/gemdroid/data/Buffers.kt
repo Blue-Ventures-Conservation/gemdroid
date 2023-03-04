@@ -14,22 +14,13 @@ data class Buffers(
             @Json(name = "vals") val vals: List<Int>
         )
 
-        fun empty(): Buffers {
-            return Buffers(KeysVals(emptyList(), emptyList()), KeysVals(emptyList(), emptyList()))
-        }
-
-        fun isEmpty(buffers: Buffers?): Boolean {
-            val b = buffers ?: return true
-            return b.sums.keys.isEmpty() && b.sums.vals.isEmpty() && b.buffers.keys.isEmpty() && b.buffers.vals.isEmpty()
-        }
-
         private val adapter = FileService.adapter<Buffers>()
 
-        fun fromFile(file: File): Buffers? {
+        fun fromFile(file: File): Result<Buffers> {
             return FileService.fromFile(file, adapter)
         }
 
-        fun toFile(file: File, buffer: Buffers): Boolean {
+        fun toFile(file: File, buffer: Buffers): Result<Unit> {
             return FileService.toFile(file, buffer, adapter)
         }
     }

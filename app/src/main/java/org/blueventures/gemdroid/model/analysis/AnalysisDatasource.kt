@@ -16,6 +16,7 @@ import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.roi.RoiDatasource
 import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
 import java.io.File
@@ -52,9 +53,12 @@ class AnalysisDatasource(
     fun saveBuffer(roiDir: File, buffer: Int) = Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
     suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
 
-    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Boolean {
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Result<Unit> {
         visualizeTileDirs.forEach { subdir ->
-            FileService.createDir(File(roiDir, visualizeDir), subdir) ?: return false
+            val subdirRes = FileService.createDir(File(roiDir, visualizeDir), subdir)
+            if (subdirRes.isFailure) {
+                return Result.failure(subdirRes.exceptionOrNull()!!)
+            }
         }
 
         return VisualizeURLs.toFile(File(File(roiDir, visualizeDir), visualizeURLsFile), urls)
@@ -82,19 +86,29 @@ class AnalysisDatasource(
                     callback(Result.failure(Throwable(it)))
                 }
         } ?: run {
-            callback(Result.failure(Throwable("You don't appear to be logged in!")))
+            callback(Result.failure(SignIn.not))
         }
     }
 
-    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>): Result<CRAFile> {
-        val noWrite = Throwable("Could not write to file system!")
-        val crasDir = FileService.createDir(roiDir, crasDir) ?: return Result.failure(noWrite)
-        val unzipDir = FileService.createDir(crasDir, crasUnzipDir) ?: return Result.failure(noWrite)
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
+        val craDirRes = FileService.createDir(roiDir, crasDir)
+        if (craDirRes.isFailure) {
+            return Result.failure(craDirRes.exceptionOrNull()!!)
+        }
+
+        val crasDir = craDirRes.getOrNull()!!
+
+        val unzipDirRes = FileService.createDir(crasDir, crasUnzipDir)
+        if (unzipDirRes.isFailure) {
+            return Result.failure(unzipDirRes.exceptionOrNull()!!)
+        }
+
+        val unzipDir = unzipDirRes.getOrNull()!!
 
         return when {
             files.isEmpty() -> Result.failure(Throwable("No file selected."))
-            files.size == 1 -> validateShapes(crasDir, unzip(unzipDir, files[0], names[0]))
-            else -> validateShapes(crasDir, copyShapes(unzipDir, files, names))
+            files.size == 1 -> validateShapes(crasDir, remoteCRAs, previous, unzip(unzipDir, files[0], names[0]))
+            else -> validateShapes(crasDir, remoteCRAs, previous, copyShapes(unzipDir, files, names))
         }
     }
 
@@ -105,8 +119,9 @@ class AnalysisDatasource(
                 return Result.failure(Throwable("Could not read shapefiles"))
             }
             val path = File(dir, names[i]!!).path
-            if (!FileService.streamToFile(shp, path)) {
-                return Result.failure(Throwable("Could not copy shapefiles"))
+            val streamRes = FileService.streamToFile(shp, path)
+            if (streamRes.isFailure) {
+                return Result.failure(streamRes.exceptionOrNull()!!)
             }
 
             paths.add(path)
@@ -125,12 +140,14 @@ class AnalysisDatasource(
             return Result.failure(Throwable("Could not open selected .zip for validation"))
         }
 
-        val noRead = Throwable("Could not inspect zip file, make sure it has no internal directories")
-        val paths = FileService.unzip(zip, dir.path) ?: return Result.failure(noRead)
-        return Result.success(paths)
+        val pathsRes = FileService.unzip(zip, dir.path)
+        if (pathsRes.isFailure) {
+            return Result.failure(pathsRes.exceptionOrNull()!!)
+        }
+        return Result.success(pathsRes.getOrNull()!!)
     }
 
-    private fun validateShapes(crasDir: File, pathsResult: Result<List<String>>): Result<CRAFile> {
+    private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
         if (pathsResult.isFailure) {
             return Result.failure(pathsResult.exceptionOrNull()!!)
         }
@@ -183,6 +200,14 @@ class AnalysisDatasource(
             return Result.failure(Throwable("Shapefiles should all have the same name."))
         }
 
+        if (previous != null && previous == shpName) {
+            return Result.failure(Throwable("Please select two different shapefiles."))
+        }
+
+        if (remoteCRAs.contains(shpName)) {
+            return Result.failure(Throwable("Please use the previously uploaded shapefile by that name."))
+        }
+
         val fields = arrayListOf<String>()
         try {
             // these constructors will inspect the file header
@@ -201,8 +226,9 @@ class AnalysisDatasource(
 
         val zipFile = File(crasDir, "$shpName.zip")
 
-        if (!FileService.zip(arrayOf(shp!!, shx!!, dbf!!, prj!!), zipFile.path)) {
-            return Result.failure(Throwable("Could not (re)zip shapefile."))
+        val zipRes = FileService.zip(arrayOf(shp!!, shx!!, dbf!!, prj!!), zipFile.path)
+        if (zipRes.isFailure) {
+            return Result.failure(zipRes.exceptionOrNull()!!)
         }
 
         FileService.deleteDir(File(crasDir, crasUnzipDir))
@@ -309,13 +335,15 @@ class AnalysisDatasource(
                     try {
                         val tmp = File.createTempFile("cras", "json")
                         storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
-                            Shapefile.fromFile(tmp)?.let { shp ->
+                            val shpRes = Shapefile.fromFile(tmp)
+                            if (shpRes.isFailure) {
+                                callback(Result.failure(shpRes.exceptionOrNull()!!))
+                            } else {
+                                val shp = shpRes.getOrNull()!!
                                 callback(Result.success(Fields(
                                     numeric = shp.numericClassField,
                                     string = shp.stringClassField
                                 )))
-                            } ?: run {
-                                callback(Result.failure(Throwable("Could not load remote CRA")))
                             }
                         }.addOnFailureListener {
                             callback(Result.failure(Throwable(it)))
@@ -324,7 +352,7 @@ class AnalysisDatasource(
                         callback(Result.failure(Throwable(e)))
                     }
                 } ?: run {
-                    callback(Result.failure(Throwable("You don't appear to be logged in")))
+                    callback(Result.failure(SignIn.not))
                 }
             } ?: run {
                 callback(Result.failure(Throwable("Internal storage key error, sorry!")))
@@ -386,7 +414,7 @@ class AnalysisDatasource(
                     callback(Result.failure(Throwable(it)))
                 }
         } ?: run {
-            callback(Result.failure(Throwable("You don't appear to be logged in")))
+            callback(Result.failure(SignIn.not))
         }
     }
 
@@ -394,25 +422,32 @@ class AnalysisDatasource(
         auth.currentUser?.uid?.let { uid ->
             try {
                 val tmp = File.createTempFile(key, "json")
-                if (Shapefile.toFile(tmp, Shapefile(key, numeric, string))) {
+                val shpRes = Shapefile.toFile(tmp, Shapefile(key, numeric, string))
+                if (shpRes.isFailure) {
+                    callback(shpRes)
+                } else {
                     storage.reference.child("users/$uid/shps/$key.json").putFile(Uri.fromFile(tmp))
                         .addOnSuccessListener {
                             callback(Result.success(Unit))
                         }.addOnFailureListener {
                             callback(Result.failure(Throwable(it)))
                         }
-                } else {
-                    callback(Result.failure(Throwable("Could not upload shapefile metadata")))
                 }
             } catch (e: Exception) {
                 callback(Result.failure(Throwable(e)))
             }
         } ?: run {
-            callback(Result.failure(Throwable("You don't appear to be logged in")))
+            callback(Result.failure(SignIn.not))
         }
     }
 
-    fun saveCRAs(roiDir: File, cra: CRA) = CRA.toFile(File(File(roiDir, crasDir), craFile), cra)
+    fun saveCRAs(roiDir: File, cra: CRA): Result<Unit> {
+        val crasDirRes = FileService.createDir(roiDir, crasDir)
+        if (crasDirRes.isFailure) {
+            return Result.failure(crasDirRes.exceptionOrNull()!!)
+        }
+        return CRA.toFile(File(crasDirRes.getOrNull()!!, craFile), cra)
+    }
 
     companion object {
         // Buffer Stage

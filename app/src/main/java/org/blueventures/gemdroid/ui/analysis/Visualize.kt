@@ -15,7 +15,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,44 +46,44 @@ object Visualize {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = "Visualize Imagery"))
-        viewModel.clearBuffers()
         Visualize(viewModel, appBar, back)
     }
 
     @Composable
     fun Visualize(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
-        val state by viewModel.state.collectAsState()
+        val (localURLs, setLocalURLs) = remember { mutableStateOf<Result<VisualizeURLs>?>(null) }
+        val (remoteURLs, setRemoteURLs) = remember { mutableStateOf<ApiResult<VisualizeURLs>?>(null) }
 
         when {
-            state.visualizeURLs == null -> {
+            localURLs == null -> {
                 Progress()
-                viewModel.loadVisualizeURLs()
+                viewModel.loadVisualizeURLsFile(setLocalURLs)
             }
-            !VisualizeURLs.isEmpty(state.visualizeURLs!!) -> {
-                VisualizeMap(viewModel, state.visualizeURLs!!, appBar)
+            localURLs.isSuccess -> {
+                VisualizeMap(viewModel, localURLs.getOrNull()!!, appBar)
             }
-            state.visualizeURLsResult == null -> {
+            remoteURLs == null -> {
                 PleaseWait()
                 LaunchedEffect(key1 = true) {
-                    state.roi!!.getOrNull()?.let {
-                        viewModel.getVisualizeURLs(it)
+                    viewModel.getVisualizeURLs(setRemoteURLs)
+                }
+            }
+            remoteURLs is ApiResult.Error -> {
+                RefreshableError { stopRefreshing ->
+                    viewModel.getVisualizeURLs { result ->
+                        stopRefreshing()
+                        setRemoteURLs(result)
                     }
                 }
             }
-            state.visualizeURLsResult is ApiResult.Error -> {
-                RefreshableError(state.roi!!.getOrNull()!!) { roi, callback ->
-                    viewModel.getVisualizeURLs(roi, callback)
-                }
-            }
-            state.visualizeURLsResult is ApiResult.Success -> {
-                val urls = state.visualizeURLsResult!!.data!!
-                viewModel.saveVisualizeURLs(urls)
+            else -> {
+                val urls = remoteURLs.data!!
+                viewModel.saveVisualizeURLsFile(urls)
                 VisualizeMap(viewModel, urls, appBar)
             }
         }
 
         BackHandler {
-            viewModel.clearStage()
             back()
         }
     }
@@ -166,14 +165,14 @@ object Visualize {
                 val mapFragment = mapContainer.getFragment<SupportMapFragment>()
                 mapFragment.getMapAsync { map ->
                     map.clear()
-                    val roiDir = viewModel.state.value.roiDir
+                    val roiDir = viewModel.roiDir
                     chot = map.addTileOverlay(tileOpts(roiDir, viewModel.chotTileDir(), urls.chotURL, 4f))
                     clot = map.addTileOverlay(tileOpts(roiDir, viewModel.clotTileDir(), urls.clotURL, 3f))
                     hhot = map.addTileOverlay(tileOpts(roiDir, viewModel.hhotTileDir(), urls.hhotURL, 2f))
                     hlot = map.addTileOverlay(tileOpts(roiDir, viewModel.hlotTileDir(), urls.hlotURL, 1f))
 
                     val builder = LatLngBounds.builder()
-                    for (pt in viewModel.state.value.roi!!.getOrNull()!!.polygon.coordinates[0]) {
+                    for (pt in viewModel.roi.polygon.coordinates[0]) {
                         builder.include(LatLng(pt[1], pt[0]))
                     }
                     map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))

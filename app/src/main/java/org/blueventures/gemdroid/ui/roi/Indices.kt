@@ -25,7 +25,7 @@ object Indices {
     @Composable
     fun Screen(viewModel: RoiViewModel, back: Click, next: Click) {
         val choices = viewModel.getIndices()
-        val (choice, setChoice) = remember { mutableStateOf(viewModel.state.value.indices) }
+        val (choice, setChoice) = remember { mutableStateOf(viewModel.indices) }
 
         Column(
             modifier = Modifier
@@ -59,7 +59,7 @@ object Indices {
             }
             Button(
                 onClick = {
-                    viewModel.setIndices(choice)
+                    viewModel.indices = choice
                     next()
                 }
             ) {

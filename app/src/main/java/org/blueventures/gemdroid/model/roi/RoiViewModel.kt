@@ -5,41 +5,45 @@ import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.SphericalUtil
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import java.util.Calendar
 import java.util.Collections
 
 class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewModel() {
-    private val _state = MutableStateFlow(RoiState())
-    val state: StateFlow<RoiState> = _state
+    var rois: List<File> = emptyList()
+    var name: String = ""
+    var contemporaryYearStart: Int = defaultContemporaryYearStart
+    var contemporaryYearEnd: Int = defaultContemporaryYearEnd
+    var historicalYearStart: Int = defaultHistoricalYearStart
+    var historicalYearEnd: Int = defaultHistoricalYearEnd
+    var monthStart: Int = defaultMonthStart
+    var monthEnd: Int = defaultMonthEnd
+    var indices: Indices = defaultIndices
+    var points: ArrayList<LatLng> = arrayListOf()
 
-    fun refreshRois(filesDir: File) = scoped {
-        repo.getRois(filesDir).collect { result ->
-            newState(_state.value.copy(rois = result))
-        }
+    fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
+
+    fun saveRoi(filesDir: File, callback: (Result<Unit>) -> Unit) = scoped {
+        repo.saveRoi(
+            filesDir,
+            name,
+            contemporaryYearStart,
+            contemporaryYearEnd,
+            historicalYearStart,
+            historicalYearEnd,
+            monthStart,
+            monthEnd,
+            indices.list(),
+            points
+        ).collect(callback)
     }
 
-    fun saveRoi(filesDir: File, callback: (Boolean) -> Unit) = scoped {
-        repo.saveRoi(filesDir, _state.value).collect {
-            callback(it)
-        }
-    }
+    fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
 
-    fun deleteRoi(dir: File, callback: (Boolean) -> Unit) = scoped {
-        repo.deleteRoi(dir).collect {
-            newState(_state.value.copy(rois = null))
-            callback(it)
-        }
-    }
-
-    fun isUnique(name: String): Boolean {
-        _state.value.rois?.getOrNull()?.let { dirs ->
-            for (dir in dirs) {
-                if (dir.name == name) {
-                    return@isUnique false
-                }
+    fun isUnique(): Boolean {
+        for (dir in rois) {
+            if (dir.name == name) {
+                return false
             }
         }
 
@@ -47,54 +51,44 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
 
     private val nameRegex by lazy { Regex("[a-zA-Z\\d]+[a-zA-Z\\d\\s]*") }
-    fun notSpecial(name: String): Boolean {
-        return nameRegex.matches(name)
-    }
+    fun notSpecial() = nameRegex.matches(name)
 
-    fun setName(name: String) = newState(_state.value.copy(name = name))
-    fun setContemporaryYearStart(year: Int) = newState(_state.value.copy(contemporaryYearStart = year))
-    fun setContemporaryYearEnd(year: Int) = newState(_state.value.copy(contemporaryYearEnd = year))
-    fun validateContemporaryYearsOrder() = validateDateIntsOrder(_state.value.contemporaryYearStart, _state.value.contemporaryYearEnd)
-    fun validateContemporaryYearsGap() = validateYearGap(_state.value.contemporaryYearStart, _state.value.contemporaryYearEnd)
-    fun clearContemporaryYears() = newState(_state.value.copy(contemporaryYearStart = defaultContemporaryYearStart, contemporaryYearEnd = defaultContemporaryYearEnd))
-    fun setHistoricalYearStart(year: Int) = newState(_state.value.copy(historicalYearStart = year))
-    fun setHistoricalYearEnd(year: Int) = newState(_state.value.copy(historicalYearEnd = year))
-    fun validateHistoricalYearsOrder() = validateDateIntsOrder(_state.value.historicalYearStart, _state.value.historicalYearEnd)
-    fun validateHistoricalYearsGap() = validateYearGap(_state.value.historicalYearStart, _state.value.historicalYearEnd)
-    fun clearHistoricalYears() = newState(_state.value.copy(historicalYearStart = defaultHistoricalYearStart, historicalYearEnd = defaultHistoricalYearEnd))
-    fun setMonthStart(month: Int) = newState(_state.value.copy(monthStart = month))
-    fun setMonthEnd(month: Int) = newState(_state.value.copy(monthEnd = month))
-    fun validateMonthsOrder() = validateDateIntsOrder(_state.value.monthStart, _state.value.monthEnd)
-    fun clearMonths() = newState(_state.value.copy(monthStart = defaultMonthStart, monthEnd = defaultMonthEnd))
-    fun setIndices(i: Indices) = newState(_state.value.copy(indices = i))
+    fun clearName() { name = "" }
+    fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
+    fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
+    fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
+    fun validateHistoricalYearsOrder() = validateDateIntsOrder(historicalYearStart, historicalYearEnd)
+    fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
+    fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
+    fun validateMonthsOrder() = validateDateIntsOrder(monthStart, monthEnd)
+    fun clearMonths() { monthStart = defaultMonthStart; monthEnd = defaultMonthEnd}
     fun getIndices() = listOf(Indices.LS_BEST, Indices.LS_STANDARD, Indices.LS)
-    fun clearIndices() = newState(_state.value.copy(indices = defaultIndices))
+    fun clearIndices() { indices = defaultIndices }
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
-    fun clearPoints() = newState(_state.value.copy(points = arrayListOf()))
-    fun polygonArea() = SphericalUtil.computeArea(_state.value.points)/1_000_000
+    fun clearPoints() { points = arrayListOf() }
+    fun polygonArea() = SphericalUtil.computeArea(points)/1_000_000
     fun validatePolygon(): Boolean {
         val area = polygonArea()
         return area > 0 && area <= maxROIArea
     }
     fun polygonOpts(): PolygonOptions? {
-        if (_state.value.points.size < 3) {
+        if (points.size < 3) {
             return null
         }
         val opts = PolygonOptions().strokeWidth(2F).fillColor(0x7F00FF00)
-        for (latlng in _state.value.points) {
+        for (latlng in points) {
             opts.add(latlng)
         }
         return opts
     }
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() = newState(RoiState())
-    private fun newState(state: RoiState) { _state.value = state }
+    fun clear() { clearName(); clearContemporaryYears(); clearHistoricalYears(); clearMonths(); clearIndices(); clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
     private fun adjustPolygonWithRespectTo(point: LatLng) {
-        val points = _state.value.points
+        val points = this.points
 
         if (points.size > 2) {
             var minDistance = 0F
@@ -136,12 +130,12 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
             // 4. move the nearest coordinate at the end by shifting array right
             val shiftByNumber: Int = points.size - position - 1
             if (shiftByNumber != points.size) {
-                newState(_state.value.copy(points = rotate(points, shiftByNumber)))
+                this.points = rotate(points, shiftByNumber)
             }
         }
 
         // 5. Now add coordinated to be drawn
-        _state.value.points.add(point)
+        this.points.add(point)
     }
 
     private fun minIndex(list: ArrayList<Float>): Int {
@@ -183,19 +177,6 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         val defaultIndices = Indices.LS_BEST
     }
 }
-
-data class RoiState(
-    val rois: Result<List<File>>? = null, // nullable so we can detect when no files yet exist but we have checked
-    val name: String = "",
-    val contemporaryYearStart: Int = RoiViewModel.defaultContemporaryYearStart,
-    val contemporaryYearEnd: Int = RoiViewModel.defaultContemporaryYearEnd,
-    val historicalYearStart: Int = RoiViewModel.defaultHistoricalYearStart,
-    val historicalYearEnd: Int = RoiViewModel.defaultHistoricalYearEnd,
-    val monthStart: Int = RoiViewModel.defaultMonthStart,
-    val monthEnd: Int = RoiViewModel.defaultMonthEnd,
-    val indices: Indices = RoiViewModel.defaultIndices,
-    val points: ArrayList<LatLng> = arrayListOf(),
-)
 
 /**
  * 1: the six Landsat bands on their own = ‘LS’

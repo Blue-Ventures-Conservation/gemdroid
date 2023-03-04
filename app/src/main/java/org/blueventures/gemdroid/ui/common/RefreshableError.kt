@@ -25,14 +25,14 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.blueventures.gemdroid.data.ROI
 
 @Composable
-fun RefreshableError(roi: ROI, fetchFunc: (ROI, () -> Unit) -> Unit) {
+fun RefreshableError(fetchFunc: (() -> Unit) -> Unit) {
     var refreshing by remember { mutableStateOf(false) }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = refreshing),
         onRefresh = {
             refreshing = true
-            fetchFunc(roi) {
+            fetchFunc {
                 refreshing = false
             }
         },

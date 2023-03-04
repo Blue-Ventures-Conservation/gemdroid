@@ -28,7 +28,7 @@ object Roi {
         b.composable(Routes.list) {
             RoiList.Screen(roiModel, activity.filesDir, appBar, snack, roiClick = { dir ->
                 analysisModel.clear()
-                analysisModel.setRoiDir(dir)
+                analysisModel.roiDir = dir
                 nav.popClear(Analysis.Routes.dashboard)
             }) {
                 nav.popClear(Routes.name)
@@ -38,7 +38,7 @@ object Roi {
         // ROI name creation
         b.composable(Routes.name) {
             Name.Screen(roiModel, appBar, snack, back = {
-                roiModel.clear()
+                roiModel.clearName()
                 nav.popClear(Routes.list)
             }) {
                 nav.navigate(Routes.contemporaryYears)

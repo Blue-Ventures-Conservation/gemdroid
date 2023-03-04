@@ -21,8 +21,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,8 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -43,32 +41,36 @@ object RoiList {
     fun Screen(viewModel: RoiViewModel, filesDir: File, appbar: AppBarFun, snack: SnackFun, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
         appbar(AppBarUpdate(title = "Regions of Interest"))
 
-        val state by viewModel.state.collectAsState()
-        val (toDelete, setDeleteRoi) = remember{ mutableStateOf<File?>(null) }
+        val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
+        val (toDelete, setDeleteRoi) = remember { mutableStateOf<File?>(null) }
 
         if (toDelete != null) {
-            DeleteDialog(viewModel, snack, toDelete) { setDeleteRoi(null) }
+            DeleteDialog(viewModel, snack, toDelete) { setDeleteRoi(null); setRois(null) }
         }
 
         when {
-            state.rois == null -> {
+            rois == null -> {
                 Progress()
-                viewModel.refreshRois(filesDir)
+                viewModel.refreshRois(filesDir, setRois)
             }
-            state.rois!!.isFailure -> {
-                snack(state.rois!!.exceptionOrNull()!!.message!!)
+            rois.isFailure -> {
+                snack(rois.exceptionOrNull()!!.message!!)
             }
             else -> {
+                val list = rois.getOrNull()!!
+                viewModel.rois = list
+
                 Box(modifier = Modifier.fillMaxSize()) {
                     FloatingActionButton(
-                        onClick = floatingOnClick, modifier = Modifier
+                        onClick = floatingOnClick,
+                        modifier = Modifier
                             .padding(24.dp)
                             .align(Alignment.BottomEnd)
                     ) {
                         Icon(Icons.Filled.Add, "Add new ROI")
                     }
                     Column(modifier = Modifier.fillMaxSize()) {
-                        ListView(state.rois!!.getOrNull()!!, roiClick, setDeleteRoi)
+                        ListView(list, roiClick, setDeleteRoi)
                     }
                 }
             }
@@ -83,10 +85,10 @@ object RoiList {
             text = { Text(text = "Really delete '${toDelete.name}'?") },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.deleteRoi(toDelete) { success ->
+                    viewModel.deleteRoi(toDelete) { result ->
                         onDismiss()
-                        if (!success) {
-                            snackbar("Failed to delete ${toDelete.name}")
+                        if (result.isFailure) {
+                            snackbar(result.exceptionOrNull()!!.message!!)
                         }
                     }
                 }) {
@@ -140,9 +142,7 @@ object RoiList {
                 Icons.Filled.Delete, "Delete ROI", modifier = Modifier
                     .padding(20.dp)
                     .size(32.dp)
-                    .clickable {
-                        setDeleteRoi(dir)
-                    }
+                    .clickable { setDeleteRoi(dir) }
             )
         }
     }

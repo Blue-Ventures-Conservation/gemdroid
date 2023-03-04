@@ -9,7 +9,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,31 +36,31 @@ object CRAFields {
 
     @Composable
     fun CRAFields(viewModel: AnalysisViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
-        val state = viewModel.state.collectAsState()
+        val (fields, setFields) = remember { mutableStateOf<Result<Fields>?>(null) }
 
         when {
-            state.value.fields == null -> {
+            fields == null -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    viewModel.getCRAFields()
+                    viewModel.getCRAFields(setFields)
                 }
             }
-            state.value.fields!!.isFailure -> {
+            fields.isFailure -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    snack(state.value.fields!!.exceptionOrNull()!!.message!!)
+                    snack(fields.exceptionOrNull()!!.message!!)
                     back()
                 }
             }
-            state.value.fields!!.getOrNull()!!.complete() -> {
+            fields.getOrNull()!!.complete() -> {
                 Progress()
                 LaunchedEffect(key1 = true) {
-                    viewModel.setFields(state.value.fields!!.getOrNull()!!)
-                    viewModel.saveCRAs {
+                    viewModel.setFields(fields.getOrNull()!!)
+                    viewModel.saveCRAs { result ->
                         when {
-                            it.isSuccess -> done()
+                            result.isSuccess -> done()
                             else -> {
-                                snack(it.exceptionOrNull()!!.message!!)
+                                snack(result.exceptionOrNull()!!.message!!)
                                 back()
                             }
                         }
@@ -69,7 +68,7 @@ object CRAFields {
                 }
             }
             else -> {
-                SelectFields(viewModel, state.value.fields!!.getOrNull()!!.list!!, setSaving, snack, done)
+                SelectFields(viewModel, fields.getOrNull()!!.list!!, setSaving, snack, done)
             }
         }
 

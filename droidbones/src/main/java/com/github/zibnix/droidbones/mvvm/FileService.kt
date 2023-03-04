@@ -9,8 +9,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -53,108 +51,121 @@ object FileService {
         }
     }
 
-    fun createDir(parent: File, name: String): File? {
+    fun createDir(parent: File, name: String): Result<File> {
         return try {
             val dir = File(parent, name)
 
             if (dir.exists()) {
-                dir
+                Result.success(dir)
             } else {
                 when (dir.mkdirs()) {
-                    true -> dir
-                    false -> null
+                    true -> Result.success(dir)
+                    false -> Result.failure(Throwable("Could not create directory"))
                 }
             }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
 
-    fun createFile(dir: File, child: String): File? {
+    fun createFile(dir: File, child: String): Result<File> {
         return try {
             val f = File(dir, child)
 
             if (f.exists()) {
-                f
+                Result.success(f)
             } else {
                 when (f.createNewFile()) {
-                    true -> f
-                    false -> null
+                    true -> Result.success(f)
+                    false -> Result.failure(Throwable("Could not create file"))
                 }
             }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
 
-    fun renameFile(file: File, name: String): Boolean {
+    fun renameFile(file: File, name: String): Result<Unit> {
         val dir = file.parentFile
 
         return if (dir == null) {
-            false
+            Result.failure(Throwable("Could not read parent directory name"))
         } else {
             try {
-                file.renameTo(File(dir, name))
+                if (file.renameTo(File(dir, name))) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Throwable("Could not rename file"))
+                }
             } catch (e: Exception) {
-                false
+                Result.failure(e)
             }
         }
     }
 
-    fun deleteFile(file: File): Boolean {
+    fun deleteFile(file: File): Result<Unit> {
         return try {
-            file.delete()
+            if (file.delete()) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Throwable("Could not delete file"))
+            }
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    fun deleteDir(dir: File): Boolean {
+    fun deleteDir(dir: File): Result<Unit> {
         return try {
             val contents = dir.listFiles()
 
             var allGone = true
             if (contents != null) {
                 for (f in contents) {
-                    if (!deleteDir(f)) {
-                        allGone = false
+                    val res = deleteDir(f)
+                    when {
+                        res.isFailure -> { allGone = false; break }
+                        else -> continue
                     }
                 }
             }
 
             if (!allGone) {
-                false
+                Result.failure(Throwable("Could not delete directory contents"))
             } else {
-                dir.delete()
+                when (dir.delete()) {
+                    true -> Result.success(Unit)
+                    false -> Result.failure(Throwable("Could not delete directory"))
+                }
             }
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    fun readFile(file: File): ByteArray? {
+    fun readFile(file: File): Result<ByteArray> {
         return try {
             val b = file.readBytes()
             if (b.isEmpty()) {
-                null
+                Result.failure(Throwable("File was empty"))
             } else {
-                b
+                Result.success(b)
             }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
 
-    fun writeFile(file: File, b: ByteArray): Boolean {
+    fun writeFile(file: File, b: ByteArray): Result<Unit> {
         return try {
             file.writeBytes(b)
-            true
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    fun streamToFile(stream: InputStream, path: String): Boolean {
+    fun streamToFile(stream: InputStream, path: String): Result<Unit> {
         return try {
             val bufStream = BufferedInputStream(stream, 8192)
             val out = BufferedOutputStream(FileOutputStream(path))
@@ -166,15 +177,16 @@ object FileService {
             }
             bufStream.close()
             out.close()
-            true
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    fun zip(files: Array<String>, path: String): Boolean {
-        if (createFile(File(path.substringBeforeLast(sep)), path.substringAfterLast(sep)) == null) {
-            return false
+    fun zip(files: Array<String>, path: String): Result<Unit> {
+        val res = createFile(File(path.substringBeforeLast(sep)), path.substringAfterLast(sep))
+        if (res.isFailure) {
+            return Result.failure(res.exceptionOrNull()!!)
         }
 
         return try {
@@ -192,13 +204,13 @@ object FileService {
                 origin.close()
             }
             out.close()
-            true
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
-    fun unzip(zip: InputStream, path: String): List<String>? {
+    fun unzip(zip: InputStream, path: String): Result<List<String>> {
         return try {
             val zin = ZipInputStream(zip)
             val paths = arrayListOf<String>()
@@ -217,27 +229,32 @@ object FileService {
                 ze = zin.nextEntry
             }
             zin.close()
-            paths
+            Result.success(paths)
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
 
-    inline fun <reified T> fromFile(file: File, adapter: JsonAdapter<T> = adapter()): T? {
+    inline fun <reified T> fromFile(file: File, adapter: JsonAdapter<T> = adapter()): Result<T> {
         return try {
             val json = file.bufferedReader().use { it.readText() }
-            adapter.fromJson(json)
+            val t = adapter.fromJson(json)
+            if (t == null) {
+                Result.failure(Throwable("Parsed value was null"))
+            } else {
+                Result.success(t)
+            }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
 
-    inline fun <reified T> toFile(file: File, t: T?, adapter: JsonAdapter<T> = adapter()): Boolean {
+    inline fun <reified T> toFile(file: File, t: T?, adapter: JsonAdapter<T> = adapter()): Result<Unit> {
         return try {
             file.writeText(adapter.toJson(t))
-            true
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 

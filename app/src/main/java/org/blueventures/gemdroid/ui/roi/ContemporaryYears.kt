@@ -70,14 +70,14 @@ object ContemporaryYears {
 
     @Composable
     fun ContemporaryYearStart(viewModel: RoiViewModel) {
-        var year by remember { mutableStateOf(viewModel.state.value.contemporaryYearStart) }
+        var year by remember { mutableStateOf(viewModel.contemporaryYearStart) }
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setContemporaryYearStart(it)
+                viewModel.contemporaryYearStart = it
                 year = it
             }
         )
@@ -85,14 +85,14 @@ object ContemporaryYears {
 
     @Composable
     fun ContemporaryYearEnd(viewModel: RoiViewModel) {
-        var year by remember { mutableStateOf(viewModel.state.value.contemporaryYearEnd) }
+        var year by remember { mutableStateOf(viewModel.contemporaryYearEnd) }
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..viewModel.currentYear(),
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                viewModel.setContemporaryYearEnd(it)
+                viewModel.contemporaryYearEnd = it
                 year = it
             }
         )

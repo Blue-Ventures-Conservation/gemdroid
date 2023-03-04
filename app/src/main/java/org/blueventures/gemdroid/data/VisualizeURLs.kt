@@ -11,21 +11,13 @@ data class VisualizeURLs(
     @Json(name = "hlot_url") val hlotURL: String,
 ) {
     companion object {
-        fun empty(): VisualizeURLs {
-            return VisualizeURLs("", "", "", "")
-        }
-
-        fun isEmpty(urls: VisualizeURLs): Boolean {
-            return urls.chotURL.isEmpty() && urls.clotURL.isEmpty() && urls.hhotURL.isEmpty() && urls.hlotURL.isEmpty()
-        }
-
         private val adapter = FileService.adapter<VisualizeURLs>()
 
-        fun fromFile(file: File): VisualizeURLs? {
+        fun fromFile(file: File): Result<VisualizeURLs> {
             return FileService.fromFile(file, adapter)
         }
 
-        fun toFile(file: File, urls: VisualizeURLs): Boolean {
+        fun toFile(file: File, urls: VisualizeURLs): Result<Unit> {
             return FileService.toFile(file, urls, adapter)
         }
     }

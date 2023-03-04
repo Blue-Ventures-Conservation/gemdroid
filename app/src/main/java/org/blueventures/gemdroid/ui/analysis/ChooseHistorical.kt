@@ -26,7 +26,7 @@ object ChooseHistorical {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, next: Click, back: Click) {
         val choices = viewModel.getHistoricalChoices()
-        val (choice, setChoice) = remember { mutableStateOf(viewModel.state.value.historicalChoice) }
+        val (choice, setChoice) = remember { mutableStateOf(viewModel.historicalChoice) }
 
         Column(
             modifier = Modifier
@@ -61,7 +61,7 @@ object ChooseHistorical {
             }
             Button(
                 onClick = {
-                    viewModel.setHistoricalChoice(choice)
+                    viewModel.historicalChoice = choice
                     next()
                 }
             ) {

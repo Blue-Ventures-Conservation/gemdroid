@@ -26,8 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -46,9 +46,7 @@ object Name {
             Text(text = "Name your ROI", fontSize = 24.sp, textAlign = TextAlign.Center)
             NameField(viewModel = viewModel)
             NameButton {
-                val name = viewModel.state.value.name
-                if (viewModel.notSpecial(name) && viewModel.isUnique(name)) {
-                    viewModel.setName(name)
+                if (viewModel.notSpecial() && viewModel.isUnique()) {
                     nextClick()
                 } else {
                     snack("Please enter a unique name without any special characters.")
@@ -65,11 +63,11 @@ object Name {
     @Composable
     fun NameField(viewModel: RoiViewModel) {
         val focus = LocalFocusManager.current
-        var text by remember { mutableStateOf(viewModel.state.value.name) }
+        var text by remember { mutableStateOf(viewModel.name) }
 
         TextField(
             value = text,
-            onValueChange = {  viewModel.setName(it); text = it },
+            onValueChange = {  viewModel.name = it; text = it },
             label = { Text("Please enter a name") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, capitalization = KeyboardCapitalization.Words),
             keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
