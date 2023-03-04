@@ -122,7 +122,7 @@ object Polygon {
         override fun onMapReady(map: GoogleMap) {
             // despite using clearFunc above whenever navigating away
             // the map still seems to retain markers and polygon, so
-            // we clear everything here before added saved data to the map
+            // we clear everything here before adding saved data to the map
             map.clear()
 
             for (latlng in viewModel.points) {

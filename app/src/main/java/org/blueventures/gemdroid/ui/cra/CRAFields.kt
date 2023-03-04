@@ -87,13 +87,13 @@ object CRAFields {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val numeric = remember { mutableStateOf("") }
             val string = remember { mutableStateOf("") }
+            val numeric = remember { mutableStateOf("") }
             Dropdown(title = "Select Character Class Field:", labels = strings) { i ->
-                numeric.value = strings[i]
+                string.value = strings[i]
             }
             Dropdown(title = "Select Numeric Class Field:", labels = numerics) { i ->
-                string.value = numerics[i]
+                numeric.value = numerics[i]
             }
 
             Button(
