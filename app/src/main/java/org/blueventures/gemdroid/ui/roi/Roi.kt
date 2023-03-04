@@ -27,7 +27,6 @@ object Roi {
         // ROI list
         b.composable(Routes.list) {
             RoiList.Screen(roiModel, activity.filesDir, appBar, snack, roiClick = { dir ->
-                analysisModel.clear()
                 analysisModel.roiDir = dir
                 nav.popClear(Analysis.Routes.dashboard)
             }) {

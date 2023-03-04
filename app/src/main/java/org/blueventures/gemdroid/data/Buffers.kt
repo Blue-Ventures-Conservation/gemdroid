@@ -9,11 +9,6 @@ data class Buffers(
     @Json(name = "buffers") val buffers: KeysVals
 ){
     companion object {
-        data class KeysVals(
-            @Json(name = "keys") val keys: List<String>,
-            @Json(name = "vals") val vals: List<Int>
-        )
-
         private val adapter = FileService.adapter<Buffers>()
 
         fun fromFile(file: File): Result<Buffers> {
@@ -25,3 +20,8 @@ data class Buffers(
         }
     }
 }
+
+data class KeysVals(
+    @Json(name = "keys") val keys: List<String>,
+    @Json(name = "vals") val vals: List<Int>
+)

@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.flowOn
 import java.io.File
 
 class RoiRepository(
-    private val dataSource: RoiDatasource = RoiDatasource(),
+    private val datasource: RoiDatasource = RoiDatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     fun getRois(filesDir: File): Flow<Result<List<File>>> = flow {
-        emit(dataSource.getRois(filesDir))
+        emit(datasource.getRois(filesDir))
     }.flowOn(ioDispatcher)
 
     fun saveRoi(
@@ -28,10 +28,10 @@ class RoiRepository(
         indices: List<String>,
         points: List<LatLng>
     ): Flow<Result<Unit>>  = flow {
-        emit(dataSource.saveRoi(filesDir, name, contYearStart, contYearEnd, histYearStart, histYearEnd, monthStart, monthEnd, indices, points))
+        emit(datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, histYearStart, histYearEnd, monthStart, monthEnd, indices, points))
     }.flowOn(ioDispatcher)
 
     fun deleteRoi(dir: File): Flow<Result<Unit>> = flow {
-        emit(dataSource.deleteRoi(dir))
+        emit(datasource.deleteRoi(dir))
     }.flowOn(ioDispatcher)
 }

@@ -4,27 +4,21 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.model.analysis.HistoricalChoice
 import org.blueventures.gemdroid.model.analysis.Stage
-import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.cra.CRA
+import org.blueventures.gemdroid.ui.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.roi.Roi
+import org.blueventures.gemdroid.ui.separability.Separability
+import org.blueventures.gemdroid.ui.separability.Separability.Routes.separabilityDashboard
 
 object Analysis {
     object Routes {
         const val dashboard = "dashboard"
         const val buffer = "buffer"
         const val visualize = "visualize"
-        const val cont_cra = "cont_cra"
-        const val hist_choice = "hist_choice"
-        const val hist_cra = "hist_cra"
-        const val cra_fields = "fields"
-        const val separabilityDashboard = "sep_dashboard"
-        const val correlation = "corr"
-        const val lsSeparation = "ls_sep"
-        const val indicesSeparation = "indices_sep"
         const val classification = "classification"
         const val classification_map = "class_map"
         const val country = "country"
@@ -45,7 +39,7 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, roiModel: RoiViewModel, viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
         // Dashboard
         b.composable(Routes.dashboard) {
             Dashboard.Screen(viewModel, appBar, snack, next = { stage ->
@@ -57,7 +51,7 @@ object Analysis {
             }, vis = {
                 nav.popClear(Routes.visualize)
             }, sep = {
-                nav.popClear(Routes.separabilityDashboard)
+                nav.popClear(separabilityDashboard)
             }, clazz = {
                 nav.popClear(Routes.classification)
             }, dyn = {
@@ -80,42 +74,9 @@ object Analysis {
         }
 
         // CRAs
-        b.composable(Routes.cont_cra) {
-            ContemporaryCRA.Screen(viewModel, appBar, snack, {
-                nav.navigate(Routes.hist_choice)
-            }) {
-                nav.popClear(Routes.dashboard)
-            }
-        }
-        b.composable(Routes.hist_choice) {
-            ChooseHistorical.Screen(viewModel, {
-                when(viewModel.historicalChoice) {
-                    HistoricalChoice.SEPARATE -> {
-                        nav.navigate(Routes.hist_cra)
-                    }
-                    else -> {
-                        nav.navigate(Routes.cra_fields)
-                    }
-                }
-            }) {
-                viewModel.clearHistoricalChoice()
-                nav.popBackStack()
-            }
-        }
-        b.composable(Routes.hist_cra) {
-            HistoricalCRA.Screen(viewModel, snack, {
-                nav.navigate(Routes.cra_fields)
-            }) {
-                nav.popBackStack()
-            }
-        }
-        b.composable(Routes.cra_fields) {
-            CRAFields.Screen(viewModel, snack, {
-                viewModel.clear()
-                nav.popClear(Routes.dashboard)
-            }) {
-                nav.popBackStack()
-            }
-        }
+        CRA.screens(b, nav, viewModel.craViewModel, appBar, snack)
+
+        // Spectral Separability
+        Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
     }
 }

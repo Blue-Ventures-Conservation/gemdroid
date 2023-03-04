@@ -31,7 +31,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.cra.CraViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.model.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -58,6 +60,9 @@ class MainActivity : AppCompatActivity() {
 fun GEMApp(activity: ComponentActivity) {
     val roiModel: RoiViewModel by activity.viewModels()
     val analysisModel: AnalysisViewModel by activity.viewModels()
+    analysisModel.craViewModel = activity.viewModels<CraViewModel>().value
+    analysisModel.sepViewModel = activity.viewModels<SeparabilityViewModel>().value
+
     val nav = rememberNavController()
     val snackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -99,7 +104,7 @@ fun GEMApp(activity: ComponentActivity) {
                     .fillMaxSize()
             ) {
                 Roi.screens(this, nav, activity, roiModel, analysisModel, setAppBarState, snackbar)
-                Analysis.screens(this, nav, roiModel, analysisModel, setAppBarState, snackbar)
+                Analysis.screens(this, nav, analysisModel, setAppBarState, snackbar)
             }
         }
     }

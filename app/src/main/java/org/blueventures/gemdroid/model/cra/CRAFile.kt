@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.analysis
+package org.blueventures.gemdroid.model.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
 import java.io.File

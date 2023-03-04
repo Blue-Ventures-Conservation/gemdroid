@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis
+package org.blueventures.gemdroid.ui.cra
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -19,12 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.cra.CraViewModel
 import org.blueventures.gemdroid.ui.common.Click
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, next: Click, back: Click) {
+    fun Screen(viewModel: CraViewModel, next: Click, back: Click) {
         val choices = viewModel.getHistoricalChoices()
         val (choice, setChoice) = remember { mutableStateOf(viewModel.historicalChoice) }
 

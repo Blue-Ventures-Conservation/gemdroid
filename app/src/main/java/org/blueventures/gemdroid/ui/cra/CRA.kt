@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis
+package org.blueventures.gemdroid.ui.cra
 
 import android.content.Context
 import android.net.Uri
@@ -27,8 +27,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.model.analysis.CRAFile
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import org.blueventures.gemdroid.model.cra.CRAFile
+import org.blueventures.gemdroid.model.cra.CraViewModel
+import org.blueventures.gemdroid.model.cra.HistoricalChoice
+import org.blueventures.gemdroid.popClear
+import org.blueventures.gemdroid.ui.analysis.Analysis
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Progress
@@ -36,8 +43,55 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.InputStream
 
 object CRA {
+    object Routes {
+        const val cont_cra = "cont_cra"
+        const val hist_choice = "hist_choice"
+        const val hist_cra = "hist_cra"
+        const val cra_fields = "fields"
+    }
+
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CraViewModel, appBar: AppBarFun, snack: SnackFun) {
+        b.composable(Routes.cont_cra) {
+            ContemporaryCRA.Screen(viewModel, appBar, snack, {
+                nav.navigate(Routes.hist_choice)
+            }) {
+                nav.popClear(Analysis.Routes.dashboard)
+            }
+        }
+        b.composable(Routes.hist_choice) {
+            ChooseHistorical.Screen(viewModel, {
+                when(viewModel.historicalChoice) {
+                    HistoricalChoice.SEPARATE -> {
+                        nav.navigate(Routes.hist_cra)
+                    }
+                    else -> {
+                        nav.navigate(Routes.cra_fields)
+                    }
+                }
+            }) {
+                viewModel.clearHistoricalChoice()
+                nav.popBackStack()
+            }
+        }
+        b.composable(Routes.hist_cra) {
+            HistoricalCRA.Screen(viewModel, snack, {
+                nav.navigate(Routes.cra_fields)
+            }) {
+                nav.popBackStack()
+            }
+        }
+        b.composable(Routes.cra_fields) {
+            CRAFields.Screen(viewModel, snack, {
+                viewModel.clear()
+                nav.popClear(Analysis.Routes.dashboard)
+            }) {
+                nav.popBackStack()
+            }
+        }
+    }
+
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun Screen(viewModel: CraViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val (remoteCRAs, setRemoteCRAs) = remember { mutableStateOf<Result<List<String>>?>(null) }
 
         when {
@@ -65,7 +119,7 @@ object CRA {
     }
 
     @Composable
-    fun SelectCRA(viewModel: AnalysisViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun SelectCRA(viewModel: CraViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val (selectedFiles, setSelectedFiles) = remember { mutableStateOf<List<Uri>?>(null) }
         val (validating, setValidating) = remember { mutableStateOf(false) }
         val (localCRA, setLocalCRA) = remember { mutableStateOf<Result<CRAFile>?>(null) }
@@ -209,7 +263,7 @@ object CRA {
         }
     }
 
-    fun contentDisplayName(context: Context, uri: Uri): String? {
+    private fun contentDisplayName(context: Context, uri: Uri): String? {
         var name: String? = null
 
         if (uri.scheme == "content") {

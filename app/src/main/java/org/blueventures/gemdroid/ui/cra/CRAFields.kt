@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis
+package org.blueventures.gemdroid.ui.cra
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.model.analysis.Fields
+import org.blueventures.gemdroid.model.cra.CraViewModel
+import org.blueventures.gemdroid.model.cra.Fields
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Progress
@@ -24,7 +24,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, snack: SnackFun, done: Click, back: Click) {
+    fun Screen(viewModel: CraViewModel, snack: SnackFun, done: Click, back: Click) {
         val (saving, setSaving) = remember{ mutableStateOf(false) }
 
         if (saving) {
@@ -35,7 +35,7 @@ object CRAFields {
     }
 
     @Composable
-    fun CRAFields(viewModel: AnalysisViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
+    fun CRAFields(viewModel: CraViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
         val (fields, setFields) = remember { mutableStateOf<Result<Fields>?>(null) }
 
         when {
@@ -78,7 +78,7 @@ object CRAFields {
     }
 
     @Composable
-    fun SelectFields(viewModel: AnalysisViewModel, fields: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
+    fun SelectFields(viewModel: CraViewModel, fields: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
