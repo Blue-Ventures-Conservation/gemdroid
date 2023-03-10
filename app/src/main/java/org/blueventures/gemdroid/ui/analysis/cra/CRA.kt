@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.cra
+package org.blueventures.gemdroid.ui.analysis.cra
 
 import android.content.Context
 import android.net.Uri
@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import org.blueventures.gemdroid.model.cra.CRAFile
-import org.blueventures.gemdroid.model.cra.CraViewModel
-import org.blueventures.gemdroid.model.cra.HistoricalChoice
+import org.blueventures.gemdroid.model.analysis.cra.CRAFile
+import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -60,7 +60,7 @@ object CRA {
         }
         b.composable(Routes.hist_choice) {
             ChooseHistorical.Screen(viewModel, {
-                when(viewModel.historicalChoice) {
+                when (viewModel.historicalChoice) {
                     HistoricalChoice.SEPARATE -> {
                         nav.navigate(Routes.hist_cra)
                     }

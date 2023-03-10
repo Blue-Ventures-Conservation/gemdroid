@@ -1,9 +1,9 @@
-package org.blueventures.gemdroid.ui.separability
+package org.blueventures.gemdroid.ui.analysis.separability
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import org.blueventures.gemdroid.model.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun

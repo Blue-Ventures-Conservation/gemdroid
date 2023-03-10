@@ -8,11 +8,11 @@ import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.cra.CRA
-import org.blueventures.gemdroid.ui.cra.CRA.Routes.cont_cra
+import org.blueventures.gemdroid.ui.analysis.cra.CRA
+import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.roi.Roi
-import org.blueventures.gemdroid.ui.separability.Separability
-import org.blueventures.gemdroid.ui.separability.Separability.Routes.separabilityDashboard
+import org.blueventures.gemdroid.ui.analysis.separability.Separability
+import org.blueventures.gemdroid.ui.analysis.separability.Separability.Routes.separabilityDashboard
 
 object Analysis {
     object Routes {

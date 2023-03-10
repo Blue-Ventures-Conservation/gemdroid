@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.cra
+package org.blueventures.gemdroid.ui.analysis.cra
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.ui.common.Click
 
 object ChooseHistorical {

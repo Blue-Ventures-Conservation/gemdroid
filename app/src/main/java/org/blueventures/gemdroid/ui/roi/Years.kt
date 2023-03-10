@@ -27,18 +27,19 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
-object Months {
-    interface MonthSelector {
-        val initMonthStart: Int
-        val initMonthEnd: Int
+object Years {
+    interface YearSelector {
+        val initYearStart: Int
+        val initYearEnd: Int
 
-        fun setMonthStart(month: Int)
-        fun setMonthEnd(month: Int)
-        fun validateMonths(): Boolean
+        fun setYearStart(year: Int)
+        fun setYearEnd(year: Int)
+        fun validateOrder(): Boolean
+        fun validateGap(): Boolean
     }
 
     @Composable
-    fun Screen(selector: MonthSelector, temporal: String, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(selector: YearSelector, temporal: String, currentYear: Int, snack: SnackFun, back: Click, next: Click) {
         Column(
             modifier = Modifier
                 .padding(64.dp)
@@ -46,21 +47,25 @@ object Months {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Select range of months (inclusive) for $temporal imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
+            Text("Select bounding years (inclusive) for $temporal imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SelectMonth(initMonth = selector.initMonthStart, setMonth = selector::setMonthStart)
-                SelectMonth(initMonth = selector.initMonthEnd, setMonth = selector::setMonthEnd)
+                SelectYear(selector.initYearStart, currentYear, selector::setYearStart)
+                SelectYear(selector.initYearEnd, currentYear, selector::setYearEnd)
             }
             Button(
                 onClick = {
-                    if (selector.validateMonths()) {
-                        next()
+                    if (selector.validateOrder()) {
+                        if (selector.validateGap()) {
+                            next()
+                        } else {
+                            snack("Please select years less than ${RoiViewModel.maxYearGap} years apart")
+                        }
                     } else {
-                        snack("Month on the left must be equal to or less than the one on the right")
+                        snack("Year on the left must be equal to or less than the one on right")
                     }
                 }
             ) {
@@ -74,16 +79,16 @@ object Months {
     }
 
     @Composable
-    fun SelectMonth(initMonth: Int, setMonth: (Int) -> Unit) {
-        var month by remember { mutableStateOf(initMonth) }
+    fun SelectYear(initYear: Int, currentYear: Int, setYear: (Int) -> Unit) {
+        var year by remember { mutableStateOf(initYear) }
         NumberPicker(
-            value = month,
-            range = 1..12,
+            value = year,
+            range = RoiViewModel.oldestLandsatYear..currentYear,
             dividersColor = MaterialTheme.colorScheme.primary,
             textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
             onValueChange = {
-                setMonth(it)
-                month = it
+                setYear(it)
+                year = it
             }
         )
     }

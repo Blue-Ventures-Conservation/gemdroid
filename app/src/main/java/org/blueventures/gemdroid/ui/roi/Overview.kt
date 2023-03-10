@@ -52,8 +52,9 @@ object Overview {
                 ) {
                     Text(text = "Name: ", fontSize = 18.sp)
                     Text(text = "Contemporary Years: ", fontSize = 18.sp)
+                    Text(text = "Contemporary Months: ", fontSize = 18.sp)
                     Text(text = "Historical Years: ", fontSize = 18.sp)
-                    Text(text = "Months: ", fontSize = 18.sp)
+                    Text(text = "Historical Months: ", fontSize = 18.sp)
                     Text(text = "Polygon ROI: ", fontSize = 18.sp)
                     Text(text = "Spectral Indices: ", fontSize = 18.sp)
                 }
@@ -62,8 +63,9 @@ object Overview {
                 ) {
                     Text(text = viewModel.name, fontSize = 18.sp)
                     Text(text = "${viewModel.contemporaryYearStart} - ${viewModel.contemporaryYearEnd}", fontSize = 18.sp)
+                    Text(text = "${viewModel.contemporaryMonthStart} - ${viewModel.contemporaryMonthEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}", fontSize = 18.sp)
-                    Text(text = "${viewModel.monthStart} - ${viewModel.monthEnd}", fontSize = 18.sp)
+                    Text(text = "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
                     Text(text = "${viewModel.indices.list()}", fontSize = 18.sp)
                 }

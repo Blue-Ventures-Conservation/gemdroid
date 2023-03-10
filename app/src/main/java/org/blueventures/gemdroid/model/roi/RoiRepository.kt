@@ -21,14 +21,16 @@ class RoiRepository(
         name: String,
         contYearStart: Int,
         contYearEnd: Int,
+        contMonthStart: Int,
+        contMonthEnd: Int,
         histYearStart: Int,
         histYearEnd: Int,
-        monthStart: Int,
-        monthEnd: Int,
+        histMonthStart: Int,
+        histMonthEnd: Int,
         indices: List<String>,
         points: List<LatLng>
     ): Flow<Result<Unit>>  = flow {
-        emit(datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, histYearStart, histYearEnd, monthStart, monthEnd, indices, points))
+        emit(datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, contMonthStart, contMonthEnd, histYearStart, histYearEnd, histMonthStart, histMonthEnd, indices, points))
     }.flowOn(ioDispatcher)
 
     fun deleteRoi(dir: File): Flow<Result<Unit>> = flow {

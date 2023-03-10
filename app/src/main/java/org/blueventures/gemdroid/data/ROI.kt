@@ -10,13 +10,15 @@ data class ROI(
     @Json(name = "name") val name: String = "",
     @Json(name = "cont_year_start") val contYearStart: Int = 0,
     @Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @Json(name = "cont_month_start") val contMonthStart: Int = 0,
+    @Json(name = "cont_month_end") val contMonthEnd: Int = 0,
     @Json(name = "hist_year_start") val histYearStart: Int = 0,
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
-    @Json(name = "month_start") val monthStart: Int = 0,
-    @Json(name = "month_end") val monthEnd: Int = 0,
+    @Json(name = "hist_month_start") val histMonthStart: Int = 0,
+    @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
     @Json(name = "indices") val indices: List<String> = emptyList(),
     @Json(name = "polygon") val polygon: Polygon = Polygon(),
-){
+) {
     companion object {
         private val adapter = FileService.adapter<ROI>()
 
@@ -24,10 +26,12 @@ data class ROI(
             name: String,
             contYearStart: Int,
             contYearEnd: Int,
+            contMonthStart: Int,
+            contMonthEnd: Int,
             histYearStart: Int,
             histYearEnd: Int,
-            monthStart: Int,
-            monthEnd: Int,
+            histMonthStart: Int,
+            histMonthEnd: Int,
             indices: List<String>,
             points: List<LatLng>,
             buffDist: Int = -1
@@ -37,10 +41,12 @@ data class ROI(
                 name,
                 contYearStart,
                 contYearEnd,
+                contMonthStart,
+                contMonthEnd,
                 histYearStart,
                 histYearEnd,
-                monthStart,
-                monthEnd,
+                histMonthStart,
+                histMonthEnd,
                 indices,
                 polygonFromState(points)
             )

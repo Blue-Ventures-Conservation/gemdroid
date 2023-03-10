@@ -83,10 +83,12 @@ class RoiDatasource(
         name: String,
         contYearStart: Int,
         contYearEnd: Int,
+        contMonthStart: Int,
+        contMonthEnd: Int,
         histYearStart: Int,
         histYearEnd: Int,
-        monthStart: Int,
-        monthEnd: Int,
+        histMonthStart: Int,
+        histMonthEnd: Int,
         indices: List<String>,
         points: List<LatLng>
     ): Result<Unit> {
@@ -102,10 +104,12 @@ class RoiDatasource(
                         name,
                         contYearStart,
                         contYearEnd,
+                        contMonthStart,
+                        contMonthEnd,
                         histYearStart,
                         histYearEnd,
-                        monthStart,
-                        monthEnd,
+                        histMonthStart,
+                        histMonthEnd,
                         indices,
                         points
                     ))

@@ -16,8 +16,9 @@ object Roi {
         const val list = "roi"
         const val name = "roi_name"
         const val contemporaryYears = "roi_cont_dates"
+        const val contemporaryMonths = "roi_cont_months"
         const val historicalYears = "roi_hist_dates"
-        const val months = "roi_months"
+        const val historicalMonths = "roi_hist_months"
         const val indices = "roi_indices"
         const val polygon = "roi_polygon"
         const val overview = "roi_overview"
@@ -50,6 +51,16 @@ object Roi {
                 roiModel.clearContemporaryYears()
                 nav.popBackStack()
             }) {
+                nav.navigate(Routes.contemporaryMonths)
+            }
+        }
+
+        // ROI contemporary months selection
+        b.composable(Routes.contemporaryMonths) {
+            ContemporaryMonths.Screen(roiModel, snack, back = {
+                roiModel.clearContemporaryMonths()
+                nav.popBackStack()
+            }) {
                 nav.navigate(Routes.historicalYears)
             }
         }
@@ -60,14 +71,14 @@ object Roi {
                 roiModel.clearHistoricalYears()
                 nav.popBackStack()
             }) {
-                nav.navigate(Routes.months)
+                nav.navigate(Routes.historicalMonths)
             }
         }
 
         // ROI months range selection
-        b.composable(Routes.months) {
-            Months.Screen(roiModel, snack, back = {
-                roiModel.clearMonths()
+        b.composable(Routes.historicalMonths) {
+            HistoricalMonths.Screen(roiModel, snack, back = {
+                roiModel.clearHistoricalMonths()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.indices)

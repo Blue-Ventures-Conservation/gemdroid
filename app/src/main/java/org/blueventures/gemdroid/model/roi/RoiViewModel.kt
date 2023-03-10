@@ -14,10 +14,12 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     var name: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
     var contemporaryYearEnd: Int = defaultContemporaryYearEnd
+    var contemporaryMonthStart: Int = defaultMonthStart
+    var contemporaryMonthEnd: Int = defaultMonthEnd
     var historicalYearStart: Int = defaultHistoricalYearStart
     var historicalYearEnd: Int = defaultHistoricalYearEnd
-    var monthStart: Int = defaultMonthStart
-    var monthEnd: Int = defaultMonthEnd
+    var historicalMonthStart: Int = defaultMonthStart
+    var historicalMonthEnd: Int = defaultMonthEnd
     var indices: Indices = defaultIndices
     var points: ArrayList<LatLng> = arrayListOf()
 
@@ -29,10 +31,12 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
             name,
             contemporaryYearStart,
             contemporaryYearEnd,
+            contemporaryMonthStart,
+            contemporaryMonthEnd,
             historicalYearStart,
             historicalYearEnd,
-            monthStart,
-            monthEnd,
+            historicalMonthStart,
+            historicalMonthEnd,
             indices.list(),
             points
         ).collect(callback)
@@ -57,11 +61,13 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
     fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
     fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
+    fun validateContemporaryMonthsOrder() = validateDateIntsOrder(contemporaryMonthStart, contemporaryMonthEnd)
+    fun clearContemporaryMonths() { contemporaryMonthStart = defaultMonthStart; contemporaryMonthEnd = defaultMonthEnd}
     fun validateHistoricalYearsOrder() = validateDateIntsOrder(historicalYearStart, historicalYearEnd)
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
-    fun validateMonthsOrder() = validateDateIntsOrder(monthStart, monthEnd)
-    fun clearMonths() { monthStart = defaultMonthStart; monthEnd = defaultMonthEnd}
+    fun validateHistoricalMonthsOrder() = validateDateIntsOrder(historicalMonthStart, historicalMonthEnd)
+    fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun getIndices() = listOf(Indices.LS_BEST, Indices.LS_STANDARD, Indices.LS)
     fun clearIndices() { indices = defaultIndices }
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
@@ -83,7 +89,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearHistoricalYears(); clearMonths(); clearIndices(); clearPoints() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearIndices(); clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 

@@ -1,5 +1,7 @@
 package org.blueventures.gemdroid.ui.roi
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -36,11 +39,25 @@ import com.google.android.gms.maps.model.Polygon
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Polygon {
+    @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
+        RequestPermission(
+            permission = ACCESS_FINE_LOCATION,
+            rationale = "This app uses GPS to help zoom the map to your location. Please grant the permission.",
+            description = "Please grant permission for the app to use GPS.",
+            optional = true
+        ) { granted ->
+            Layout(viewModel, snack, back, next, granted)
+        }
+    }
+
+    @Composable
+    fun Layout(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click, fineLocation: Boolean) {
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -78,7 +95,7 @@ object Polygon {
                 }
             }
 
-            Map(viewModel, polyGetter = { polygon }, polySetter = { polygon = it }, markerAdd = { markers.add(it) })
+            Map(fineLocation, viewModel, polyGetter = { polygon }, polySetter = { polygon = it }) { markers.add(it) }
 
             BackHandler {
                 clearFunc()
@@ -88,14 +105,14 @@ object Polygon {
     }
 
     @Composable
-    fun Map(viewModel: RoiViewModel, polyGetter: () -> Polygon?, polySetter: (Polygon) -> Unit, markerAdd: (Marker) -> Unit) {
+    fun Map(fineLocation: Boolean, viewModel: RoiViewModel, polyGetter: () -> Polygon?, polySetter: (Polygon) -> Unit, markerAdd: (Marker) -> Unit) {
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
             var drawing by remember { mutableStateOf(false) }
             AndroidViewBinding(MapContainerBinding::inflate) {
                 val mapFragment = mapContainer.getFragment<SupportMapFragment>()
-                mapFragment.getMapAsync(MapCallback(viewModel, polyGetter, polySetter, markerAdd) { drawing })
+                mapFragment.getMapAsync(MapCallback(fineLocation, viewModel, polyGetter, polySetter, markerAdd) { drawing })
             }
 
             FloatingActionButton(
@@ -113,17 +130,24 @@ object Polygon {
     }
 
     class MapCallback(
-        val viewModel: RoiViewModel,
-        val polyGetter: () -> Polygon?,
-        val polySetter: (Polygon) -> Unit,
-        val markerAdd: (Marker) -> Unit,
-        val drawingGetter: () -> Boolean,
+        private val fineLocation: Boolean,
+        private val viewModel: RoiViewModel,
+        private val polyGetter: () -> Polygon?,
+        private val polySetter: (Polygon) -> Unit,
+        private val markerAdd: (Marker) -> Unit,
+        private val drawingGetter: () -> Boolean,
     ): OnMapReadyCallback {
+        @SuppressLint("MissingPermission")
         override fun onMapReady(map: GoogleMap) {
             // despite using clearFunc above whenever navigating away
             // the map still seems to retain markers and polygon, so
             // we clear everything here before adding saved data to the map
             map.clear()
+
+            if (fineLocation) {
+                map.isMyLocationEnabled = true
+                map.uiSettings.isMyLocationButtonEnabled = true
+            }
 
             for (latlng in viewModel.points) {
                 map.addMarker(MarkerOptions().position(latlng))?.let { marker ->

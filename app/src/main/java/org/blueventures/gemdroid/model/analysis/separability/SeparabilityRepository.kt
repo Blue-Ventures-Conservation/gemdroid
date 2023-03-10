@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.separability
+package org.blueventures.gemdroid.model.analysis.separability
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

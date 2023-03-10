@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.cra
+package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import kotlinx.coroutines.flow.collect
@@ -25,7 +25,8 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
     }
 
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
-    fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }
+    fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE
+    }
 
     fun getCRAFields(callback: (Result<Fields>) -> Unit) = scoped { repo.getCRAFields(contemporaryCRA, historicalCRA, callback).collect() }
     fun setFields(fields: Fields) {

@@ -9,8 +9,8 @@ import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.VisualizeURLs
-import org.blueventures.gemdroid.model.cra.CraViewModel
-import org.blueventures.gemdroid.model.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import java.io.File
 import java.io.InputStream
 

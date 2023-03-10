@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.separability
+package org.blueventures.gemdroid.model.analysis.separability
 
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import org.blueventures.gemdroid.data.CRA

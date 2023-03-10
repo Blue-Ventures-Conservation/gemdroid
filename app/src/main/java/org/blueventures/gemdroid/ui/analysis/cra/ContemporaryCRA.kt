@@ -1,8 +1,8 @@
-package org.blueventures.gemdroid.ui.cra
+package org.blueventures.gemdroid.ui.analysis.cra
 
 import androidx.compose.runtime.Composable
-import org.blueventures.gemdroid.model.cra.CRAFile
-import org.blueventures.gemdroid.model.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CRAFile
+import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click

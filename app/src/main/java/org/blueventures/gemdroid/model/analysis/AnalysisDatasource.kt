@@ -6,10 +6,10 @@ import org.blueventures.gemdroid.data.Buffer
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
-import org.blueventures.gemdroid.model.cra.CraDatasource.Companion.crasFile
-import org.blueventures.gemdroid.model.cra.CraDatasource.Companion.crasDir
+import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
+import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.roi.RoiDatasource
-import org.blueventures.gemdroid.model.separability.SeparabilityDatasource.Companion.separabilityDir
+import org.blueventures.gemdroid.model.analysis.separability.SeparabilityDatasource.Companion.separabilityDir
 import java.io.File
 
 class AnalysisDatasource(

@@ -1,11 +1,11 @@
-package org.blueventures.gemdroid.ui.separability
+package org.blueventures.gemdroid.ui.analysis.separability
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.blueventures.gemdroid.data.CRA
-import org.blueventures.gemdroid.model.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click

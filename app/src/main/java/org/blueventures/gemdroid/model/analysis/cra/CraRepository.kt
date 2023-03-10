@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.cra
+package org.blueventures.gemdroid.model.analysis.cra
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

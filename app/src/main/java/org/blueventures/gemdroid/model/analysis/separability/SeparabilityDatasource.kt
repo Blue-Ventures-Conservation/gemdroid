@@ -1,8 +1,8 @@
-package org.blueventures.gemdroid.model.separability
+package org.blueventures.gemdroid.model.analysis.separability
 
 import org.blueventures.gemdroid.data.CRA
-import org.blueventures.gemdroid.model.cra.CraDatasource.Companion.crasDir
-import org.blueventures.gemdroid.model.cra.CraDatasource.Companion.crasFile
+import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
+import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
 import java.io.File
 
 class SeparabilityDatasource {

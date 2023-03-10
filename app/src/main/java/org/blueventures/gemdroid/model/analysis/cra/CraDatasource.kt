@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.cra
+package org.blueventures.gemdroid.model.analysis.cra
 
 import android.net.Uri
 import com.github.zibnix.droidbones.mvvm.FileService
@@ -226,10 +226,12 @@ class CraDatasource(
 
         FileService.deleteDir(File(crasDir, crasUnzipDir))
 
-        return Result.success(CRAFile(
+        return Result.success(
+            CRAFile(
             localFile = zipFile,
             fields = Fields(numerics, strings)
-        ))
+        )
+        )
     }
 
     private fun addToMap(m: MutableMap<String, MutableMap<String, Int>>, field: String, value: String) {

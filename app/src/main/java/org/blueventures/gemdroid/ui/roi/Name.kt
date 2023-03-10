@@ -34,7 +34,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object Name {
     @Composable
     fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, nextClick: Click) {
-        appBar(AppBarUpdate(title = "Create ROI"))
+        appBar(AppBarUpdate(title = "Create Coarse ROI"))
 
         Column(
             modifier = Modifier

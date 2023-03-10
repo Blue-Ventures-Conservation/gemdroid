@@ -31,9 +31,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.model.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.model.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
