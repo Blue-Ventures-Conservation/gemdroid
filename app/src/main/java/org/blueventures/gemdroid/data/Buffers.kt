@@ -10,14 +10,8 @@ data class Buffers(
 ){
     companion object {
         private val adapter = FileService.adapter<Buffers>()
-
-        fun fromFile(file: File): Result<Buffers> {
-            return FileService.fromFile(file, adapter)
-        }
-
-        fun toFile(file: File, buffer: Buffers): Result<Unit> {
-            return FileService.toFile(file, buffer, adapter)
-        }
+        fun fromFile(file: File) = FileService.fromFile(file, adapter)
+        fun toFile(file: File, buffer: Buffers) = FileService.toFile(file, buffer, adapter)
     }
 }
 

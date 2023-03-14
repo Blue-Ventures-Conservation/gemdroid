@@ -16,14 +16,8 @@ data class CRA(
 ) {
     companion object {
         private val adapter = FileService.adapter<CRA>()
-
-        fun fromFile(file: File): Result<CRA> {
-            return FileService.fromFile(file, adapter)
-        }
-
-        fun toFile(file: File, cra: CRA): Result<Unit> {
-            return FileService.toFile(file, cra, adapter)
-        }
+        fun fromFile(file: File) = FileService.fromFile(file, adapter)
+        fun toFile(file: File, cra: CRA) = FileService.toFile(file, cra, adapter)
     }
 }
 
@@ -31,16 +25,11 @@ data class Shapefile(
     @Json(name = "shp_storage_key") val shapefileStorageKey: String,
     @Json(name = "numeric_class_field") val numericClassField: String,
     @Json(name = "string_class_field") val stringClassField: String,
+    @Json(name = "string_class_field_values") val stringClassValues: List<String>,
 ) {
     companion object {
         private val adapter = FileService.adapter<Shapefile>()
-
-        fun fromFile(file: File): Result<Shapefile> {
-            return FileService.fromFile(file, adapter)
-        }
-
-        fun toFile(file: File, shp: Shapefile): Result<Unit> {
-            return FileService.toFile(file, shp, adapter)
-        }
+        fun fromFile(file: File) = FileService.fromFile(file, adapter)
+        fun toFile(file: File, shp: Shapefile) = FileService.toFile(file, shp, adapter)
     }
 }

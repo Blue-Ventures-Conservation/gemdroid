@@ -162,16 +162,16 @@ class CraDatasource(
 
         val numerics = arrayListOf<String>()
         val strings = arrayListOf<String>()
+        val numericsMap = mutableMapOf<String, MutableMap<String, Int>>()
+        val stringsMap = mutableMapOf<String, MutableMap<String, Int>>()
+
         try {
             // these constructors will inspect the file header
             val shpStream = FileInputStream(shp)
             val sr = ShapeFileReader(shpStream)
             val dr = DbfReader(FileInputStream(dbf))
 
-            val numericsMap = mutableMapOf<String, MutableMap<String, Int>>()
-            val stringsMap = mutableMapOf<String, MutableMap<String, Int>>()
             var count = 0
-
             var s = sr.next()
             while(s != null) {
                 count++
@@ -197,12 +197,12 @@ class CraDatasource(
 
             numericsMap.forEach { (nf, nc) ->
                 if (nc.size < count) {
-                     stringsMap.forEach { (sf, sc) ->
-                         if (nc.size == sc.size) {
-                             numerics.add(nf)
-                             strings.add(sf)
-                         }
-                     }
+                    stringsMap.forEach { (sf, sc) ->
+                        if (nc.size == sc.size) {
+                            numerics.add(nf)
+                            strings.add(sf)
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -226,11 +226,14 @@ class CraDatasource(
 
         FileService.deleteDir(File(crasDir, crasUnzipDir))
 
-        return Result.success(
-            CRAFile(
+        val stringValues = mutableMapOf<String, List<String>>()
+        stringsMap.forEach { (k, v) ->
+            stringValues[k] = v.keys.toList()
+        }
+
+        return Result.success(CRAFile(
             localFile = zipFile,
-            fields = Fields(numerics, strings)
-        )
+            fields = Fields(numerics, strings, stringValues))
         )
     }
 
@@ -338,7 +341,7 @@ class CraDatasource(
     }
 
     private fun craFields(cra: CRAFile, callback: (Result<Fields>) -> Unit) {
-        if (cra.fields.numerics != null && cra.fields.strings != null) {
+        if (cra.fields.parsedLocally()) {
             callback(Result.success(cra.fields))
         } else {
             cra.storageKey?.let { key ->
@@ -354,7 +357,8 @@ class CraDatasource(
                                 callback(Result.success(
                                     Fields(
                                         chosenNumeric = shp.numericClassField,
-                                        chosenString = shp.stringClassField
+                                        chosenString = shp.stringClassField,
+                                        chosenStringValues = shp.stringClassValues
                                     )
                                 ))
                             }
@@ -412,7 +416,7 @@ class CraDatasource(
         val zip = cra.localFile!!
         uploadShapefile(key, zip) { result ->
             when {
-                result.isSuccess -> uploadFields(key, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, callback)
+                result.isSuccess -> uploadFields(key, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!, callback)
                 result.isFailure -> callback(result)
             }
         }
@@ -431,11 +435,11 @@ class CraDatasource(
         }
     }
 
-    private fun uploadFields(key: String, numeric: String, string: String, callback: (Result<Unit>) -> Unit) {
+    private fun uploadFields(key: String, numeric: String, string: String, stringVals: List<String>, callback: (Result<Unit>) -> Unit) {
         auth.currentUser?.uid?.let { uid ->
             try {
                 val tmp = File.createTempFile(key, "json")
-                val shpRes = Shapefile.toFile(tmp, Shapefile(key, numeric, string))
+                val shpRes = Shapefile.toFile(tmp, Shapefile(key, numeric, string, stringVals))
                 if (shpRes.isFailure) {
                     callback(shpRes)
                 } else {

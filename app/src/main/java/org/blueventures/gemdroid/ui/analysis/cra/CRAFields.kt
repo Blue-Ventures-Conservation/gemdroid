@@ -68,8 +68,7 @@ object CRAFields {
                 }
             }
             else -> {
-                val lists = fields.getOrNull()!!
-                SelectFields(viewModel, lists.numerics!!, lists.strings!!, setSaving, snack, done)
+                SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, done)
             }
         }
 
@@ -79,7 +78,7 @@ object CRAFields {
     }
 
     @Composable
-    fun SelectFields(viewModel: CraViewModel, numerics: List<String>, strings: List<String>, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
+    fun SelectFields(viewModel: CraViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -87,6 +86,9 @@ object CRAFields {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val strings = lists.strings!!
+            val numerics = lists.numerics!!
+            val stringValues = lists.stringValues!!
             val string = remember { mutableStateOf("") }
             val numeric = remember { mutableStateOf("") }
             Dropdown(title = "Select Character Class Field:", labels = strings) { i ->
@@ -103,7 +105,7 @@ object CRAFields {
                         snack("These cannot both be the same field")
                     } else {
                         setSaving(true)
-                        viewModel.setFields(Fields(chosenNumeric = numeric.value, chosenString = string.value))
+                        viewModel.setFields(Fields(chosenNumeric = numeric.value, chosenString = string.value, chosenStringValues = stringValues[string.value]))
                         viewModel.saveCRAs {
                             when {
                                 it.isSuccess -> done()

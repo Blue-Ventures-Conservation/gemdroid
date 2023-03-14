@@ -25,8 +25,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
     }
 
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
-    fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE
-    }
+    fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }
 
     fun getCRAFields(callback: (Result<Fields>) -> Unit) = scoped { repo.getCRAFields(contemporaryCRA, historicalCRA, callback).collect() }
     fun setFields(fields: Fields) {
@@ -42,7 +41,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
             callback(Result.failure(badState))
             return
         }
-        val contShp = Shapefile(cont.key(), cont.fields.chosenNumeric!!, cont.fields.chosenString!!)
+        val contShp = Shapefile(cont.key(), cont.fields.chosenNumeric!!, cont.fields.chosenString!!, cont.fields.chosenStringValues!!)
 
         val hist = historicalCRA
         if (hist != null && hist.badFinalState()) {
@@ -50,7 +49,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): BaseViewM
             return
         }
 
-        val histShp = if (hist == null) null else Shapefile(hist.key(), hist.fields.chosenNumeric!!, hist.fields.chosenString!!)
+        val histShp = if (hist == null) null else Shapefile(hist.key(), hist.fields.chosenNumeric!!, hist.fields.chosenString!!, hist.fields.chosenStringValues!!)
         val cra = CRA(contShp, histShp)
 
         when {

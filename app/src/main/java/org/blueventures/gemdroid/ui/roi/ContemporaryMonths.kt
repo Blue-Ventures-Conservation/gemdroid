@@ -9,7 +9,7 @@ object ContemporaryMonths {
     @Composable
     fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
         Months.Screen(
-            selector = object : Months.MonthSelector {
+            selector = object : Months.Selector {
                 override val initMonthStart: Int = viewModel.contemporaryMonthStart
                 override val initMonthEnd: Int = viewModel.contemporaryMonthEnd
                 override fun setMonthStart(month: Int) { viewModel.contemporaryMonthStart = month }

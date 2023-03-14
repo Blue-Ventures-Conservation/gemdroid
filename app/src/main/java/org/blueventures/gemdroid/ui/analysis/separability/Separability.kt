@@ -15,6 +15,23 @@ object Separability {
         const val correlation = "corr"
         const val lsSeparation = "ls_sep"
         const val indicesSeparation = "indices_sep"
+
+        // these need to be lowercase and spaces need to be removed before submitting to backend
+        const val black = "Black"
+        const val blue = "Blue"
+        const val lightBlue = "Light Blue"
+        const val brown = "Brown"
+        const val cyan = "Cyan"
+        const val green = "Green"
+        const val lightGreen = "Light Green"
+        const val grey = "Grey"
+        const val lightGrey = "Light Grey"
+        const val orange = "Orange"
+        const val pink = "Pink"
+        const val purple = "Purple"
+        const val red = "Red"
+        const val white = "White"
+        const val yellow = "Yellow"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun) {

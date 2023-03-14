@@ -6,7 +6,7 @@ import java.io.File
 data class CRAFile(
     val storageKey: String? = null,
     val localFile: File? = null,
-    val fields: Fields = Fields()
+    val fields: Fields = Fields(),
 ) {
     fun equivalent(o: CRAFile): Boolean {
         val remote = (storageKey != null && storageKey == o.storageKey)
@@ -14,34 +14,21 @@ data class CRAFile(
         return remote || local
     }
 
-    fun key(): String {
-        return storageKey ?: localFile?.path?.substringAfterLast(sep)?.substringBeforeLast(".") ?: ""
-    }
-
-    fun readyToUpload(): Boolean {
-        return isLocal() && fields.complete()
-    }
-
-    fun isLocal(): Boolean {
-        return localFile != null && storageKey == null
-    }
-
-    fun isRemote(): Boolean {
-        return localFile == null && storageKey != null
-    }
-
-    fun badFinalState(): Boolean {
-        return (!isRemote() && !readyToUpload()) || (isRemote() && !fields.complete())
-    }
+    fun key() = storageKey ?: localFile?.path?.substringAfterLast(sep)?.substringBeforeLast(".") ?: ""
+    fun readyToUpload() = isLocal() && fields.complete()
+    fun isLocal() = localFile != null && storageKey == null
+    fun isRemote() = localFile == null && storageKey != null
+    fun badFinalState() = (!isRemote() && !readyToUpload()) || (isRemote() && !fields.complete())
 }
 
 data class Fields(
     val numerics: List<String>? = null,
     val strings: List<String>? = null,
+    val stringValues: Map<String, List<String>>? = null,
     val chosenNumeric: String? = null,
-    val chosenString: String? = null
+    val chosenString: String? = null,
+    val chosenStringValues: List<String>? = null,
 ) {
-    fun complete(): Boolean {
-        return chosenNumeric != null && chosenString != null
-    }
+    fun parsedLocally() = numerics != null && strings != null && stringValues != null
+    fun complete() = chosenNumeric != null && chosenString != null && chosenStringValues != null
 }

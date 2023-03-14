@@ -9,7 +9,7 @@ object HistoricalYears {
     @Composable
     fun Screen(viewModel: RoiViewModel, snack: SnackFun, back: Click, next: Click) {
         Years.Screen(
-            selector = object : Years.YearSelector {
+            selector = object : Years.Selector {
                 override val initYearStart: Int = viewModel.historicalYearStart
                 override val initYearEnd: Int = viewModel.historicalYearEnd
                 override fun setYearStart(year: Int) { viewModel.historicalYearStart = year }

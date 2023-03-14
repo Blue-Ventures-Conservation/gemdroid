@@ -28,7 +28,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Years {
-    interface YearSelector {
+    interface Selector {
         val initYearStart: Int
         val initYearEnd: Int
 
@@ -39,7 +39,7 @@ object Years {
     }
 
     @Composable
-    fun Screen(selector: YearSelector, temporal: String, currentYear: Int, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(selector: Selector, temporal: String, currentYear: Int, snack: SnackFun, back: Click, next: Click) {
         Column(
             modifier = Modifier
                 .padding(64.dp)

@@ -52,13 +52,8 @@ data class ROI(
             )
         }
 
-        fun fromFile(file: File): Result<ROI> {
-            return FileService.fromFile(file, adapter)
-        }
-
-        fun toFile(file: File, roi: ROI): Result<Unit> {
-            return FileService.toFile(file, roi, adapter)
-        }
+        fun fromFile(file: File) = FileService.fromFile(file, adapter)
+        fun toFile(file: File, roi: ROI) = FileService.toFile(file, roi, adapter)
 
         private fun polygonFromState(points: List<LatLng>): Polygon {
             val coordinates: ArrayList<List<Double>> = arrayListOf()

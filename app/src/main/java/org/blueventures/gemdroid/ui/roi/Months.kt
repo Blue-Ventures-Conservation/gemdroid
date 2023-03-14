@@ -23,12 +23,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
-import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Months {
-    interface MonthSelector {
+    interface Selector {
         val initMonthStart: Int
         val initMonthEnd: Int
 
@@ -38,7 +37,7 @@ object Months {
     }
 
     @Composable
-    fun Screen(selector: MonthSelector, temporal: String, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(selector: Selector, temporal: String, snack: SnackFun, back: Click, next: Click) {
         Column(
             modifier = Modifier
                 .padding(64.dp)

@@ -12,13 +12,7 @@ data class VisualizeURLs(
 ) {
     companion object {
         private val adapter = FileService.adapter<VisualizeURLs>()
-
-        fun fromFile(file: File): Result<VisualizeURLs> {
-            return FileService.fromFile(file, adapter)
-        }
-
-        fun toFile(file: File, urls: VisualizeURLs): Result<Unit> {
-            return FileService.toFile(file, urls, adapter)
-        }
+        fun fromFile(file: File) = FileService.fromFile(file, adapter)
+        fun toFile(file: File, urls: VisualizeURLs) = FileService.toFile(file, urls, adapter)
     }
 }
