@@ -6,6 +6,7 @@ import org.blueventures.gemdroid.data.Buffer
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.roi.RoiDatasource
@@ -13,8 +14,8 @@ import org.blueventures.gemdroid.model.analysis.separability.SeparabilityDatasou
 import java.io.File
 
 class AnalysisDatasource(
-    private val backend: Api.BackendService = Api.BackendService.instance(),
-) {
+    private val api: Api.Service = Api.Service.instance(),
+): ApiDatasource(api = api) {
     fun getStage(roiDir: File): Stage {
         return try {
             when {
@@ -37,7 +38,7 @@ class AnalysisDatasource(
     fun saveBuffersFile(roiDir: File, buffers: Buffers) = Buffers.toFile(File(roiDir, buffersChartFile), buffers)
     fun loadBuffersFile(roiDir: File) = Buffers.fromFile(File(roiDir, buffersChartFile))
     fun saveBuffer(roiDir: File, buffer: Int) = Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
-    suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
+    suspend fun getBuffers(roi: ROI) = api.getBuffers(roi)
 
     fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Result<Unit> {
         visualizeTileDirs.forEach { subdir ->
@@ -54,7 +55,7 @@ class AnalysisDatasource(
     fun clotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), clotTilesDir)
     fun hhotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hhotTilesDir)
     fun hlotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hlotTilesDir)
-    suspend fun getVisualizeURLs(roi: ROI) = backend.getVisualizeURLs(roi)
+    suspend fun getVisualizeURLs(roi: ROI) = api.getVisualizeURLs(roi)
 
     companion object {
         // Buffer Stage
@@ -72,8 +73,8 @@ class AnalysisDatasource(
 
         // Classification Stage
         const val classificationDir = "classification"
-        const val contLCTilesDir = "cont_lc_tiles"
-        const val histLCTilesDir = "hist_lc_tiles"
+        const val contLCTilesDir = "cont_lc_tiles" // land cover tiles
+        const val histLCTilesDir = "hist_lc_tiles" // land cover tiles
         const val ccomClassifyFile = "ccom_classify.json"
         const val hcomClassifyFile = "hcom_classify.json"
 

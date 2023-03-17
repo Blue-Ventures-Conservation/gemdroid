@@ -23,6 +23,7 @@ data class CRA(
 
 data class Shapefile(
     @Json(name = "shp_storage_key") val shapefileStorageKey: String,
+    @Json(name = "table_upload_operation_name") val tableUploadOperationName: String,
     @Json(name = "numeric_class_field") val numericClassField: String,
     @Json(name = "string_class_field") val stringClassField: String,
     @Json(name = "string_class_field_values") val stringClassValues: List<String>,

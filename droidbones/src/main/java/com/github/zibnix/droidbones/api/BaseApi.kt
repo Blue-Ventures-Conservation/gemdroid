@@ -13,20 +13,38 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
 object BaseApi {
+
     /**
      * timeout in seconds
      */
-    fun resultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
-        return retrofit(baseUrl, timeout, debug, json, ResultCallAdapterFactory.create(), *factories)
+    fun authResultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Pair<TokenInterceptor, Retrofit> {
+        return authRetrofit(baseUrl, timeout, debug, json, ResultCallAdapterFactory.create(), *factories)
     }
 
     /**
      * timeout in seconds
      */
-    fun retrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
+    fun authRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Pair<TokenInterceptor, Retrofit> {
+        val builder = client(timeout, debug, json)
+        val tokenIntercept = TokenInterceptor()
+        builder.addInterceptor(tokenIntercept)
+        return Pair(tokenIntercept, retrofit(baseUrl, builder, *factories))
+    }
+
+    /**
+     * timeout in seconds
+     */
+    fun resultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
+        return retrofit(baseUrl, client(timeout, debug, json), ResultCallAdapterFactory.create(), *factories)
+    }
+
+    /**
+     * timeout in seconds
+     */
+    fun retrofit(baseUrl: String, httpBuilder: OkHttpClient.Builder, vararg factories: CallAdapter.Factory): Retrofit {
         val builder = Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(client(timeout, debug, json))
+            .client(httpBuilder.build())
             .addConverterFactory(MoshiConverterFactory.create(
                 Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
             ))
@@ -38,7 +56,7 @@ object BaseApi {
         return builder.build()
     }
 
-    private fun client(timeout: Long, debug: Boolean, json: Boolean): OkHttpClient {
+    private fun client(timeout: Long, debug: Boolean, json: Boolean): OkHttpClient.Builder {
         val builder = OkHttpClient.Builder()
             .connectTimeout(timeout, TimeUnit.SECONDS)
             .writeTimeout(timeout, TimeUnit.SECONDS)
@@ -57,7 +75,7 @@ object BaseApi {
             builder.addInterceptor(interceptor)
         }
 
-        return builder.build()
+        return builder
     }
 
     fun <T : Any> handleResponse(execute: () -> Response<T>): ApiResult<T> {

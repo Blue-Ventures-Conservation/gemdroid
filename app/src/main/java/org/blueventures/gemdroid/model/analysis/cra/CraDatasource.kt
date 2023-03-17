@@ -9,8 +9,12 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.reader.DbfReader
+import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.CRAKey
 import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.UploadName
+import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.SignIn
 import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
 import java.io.File
@@ -21,7 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger
 class CraDatasource(
     private val storage: FirebaseStorage = Firebase.storage,
     private val auth: FirebaseAuth = Firebase.auth,
-) {
+    private val api: Api.Service = Api.Service.instance(),
+): ApiDatasource(auth, api) {
+    suspend fun ingestCRA(key: String) = api.uploadCRA(CRAKey(key))
+    suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
+
     fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) {
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()
@@ -99,6 +107,7 @@ class CraDatasource(
         return Result.success(pathsRes.getOrNull()!!)
     }
 
+    private val assetRegex by lazy { Regex("[a-zA-Z\\d\\-_]+") }
     private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
         if (pathsResult.isFailure) {
             return Result.failure(pathsResult.exceptionOrNull()!!)
@@ -217,6 +226,10 @@ class CraDatasource(
             return Result.failure(Throwable("Shapefile has no candidate fields for the character class field."))
         }
 
+        if (!assetRegex.matches(shpName)) {
+            return Result.failure(Throwable("Shapefile name can only contain alphanumeric characters, dashes and underscores."))
+        }
+
         val zipFile = File(crasDir, "$shpName.zip")
 
         val zipRes = FileService.zip(arrayOf(shp!!, shx!!, dbf!!, prj!!), zipFile.path)
@@ -271,23 +284,17 @@ class CraDatasource(
             }
         }
 
-        craFields(cont) { result ->
+        val handleResult: ((Fields?) -> Unit) -> (Result<Fields>) -> Unit = { setter -> { result ->
             if (!handleErr(result)) {
-                contFields = result.getOrNull()
+                setter(result.getOrNull())
                 if (successes.addAndGet(1) == 2) {
                     mergeNullFields(contFields, histFields, callback)
                 }
             }
-        }
+        }}
 
-        craFields(hist) { result ->
-            if (!handleErr(result)) {
-                histFields = result.getOrNull()
-                if (successes.addAndGet(1) == 2) {
-                    mergeNullFields(histFields, contFields, callback)
-                }
-            }
-        }
+        craFields(cont, handleResult { contFields = it })
+        craFields(hist, handleResult { histFields = it })
     }
 
     private fun mergeNullFields(f1: Fields?, f2: Fields?, callback: (Result<Fields>) -> Unit) {
@@ -354,11 +361,12 @@ class CraDatasource(
                                 callback(Result.failure(shpRes.exceptionOrNull()!!))
                             } else {
                                 val shp = shpRes.getOrNull()!!
+                                cra.eeUploadName = shp.tableUploadOperationName
                                 callback(Result.success(
                                     Fields(
                                         chosenNumeric = shp.numericClassField,
                                         chosenString = shp.stringClassField,
-                                        chosenStringValues = shp.stringClassValues
+                                        chosenStringValues = shp.stringClassValues,
                                     )
                                 ))
                             }
@@ -414,12 +422,8 @@ class CraDatasource(
 
         val key = cra.key()
         val zip = cra.localFile!!
-        uploadShapefile(key, zip) { result ->
-            when {
-                result.isSuccess -> uploadFields(key, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!, callback)
-                result.isFailure -> callback(result)
-            }
-        }
+
+        uploadShapefile(key, zip, callback)
     }
 
     private fun uploadShapefile(key: String, zip: File, callback: (Result<Unit>) -> Unit) {
@@ -435,11 +439,37 @@ class CraDatasource(
         }
     }
 
-    private fun uploadFields(key: String, numeric: String, string: String, stringVals: List<String>, callback: (Result<Unit>) -> Unit) {
+    fun uploadFields(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
+        val successes = AtomicInteger()
+        val failures = AtomicInteger()
+
+        val handleErr: (Result<Unit>) -> Boolean = { result ->
+            if (result.isFailure && failures.addAndGet(1) == 1) {
+                callback(result)
+                true
+            } else {
+                false
+            }
+        }
+
+        val handleResult: (Result<Unit>) -> Unit = { result ->
+            if (!handleErr(result)) {
+                if (successes.addAndGet(1) == 2) {
+                    callback(result)
+                }
+            }
+        }
+
+        uploadFields(cont, handleResult)
+        uploadFields(hist, handleResult)
+    }
+
+    fun uploadFields(cra: CRAFile, callback: (Result<Unit>) -> Unit) {
+        val key = cra.key()
         auth.currentUser?.uid?.let { uid ->
             try {
                 val tmp = File.createTempFile(key, "json")
-                val shpRes = Shapefile.toFile(tmp, Shapefile(key, numeric, string, stringVals))
+                val shpRes = Shapefile.toFile(tmp, Shapefile(key, cra.eeUploadName!!, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!))
                 if (shpRes.isFailure) {
                     callback(shpRes)
                 } else {

@@ -9,33 +9,34 @@ import kotlinx.coroutines.flow.flowOn
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 
 class AnalysisRepository(
     private val datasource: AnalysisDatasource = AnalysisDatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-) {
-    fun getStage(roiDir: File): Flow<Stage> = flow {
+): ApiRepository(datasource) {
+    fun getStage(roiDir: File) = flow {
         emit(datasource.getStage(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getROI(roiDir: File): Flow<Result<ROI>> = flow {
+    fun getROI(roiDir: File) = flow {
         emit(datasource.getROI(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffersFile(roiDir: File, buffers: Buffers): Flow<Result<Unit>> = flow {
+    fun saveBuffersFile(roiDir: File, buffers: Buffers) = flow {
         emit(datasource.saveBuffersFile(roiDir, buffers))
     }.flowOn(ioDispatcher)
 
-    fun loadBuffersFile(roiDir: File): Flow<Result<Buffers>> = flow {
+    fun loadBuffersFile(roiDir: File) = flow {
         emit(datasource.loadBuffersFile(roiDir))
     }.flowOn(ioDispatcher)
 
-    fun getBuffers(roi: ROI): Flow<ApiResult<Buffers>> = flow {
+    fun getBuffers(roi: ROI) = flow {
         emit(datasource.getBuffers(roi))
     }.flowOn(ioDispatcher)
 
-    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int): Flow<Result<Unit>> = flow {
+    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int) = flow {
         val roiSaved = datasource.saveROI(roiDir, roi)
         if (roiSaved.isFailure) {
             emit(roiSaved)
@@ -44,15 +45,15 @@ class AnalysisRepository(
         }
     }.flowOn(ioDispatcher)
 
-    fun getVisualizeURLs(roi: ROI): Flow<ApiResult<VisualizeURLs>> = flow {
+    fun getVisualizeURLs(roi: ROI) = flow {
         emit(datasource.getVisualizeURLs(roi))
     }.flowOn(ioDispatcher)
 
-    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Flow<Result<Unit>> = flow {
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs) = flow {
         emit(datasource.saveVisualizeURLs(roiDir, urls))
     }.flowOn(ioDispatcher)
 
-    fun loadVisualizeURLs(roiDir: File): Flow<Result<VisualizeURLs>> = flow {
+    fun loadVisualizeURLs(roiDir: File) = flow {
         emit(datasource.loadVisualizeURLs(roiDir))
     }.flowOn(ioDispatcher)
 

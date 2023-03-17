@@ -1,11 +1,15 @@
 package org.blueventures.gemdroid.model.analysis.separability
 
+import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
 import java.io.File
 
-class SeparabilityDatasource {
+class SeparabilityDatasource(
+    private val backend: Api.Service = Api.Service.instance(),
+): ApiDatasource(api = backend) {
     fun loadCRAs(roiDir: File) = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
 
     companion object {

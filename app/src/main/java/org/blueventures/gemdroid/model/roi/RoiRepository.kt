@@ -12,7 +12,7 @@ class RoiRepository(
     private val datasource: RoiDatasource = RoiDatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    fun getRois(filesDir: File): Flow<Result<List<File>>> = flow {
+    fun getRois(filesDir: File) = flow {
         emit(datasource.getRois(filesDir))
     }.flowOn(ioDispatcher)
 
@@ -33,7 +33,7 @@ class RoiRepository(
         emit(datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, contMonthStart, contMonthEnd, histYearStart, histYearEnd, histMonthStart, histMonthEnd, indices, points))
     }.flowOn(ioDispatcher)
 
-    fun deleteRoi(dir: File): Flow<Result<Unit>> = flow {
+    fun deleteRoi(dir: File) = flow {
         emit(datasource.deleteRoi(dir))
     }.flowOn(ioDispatcher)
 }

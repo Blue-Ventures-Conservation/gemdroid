@@ -11,10 +11,11 @@ import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 import java.io.InputStream
 
-class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepository()): BaseViewModel() {
+class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepository()): ApiViewModel(repo) {
     lateinit var craViewModel: CraViewModel
     lateinit var sepViewModel: SeparabilityViewModel
     var roiDir = File("")
@@ -34,13 +35,11 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
 
     fun saveBuffersFile(buffers: Buffers) = scoped { repo.saveBuffersFile(roiDir, buffers).collect() }
     fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = scoped { repo.loadBuffersFile(roiDir).collect(callback) }
-    fun getBuffers(callback: (ApiResult<Buffers>) -> Unit = {}) {
+    fun getBuffers(callback: (ApiResult<Buffers>) -> Unit) {
         if (buffersJob != null) return
-        buffersJob = scoped {
-            repo.getBuffers(roi).collect { result ->
-                buffersJob = null
-                callback(result)
-            }
+        withToken({ buffersJob = it }, { repo.getBuffers(roi) }) { result ->
+            buffersJob = null
+            callback(result)
         }
     }
 
@@ -51,13 +50,11 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
 
     fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
     fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
-    fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit = {}) {
+    fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
         if (visualizeURLsJob != null) return
-        visualizeURLsJob = scoped {
-            repo.getVisualizeURLs(roi).collect { result ->
-                visualizeURLsJob = null
-                callback(result)
-            }
+        withToken({ visualizeURLsJob = it }, { repo.getVisualizeURLs(roi) }) { result ->
+            visualizeURLsJob = null
+            callback(result)
         }
     }
 

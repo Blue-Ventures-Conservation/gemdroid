@@ -1,12 +1,15 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
+import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.Shapefile
 import java.io.File
 
-data class CRAFile(
+class CRAFile(
     val storageKey: String? = null,
     val localFile: File? = null,
-    val fields: Fields = Fields(),
+    var fields: Fields = Fields(),
+    var eeUploadName: String? = null,
 ) {
     fun equivalent(o: CRAFile): Boolean {
         val remote = (storageKey != null && storageKey == o.storageKey)
@@ -19,6 +22,14 @@ data class CRAFile(
     fun isLocal() = localFile != null && storageKey == null
     fun isRemote() = localFile == null && storageKey != null
     fun badFinalState() = (!isRemote() && !readyToUpload()) || (isRemote() && !fields.complete())
+
+    companion object {
+        fun toCRA(cont: CRAFile, hist: CRAFile?): CRA {
+            val contShp = Shapefile(cont.key(), cont.eeUploadName!!, cont.fields.chosenNumeric!!, cont.fields.chosenString!!, cont.fields.chosenStringValues!!)
+            val histShp = if (hist == null) null else Shapefile(hist.key(), hist.eeUploadName!!, hist.fields.chosenNumeric!!, hist.fields.chosenString!!, hist.fields.chosenStringValues!!)
+            return CRA(contShp, histShp)
+        }
+    }
 }
 
 data class Fields(
