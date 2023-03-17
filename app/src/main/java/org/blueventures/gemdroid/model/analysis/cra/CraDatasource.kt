@@ -275,21 +275,14 @@ class CraDatasource(
         var contFields: Fields? = null
         var histFields: Fields? = null
 
-        val handleErr: (Result<Fields>) -> Boolean = { result ->
-            if (result.isFailure && failures.addAndGet(1) == 1) {
-                callback(result)
-                true
-            } else {
-                false
-            }
-        }
-
         val handleResult: ((Fields?) -> Unit) -> (Result<Fields>) -> Unit = { setter -> { result ->
-            if (!handleErr(result)) {
+            if (result.isSuccess) {
                 setter(result.getOrNull())
                 if (successes.addAndGet(1) == 2) {
                     mergeNullFields(contFields, histFields, callback)
                 }
+            } else if (failures.addAndGet(1) == 1) {
+                callback(result)
             }
         }}
 
@@ -389,30 +382,18 @@ class CraDatasource(
         val successes = AtomicInteger()
         val failures = AtomicInteger()
 
-        val handleErr: (Result<Unit>) -> Boolean = { result ->
-            if (result.isFailure && failures.addAndGet(1) == 1) {
+        val handleResult: (Result<Unit>) -> Unit = { result ->
+            if (result.isSuccess) {
+                if (successes.addAndGet(1) == 2) {
+                    callback(result)
+                }
+            } else if (failures.addAndGet(1) == 1) {
                 callback(result)
-                true
-            } else {
-                false
             }
         }
 
-        uploadCRA(c1) { result ->
-            if (!handleErr(result)) {
-                if (successes.addAndGet(1) == 2) {
-                    callback(Result.success(Unit))
-                }
-            }
-        }
-
-        uploadCRA(c2) { result ->
-            if (!handleErr(result)) {
-                if (successes.addAndGet(1) == 2) {
-                    callback(Result.success(Unit))
-                }
-            }
-        }
+        uploadCRA(c1, handleResult)
+        uploadCRA(c2, handleResult)
     }
 
     fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) {

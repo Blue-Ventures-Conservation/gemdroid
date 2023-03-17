@@ -4,6 +4,7 @@ import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import java.io.File
 
+// the buffers data returned by the server
 data class Buffers(
     @Json(name = "sums") val sums: KeysVals,
     @Json(name = "buffers") val buffers: KeysVals

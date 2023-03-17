@@ -4,6 +4,8 @@ import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import java.io.File
 
+// this is only used to indicate by the presence of a file
+// that the buffer has been selected
 data class Buffer(
     @Json(name = "buffer_dist") val buffer: Int
 ){

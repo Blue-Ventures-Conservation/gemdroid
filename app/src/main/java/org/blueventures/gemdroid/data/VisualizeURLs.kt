@@ -4,6 +4,7 @@ import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
 import java.io.File
 
+// Returned by the backend after receiving an ROI and preparing imagery
 data class VisualizeURLs(
     @Json(name = "chot_url") val chotURL: String,
     @Json(name = "clot_url") val clotURL: String,

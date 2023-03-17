@@ -21,8 +21,8 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
             historicalCRA = hist
         }
 
-    val craIngestJobs = mutableMapOf<String, Job>()
-    val craAwaitIngestJobs = mutableMapOf<String, Job>()
+    private val craIngestJobs = mutableMapOf<String, Job>()
+    private val craAwaitIngestJobs = mutableMapOf<String, Job>()
 
     fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = scoped { repo.getRemoteCRAs(callback).collect() }
     fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, callback: (Result<CRAFile>) -> Unit) = scoped {
@@ -53,91 +53,75 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
             return
         }
 
-        when {
-            cont.isRemote() && (hist == null || cont.equivalent(hist) || hist.isRemote()) -> {
-                // both remote, fields should already be saved
-                ingestCRAs(cont, hist) { result ->
+        if (hist == null || cont.equivalent(hist)) {
+            when {
+                cont.isRemote() -> ingestCRA(cont) { result ->
                     when {
-                        result.isSuccess -> saveCRAs(CRAFile.toCRA(cont, hist), callback)
+                        result.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
                         else -> callback(result)
                     }
                 }
+                cont.readyToUpload() -> uploadIngestContemporary(cont, hist, callback)
             }
-            cont.isRemote() && (hist?.readyToUpload() == true) -> {
-                // upload hist
-                uploadIngestSave(hist, cont, hist, callback)
-            }
-            cont.readyToUpload() && (hist == null || cont.equivalent(hist) || hist.isRemote()) -> {
-                // upload cont
-                uploadIngestSave(cont, cont, hist, callback)
-            }
-            cont.readyToUpload() && (hist?.readyToUpload() == true) -> {
-                // upload both
-                scoped {
-                    repo.uploadCRAs(cont, hist) { result ->
+        } else {
+            when {
+                cont.isRemote() && hist.isRemote() -> {
+                    // both remote, fields should already be saved, check on ingestion
+                    // and go straight to saving locally
+                    ingestCRAs(cont, hist) { result ->
                         when {
-                            result.isSuccess -> ingestCRAs(cont, hist) { res ->
-                                when {
-                                    res.isSuccess -> uploadFields(cont, hist) { r ->
-                                        when {
-                                            r.isSuccess -> saveCRAs(CRAFile.toCRA(cont, hist), callback)
-                                            else -> callback(r)
-                                        }
-                                    }
-                                    else -> callback(res)
-                                }
-                            }
+                            result.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
                             else -> callback(result)
                         }
-                    }.collect()
+                    }
+                }
+                cont.isRemote() && hist.readyToUpload() -> uploadIngestEither(hist, cont, hist, callback)
+                cont.readyToUpload() && hist.isRemote() -> uploadIngestEither(cont, cont, hist, callback)
+                cont.readyToUpload() && hist.readyToUpload() -> {
+                    // upload both
+                    scoped {
+                        repo.uploadCRAs(cont, hist) { result ->
+                            when {
+                                result.isSuccess -> ingestCRAs(cont, hist) { res ->
+                                    when {
+                                        res.isSuccess -> uploadFields(cont, hist) { r ->
+                                            when {
+                                                r.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
+                                                else -> callback(r)
+                                            }
+                                        }
+                                        else -> callback(res)
+                                    }
+                                }
+                                else -> callback(result)
+                            }
+                        }.collect()
+                    }
                 }
             }
         }
     }
 
-    // we always try to ingest, even if the CRA is already remote, as ingestion may fail somewhat silently
-    private fun ingestCRAs(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit) {
-        if (hist == null || cont.equivalent(hist)) {
-            ingestCRA(cont) { result ->
-                when {
-                    result.isSuccess -> {
-                        val name = result.getOrNull()!!
-                        cont.eeUploadName = name
-                        hist?.eeUploadName = name
-                        callback(Result.success(Unit))
-                    }
-                    else -> callback(Result.failure(result.exceptionOrNull()!!))
-                }
-            }
-            return
-        }
-
+    // we always try to ingest, even if a CRA is already remote, as ingestion may fail somewhat silently
+    private fun ingestCRAs(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
         val successes = AtomicInteger()
         val failures = AtomicInteger()
 
-        val handleErr: (Result<String>) -> Boolean = { result ->
-            if (result.isFailure && failures.addAndGet(1) == 1) {
-                callback(Result.failure(result.exceptionOrNull()!!))
-                true
-            } else {
-                false
-            }
-        }
-
-        val handleResult: ((String?) -> Unit) -> (Result<String>) -> Unit = { setter -> { result ->
-            if (!handleErr(result)) {
-                setter(result.getOrNull())
+        val handleResult: (Result<Unit>) -> Unit = { result ->
+            if (result.isSuccess) {
                 if (successes.addAndGet(1) == 2) {
                     callback(Result.success(Unit))
                 }
+            } else if(failures.addAndGet(1) == 1) {
+                callback(Result.failure(result.exceptionOrNull()!!))
             }
-        }}
+        }
 
-        ingestCRA(cont, handleResult { cont.eeUploadName = it })
-        ingestCRA(hist, handleResult { hist.eeUploadName = it })
+        ingestCRA(cont, handleResult)
+        ingestCRA(hist, handleResult)
     }
 
-    private fun ingestCRA(cra: CRAFile, callback: (Result<String>) -> Unit) {
+    private fun ingestCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) {
         val key = cra.key()
         ingestNeeded(cra.eeUploadName, key) { result ->
             when {
@@ -150,7 +134,10 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
                                     is ApiResult.Success -> {
                                         val data = res.data!!
                                         when (data.success) {
-                                            true -> callback(Result.success(data.name))
+                                            true -> {
+                                                cra.eeUploadName = data.name
+                                                callback(Result.success(Unit))
+                                            }
                                             else -> callback(Result.failure(Throwable("Ingestion of CRA into Earth Engine failed.")))
                                         }
                                     }
@@ -159,7 +146,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
                             }
                         }
                     } else {
-                        callback(Result.success(cra.eeUploadName!!))
+                        callback(Result.success(Unit))
                     }
                 }
                 else -> callback(Result.failure(result.exceptionOrNull()!!))
@@ -173,29 +160,47 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
             return
         }
 
-        when (name) {
-            null -> callback(Result.success(true))
-            else -> {
-                if (craAwaitIngestJobs.contains(name)) return
-                withToken({ craAwaitIngestJobs[name] = it }, { repo.awaitCRAIngestion(name, key) }) { result ->
-                    craAwaitIngestJobs.remove(name)
-                    when (result) {
-                        is ApiResult.Success -> callback(Result.success(!result.data!!.success))
-                        else -> callback(Result.failure(Throwable(result.message!!)))
-                    }
+        if (name == null) {
+            callback(Result.success(true))
+        } else {
+            if (craAwaitIngestJobs.contains(name)) return
+            withToken({ craAwaitIngestJobs[name] = it }, { repo.awaitCRAIngestion(name, key) }) { result ->
+                craAwaitIngestJobs.remove(name)
+                when (result) {
+                    is ApiResult.Success -> callback(Result.success(!result.data!!.success))
+                    else -> callback(Result.failure(Throwable(result.message!!)))
                 }
             }
         }
     }
 
-    private fun uploadIngestSave(upload: CRAFile, cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit) {
+    private fun uploadIngestContemporary(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit) {
+        uploadCRA(cont) { result ->
+            when {
+                result.isSuccess -> ingestCRA(cont) { res ->
+                    when {
+                        res.isSuccess -> uploadFields(cont) { r ->
+                            when {
+                                r.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
+                                else -> callback(r)
+                            }
+                        }
+                        else -> callback(res)
+                    }
+                }
+                else -> callback(result)
+            }
+        }
+    }
+
+    private fun uploadIngestEither(upload: CRAFile, cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
         uploadCRA(upload) { result ->
             when {
                 result.isSuccess -> ingestCRAs(cont, hist) { res ->
                     when {
                         res.isSuccess -> uploadFields(upload) { r ->
                             when {
-                                r.isSuccess -> saveCRAs(CRAFile.toCRA(cont, hist), callback)
+                                r.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
                                 else -> callback(r)
                             }
                         }
@@ -210,7 +215,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
     private fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadCRA(cra, callback).collect() }
     private fun uploadFields(cra: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadFields(cra, callback) }
     private fun uploadFields(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadFields(cont, hist, callback) }
-    private fun saveCRAs(cra: CRA, callback: (Result<Unit>) -> Unit) = scoped { repo.saveCRAs(roiDir, cra).collect(callback) }
+    private fun saveCRAsLocally(cra: CRA, callback: (Result<Unit>) -> Unit) = scoped { repo.saveCRAs(roiDir, cra).collect(callback) }
 
     fun clear() { clearHistoricalChoice() }
 }

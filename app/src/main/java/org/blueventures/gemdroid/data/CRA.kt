@@ -9,6 +9,8 @@ import java.io.File
  * classifier on historical imagery on the backend. Otherwise, the historical
  * Shapefile can point to the same CRA as the contemporary, which implies the
  * reference areas are spatio-temporally invariant.
+ *
+ * A CRA file is saved on device to keep track of the CRAs in use for an ROI.
  */
 data class CRA(
     @Json(name = "cont_shp") val contemporaryCRA: Shapefile,
@@ -21,6 +23,8 @@ data class CRA(
     }
 }
 
+// Saved locally, and also saved in Cloud Storage alongside the zip to keep track of
+// the parsed/selected fields used for analysis
 data class Shapefile(
     @Json(name = "shp_storage_key") val shapefileStorageKey: String,
     @Json(name = "table_upload_operation_name") val tableUploadOperationName: String,
