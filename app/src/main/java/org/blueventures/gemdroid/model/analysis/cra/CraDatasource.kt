@@ -14,8 +14,8 @@ import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.CRAKey
 import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.UploadName
-import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.SignIn
+import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
 import java.io.File
 import java.io.FileInputStream
@@ -341,7 +341,7 @@ class CraDatasource(
     }
 
     private fun craFields(cra: CRAFile, callback: (Result<Fields>) -> Unit) {
-        if (cra.fields.parsedLocally()) {
+        if (cra.fields.parsedLocally() || cra.fields.complete()) {
             callback(Result.success(cra.fields))
         } else {
             cra.storageKey?.let { key ->

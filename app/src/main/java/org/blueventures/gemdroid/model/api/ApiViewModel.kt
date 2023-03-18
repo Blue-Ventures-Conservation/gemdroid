@@ -9,14 +9,17 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
     fun <T> withToken(jobserver: (Job) -> Unit, call: () -> Flow<ApiResult<T>>, callback: (ApiResult<T>) -> Unit) {
         repo.getIdToken { result ->
             when {
-                result.isSuccess -> {
-                    jobserver(scoped {
-                        call().collect(callback)
-                    })
-                }
-                result.isFailure -> {
-                    callback(ApiResult.Error(result.exceptionOrNull()!!.message))
-                }
+                result.isSuccess -> jobserver(scoped { call().collect(callback) })
+                else -> callback(ApiResult.Error(result.exceptionOrNull()!!.message))
+            }
+        }
+    }
+
+    fun <T> withToken(call: () -> Unit, callback: (Result<T>) -> Unit) {
+        repo.getIdToken { result ->
+            when {
+                result.isSuccess -> call()
+                else -> callback(Result.failure(result.exceptionOrNull()!!))
             }
         }
     }

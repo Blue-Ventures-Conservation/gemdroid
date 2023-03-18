@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
@@ -24,7 +23,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
     private val craIngestJobs = mutableMapOf<String, Job>()
     private val craAwaitIngestJobs = mutableMapOf<String, Job>()
 
-    fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = scoped { repo.getRemoteCRAs(callback).collect() }
+    fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = repo.getRemoteCRAs(callback)
     fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, callback: (Result<CRAFile>) -> Unit) = scoped {
         repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous).collect(callback)
     }
@@ -32,7 +31,9 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
     fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }
 
-    fun getCRAFields(callback: (Result<Fields>) -> Unit) = scoped { repo.getCRAFields(contemporaryCRA, historicalCRA, callback).collect() }
+    fun getCRAFields(callback: (Result<Fields>) -> Unit) {
+        repo.getCRAFields(contemporaryCRA, historicalCRA, callback)
+    }
     fun setFields(fields: Fields) {
         contemporaryCRA.fields = fields
         historicalCRA?.fields = fields
@@ -79,23 +80,21 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
                 cont.readyToUpload() && hist.isRemote() -> uploadIngestEither(cont, cont, hist, callback)
                 cont.readyToUpload() && hist.readyToUpload() -> {
                     // upload both
-                    scoped {
-                        repo.uploadCRAs(cont, hist) { result ->
-                            when {
-                                result.isSuccess -> ingestCRAs(cont, hist) { res ->
-                                    when {
-                                        res.isSuccess -> uploadFields(cont, hist) { r ->
-                                            when {
-                                                r.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
-                                                else -> callback(r)
-                                            }
+                    repo.uploadCRAs(cont, hist) { result ->
+                        when {
+                            result.isSuccess -> ingestCRAs(cont, hist) { res ->
+                                when {
+                                    res.isSuccess -> uploadFields(cont, hist) { r ->
+                                        when {
+                                            r.isSuccess -> saveCRAsLocally(CRAFile.toCRA(cont, hist), callback)
+                                            else -> callback(r)
                                         }
-                                        else -> callback(res)
                                     }
+                                    else -> callback(res)
                                 }
-                                else -> callback(result)
                             }
-                        }.collect()
+                            else -> callback(result)
+                        }
                     }
                 }
             }
@@ -212,7 +211,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
         }
     }
 
-    private fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadCRA(cra, callback).collect() }
+    private fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) = repo.uploadCRA(cra, callback)
     private fun uploadFields(cra: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadFields(cra, callback) }
     private fun uploadFields(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) = scoped { repo.uploadFields(cont, hist, callback) }
     private fun saveCRAsLocally(cra: CRA, callback: (Result<Unit>) -> Unit) = scoped { repo.saveCRAs(roiDir, cra).collect(callback) }

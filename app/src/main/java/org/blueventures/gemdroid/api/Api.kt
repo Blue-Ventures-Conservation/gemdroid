@@ -19,7 +19,7 @@ object Api {
 
     private fun backend(timeout: Long): Service {
         val pair = BaseApi.authResultRetrofit(backendBaseUrl, timeout, BuildConfig.DEBUG)
-        return Service(pair.second.create(Service::class.java), pair.first)
+        return Service(pair.second.create(Backend::class.java), pair.first)
     }
 
     interface Backend {
