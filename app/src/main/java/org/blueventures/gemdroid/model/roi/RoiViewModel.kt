@@ -21,7 +21,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
     var indices: Indices = defaultIndices
-    var points: ArrayList<LatLng> = arrayListOf()
+    var points: MutableList<LatLng> = mutableListOf()
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -71,7 +71,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun getIndices() = listOf(Indices.LS_BEST, Indices.LS_STANDARD, Indices.LS)
     fun clearIndices() { indices = defaultIndices }
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
-    fun clearPoints() { points = arrayListOf() }
+    fun clearPoints() { points = mutableListOf() }
     fun polygonArea() = SphericalUtil.computeArea(points)/1_000_000
     fun validatePolygon(): Boolean {
         val area = polygonArea()
@@ -98,11 +98,11 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
 
         if (points.size > 2) {
             var minDistance = 0F
-            val distances = arrayListOf<Float>()
+            val distances = mutableListOf<Float>()
 
-            for (i in 0 until points.size) {
+            for (i in points.indices) {
                 // 1. Find the mid points of the edges of polygon
-                val list: ArrayList<LatLng> = ArrayList()
+                val list = mutableListOf<LatLng>()
                 if (i == points.size - 1) {
                     list.add(points[points.size - 1])
                     list.add(points[0])
@@ -144,15 +144,15 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         this.points.add(point)
     }
 
-    private fun minIndex(list: ArrayList<Float>): Int {
+    private fun minIndex(list: List<Float>): Int {
         return list.indexOf(Collections.min(list))
     }
 
-    private fun <T> rotate(aL: ArrayList<T>, shift: Int): ArrayList<T> {
+    private fun <T> rotate(aL: MutableList<T>, shift: Int): MutableList<T> {
         if (aL.size == 0) return aL
         var element: T?
         for (i in 0 until shift) {
-            // remove last element, add it to front of the ArrayList
+            // remove last element, add it to front of the List
             element = aL.removeAt(aL.size - 1)
             aL.add(0, element)
         }

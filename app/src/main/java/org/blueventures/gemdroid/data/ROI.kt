@@ -57,7 +57,7 @@ data class ROI(
         fun toFile(file: File, roi: ROI) = FileService.toFile(file, roi, adapter)
 
         private fun polygonFromState(points: List<LatLng>): Polygon {
-            val coordinates: ArrayList<List<Double>> = arrayListOf()
+            val coordinates = mutableListOf<List<Double>>()
             for (point in points) {
                 coordinates.add(listOf(point.longitude, point.latitude))
             }

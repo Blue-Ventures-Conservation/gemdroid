@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.github.zibnix.droidbones.ui.Dialogs
 
 class RationaleDialog(private val rationale: String, val callback: (Boolean) -> Unit): DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

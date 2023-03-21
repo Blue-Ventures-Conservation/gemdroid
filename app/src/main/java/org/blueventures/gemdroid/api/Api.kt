@@ -30,7 +30,7 @@ object Api {
         suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
         @POST("/upload_cra")
-        suspend fun uploadCRA(@Body key: CRAKey): ApiResult<CRAUploadResult>
+        suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAUploadResult>
 
         @POST("/await_cra_upload")
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
@@ -40,7 +40,7 @@ object Api {
         fun setToken(token: String) { auth.token = token }
         override suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
         override suspend fun getVisualizeURLs(roi: ROI) = backend.getVisualizeURLs(roi)
-        override suspend fun uploadCRA(key: CRAKey) = backend.uploadCRA(key)
+        override suspend fun ingestCRA(key: CRAKey) = backend.ingestCRA(key)
         override suspend fun awaitCRAUpload(name: UploadName) = backend.awaitCRAUpload(name)
 
         companion object {

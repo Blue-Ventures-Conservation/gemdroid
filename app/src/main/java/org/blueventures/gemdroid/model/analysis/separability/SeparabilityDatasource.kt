@@ -1,8 +1,9 @@
 package org.blueventures.gemdroid.model.analysis.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
+import com.github.zibnix.droidbones.api.apiResultCheck
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Success
@@ -11,49 +12,34 @@ import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.cras
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
 
 class SeparabilityDatasource(
     private val api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api = api) {
-    fun loadCRAs(roiDir: File, callback: (Result<CRA>) -> Unit)  = runBlocking {
+    suspend fun loadCRAs(roiDir: File): Result<CRA> {
         val result = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
         if (result.isFailure) {
-            callback(result)
-            return@runBlocking
+            return result
         }
 
         val cra = result.getOrNull()!!
-
-        val successes = AtomicInteger()
-        val failures = AtomicInteger()
-        var contSuccess: Success? = null
-        var histSuccess: Success? = null
-
-        val handleResult: ((Success?) -> Unit) -> (ApiResult<Success>) -> Unit = { setter -> { result ->
-            if (result is ApiResult.Success) {
-                setter(result.data)
-                if (successes.addAndGet(1) == 2) {
-                    if (contSuccess?.success == true && histSuccess?.success == true) {
-                        callback(Result.success(cra))
-                    } else {
-                        callback(Result.failure(Throwable("Could not ingest CRAs into Earth Engine.")))
-                    }
-                }
-            } else if (failures.addAndGet(1) == 1) {
-                callback(Result.failure(Throwable(result.message!!)))
-            }
-        }}
-
         val cont = cra.contemporaryCRA
         val hist = cra.historicalCRA
 
-        if (hist == null || cont == hist) {
-            successes.addAndGet(1)
-        } else {
-             launch { handleResult { histSuccess = it }(awaitCRAIngestion(hist.tableUploadOperationName, hist.shapefileStorageKey)) }
+        var contResult: ApiResult<Success>? = null
+        var histResult: ApiResult<Success>? = null
+
+        // returns when all children coroutines are complete
+        coroutineScope {
+            if (hist !== null && cont != hist) {
+                launch { histResult = awaitCRAIngestion(hist.tableUploadOperationName, hist.shapefileStorageKey) }
+            }
+            launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.shapefileStorageKey) }
         }
-        launch { handleResult { contSuccess = it }(awaitCRAIngestion(cont.tableUploadOperationName, cont.shapefileStorageKey)) }
+
+        val err = apiResultCheck(contResult, histResult)
+        if (err != null) return Result.failure(err)
+        return Result.success(cra)
     }
 
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))

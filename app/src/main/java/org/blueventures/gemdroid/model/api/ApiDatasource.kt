@@ -10,7 +10,5 @@ open class ApiDatasource(
     private val auth: FirebaseAuth = Firebase.auth,
     private val api: Api.Service = Api.Service.instance(),
 ) {
-    fun getIdToken(callback: (Result<Unit>) -> Unit) {
-        Token.getIdToken(auth, api, callback)
-    }
+    suspend fun getIdToken(): Result<Unit> = Token.getIdToken(auth, api)
 }

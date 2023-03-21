@@ -1,19 +1,15 @@
 package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.api.ApiResult
-import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
-import java.io.InputStream
 
 class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepository()): ApiViewModel(repo) {
     lateinit var craViewModel: CraViewModel
@@ -37,7 +33,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
     fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = scoped { repo.loadBuffersFile(roiDir).collect(callback) }
     fun getBuffers(callback: (ApiResult<Buffers>) -> Unit) {
         if (buffersJob != null) return
-        withToken({ buffersJob = it }, { repo.getBuffers(roi) }) { result ->
+        apiWithToken({ buffersJob = it }, repo.getBuffers(roi)) { result ->
             buffersJob = null
             callback(result)
         }
@@ -52,7 +48,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
     fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
     fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
         if (visualizeURLsJob != null) return
-        withToken({ visualizeURLsJob = it }, { repo.getVisualizeURLs(roi) }) { result ->
+        apiWithToken({ visualizeURLsJob = it }, repo.getVisualizeURLs(roi)) { result ->
             visualizeURLsJob = null
             callback(result)
         }

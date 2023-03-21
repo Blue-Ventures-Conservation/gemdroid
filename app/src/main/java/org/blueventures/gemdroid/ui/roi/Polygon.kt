@@ -63,7 +63,7 @@ object Polygon {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var polygon: Polygon? = null
-            val markers = arrayListOf<Marker>()
+            val markers = mutableListOf<Marker>()
 
             val clearFunc = {
                 polygon?.remove()

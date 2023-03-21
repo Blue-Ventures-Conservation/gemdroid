@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import org.blueventures.gemdroid.data.ROI
 
 @Composable
 fun RefreshableError(fetchFunc: (() -> Unit) -> Unit) {

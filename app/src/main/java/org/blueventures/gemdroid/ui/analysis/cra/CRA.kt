@@ -128,8 +128,8 @@ object CRA {
             Progress()
             when {
                 localCRA == null -> {
-                    val streams = arrayListOf<InputStream?>()
-                    val names = arrayListOf<String?>()
+                    val streams = mutableListOf<InputStream?>()
+                    val names = mutableListOf<String?>()
                     selectedFiles?.forEach { uri ->
                         streams.add(LocalContext.current.contentResolver.openInputStream(uri))
                         names.add(contentDisplayName(LocalContext.current, uri))

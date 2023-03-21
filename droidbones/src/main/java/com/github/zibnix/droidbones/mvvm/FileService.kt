@@ -19,7 +19,7 @@ object FileService {
 
     fun getSubdirs(dir: File): List<File> {
         return try {
-            val fs = arrayListOf<File>()
+            val fs = mutableListOf<File>()
             for (file in dir.listFiles() ?: emptyArray()) {
                 if (file.exists() && file.isDirectory) {
                     fs.add(file)
@@ -36,7 +36,7 @@ object FileService {
 
     fun getFiles(dir: File): List<File> {
         return try {
-            val fs = arrayListOf<File>()
+            val fs = mutableListOf<File>()
             for (file in dir.listFiles() ?: emptyArray()) {
                 if (file.exists() && !file.isDirectory && file.length() > 0) {
                     fs.add(file)
@@ -213,7 +213,7 @@ object FileService {
     fun unzip(zip: InputStream, path: String): Result<List<String>> {
         return try {
             val zin = ZipInputStream(zip)
-            val paths = arrayListOf<String>()
+            val paths = mutableListOf<String>()
             var ze = zin.nextEntry
             while (ze != null) {
                 val fpath = path+sep+ze.name

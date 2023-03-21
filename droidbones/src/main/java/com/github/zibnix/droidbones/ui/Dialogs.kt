@@ -1,10 +1,8 @@
 package com.github.zibnix.droidbones.ui
 
-import androidx.annotation.StyleRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.github.zibnix.droidbones.R
 
 object Dialogs {
     fun dismiss(fragment: Fragment) {

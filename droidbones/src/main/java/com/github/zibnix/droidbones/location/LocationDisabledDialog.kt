@@ -9,7 +9,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.github.zibnix.droidbones.R
-import com.github.zibnix.droidbones.ui.Dialogs
 
 class LocationDisabledDialog() : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -146,7 +146,7 @@ object Buffer {
                         cartesian.credits().text("")
 
                         val sums = buffers.sums
-                        val data = arrayListOf<DataEntry>()
+                        val data = mutableListOf<DataEntry>()
                         sums.keys.forEachIndexed { i, key ->
                             data.add(ValueDataEntry(key, sums.vals[i]))
                         }

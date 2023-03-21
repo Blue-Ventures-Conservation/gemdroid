@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import android.net.Uri
+import com.github.zibnix.droidbones.api.apiResultCheck
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -16,37 +17,37 @@ import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.UploadName
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
+import org.blueventures.gemdroid.model.resultCheck
 import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStream
-import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class CraDatasource(
     private val storage: FirebaseStorage = Firebase.storage,
     private val auth: FirebaseAuth = Firebase.auth,
     private val api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(auth, api) {
-    suspend fun ingestCRA(key: String) = api.uploadCRA(CRAKey(key))
-    suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
-
-    fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) {
+    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { cont ->
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()
                 .addOnSuccessListener { result ->
-                    val files = arrayListOf<String>()
+                    val files = mutableListOf<String>()
                     result.items.forEach {
                         if (it.name.endsWith(".json")) {
                             files.add(it.name.substringBeforeLast("."))
                         }
                     }
-                    callback(Result.success(files))
+                    cont.resume(Result.success(files))
                 }
                 .addOnFailureListener {
-                    callback(Result.failure(Throwable(it)))
+                    cont.resume(Result.failure(Throwable(it)))
                 }
         } ?: run {
-            callback(Result.failure(SignIn.not))
+            cont.resume(Result.failure(SignIn.not))
         }
     }
 
@@ -73,7 +74,7 @@ class CraDatasource(
     }
 
     private fun copyShapes(dir: File, shps: List<InputStream?>, names: List<String?>): Result<List<String>> {
-        val paths = arrayListOf<String>()
+        val paths = mutableListOf<String>()
         shps.forEachIndexed { i, shp ->
             if (shp == null || names[i] == null) {
                 return Result.failure(Throwable("Could not read shapefiles"))
@@ -169,8 +170,8 @@ class CraDatasource(
             return Result.failure(Throwable("Please use the previously uploaded shapefile by that name."))
         }
 
-        val numerics = arrayListOf<String>()
-        val strings = arrayListOf<String>()
+        val numerics = mutableListOf<String>()
+        val strings = mutableListOf<String>()
         val numericsMap = mutableMapOf<String, MutableMap<String, Int>>()
         val stringsMap = mutableMapOf<String, MutableMap<String, Int>>()
 
@@ -264,38 +265,13 @@ class CraDatasource(
         }
     }
 
-    fun getCRAFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Fields>) -> Unit) {
-        if (hist == null || cont.equivalent(hist)) {
-            craFields(cont, callback)
-            return
-        }
-
-        val successes = AtomicInteger()
-        val failures = AtomicInteger()
-        var contFields: Fields? = null
-        var histFields: Fields? = null
-
-        val handleResult: ((Fields?) -> Unit) -> (Result<Fields>) -> Unit = { setter -> { result ->
-            if (result.isSuccess) {
-                setter(result.getOrNull())
-                if (successes.addAndGet(1) == 2) {
-                    mergeNullFields(contFields, histFields, callback)
-                }
-            } else if (failures.addAndGet(1) == 1) {
-                callback(result)
-            }
-        }}
-
-        craFields(cont, handleResult { contFields = it })
-        craFields(hist, handleResult { histFields = it })
-    }
-
-    private fun mergeNullFields(f1: Fields?, f2: Fields?, callback: (Result<Fields>) -> Unit) {
-        if (f1 == null || f2 == null) {
-            return
-        }
-
-        callback(mergeFields(f1, f2))
+    suspend fun getCRAFields(cont: CRAFile, hist: CRAFile?): Result<Fields> {
+        if (hist == null || cont.equivalent(hist)) return craFields(cont)
+        val contRes = craFields(cont)
+        val histRes = craFields(hist)
+        val err = resultCheck(contRes, histRes)
+        if (err != null) return Result.failure(err)
+        return mergeFields(contRes.getOrNull()!!, histRes.getOrNull()!!)
     }
 
     private fun mergeFields(f1: Fields, f2: Fields): Result<Fields> {
@@ -340,132 +316,135 @@ class CraDatasource(
         }
     }
 
-    private fun craFields(cra: CRAFile, callback: (Result<Fields>) -> Unit) {
-        if (cra.fields.parsedLocally() || cra.fields.complete()) {
-            callback(Result.success(cra.fields))
-        } else {
-            cra.storageKey?.let { key ->
-                auth.currentUser?.uid?.let { uid ->
-                    try {
-                        val tmp = File.createTempFile("cras", "json")
-                        storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
-                            val shpRes = Shapefile.fromFile(tmp)
-                            if (shpRes.isFailure) {
-                                callback(Result.failure(shpRes.exceptionOrNull()!!))
-                            } else {
-                                val shp = shpRes.getOrNull()!!
-                                cra.eeUploadName = shp.tableUploadOperationName
-                                callback(Result.success(
-                                    Fields(
-                                        chosenNumeric = shp.numericClassField,
-                                        chosenString = shp.stringClassField,
-                                        chosenStringValues = shp.stringClassValues,
-                                    )
-                                ))
-                            }
-                        }.addOnFailureListener {
-                            callback(Result.failure(Throwable(it)))
-                        }
-                    } catch (e: Exception) {
-                        callback(Result.failure(Throwable(e)))
-                    }
-                } ?: run {
-                    callback(Result.failure(SignIn.not))
-                }
-            } ?: run {
-                callback(Result.failure(Throwable("Internal storage key error, sorry!")))
-            }
+    private suspend fun craFields(cra: CRAFile): Result<Fields> {
+        if (cra.fields.parsedLocally() || cra.fields.complete()) return Result.success(cra.fields)
+        if (cra.storageKey == null) return Result.failure(Throwable("Internal storage key error, sorry!"))
+        if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
+        val uid = auth.currentUser!!.uid
+        return try {
+            fetchFields(cra, cra.storageKey, uid)
+        } catch (e: Exception) {
+            Result.failure(Throwable(e))
         }
     }
 
-    fun uploadCRAs(c1: CRAFile, c2: CRAFile, callback: (Result<Unit>) -> Unit) {
-        val successes = AtomicInteger()
-        val failures = AtomicInteger()
-
-        val handleResult: (Result<Unit>) -> Unit = { result ->
-            if (result.isSuccess) {
-                if (successes.addAndGet(1) == 2) {
-                    callback(result)
-                }
-            } else if (failures.addAndGet(1) == 1) {
-                callback(result)
-            }
-        }
-
-        uploadCRA(c1, handleResult)
-        uploadCRA(c2, handleResult)
-    }
-
-    fun uploadCRA(cra: CRAFile, callback: (Result<Unit>) -> Unit) {
-        if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
-            callback(Result.failure(Throwable("Internal shapefile error, sorry!")))
-        }
-
-        val key = cra.key()
-        val zip = cra.localFile!!
-
-        uploadShapefile(key, zip, callback)
-    }
-
-    private fun uploadShapefile(key: String, zip: File, callback: (Result<Unit>) -> Unit) {
-        auth.currentUser?.uid?.let { uid ->
-            storage.reference.child("users/$uid/shps/$key.zip").putFile(Uri.fromFile(zip))
-                .addOnSuccessListener {
-                    callback(Result.success(Unit))
-                }.addOnFailureListener {
-                    callback(Result.failure(Throwable(it)))
-                }
-        } ?: run {
-            callback(Result.failure(SignIn.not))
-        }
-    }
-
-    fun uploadFields(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
-        val successes = AtomicInteger()
-        val failures = AtomicInteger()
-
-        val handleErr: (Result<Unit>) -> Boolean = { result ->
-            if (result.isFailure && failures.addAndGet(1) == 1) {
-                callback(result)
-                true
+    @Throws(IOException::class)
+    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<Fields> = suspendCoroutine { cont ->
+        val tmp = File.createTempFile("cras", "json")
+        storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
+            val shpRes = Shapefile.fromFile(tmp)
+            if (shpRes.isFailure) {
+                cont.resume(Result.failure(shpRes.exceptionOrNull()!!))
             } else {
-                false
+                val shp = shpRes.getOrNull()!!
+                cra.eeUploadName = shp.tableUploadOperationName
+                cont.resume(
+                    Result.success(Fields(
+                        chosenNumeric = shp.numericClassField,
+                        chosenString = shp.stringClassField,
+                        chosenStringValues = shp.stringClassValues,
+                    ))
+                )
             }
+        }.addOnFailureListener {
+            cont.resume(Result.failure(Throwable(it)))
         }
-
-        val handleResult: (Result<Unit>) -> Unit = { result ->
-            if (!handleErr(result)) {
-                if (successes.addAndGet(1) == 2) {
-                    callback(result)
-                }
-            }
-        }
-
-        uploadFields(cont, handleResult)
-        uploadFields(hist, handleResult)
     }
 
-    fun uploadFields(cra: CRAFile, callback: (Result<Unit>) -> Unit) {
+    suspend fun uploadCRAs(c1: CRAFile, c2: CRAFile): Result<Unit> {
+        val r1 = uploadCRA(c1)
+        val r2 = uploadCRA(c2)
+
+        val err = resultCheck(r1, r2)
+        if (err != null) return Result.failure(err)
+        return Result.success(Unit)
+    }
+
+    suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
+        if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
+            return Result.failure(Throwable("Internal shapefile error, sorry!"))
+        }
+
+        if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
+        val uid = auth.currentUser!!.uid
         val key = cra.key()
-        auth.currentUser?.uid?.let { uid ->
-            try {
-                val tmp = File.createTempFile(key, "json")
-                val shpRes = Shapefile.toFile(tmp, Shapefile(key, cra.eeUploadName!!, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!))
-                if (shpRes.isFailure) {
-                    callback(shpRes)
-                } else {
-                    storage.reference.child("users/$uid/shps/$key.json").putFile(Uri.fromFile(tmp))
-                        .addOnSuccessListener {
-                            callback(Result.success(Unit))
-                        }.addOnFailureListener {
-                            callback(Result.failure(Throwable(it)))
-                        }
-                }
-            } catch (e: Exception) {
-                callback(Result.failure(Throwable(e)))
+        val zip = cra.localFile
+
+        return uploadShapefile(key, uid, zip)
+    }
+
+    private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCoroutine { cont ->
+        storage.reference.child("users/$uid/shps/$key.zip").putFile(Uri.fromFile(zip))
+            .addOnSuccessListener {
+                cont.resume(Result.success(Unit))
+            }.addOnFailureListener {
+                cont.resume(Result.failure(Throwable(it)))
             }
-        } ?: run {
-            callback(Result.failure(SignIn.not))
+    }
+
+    suspend fun ingestCRAs(c1: CRAFile, c2: CRAFile): Result<Unit> {
+        val r1 = ingestCRA(c1)
+        val r2 = ingestCRA(c2)
+        val err = resultCheck(r1, r2)
+        if (err != null) return Result.failure(err)
+        return Result.success(Unit)
+    }
+
+    suspend fun ingestCRA(cra: CRAFile): Result<Unit> {
+        val key = cra.key()
+        val needed = ingestNeeded(cra.eeUploadName, key)
+        if (needed.isFailure) return Result.failure(needed.exceptionOrNull()!!)
+        if (!needed.getOrNull()!!) return Result.success(Unit)
+        val result = api.ingestCRA(CRAKey(key))
+        val err = apiResultCheck(result)
+        if (err != null) return Result.failure(err)
+        val data = result.data!!
+        if (!data.success) return Result.failure(Throwable("Ingestion of CRA into Earth Engine failed."))
+        cra.eeUploadName = data.name
+        return Result.success(Unit)
+    }
+
+    private suspend fun ingestNeeded(name: String?, key: String): Result<Boolean> {
+        if (name == null || name == "") return Result.success(true)
+        val result = api.awaitCRAUpload(UploadName(name, key))
+        val err = apiResultCheck(result)
+        if (err != null) return Result.failure(err)
+        return Result.success(result.data!!.success)
+    }
+
+    suspend fun uploadFields(c1: CRAFile, c2: CRAFile): Result<Unit> {
+        val r1 = uploadFields(c1)
+        val r2 = uploadFields(c2)
+        val err = resultCheck(r1, r2)
+        if (err != null) return Result.failure(err)
+        return Result.success(Unit)
+    }
+
+    suspend fun uploadFields(cra: CRAFile): Result<Unit> {
+        if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
+        val uid = auth.currentUser!!.uid
+        return try {
+            uploadFields(cra, uid)
+        } catch (e: Exception) {
+            Result.failure(Throwable(e))
+        }
+    }
+
+    @Throws(IOException::class)
+    private suspend fun uploadFields(cra: CRAFile, uid: String): Result<Unit>  = suspendCoroutine { cont ->
+        val key = cra.key()
+        val tmp = File.createTempFile(key, "json")
+        val shpRes = Shapefile.toFile(tmp, Shapefile(key, cra.eeUploadName!!, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!))
+
+        if (shpRes.isFailure) {
+            cont.resume(shpRes)
+        } else {
+            storage.reference.child("users/$uid/shps/$key.json").putFile(Uri.fromFile(tmp))
+                .addOnSuccessListener {
+                    cont.resume(Result.success(Unit))
+                }.addOnFailureListener {
+                    cont.resume(Result.failure(Throwable(it)))
+                }
         }
     }
 
