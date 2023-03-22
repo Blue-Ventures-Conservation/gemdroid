@@ -1,8 +1,8 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
+import com.github.zibnix.droidbones.NoStack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
@@ -37,7 +37,7 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
     }
 
     fun saveCRAs(callback: (Result<Unit>) -> Unit) {
-        val badState = Throwable("Internal CRA data error, sorry!")
+        val badState = NoStack("Internal CRA data error, sorry!")
         val cont = contemporaryCRA
 
         if (cont.badFinalState()) {
@@ -105,23 +105,18 @@ class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewMo
                         when {
                             res.isSuccess -> fields.collect { r ->
                                 when {
-                                    r.isSuccess -> repo.saveCRAs(roiDir, CRAFile.toCRA(cont, hist)).collect { nullUpload(this, it) }
-                                    else -> nullUpload(this, r)
+                                    r.isSuccess -> repo.saveCRAs(roiDir, CRAFile.toCRA(cont, hist)).collect { emit(it) }
+                                    else -> emit(r)
                                 }
-                            } else -> nullUpload(this, res)
+                            } else -> emit(res)
                         }
-                    } else -> nullUpload(this, result)
+                    } else -> emit(result)
                 }
             }
         }) { result ->
             uploadJob = null
             callback(result)
         }
-    }
-
-    private suspend fun nullUpload(fc: FlowCollector<Result<Unit>>, result: Result<Unit>) {
-        uploadJob = null
-        fc.emit(result)
     }
 
     fun clear() { clearHistoricalChoice() }

@@ -9,6 +9,7 @@ import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewMod
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -21,7 +22,7 @@ object Dashboard {
 
         when {
             cras == null -> {
-                Progress()
+                PleaseWait()
                 viewModel.loadCRAs(setCRAs)
             }
             cras.isFailure -> {

@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import android.net.Uri
+import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.api.apiResultCheck
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.firebase.auth.FirebaseAuth
@@ -44,7 +45,7 @@ class CraDatasource(
                     cont.resume(Result.success(files))
                 }
                 .addOnFailureListener {
-                    cont.resume(Result.failure(Throwable(it)))
+                    cont.resume(Result.failure(NoStack(it)))
                 }
         } ?: run {
             cont.resume(Result.failure(SignIn.not))
@@ -67,7 +68,7 @@ class CraDatasource(
         val unzipDir = unzipDirRes.getOrNull()!!
 
         return when {
-            files.isEmpty() -> Result.failure(Throwable("No file selected."))
+            files.isEmpty() -> Result.failure(NoStack("No file selected."))
             files.size == 1 -> validateShapes(crasDir, remoteCRAs, previous, unzip(unzipDir, files[0], names[0]))
             else -> validateShapes(crasDir, remoteCRAs, previous, copyShapes(unzipDir, files, names))
         }
@@ -77,7 +78,7 @@ class CraDatasource(
         val paths = mutableListOf<String>()
         shps.forEachIndexed { i, shp ->
             if (shp == null || names[i] == null) {
-                return Result.failure(Throwable("Could not read shapefiles"))
+                return Result.failure(NoStack("Could not read shapefiles"))
             }
             val path = File(dir, names[i]!!).path
             val streamRes = FileService.streamToFile(shp, path)
@@ -92,13 +93,13 @@ class CraDatasource(
     }
 
     private fun unzip(dir: File, zip: InputStream?, name: String?): Result<List<String>> {
-        val notZip = Throwable("If one file is selected, it must be a .zip")
+        val notZip = NoStack("If one file is selected, it must be a .zip")
         if (name?.substringAfterLast(".")?.lowercase() != "zip") {
             return Result.failure(notZip)
         }
 
         if (zip == null) {
-            return Result.failure(Throwable("Could not open selected .zip for validation"))
+            return Result.failure(NoStack("Could not open selected .zip for validation"))
         }
 
         val pathsRes = FileService.unzip(zip, dir.path)
@@ -116,7 +117,7 @@ class CraDatasource(
 
         val paths = pathsResult.getOrNull()!!
 
-        val badShape = Throwable("Your shapefile must include a .shp, .shx, .dbf and .prj")
+        val badShape = NoStack("Your shapefile must include a .shp, .shx, .dbf and .prj")
         if (paths.size != 4) {
             return Result.failure(badShape)
         }
@@ -159,15 +160,15 @@ class CraDatasource(
         }
 
         if (shpName != shxName || shpName != dbfName || shpName != prjName) {
-            return Result.failure(Throwable("Shapefiles should all have the same name."))
+            return Result.failure(NoStack("Shapefiles should all have the same name."))
         }
 
         if (previous != null && previous == shpName) {
-            return Result.failure(Throwable("Please select two different shapefiles."))
+            return Result.failure(NoStack("Please select two different shapefiles."))
         }
 
         if (remoteCRAs.contains(shpName)) {
-            return Result.failure(Throwable("Please use the previously uploaded shapefile by that name."))
+            return Result.failure(NoStack("Please use the previously uploaded shapefile by that name."))
         }
 
         val numerics = mutableListOf<String>()
@@ -220,15 +221,15 @@ class CraDatasource(
         }
 
         if (numerics.size <= 0) {
-            return Result.failure(Throwable("Shapefile has no candidate fields for the numeric class field."))
+            return Result.failure(NoStack("Shapefile has no candidate fields for the numeric class field."))
         }
 
         if (strings.size <= 0) {
-            return Result.failure(Throwable("Shapefile has no candidate fields for the character class field."))
+            return Result.failure(NoStack("Shapefile has no candidate fields for the character class field."))
         }
 
         if (!assetRegex.matches(shpName)) {
-            return Result.failure(Throwable("Shapefile name can only contain alphanumeric characters, dashes and underscores."))
+            return Result.failure(NoStack("Shapefile name can only contain alphanumeric characters, dashes and underscores."))
         }
 
         val zipFile = File(crasDir, "$shpName.zip")
@@ -275,7 +276,7 @@ class CraDatasource(
     }
 
     private fun mergeFields(f1: Fields, f2: Fields): Result<Fields> {
-        val mismatch = Throwable("Please select shapefiles that have matching fields")
+        val mismatch = NoStack("Please select shapefiles that have matching fields")
         return when {
             f1.complete() && f2.complete() -> {
                 if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString) {
@@ -311,20 +312,20 @@ class CraDatasource(
             }
             else -> {
                 // should not be reachable
-                Result.failure(Throwable("Unreachable error encountered..."))
+                Result.failure(NoStack("Unreachable error encountered..."))
             }
         }
     }
 
     private suspend fun craFields(cra: CRAFile): Result<Fields> {
         if (cra.fields.parsedLocally() || cra.fields.complete()) return Result.success(cra.fields)
-        if (cra.storageKey == null) return Result.failure(Throwable("Internal storage key error, sorry!"))
+        if (cra.storageKey == null) return Result.failure(NoStack("Internal storage key error, sorry!"))
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
         val uid = auth.currentUser!!.uid
         return try {
             fetchFields(cra, cra.storageKey, uid)
         } catch (e: Exception) {
-            Result.failure(Throwable(e))
+            Result.failure(e)
         }
     }
 
@@ -347,7 +348,7 @@ class CraDatasource(
                 )
             }
         }.addOnFailureListener {
-            cont.resume(Result.failure(Throwable(it)))
+            cont.resume(Result.failure(it))
         }
     }
 
@@ -362,7 +363,7 @@ class CraDatasource(
 
     suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
         if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
-            return Result.failure(Throwable("Internal shapefile error, sorry!"))
+            return Result.failure(NoStack("Internal shapefile error, sorry!"))
         }
 
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
@@ -378,7 +379,7 @@ class CraDatasource(
             .addOnSuccessListener {
                 cont.resume(Result.success(Unit))
             }.addOnFailureListener {
-                cont.resume(Result.failure(Throwable(it)))
+                cont.resume(Result.failure(it))
             }
     }
 
@@ -399,7 +400,7 @@ class CraDatasource(
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         val data = result.data!!
-        if (!data.success) return Result.failure(Throwable("Ingestion of CRA into Earth Engine failed."))
+        if (!data.success) return Result.failure(NoStack("Ingestion of CRA into Earth Engine failed."))
         cra.eeUploadName = data.name
         return Result.success(Unit)
     }
@@ -409,7 +410,7 @@ class CraDatasource(
         val result = api.awaitCRAUpload(UploadName(name, key))
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
-        return Result.success(result.data!!.success)
+        return Result.success(result.data!!.ingestNeeded())
     }
 
     suspend fun uploadFields(c1: CRAFile, c2: CRAFile): Result<Unit> {
@@ -426,7 +427,7 @@ class CraDatasource(
         return try {
             uploadFields(cra, uid)
         } catch (e: Exception) {
-            Result.failure(Throwable(e))
+            Result.failure(e)
         }
     }
 
@@ -443,7 +444,7 @@ class CraDatasource(
                 .addOnSuccessListener {
                     cont.resume(Result.success(Unit))
                 }.addOnFailureListener {
-                    cont.resume(Result.failure(Throwable(it)))
+                    cont.resume(Result.failure(it))
                 }
         }
     }

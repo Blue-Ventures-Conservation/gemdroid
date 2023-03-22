@@ -19,6 +19,7 @@ import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.model.analysis.cra.Fields
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
+import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -28,7 +29,7 @@ object CRAFields {
         val (saving, setSaving) = remember{ mutableStateOf(false) }
 
         if (saving) {
-            Progress()
+            PleaseWait()
         } else {
             CRAFields(viewModel, snack, setSaving, done, back)
         }
@@ -53,7 +54,7 @@ object CRAFields {
                 }
             }
             fields.getOrNull()!!.complete() -> {
-                Progress()
+                PleaseWait()
                 LaunchedEffect(key1 = true) {
                     viewModel.setFields(fields.getOrNull()!!)
                     viewModel.saveCRAs { result ->
@@ -68,7 +69,7 @@ object CRAFields {
                 }
             }
             else -> {
-                SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, done)
+                SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, done, back)
             }
         }
 
@@ -78,7 +79,7 @@ object CRAFields {
     }
 
     @Composable
-    fun SelectFields(viewModel: CraViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click) {
+    fun SelectFields(viewModel: CraViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -110,8 +111,8 @@ object CRAFields {
                             when {
                                 it.isSuccess -> done()
                                 else -> {
-                                    setSaving(false)
                                     snack(it.exceptionOrNull()!!.message!!)
+                                    back()
                                 }
                             }
                         }

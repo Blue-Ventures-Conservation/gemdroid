@@ -11,11 +11,10 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
     private var loadCRAsJob: Job? = null
 
     fun loadCRAs(callback: (Result<CRA>) -> Unit) {
-        if (loadCRAsJob != null) {
-            resultWithToken({ loadCRAsJob =  it }, repo.loadCRAs(roiDir)) { result ->
-                loadCRAsJob = null
-                callback(result)
-            }
+        if (loadCRAsJob != null) return
+        resultWithToken({ loadCRAsJob =  it }, repo.loadCRAs(roiDir)) { result ->
+            loadCRAsJob = null
+            callback(result)
         }
     }
 }

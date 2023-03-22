@@ -1,5 +1,6 @@
 package com.github.zibnix.droidbones.mvvm
 
+import com.github.zibnix.droidbones.NoStack
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -60,7 +61,7 @@ object FileService {
             } else {
                 when (dir.mkdirs()) {
                     true -> Result.success(dir)
-                    false -> Result.failure(Throwable("Could not create directory"))
+                    false -> Result.failure(NoStack("Could not create directory"))
                 }
             }
         } catch (e: Exception) {
@@ -77,7 +78,7 @@ object FileService {
             } else {
                 when (f.createNewFile()) {
                     true -> Result.success(f)
-                    false -> Result.failure(Throwable("Could not create file"))
+                    false -> Result.failure(NoStack("Could not create file"))
                 }
             }
         } catch (e: Exception) {
@@ -89,13 +90,13 @@ object FileService {
         val dir = file.parentFile
 
         return if (dir == null) {
-            Result.failure(Throwable("Could not read parent directory name"))
+            Result.failure(NoStack("Could not read parent directory name"))
         } else {
             try {
                 if (file.renameTo(File(dir, name))) {
                     Result.success(Unit)
                 } else {
-                    Result.failure(Throwable("Could not rename file"))
+                    Result.failure(NoStack("Could not rename file"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -108,7 +109,7 @@ object FileService {
             if (file.delete()) {
                 Result.success(Unit)
             } else {
-                Result.failure(Throwable("Could not delete file"))
+                Result.failure(NoStack("Could not delete file"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -131,11 +132,11 @@ object FileService {
             }
 
             if (!allGone) {
-                Result.failure(Throwable("Could not delete directory contents"))
+                Result.failure(NoStack("Could not delete directory contents"))
             } else {
                 when (dir.delete()) {
                     true -> Result.success(Unit)
-                    false -> Result.failure(Throwable("Could not delete directory"))
+                    false -> Result.failure(NoStack("Could not delete directory"))
                 }
             }
         } catch (e: Exception) {
@@ -147,7 +148,7 @@ object FileService {
         return try {
             val b = file.readBytes()
             if (b.isEmpty()) {
-                Result.failure(Throwable("File was empty"))
+                Result.failure(NoStack("File was empty"))
             } else {
                 Result.success(b)
             }
@@ -240,7 +241,7 @@ object FileService {
             val json = file.bufferedReader().use { it.readText() }
             val t = adapter.fromJson(json)
             if (t == null) {
-                Result.failure(Throwable("Parsed value was null"))
+                Result.failure(NoStack("Parsed value was null"))
             } else {
                 Result.success(t)
             }

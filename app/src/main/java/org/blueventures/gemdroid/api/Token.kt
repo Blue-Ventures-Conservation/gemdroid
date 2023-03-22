@@ -6,7 +6,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object Token {
-    suspend fun getIdToken(auth: FirebaseAuth, api: Api.Service): Result<Unit> = suspendCoroutine { cont ->
+    suspend fun get(auth: FirebaseAuth, api: Api.Service): Result<Unit> = suspendCoroutine { cont ->
         auth.currentUser?.let { user ->
             user.getIdToken(false).addOnSuccessListener { result ->
                 api.setToken(result.token!!)

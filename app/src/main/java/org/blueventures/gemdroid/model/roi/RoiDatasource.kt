@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.roi
 
+import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
@@ -70,11 +71,11 @@ class RoiDatasource(
                 if (roisDir.exists() || roisDir.mkdirs()) {
                     Result.success(FileService.getSubdirs(roisDir))
                 } else {
-                    Result.failure(Throwable("Could not read filesystem"))
+                    Result.failure(NoStack("Could not read filesystem"))
                 }
             }
         } catch (e: Exception) {
-            Result.failure(Throwable(e))
+            Result.failure(e)
         }
     }
 
@@ -114,7 +115,7 @@ class RoiDatasource(
                         points
                     ))
                 } else {
-                    Result.failure(Throwable("Could not read filesystem"))
+                    Result.failure(NoStack("Could not read filesystem"))
                 }
             }
         } catch(e: Exception) {

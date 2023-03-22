@@ -6,7 +6,7 @@ import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.CRAKey
-import org.blueventures.gemdroid.data.CRAUploadResult
+import org.blueventures.gemdroid.data.CRAIngestRequested
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName
@@ -30,7 +30,7 @@ object Api {
         suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
         @POST("/upload_cra")
-        suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAUploadResult>
+        suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAIngestRequested>
 
         @POST("/await_cra_upload")
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>

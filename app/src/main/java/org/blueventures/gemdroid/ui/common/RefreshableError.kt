@@ -23,6 +23,12 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
+/**
+ * accompanist.SwipeRefresh is deprecated, but material3 doesn't have a working, equivalent library.
+ *
+ * Until an official solution is available, one possible interim solution is here:
+ * https://github.com/Omico/androidx-compose-material3-pullrefresh
+ */
 @Composable
 fun RefreshableError(fetchFunc: (() -> Unit) -> Unit) {
     var refreshing by remember { mutableStateOf(false) }
