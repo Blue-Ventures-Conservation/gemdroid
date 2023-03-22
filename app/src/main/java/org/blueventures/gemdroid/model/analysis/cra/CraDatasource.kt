@@ -67,11 +67,15 @@ class CraDatasource(
 
         val unzipDir = unzipDirRes.getOrNull()!!
 
-        return when {
+        val result = when {
             files.isEmpty() -> Result.failure(NoStack("No file selected."))
             files.size == 1 -> validateShapes(crasDir, remoteCRAs, previous, unzip(unzipDir, files[0], names[0]))
             else -> validateShapes(crasDir, remoteCRAs, previous, copyShapes(unzipDir, files, names))
         }
+
+        FileService.deleteDir(unzipDir)
+
+        return result
     }
 
     private fun copyShapes(dir: File, shps: List<InputStream?>, names: List<String?>): Result<List<String>> {
@@ -239,8 +243,6 @@ class CraDatasource(
             return Result.failure(zipRes.exceptionOrNull()!!)
         }
 
-        FileService.deleteDir(File(crasDir, crasUnzipDir))
-
         val stringValues = mutableMapOf<String, List<String>>()
         stringsMap.forEach { (k, v) ->
             stringValues[k] = v.keys.toList()
@@ -370,8 +372,11 @@ class CraDatasource(
         val uid = auth.currentUser!!.uid
         val key = cra.key()
         val zip = cra.localFile
+        val result = uploadShapefile(key, uid, zip)
 
-        return uploadShapefile(key, uid, zip)
+        FileService.deleteFile(zip)
+
+        return result
     }
 
     private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCoroutine { cont ->
