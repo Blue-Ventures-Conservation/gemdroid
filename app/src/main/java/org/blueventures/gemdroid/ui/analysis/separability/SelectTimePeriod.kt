@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +41,7 @@ object SelectTimePeriod {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
         appBar(AppBarUpdate(title = "Spectral Separability"))
 
-        val (cras, setCRAs) = remember { mutableStateOf<Result<CRA>?>(null) }
+        val (cras, setCRAs) = remember { mutableStateOf<Result<Pair<CRA, Throwable?>>?>(null) }
 
         when {
             cras == null -> {
@@ -46,10 +49,20 @@ object SelectTimePeriod {
                 viewModel.loadCRAs(setCRAs)
             }
             cras.isFailure -> {
-                snack(cras.exceptionOrNull()!!.message!!)
+                LaunchedEffect(key1 = true) {
+                    snack(cras.exceptionOrNull()!!.message!!)
+                    back()
+                }
             }
             else -> {
-                val cra = cras.getOrNull()!!
+                val pair = cras.getOrNull()!!
+                if (pair.second != null) {
+                    LaunchedEffect(key1 = true) {
+                        snack("Could not verify CRA upload, charts may not be available.")
+                    }
+                }
+
+                val cra = pair.first
                 val cont = cra.contemporaryCRA
                 val hist = cra.historicalShp()
                 val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
@@ -67,9 +80,13 @@ object SelectTimePeriod {
     @Composable
     fun Dashboard(viewModel: SeparabilityViewModel, contHigh: Click, contLow: Click, histHigh: Click, histLow: Click) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(text = "Select a time period and tidal condition to inspect:", fontSize = 20.sp)
             val setPeriod: (TimePeriod) -> Unit = { viewModel.timePeriod = it }
             HighLow(viewModel, "Contemporary", { setPeriod(ContemporaryHighTide); contHigh() }) {
                 setPeriod(ContemporaryLowTide)
@@ -100,7 +117,9 @@ object SelectTimePeriod {
                 .clip(RoundedCornerShape(10.dp))
                 .clickable { click() },
         ) {
-            Text(text = label, fontSize = 20.sp, textAlign = TextAlign.Center)
+            Text(modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(), text = label, fontSize = 20.sp, textAlign = TextAlign.Center)
         }
     }
 }

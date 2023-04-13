@@ -23,10 +23,10 @@ import java.io.File
 class SeparabilityDatasource(
     private val api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api = api) {
-    suspend fun loadCRAs(roiDir: File): Result<CRA> {
+    suspend fun loadCRAs(roiDir: File): Result<Pair<CRA, Throwable?>> {
         val result = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
         if (result.isFailure) {
-            return result
+            return Result.failure(result.exceptionOrNull()!!)
         }
 
         val cra = result.getOrNull()!!
@@ -45,8 +45,7 @@ class SeparabilityDatasource(
         }
 
         val err = apiResultCheck(contResult, histResult)
-        if (err != null) return Result.failure(err)
-        return Result.success(cra)
+        return Result.success(Pair(cra, err))
     }
 
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))

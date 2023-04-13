@@ -4,8 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -17,9 +22,11 @@ object Dashboard {
         appBar(AppBarUpdate(title = viewModel.title))
 
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxSize().padding(16.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(text = "Select a chart to view:", fontSize = 20.sp)
             SelectTimePeriod.DashboardButton(label = "Band Separation", separation)
             SelectTimePeriod.DashboardButton(label = "Band Scatter Plot", scatter)
             SelectTimePeriod.DashboardButton(label = "Band Correlation", correlation)
