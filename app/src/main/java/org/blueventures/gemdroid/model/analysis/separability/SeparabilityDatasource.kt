@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.model.analysis.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.apiResultCheck
+import com.github.zibnix.droidbones.mvvm.FileService
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.api.Api
@@ -16,6 +17,7 @@ import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.cras
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
 import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
+import org.blueventures.gemdroid.model.resultCheck
 import java.io.File
 
 class SeparabilityDatasource(
@@ -50,18 +52,24 @@ class SeparabilityDatasource(
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
 
     suspend fun getSeparation(tp: TimePeriod, craROI: CraROI) = tp.separation(api, craROI)
-    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.separationFile), data)
+    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.separationFile), data) }
     fun loadSeparationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.separationFile))
 
     suspend fun getScatter(tp: TimePeriod, craROI: CraROI) = tp.scatter(api, craROI)
-    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.scatterFile), data)
+    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.scatterFile), data) }
     fun loadScatterFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.scatterFile))
 
     suspend fun getCorrelation(tp: TimePeriod, craROI: CraROI) = tp.correlation(api, craROI)
-    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.correlationFile), data)
+    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.correlationFile), data) }
     fun loadCorrelationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.correlationFile))
 
     fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, AnalysisDatasource.roiFilename))
+
+    private fun mkdir(roiDir: File, func: () -> Result<Unit>): Result<Unit> {
+        val err = resultCheck(FileService.createDir(roiDir, separabilityDir))
+        if (err != null) return Result.failure(err)
+        return func()
+    }
 }
 
 object Paths {
@@ -84,9 +92,9 @@ sealed interface TimePeriod {
     val separationFile: String
     val scatterFile: String
     val correlationFile: String
-    suspend fun separation(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
-    suspend fun scatter(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
-    suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
+    suspend fun separation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
+    suspend fun scatter(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
+    suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
 }
 object ContemporaryHighTide: TimePeriod {
     override val separationFile = Paths.chotSeparationFile

@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.blueventures.gemdroid.data.CraROI
-import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 
@@ -21,7 +20,7 @@ class SeparabilityRepository(
         emit(datasource.getSeparation(tp, craROI))
     }.flowOn(ioDispatcher)
 
-    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = flow {
+    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = flow {
         emit(datasource.saveSeparationFile(roiDir, tp, data))
     }.flowOn(ioDispatcher)
 
@@ -33,7 +32,7 @@ class SeparabilityRepository(
         emit(datasource.getScatter(tp, craRoi))
     }.flowOn(ioDispatcher)
 
-    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: JSONMap) = flow {
+    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = flow {
         emit(datasource.saveScatterFile(roiDir, tp, data))
     }.flowOn(ioDispatcher)
 
@@ -45,7 +44,7 @@ class SeparabilityRepository(
         emit(datasource.getCorrelation(tp, craRoi))
     }.flowOn(ioDispatcher)
 
-    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = flow {
+    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = flow {
         emit(datasource.saveCorrelationFile(roiDir, tp, data))
     }.flowOn(ioDispatcher)
 

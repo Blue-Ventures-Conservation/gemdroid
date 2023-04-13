@@ -38,31 +38,31 @@ object Api {
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
 
         @POST("/chot_box")
-        suspend fun contemporaryHighTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryHighTideSeparation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/clot_box")
-        suspend fun contemporaryLowTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryLowTideSeparation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hhot_box")
-        suspend fun historicalHighTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalHighTideSeparation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hlot_box")
-        suspend fun historicalLowTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalLowTideSeparation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
 
         @POST("/chot_scatter")
-        suspend fun contemporaryHighTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryHighTideScatter(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/clot_scatter")
-        suspend fun contemporaryLowTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryLowTideScatter(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hhot_scatter")
-        suspend fun historicalHighTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalHighTideScatter(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hlot_scatter")
-        suspend fun historicalLowTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalLowTideScatter(@Body craROI: CraROI): ApiResult<Map<String, Any>>
 
         @POST("/chot_corr")
-        suspend fun contemporaryHighTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryHighTideCorrelation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/clot_corr")
-        suspend fun contemporaryLowTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun contemporaryLowTideCorrelation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hhot_corr")
-        suspend fun historicalHighTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalHighTideCorrelation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
         @POST("/hlot_corr")
-        suspend fun historicalLowTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        suspend fun historicalLowTideCorrelation(@Body craROI: CraROI): ApiResult<Map<String, Any>>
     }
 
     class Service(private val backend: Backend, private val tokenHolder: TokenInterceptor): Backend by backend {

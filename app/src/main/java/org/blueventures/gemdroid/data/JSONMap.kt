@@ -7,30 +7,31 @@ import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.io.File
 
-class JSONMap(private val m: MutableMap<String, Any>): MutableMap<String, Any> by m {
-
-    fun bandsAndClasses(): Pair<List<String>, List<String>>? {
-        val b = bands()
-        val c = classes()
+object JSONMap {
+    fun bandsAndClasses(m: Map<String, Any>): Pair<List<String>, List<String>>? {
+        val b = bands(m)
+        val c = classes(m)
         if (b == null || c == null) return null
         return Pair(b, c)
     }
 
-    fun bands(): List<String>? {
-        return strList("bands")
+    fun bands(m: Map<String, Any>): List<String>? {
+        return strList(m, "bands")
     }
 
-    fun classes(): List<String>? {
-        return strList("classes")
+    fun classes(m: Map<String, Any>): List<String>? {
+        return strList(m, "classes")
     }
 
-    private fun strList(key: String): List<String>? {
-        return get(key) as? List<String>
+    private fun strList(m: Map<String, Any>, key: String): List<String>? {
+        return m[key] as? List<String>
     }
 
-    fun boxChartBandInfo(name: String): Pair<String, Map<String, List<Double>>>? {
-        val bmap = get(name) as? JSONMap ?: return null
-        val seps = bmap.remove("separability") as? List<List<String>> ?: return null
+    fun boxChartBandInfo(name: String, m: Map<String, Any>): Pair<String, Map<String, List<Double>>>? {
+        val bmap = m[name] as? Map<String, Any> ?: return null
+        val bcopy = HashMap(bmap)
+        val seps = bcopy.remove("separability") as? List<List<String>> ?: return null
+
         val sepStr = if (seps.isEmpty()) {
             "This band does not show separability between any of your classes."
         } else {
@@ -52,19 +53,17 @@ class JSONMap(private val m: MutableMap<String, Any>): MutableMap<String, Any> b
             builder.toString()
         }
 
-        val cmap = bmap as? Map<String, List<Double>> ?: return null
+        val cmap = bcopy as? Map<String, List<Double>> ?: return null
 
         return Pair(sepStr, cmap)
     }
 
-    companion object {
-        private val adapter = adapter()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, m: JSONMap) = FileService.toFile(file, m, adapter)
+    private val adapter = adapter()
+    fun fromFile(file: File) = FileService.fromFile(file, adapter)
+    fun toFile(file: File, m: Map<String, Any>) = FileService.toFile(file, m, adapter)
 
-        private fun adapter(): JsonAdapter<JSONMap> {
-            val type = Types.newParameterizedType(MutableMap::class.java, String::class.java, Any::class.java)
-            return Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(type)
-        }
+    private fun adapter(): JsonAdapter<Map<String, Any>> {
+        val type = Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
+        return Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(type)
     }
 }

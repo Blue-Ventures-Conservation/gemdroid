@@ -1,6 +1,8 @@
 package org.blueventures.gemdroid.ui.analysis.separability
 
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,27 +42,32 @@ object Separation {
     }
 
     @Composable
-    fun Layout(data: JSONMap, back: Click) {
+    fun Layout(data: Map<String, Any>, back: Click) {
         val (bandInfo, setBandInfo) = remember { mutableStateOf<Pair<String, Map<String, List<Double>>>?>(null) }
-        val bandsAndClasses = data.bandsAndClasses()
+        val bandsAndClasses = JSONMap.bandsAndClasses(data)
 
-        bandsAndClasses?.let {
-            val bands = bandsAndClasses.first
-            val classes = bandsAndClasses.second
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp)
-            ) {
-                Text(text = bandInfo?.first ?: "", fontSize = 16.sp)
-                Chart(bandInfo?.second, classes)
-                Dropdown(title = "Select Band", labels = bands) { i ->
-                    val band = bands[i]
-                    setBandInfo(data.boxChartBandInfo(band))
-                }
+        if (bandsAndClasses == null) {
+            LaunchedEffect(key1 = true) {
+                back()
             }
-        } ?: run {
-            back()
+            return
+        }
+
+        val bands = bandsAndClasses.first
+        val classes = bandsAndClasses.second
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = bandInfo?.first ?: "", fontSize = 16.sp)
+            Chart(bandInfo?.second, classes)
+            Dropdown(title = "Select Band", labels = bands) { i ->
+                val band = bands[i]
+                setBandInfo(JSONMap.boxChartBandInfo(band, data))
+            }
         }
     }
 
@@ -68,27 +77,31 @@ object Separation {
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.67f),
-            factory = { context ->
-                AnyChartView(context).apply {
-                    if (data == null) {
-                        return@apply
-                    }
-
-                    val cartesian = Charts.prep(this, AnyChart::box)
-                    cartesian.title("")
-                    cartesian.xAxis(0).staggerMode(true)
-
-                    val entries = mutableListOf<DataEntry>()
-                    for (cls in classes) {
-                        val cdat = data[cls] ?: continue
-                        if (cdat.size < 5) continue
-                        entries.add(BoxDataEntry(cls, conv(cdat[0]), conv(cdat[1]), conv(cdat[2]), conv(cdat[3]), conv(cdat[4])))
-                    }
-
-                    val box = cartesian.box(entries)
-                    box.whiskerWidth("20%")
-                    setChart(cartesian)
+            update = { layout ->
+                if (data == null) {
+                    return@AndroidView
                 }
+
+                val view = AnyChartView(layout.context)
+                val cartesian = Charts.prep(view, AnyChart::box)
+
+                cartesian.title("")
+                cartesian.xAxis(0).staggerMode(true)
+
+                val entries = mutableListOf<DataEntry>()
+                for (cls in classes) {
+                    val cdat = data[cls] ?: continue
+                    if (cdat.size < 5) continue
+                    entries.add(BoxDataEntry(cls, conv(cdat[0]), conv(cdat[1]), conv(cdat[2]), conv(cdat[3]), conv(cdat[4])))
+                }
+
+                val box = cartesian.box(entries)
+                box.whiskerWidth("20%")
+                view.setChart(cartesian)
+                layout.addView(view)
+            },
+            factory = { context ->
+                FrameLayout(context)
             }
         )
     }
