@@ -22,6 +22,10 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
         }
 
     var roi = ROI()
+        set(value) {
+            field = value
+            sepViewModel.roi = value
+        }
 
     var buffersJob: Job? = null
     var visualizeURLsJob: Job? = null
@@ -40,8 +44,8 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
     }
 
     fun saveBuffer(buffer: Int, callback: (Result<Unit>) -> Unit) = scoped {
-        val roiCpy = roi.copy(buffDist = buffer)
-        repo.saveBuffer(roiDir, roiCpy, buffer).collect(callback)
+        roi = roi.copy(buffDist = buffer)
+        repo.saveBuffer(roiDir, roi, buffer).collect(callback)
     }
 
     fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }

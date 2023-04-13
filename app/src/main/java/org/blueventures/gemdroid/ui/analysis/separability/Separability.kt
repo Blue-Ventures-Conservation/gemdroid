@@ -11,36 +11,46 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
     object Routes {
+        const val timePeriod = "time_period"
         const val separabilityDashboard = "sep_dashboard"
-        const val correlation = "corr"
-        const val lsSeparation = "ls_sep"
-        const val indicesSeparation = "indices_sep"
-
-        // these need to be lowercase and spaces need to be removed before submitting to backend
-        const val black = "Black"
-        const val blue = "Blue"
-        const val lightBlue = "Light Blue"
-        const val brown = "Brown"
-        const val cyan = "Cyan"
-        const val green = "Green"
-        const val lightGreen = "Light Green"
-        const val grey = "Grey"
-        const val lightGrey = "Light Grey"
-        const val orange = "Orange"
-        const val pink = "Pink"
-        const val purple = "Purple"
-        const val red = "Red"
-        const val white = "White"
-        const val yellow = "Yellow"
+        const val separation = "separation"
+        const val scatter = "scatter"
+        const val correlation = "correlation"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun) {
-        b.composable(Routes.separabilityDashboard) {
-            Dashboard.Screen(viewModel, appBar, snack, {
-
+        b.composable(Routes.timePeriod) {
+            SelectTimePeriod.Screen(viewModel, appBar, snack, {
+                nav.navigate(Routes.separabilityDashboard)
             }) {
                 nav.popClear(Analysis.Routes.dashboard)
             }
+        }
+
+        b.composable(Routes.separabilityDashboard) {
+            Dashboard.Screen(viewModel, appBar, separation = {
+                nav.navigate(Routes.separation)
+            }, scatter = {
+                nav.navigate(Routes.scatter)
+            }, correlation = {
+                nav.navigate(Routes.correlation)
+            }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.separation) {
+            Separation.Screen(viewModel) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.scatter) {
+
+        }
+
+        b.composable(Routes.correlation) {
+
         }
     }
 }

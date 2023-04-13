@@ -67,7 +67,7 @@ object Overview {
                     Text(text = "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
-                    Text(text = "${viewModel.indices.list()}", fontSize = 18.sp)
+                    Text(text = "${viewModel.indices.list}", fontSize = 18.sp)
                 }
             }
             Button(onClick = {

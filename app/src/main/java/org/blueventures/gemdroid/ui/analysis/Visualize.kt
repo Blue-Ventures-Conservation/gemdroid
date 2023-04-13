@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -37,50 +36,15 @@ import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.PleaseWait
-import org.blueventures.gemdroid.ui.common.Progress
-import org.blueventures.gemdroid.ui.common.RefreshableError
+import org.blueventures.gemdroid.ui.common.LocalRemote
 import java.io.File
 
 object Visualize {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = "Visualize Imagery"))
-        Visualize(viewModel, appBar, back)
-    }
-
-    @Composable
-    fun Visualize(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
-        val (localURLs, setLocalURLs) = remember { mutableStateOf<Result<VisualizeURLs>?>(null) }
-        val (remoteURLs, setRemoteURLs) = remember { mutableStateOf<ApiResult<VisualizeURLs>?>(null) }
-
-        when {
-            localURLs == null -> {
-                Progress()
-                viewModel.loadVisualizeURLsFile(setLocalURLs)
-            }
-            localURLs.isSuccess -> {
-                VisualizeMap(viewModel, localURLs.getOrNull()!!, appBar)
-            }
-            remoteURLs == null -> {
-                PleaseWait()
-                LaunchedEffect(key1 = true) {
-                    viewModel.getVisualizeURLs(setRemoteURLs)
-                }
-            }
-            remoteURLs is ApiResult.Error -> {
-                RefreshableError { stopRefreshing ->
-                    viewModel.getVisualizeURLs { result ->
-                        stopRefreshing()
-                        setRemoteURLs(result)
-                    }
-                }
-            }
-            else -> {
-                val urls = remoteURLs.data!!
-                viewModel.saveVisualizeURLsFile(urls)
-                VisualizeMap(viewModel, urls, appBar)
-            }
+        LocalRemote(viewModel::loadVisualizeURLsFile, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile) { urls ->
+            VisualizeMap(viewModel, urls, appBar)
         }
 
         BackHandler {

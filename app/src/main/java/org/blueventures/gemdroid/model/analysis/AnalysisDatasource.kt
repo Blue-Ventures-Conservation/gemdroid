@@ -8,7 +8,7 @@ import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityDatasource.Companion.separabilityDir
+import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
@@ -70,6 +70,8 @@ class AnalysisDatasource(
         const val hhotTilesDir = "hhot_tiles"
         const val hlotTilesDir = "hlot_tiles"
         val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
+
+        // CRA and Separability Stages in their own respective datasources
 
         // Classification Stage
         const val classificationDir = "classification"

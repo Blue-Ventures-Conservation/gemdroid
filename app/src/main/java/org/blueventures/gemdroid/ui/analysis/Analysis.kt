@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.separability.Separability
-import org.blueventures.gemdroid.ui.analysis.separability.Separability.Routes.separabilityDashboard
+import org.blueventures.gemdroid.ui.analysis.separability.Separability.Routes.timePeriod
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
@@ -30,7 +30,7 @@ object Analysis {
                 Stage.BUFFER -> buffer
                 Stage.VISUALIZE -> visualize
                 Stage.CRAS -> cont_cra
-                Stage.SEPARABILITY -> separabilityDashboard
+                Stage.SEPARABILITY -> timePeriod
                 Stage.CLASSIFICATION -> classification
                 Stage.COUNTRY -> country
                 Stage.DYNAMICS -> dynamics
@@ -51,7 +51,7 @@ object Analysis {
             }, vis = {
                 nav.popClear(Routes.visualize)
             }, sep = {
-                nav.popClear(separabilityDashboard)
+                nav.popClear(timePeriod)
             }, clazz = {
                 nav.popClear(Routes.classification)
             }, dyn = {

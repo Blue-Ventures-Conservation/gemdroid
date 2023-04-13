@@ -122,7 +122,7 @@ class CraDatasource(
         val paths = pathsResult.getOrNull()!!
 
         val badShape = NoStack("Your shapefile must include a .shp, .shx, .dbf and .prj")
-        if (paths.size != 4) {
+        if (paths.size < 4) {
             return Result.failure(badShape)
         }
 
@@ -334,6 +334,7 @@ class CraDatasource(
     @Throws(IOException::class)
     private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<Fields> = suspendCoroutine { cont ->
         val tmp = File.createTempFile("cras", "json")
+        tmp.deleteOnExit()
         storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
             val shpRes = Shapefile.fromFile(tmp)
             if (shpRes.isFailure) {
@@ -440,6 +441,7 @@ class CraDatasource(
     private suspend fun uploadFields(cra: CRAFile, uid: String): Result<Unit>  = suspendCoroutine { cont ->
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
+        tmp.deleteOnExit()
         val shpRes = Shapefile.toFile(tmp, Shapefile(key, cra.eeUploadName!!, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!))
 
         if (shpRes.isFailure) {

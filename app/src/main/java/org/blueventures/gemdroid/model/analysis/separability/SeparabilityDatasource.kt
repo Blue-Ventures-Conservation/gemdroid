@@ -6,10 +6,15 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.CraROI
+import org.blueventures.gemdroid.data.JSONMap
+import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
+import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 
@@ -31,7 +36,7 @@ class SeparabilityDatasource(
 
         // returns when all children coroutines are complete
         coroutineScope {
-            if (hist !== null && cont != hist) {
+            if (hist != null && cont != hist) {
                 launch { histResult = awaitCRAIngestion(hist.tableUploadOperationName, hist.shapefileStorageKey) }
             }
             launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.shapefileStorageKey) }
@@ -44,23 +49,74 @@ class SeparabilityDatasource(
 
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
 
-    companion object {
-        const val separabilityDir = "separability"
-        const val chotSamplesFile = "chot_samples.json"
-        const val clotSamplesFile = "clot_samples.json"
-        const val hhotSamplesFile = "hhot_samples.json"
-        const val hlotSamplesFile = "hlot_samples.json"
-        const val chotCorrelationFile = "chot_corr.json"
-        const val clotCorrelationFile = "clot_corr.json"
-        const val hhotCorrelationFile = "hhot_corr.json"
-        const val hlotCorrelationFile = "hlot_corr.json"
-        const val chotLSBandsSeparationFile = "chot_ls_separation.json"
-        const val clotLSBandsSeparationFile = "clot_ls_separation.json"
-        const val hhotLSBandsSeparationFile = "hhot_ls_separation.json"
-        const val hlotLSBandsSeparationFile = "hlot_ls_separation.json"
-        const val chotIndicesSeparationFile = "chot_indices_separation.json"
-        const val clotIndicesSeparationFile = "clot_indices_separation.json"
-        const val hhotIndicesSeparationFile = "hhot_indices_separation.json"
-        const val hlotIndicesSeparationFile = "hlot_indices_separation.json"
-    }
+    suspend fun getSeparation(tp: TimePeriod, craROI: CraROI) = tp.separation(api, craROI)
+    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.separationFile), data)
+    fun loadSeparationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.separationFile))
+
+    suspend fun getScatter(tp: TimePeriod, craROI: CraROI) = tp.scatter(api, craROI)
+    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.scatterFile), data)
+    fun loadScatterFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.scatterFile))
+
+    suspend fun getCorrelation(tp: TimePeriod, craROI: CraROI) = tp.correlation(api, craROI)
+    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: JSONMap) = JSONMap.toFile(File(File(roiDir, separabilityDir), tp.correlationFile), data)
+    fun loadCorrelationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.correlationFile))
+
+    fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, AnalysisDatasource.roiFilename))
+}
+
+object Paths {
+    const val separabilityDir = "separability"
+    const val chotSeparationFile = "chot_separation.json"
+    const val clotSeparationFile = "clot_separation.json"
+    const val hhotSeparationFile = "hhot_separation.json"
+    const val hlotSeparationFile = "hlot_separation.json"
+    const val chotScatterFile = "chot_scatter.json"
+    const val clotScatterFile = "clot_scatter.json"
+    const val hhotScatterFile = "hhot_scatter.json"
+    const val hlotScatterFile = "hlot_scatter.json"
+    const val chotCorrelationFile = "chot_corr.json"
+    const val clotCorrelationFile = "clot_corr.json"
+    const val hhotCorrelationFile = "hhot_corr.json"
+    const val hlotCorrelationFile = "hlot_corr.json"
+}
+
+sealed interface TimePeriod {
+    val separationFile: String
+    val scatterFile: String
+    val correlationFile: String
+    suspend fun separation(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
+    suspend fun scatter(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
+    suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<JSONMap>
+}
+object ContemporaryHighTide: TimePeriod {
+    override val separationFile = Paths.chotSeparationFile
+    override val scatterFile = Paths.chotScatterFile
+    override val correlationFile = Paths.chotCorrelationFile
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideSeparation(craROI)
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideScatter(craROI)
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideCorrelation(craROI)
+}
+object ContemporaryLowTide: TimePeriod {
+    override val separationFile = Paths.clotSeparationFile
+    override val scatterFile = Paths.clotScatterFile
+    override val correlationFile = Paths.clotCorrelationFile
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideSeparation(craROI)
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideScatter(craROI)
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideCorrelation(craROI)
+}
+object HistoricalHighTide: TimePeriod {
+    override val separationFile = Paths.hhotSeparationFile
+    override val scatterFile = Paths.hhotScatterFile
+    override val correlationFile = Paths.hhotCorrelationFile
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.historicalHighTideSeparation(craROI)
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.historicalHighTideScatter(craROI)
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.historicalHighTideCorrelation(craROI)
+}
+object HistoricalLowTide: TimePeriod {
+    override val separationFile = Paths.hlotSeparationFile
+    override val scatterFile = Paths.hlotScatterFile
+    override val correlationFile = Paths.hlotCorrelationFile
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.historicalLowTideSeparation(craROI)
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.historicalLowTideScatter(craROI)
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.historicalLowTideCorrelation(craROI)
 }

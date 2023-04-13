@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,17 +25,15 @@ import com.anychart.enums.Anchor
 import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
-import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
-import org.blueventures.gemdroid.ui.common.PleaseWait
+import org.blueventures.gemdroid.ui.common.LocalRemote
 import org.blueventures.gemdroid.ui.common.Progress
-import org.blueventures.gemdroid.ui.common.RefreshableError
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
@@ -49,41 +46,8 @@ object Buffer {
         if (saving) {
             Progress()
         } else {
-            Buffer(viewModel, snack, back, setSaving)
-        }
-    }
-
-    @Composable
-    fun Buffer(viewModel: AnalysisViewModel, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
-        val (localBuffers, setLocalBuffers) = remember { mutableStateOf<Result<Buffers>?>(null) }
-        val (remoteBuffers, setRemoteBuffers) = remember { mutableStateOf<ApiResult<Buffers>?>(null) }
-
-        when {
-            localBuffers == null -> {
-                Progress()
-                viewModel.loadBuffersFile(setLocalBuffers)
-            }
-            localBuffers.isSuccess -> {
-                BufferChoice(viewModel, localBuffers.getOrNull()!!, snack, back, saving)
-            }
-            remoteBuffers == null -> {
-                PleaseWait()
-                LaunchedEffect(key1 = true) {
-                    viewModel.getBuffers(setRemoteBuffers)
-                }
-            }
-            remoteBuffers is ApiResult.Error -> {
-                RefreshableError { stopRefresh ->
-                    viewModel.getBuffers { result ->
-                        stopRefresh()
-                        setRemoteBuffers(result)
-                    }
-                }
-            }
-            else -> {
-                val buffers = remoteBuffers.data!!
-                viewModel.saveBuffersFile(buffers)
-                BufferChoice(viewModel, buffers, snack, back, saving)
+            LocalRemote(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
+                BufferChoice(viewModel, buffs, snack, back, setSaving)
             }
         }
 
@@ -94,8 +58,7 @@ object Buffer {
 
     @Composable
     fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
-        val (doneEnabled, setDoneEnabled) = remember { mutableStateOf(false) }
-        val (bufferDist, setBufferDist) = remember { mutableStateOf(-1) }
+        val (bufferDist, setBufferDist) = remember { mutableStateOf(Pair(-1, false)) }
 
         Column(
             modifier = Modifier
@@ -106,14 +69,13 @@ object Buffer {
         ) {
             Chart(buffers)
             Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
-                setBufferDist(buffers.buffers.vals[i])
-                setDoneEnabled(true)
+                setBufferDist(Pair(buffers.buffers.vals[i], true))
             }
             Button(
-                enabled = doneEnabled,
+                enabled = bufferDist.second,
                 onClick = {
                     saving(true)
-                    viewModel.saveBuffer(bufferDist) { result ->
+                    viewModel.saveBuffer(bufferDist.first) { result ->
                         saving(false)
                         if (result.isSuccess) {
                             back()
@@ -130,54 +92,46 @@ object Buffer {
 
     @Composable
     fun Chart(buffers: Buffers) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.67f),
-                factory = { context ->
-                    AnyChartView(context).apply {
-                        val chart = this
-                        chart.setLicenceKey(Licenses.anychart)
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.67f),
+            factory = { context ->
+                AnyChartView(context).apply {
+                    val cartesian = Charts.prep(this, AnyChart::column)
 
-                        val cartesian = AnyChart.column()
-                        cartesian.credits().text("")
-
-                        val sums = buffers.sums
-                        val data = mutableListOf<DataEntry>()
-                        sums.keys.forEachIndexed { i, key ->
-                            data.add(ValueDataEntry(key, sums.vals[i]))
-                        }
-
-                        val column = cartesian.column(data)
-
-                        column.tooltip()
-                            .titleFormat("{%X}")
-                            .position(Position.CENTER_BOTTOM)
-                            .anchor(Anchor.CENTER_BOTTOM)
-                            .offsetX(0.0)
-                            .offsetY(5.0)
-                            .format("{%Value}{groupsSeparator: }")
-
-                        cartesian.animation(true)
-                        cartesian.title("Mangrove Area by Buffer")
-
-                        cartesian.yScale().minimum(0)
-
-                        cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
-
-                        cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
-                        cartesian.interactivity().hoverMode(HoverMode.BY_X)
-
-                        cartesian.xAxis(0).title("Shoreline Buffer (km)")
-                        cartesian.yAxis(0).title("Area (m²)")
-
-                        chart.setChart(cartesian)
+                    val sums = buffers.sums
+                    val data = mutableListOf<DataEntry>()
+                    sums.keys.forEachIndexed { i, key ->
+                        data.add(ValueDataEntry(key, sums.vals[i]))
                     }
+
+                    val column = cartesian.column(data)
+
+                    column.tooltip()
+                        .titleFormat("{%X}")
+                        .position(Position.CENTER_BOTTOM)
+                        .anchor(Anchor.CENTER_BOTTOM)
+                        .offsetX(0.0)
+                        .offsetY(5.0)
+                        .format("{%Value}{groupsSeparator: }")
+
+                    cartesian.animation(true)
+                    cartesian.title("Mangrove Area by Buffer")
+
+                    cartesian.yScale().minimum(0)
+
+                    cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
+
+                    cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
+                    cartesian.interactivity().hoverMode(HoverMode.BY_X)
+
+                    cartesian.xAxis(0).title("Shoreline Buffer (km)")
+                    cartesian.yAxis(0).title("Area (m²)")
+
+                    setChart(cartesian)
                 }
-            )
-        }
+            }
+        )
     }
 }

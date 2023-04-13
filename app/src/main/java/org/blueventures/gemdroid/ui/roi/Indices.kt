@@ -53,7 +53,7 @@ object Indices {
                             .padding(top = 24.dp, bottom = 24.dp)
                     ) {
                         RadioButton(selected = (indices == choice), onClick = { setChoice(indices) })
-                        Text(text = indices.label(), modifier = Modifier.padding(start = 16.dp))
+                        Text(text = indices.label, modifier = Modifier.padding(start = 16.dp))
                     }
                 }
             }

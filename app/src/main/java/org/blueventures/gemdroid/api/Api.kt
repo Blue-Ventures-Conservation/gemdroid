@@ -5,8 +5,10 @@ import com.github.zibnix.droidbones.api.BaseApi
 import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
 import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.CRAKey
 import org.blueventures.gemdroid.data.CRAIngestRequested
+import org.blueventures.gemdroid.data.CRAKey
+import org.blueventures.gemdroid.data.CraROI
+import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName
@@ -34,14 +36,37 @@ object Api {
 
         @POST("/await_cra_upload")
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
+
+        @POST("/chot_box")
+        suspend fun contemporaryHighTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/clot_box")
+        suspend fun contemporaryLowTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hhot_box")
+        suspend fun historicalHighTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hlot_box")
+        suspend fun historicalLowTideSeparation(@Body craROI: CraROI): ApiResult<JSONMap>
+
+        @POST("/chot_scatter")
+        suspend fun contemporaryHighTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/clot_scatter")
+        suspend fun contemporaryLowTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hhot_scatter")
+        suspend fun historicalHighTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hlot_scatter")
+        suspend fun historicalLowTideScatter(@Body craROI: CraROI): ApiResult<JSONMap>
+
+        @POST("/chot_corr")
+        suspend fun contemporaryHighTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/clot_corr")
+        suspend fun contemporaryLowTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hhot_corr")
+        suspend fun historicalHighTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
+        @POST("/hlot_corr")
+        suspend fun historicalLowTideCorrelation(@Body craROI: CraROI): ApiResult<JSONMap>
     }
 
-    class Service(private val backend: Backend, private val auth: TokenInterceptor): Backend {
-        fun setToken(token: String) { auth.token = token }
-        override suspend fun getBuffers(roi: ROI) = backend.getBuffers(roi)
-        override suspend fun getVisualizeURLs(roi: ROI) = backend.getVisualizeURLs(roi)
-        override suspend fun ingestCRA(key: CRAKey) = backend.ingestCRA(key)
-        override suspend fun awaitCRAUpload(name: UploadName) = backend.awaitCRAUpload(name)
+    class Service(private val backend: Backend, private val tokenHolder: TokenInterceptor): Backend by backend {
+        fun setToken(token: String) { tokenHolder.token = token }
 
         companion object {
             private var timeout: Long = 600

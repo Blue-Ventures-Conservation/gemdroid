@@ -37,7 +37,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            indices.list(),
+            indices.list,
             points
         ).collect(callback)
     }
@@ -68,7 +68,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun validateHistoricalMonthsOrder() = validateDateIntsOrder(historicalMonthStart, historicalMonthEnd)
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
-    fun getIndices() = listOf(Indices.LS_BEST, Indices.LS_STANDARD, Indices.LS)
+    fun getIndices() = listOf(Indices.BEST, Indices.STANDARD, Indices.LS)
     fun clearIndices() { indices = defaultIndices }
     fun addPoint(point: LatLng) = adjustPolygonWithRespectTo(point)
     fun clearPoints() { points = mutableListOf() }
@@ -180,7 +180,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
-        val defaultIndices = Indices.LS_BEST
+        val defaultIndices = Indices.BEST
     }
 }
 
@@ -189,22 +189,8 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
  * 2: the six Landsat bands + the “best” index (CMRI) = ‘LS+best’
  * 3: the six Landsat bands + three optimal indices MNDWI, MMRI, SAVI) = ‘LS+standard’
  */
-enum class Indices {
-    LS {
-        override fun label() = "Six Landsat Bands"
-        override fun list() = emptyList<String>()
-    },
-
-    LS_BEST {
-        override fun label() = "Six Landsat Bands + the best index (CMRI)"
-        override fun list() = listOf("CMRI")
-    },
-
-    LS_STANDARD {
-        override fun label() = "Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)"
-        override fun list() = listOf("MNDWI", "MMRI", "SAVI")
-    };
-
-    abstract fun label(): String
-    abstract fun list(): List<String>
+sealed class Indices(val label: String, val list: List<String>) {
+    object LS: Indices("Six Landsat Bands", emptyList())
+    object BEST: Indices("Six Landsat Bands + the best index (CMRI)", listOf("CMRI"))
+    object STANDARD: Indices("Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)", listOf("MNDWI", "MMRI", "SAVI"))
 }

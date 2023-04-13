@@ -21,6 +21,8 @@ data class CRA(
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
         fun toFile(file: File, cra: CRA) = FileService.toFile(file, cra, adapter)
     }
+
+    fun historicalShp() = historicalCRA ?: contemporaryCRA
 }
 
 // Saved locally, and also saved in Cloud Storage alongside the zip to keep track of
