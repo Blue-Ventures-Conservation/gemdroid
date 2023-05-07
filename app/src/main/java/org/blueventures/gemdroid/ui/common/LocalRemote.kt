@@ -11,6 +11,7 @@ fun <T> LocalRemote(
     getLocal: ((Result<T>) -> Unit) -> Unit,
     getRemote: ((ApiResult<T>) -> Unit) -> Unit,
     save: (T) -> Unit,
+    errorHandler: (Int?, String?) -> Pair<String?, Boolean> = { _, _ -> Pair(null, true) }, // returns a message to display and whether or not the request should be retried
     success: @Composable (T) -> Unit,
 ) {
     val (local, setLocal) = remember { mutableStateOf<Result<T>?>(null) }
@@ -31,11 +32,17 @@ fun <T> LocalRemote(
             }
         }
         remote is ApiResult.Error -> {
-            RefreshableError { stopRefresh ->
-                getRemote { result ->
-                    stopRefresh()
-                    setRemote(result)
+            val p = errorHandler(remote.code, remote.message)
+
+            if (p.second) {
+                RefreshableError(p.first) { stopRefresh ->
+                    getRemote { result ->
+                        stopRefresh()
+                        setRemote(result)
+                    }
                 }
+            } else {
+                BasicMessage(message = p.first ?: "Unrecoverable error, please press Back.")
             }
         }
         else -> {

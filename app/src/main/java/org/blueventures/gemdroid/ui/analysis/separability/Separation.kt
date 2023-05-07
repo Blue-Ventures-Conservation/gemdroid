@@ -32,7 +32,13 @@ import org.blueventures.gemdroid.ui.common.LocalRemote
 object Separation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, back: Click) {
-        LocalRemote(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile) { data ->
+        LocalRemote(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, { code, message ->
+            if (code == 400 && message?.contains("missing asset") == true) {
+                Pair("CRA not found on the backend.", false)
+            } else {
+                Pair(null, true)
+            }
+        }) { data ->
             Layout(data, back)
         }
 

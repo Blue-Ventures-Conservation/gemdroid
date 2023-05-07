@@ -18,9 +18,9 @@ class ResultCall<T : Any>(private val proxy: Call<T>) : Call<ApiResult<T>> {
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {
-                val networkResult = when(t) {
-                    is UnknownHostException -> ApiResult.Error<T>("Code not reach host, are you offline?")
-                    else -> ApiResult.Error<T>(t.message)
+                val networkResult: ApiResult.Error<T> = when(t) {
+                    is UnknownHostException -> ApiResult.Error(null, "Code not reach host, are you offline?")
+                    else -> ApiResult.Error(null, t.message)
                 }
                 callback.onResponse(this@ResultCall, Response.success(networkResult))
             }

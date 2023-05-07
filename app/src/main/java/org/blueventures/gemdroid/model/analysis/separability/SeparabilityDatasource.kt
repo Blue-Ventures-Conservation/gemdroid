@@ -45,7 +45,15 @@ class SeparabilityDatasource(
         }
 
         val err = apiResultCheck(contResult, histResult)
-        return Result.success(Pair(cra, err))
+        if (err != null) {
+            return Result.success(Pair(cra, err))
+        }
+
+        if (!contResult!!.data!!.success || !histResult!!.data!!.success) {
+            return Result.success(Pair(cra, Throwable()))
+        }
+
+        return Result.success(Pair(cra, null))
     }
 
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))

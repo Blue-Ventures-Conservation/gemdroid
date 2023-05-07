@@ -3,8 +3,10 @@ package org.blueventures.gemdroid.ui.analysis.separability
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,9 +29,11 @@ object Dashboard {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Select a chart to view:", fontSize = 20.sp)
+            Spacer(modifier = Modifier.size(0.dp))
             SelectTimePeriod.DashboardButton(label = "Band Separation", separation)
             SelectTimePeriod.DashboardButton(label = "Band Scatter Plot", scatter)
             SelectTimePeriod.DashboardButton(label = "Band Correlation", correlation)
+            Spacer(modifier = Modifier.size(0.dp))
         }
 
         BackHandler {

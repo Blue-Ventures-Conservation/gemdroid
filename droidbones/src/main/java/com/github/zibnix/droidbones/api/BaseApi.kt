@@ -85,12 +85,12 @@ object BaseApi {
             if (response.isSuccessful && body != null) {
                 ApiResult.Success(body)
             } else {
-                ApiResult.Error("$response.code(): $response.message()")
+                ApiResult.Error(response.code(), response.message())
             }
         } catch (e: HttpException) {
-            ApiResult.Error("$e.code: $e.message()")
+            ApiResult.Error(e.code(), e.message())
         } catch (e: Throwable) {
-            ApiResult.Error(e.message)
+            ApiResult.Error(null, e.message)
         }
     }
 }

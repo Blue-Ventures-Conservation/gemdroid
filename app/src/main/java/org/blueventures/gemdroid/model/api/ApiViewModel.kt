@@ -26,7 +26,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
     }
 
     companion object {
-        fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(err.message)
+        fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(null, err.message)
         fun <T> resErr(err: Throwable) = Result.failure<T>(err)
     }
 }
