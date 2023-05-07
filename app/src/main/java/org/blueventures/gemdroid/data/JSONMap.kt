@@ -7,6 +7,7 @@ import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.io.File
 
+// A collection of functions related to unpacking (semi-)unstructured JSON
 object JSONMap {
     fun bandsAndClasses(m: Map<String, Any>): Pair<List<String>, List<String>>? {
         val b = bands(m)
