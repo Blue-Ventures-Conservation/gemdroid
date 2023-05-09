@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
-import com.anychart.chart.common.dataentry.BoxDataEntry
 import com.anychart.chart.common.dataentry.DataEntry
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
@@ -20,6 +19,7 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.LocalRemote
+import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Separation {
     @Composable
@@ -53,11 +53,12 @@ object Separation {
                 cartesian.title("")
                 cartesian.xAxis(0).staggerMode(true)
 
+                val size = classes.size
                 val entries = mutableListOf<DataEntry>()
-                for (cls in classes) {
+                for ((idx, cls) in classes.withIndex()) {
                     val cdat = data.second[cls] ?: continue
                     if (cdat.size < 5) continue
-                    entries.add(BoxDataEntry(cls, conv(cdat[0]), conv(cdat[1]), conv(cdat[2]), conv(cdat[3]), conv(cdat[4])))
+                    entries.add(BoxDataEntry(cls, g2R2B(idx, size), cdat[0], cdat[1], cdat[2], cdat[3], cdat[4]))
                 }
 
                 val box = cartesian.box(entries)
@@ -75,7 +76,19 @@ object Separation {
         }
     }
 
-    private fun conv(d: Double): Int {
-        return (d * 100000).toInt()
+    /**
+     * We have our own BoxDataEntry (rather than using com.anychart.chart.common.dataentry.BoxDataEntry)
+     * Because we want to use Doubles, not Integers.
+     */
+    class BoxDataEntry(x: String, color: String, low: Number, q1: Number, median: Number, q3: Number, high: Number) : DataEntry() {
+        init {
+            setValue("x", x)
+            setValue("fill", color)
+            setValue("low", low)
+            setValue("q1", q1)
+            setValue("median", median)
+            setValue("q3", q3)
+            setValue("high", high)
+        }
     }
 }
