@@ -14,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,14 +35,15 @@ import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.LocalRemote
+import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.GetRemote
 import java.io.File
 
 object Visualize {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = "Visualize Imagery"))
-        LocalRemote(viewModel::loadVisualizeURLsFile, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile) { urls ->
+        GetRemote.Save(viewModel::loadVisualizeURLsFile, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile) { urls ->
             VisualizeMap(viewModel, urls, appBar)
         }
 
@@ -71,7 +71,7 @@ object Visualize {
 
     @Composable
     fun VisualizeMap(viewModel: AnalysisViewModel, urls: VisualizeURLs, appBar: AppBarFun) {
-        LaunchedEffect(key1 = true) {
+        Effect.Once {
             appBar(AppBarUpdate(
                 title = "Visualize Imagery",
                 actions = {

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun BasicMessage(message: String) {
-    Col.Between {
+    Col.Between(scroll = true) {
         Text(
             text = message,
             fontSize = 16.sp,

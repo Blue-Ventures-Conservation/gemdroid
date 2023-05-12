@@ -1,18 +1,18 @@
 package org.blueventures.gemdroid.ui.common
 
 import com.anychart.AnyChartView
-import com.anychart.charts.Cartesian
+import com.anychart.core.SeparateChart
 import org.blueventures.gemdroid.model.Licenses
 
 object Charts {
-    fun prep(chart: AnyChartView, cart: () -> Cartesian): Cartesian {
+    fun prep(chart: AnyChartView, charter: () -> SeparateChart): SeparateChart {
         chart.setLicenceKey(Licenses.anychart)
-        return cartesian(cart)
+        return chart(charter)
     }
 
-    fun cartesian(cart: () -> Cartesian): Cartesian {
-        val cartesian = cart()
-        cartesian.credits().text("")
-        return cartesian
+    fun chart(charter: () -> SeparateChart): SeparateChart {
+        val c = charter()
+        c.credits().text("")
+        return c
     }
 }

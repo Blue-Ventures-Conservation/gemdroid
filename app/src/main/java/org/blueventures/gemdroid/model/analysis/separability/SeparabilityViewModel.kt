@@ -17,6 +17,8 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
     lateinit var timePeriod: TimePeriod
     lateinit var toAnalyze: Shapefile
     lateinit var title: String
+    lateinit var bandX: String
+    lateinit var bandY: String
 
     private var loadCRAsJob: Job? = null
     private var chartJob: Job? = null
@@ -46,7 +48,7 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
             callback(result)
         }
     }
-    fun saveScatterFile(data: Map<String, Any>) = scoped { repo.saveScatterFile(roiDir, timePeriod, data).collect() }
+    fun saveScatterFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = scoped { repo.saveScatterFile(roiDir, timePeriod, data).collect(callback) }
     fun loadScatterFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadScatterFile(roiDir, timePeriod).collect(callback) }
 
     fun getCorrelation(callback: (ApiResult<Map<String, Any>>) -> Unit) {

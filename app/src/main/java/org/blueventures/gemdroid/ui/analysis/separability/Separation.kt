@@ -12,19 +12,20 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
+import com.anychart.charts.Cartesian
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.separability.Separability.Layout
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Dropdown
-import org.blueventures.gemdroid.ui.common.LocalRemote
+import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Separation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, back: Click) {
-        LocalRemote(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, Separability::craErrorHandler) { json ->
+        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, Separability::craErrorHandler) { json ->
             Layout(json, back) { data, bands, classes, setData ->
                 Chart(json, data, bands, classes, setData)
             }
@@ -48,7 +49,7 @@ object Separation {
                 }
 
                 val view = AnyChartView(layout.context)
-                val cartesian = Charts.prep(view, AnyChart::box)
+                val cartesian = Charts.prep(view, AnyChart::box) as Cartesian
 
                 cartesian.title("")
                 cartesian.xAxis(0).staggerMode(true)
@@ -72,7 +73,7 @@ object Separation {
         )
         Dropdown(title = "Select Band", labels = bands) { i ->
             val band = bands[i]
-            setData(JSONMap.boxChartBandInfo(band, json))
+            setData(JSONMap.boxChartBandInfo(json, band))
         }
     }
 

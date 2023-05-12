@@ -14,12 +14,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,6 +32,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -52,7 +51,7 @@ object Dashboard {
             }
             roi.isFailure -> {
                 Progress()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     snack(roi.exceptionOrNull()!!.message!!)
                     back()
                 }
@@ -77,7 +76,7 @@ object Dashboard {
         Col.Between {
             when (stage) {
                 Stage.ERROR -> {
-                    LaunchedEffect(key1 = true) {
+                    Effect.Once {
                         snack("Could not read filesystem state!")
                         back()
                     }

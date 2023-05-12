@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.analysis.cra
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
@@ -11,6 +10,7 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -34,20 +34,20 @@ object CRAFields {
         when {
             fields == null -> {
                 Progress()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     viewModel.getCRAFields(setFields)
                 }
             }
             fields.isFailure -> {
                 Progress()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     snack(fields.exceptionOrNull()!!.message!!)
                     back()
                 }
             }
             fields.getOrNull()!!.complete() -> {
                 PleaseWait()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     viewModel.setFields(fields.getOrNull()!!)
                     viewModel.saveCRAs { result ->
                         when {

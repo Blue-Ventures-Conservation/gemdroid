@@ -28,8 +28,8 @@ object JSONMap {
         return m[key] as? List<String>
     }
 
-    fun boxChartBandInfo(name: String, m: Map<String, Any>): Pair<String, Map<String, List<Double>>>? {
-        val bmap = m[name] as? Map<String, Any> ?: return null
+    fun boxChartBandInfo(m: Map<String, Any>, band: String): Pair<String, Map<String, List<Double>>>? {
+        val bmap = m[band] as? Map<String, Any> ?: return null
         val bcopy = HashMap(bmap)
         val seps = bcopy.remove("separability") as? List<List<String>> ?: return null
 
@@ -57,6 +57,22 @@ object JSONMap {
         val cmap = bcopy as? Map<String, List<Double>> ?: return null
 
         return Pair(sepStr, cmap)
+    }
+
+    fun scatterChartInfo(m: Map<String, Any>, classes: List<String>, bandX: String, bandY: String): Map<String, List<PointD>>? {
+        val out = mutableMapOf<String, MutableList<PointD>>()
+
+        for (cls in classes) {
+            val cmap = m[cls] as? List<Map<String, Double>> ?: return null
+            out[cls] = mutableListOf()
+            for (pt in cmap) {
+                val x = pt[bandX] ?: return null
+                val y = pt[bandY] ?: return null
+                out[cls]!!.add(PointD(x, y))
+            }
+        }
+
+        return out
     }
 
     private val adapter = adapter()

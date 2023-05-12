@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,7 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.InputStream
@@ -97,13 +97,13 @@ object CRA {
         when {
             remoteCRAs == null -> {
                 Progress()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     viewModel.getRemoteCRAs(setRemoteCRAs)
                 }
             }
             remoteCRAs.isFailure -> {
                 Progress()
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     snack(remoteCRAs.exceptionOrNull()!!.message!!)
                     back()
                 }

@@ -3,18 +3,16 @@ package org.blueventures.gemdroid.ui.analysis
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
+import com.anychart.charts.Cartesian
 import com.anychart.enums.Anchor
 import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
@@ -28,7 +26,7 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
-import org.blueventures.gemdroid.ui.common.LocalRemote
+import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -42,7 +40,7 @@ object Buffer {
         if (saving) {
             Progress()
         } else {
-            LocalRemote(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
+            GetRemote.Save(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
                 BufferChoice(viewModel, buffs, snack, back, setSaving)
             }
         }
@@ -83,7 +81,7 @@ object Buffer {
                 .fillMaxHeight(0.67f),
             factory = { context ->
                 AnyChartView(context).apply {
-                    val cartesian = Charts.prep(this, AnyChart::column)
+                    val cartesian = Charts.prep(this, AnyChart::column) as Cartesian
 
                     val sums = buffers.sums
                     val data = mutableListOf<DataEntry>()

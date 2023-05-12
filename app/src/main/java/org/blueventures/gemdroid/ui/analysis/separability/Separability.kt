@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis.separability
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
@@ -14,6 +13,7 @@ import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
@@ -22,7 +22,7 @@ object Separability {
         const val separabilityDashboard = "sep_dashboard"
         const val separation = "separation"
         const val scatterChoices = "scatter_choices"
-        const val scatter = "scatter"
+        const val scatterPlot = "scatter_plot"
         const val correlation = "correlation"
     }
 
@@ -39,7 +39,7 @@ object Separability {
             Dashboard.Screen(viewModel, appBar, separation = {
                 nav.navigate(Routes.separation)
             }, scatter = {
-                nav.navigate(Routes.scatter)
+                nav.navigate(Routes.scatterChoices)
             }, correlation = {
                 nav.navigate(Routes.correlation)
             }) {
@@ -54,11 +54,17 @@ object Separability {
         }
 
         b.composable(Routes.scatterChoices) {
-
+            ScatterChoices.Screen(viewModel = viewModel, {
+                nav.popBackStack()
+            }) {
+                nav.navigate(Routes.scatterPlot)
+            }
         }
 
-        b.composable(Routes.scatter) {
-
+        b.composable(Routes.scatterPlot) {
+            ScatterPlot.Screen(viewModel) {
+                nav.popBackStack()
+            }
         }
 
         b.composable(Routes.correlation) {
@@ -80,7 +86,7 @@ object Separability {
         val bandsAndClasses = JSONMap.bandsAndClasses(json)
 
         if (bandsAndClasses == null) {
-            LaunchedEffect(key1 = true) {
+            Effect.Once {
                 back()
             }
             return

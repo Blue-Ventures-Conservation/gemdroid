@@ -37,12 +37,15 @@ object Col {
     }
 
     @Composable
-    inline fun Between(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, content: @Composable ColumnScope.() -> Unit) {
+    inline fun Between(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+        var modifier = Modifier
+            .fillMaxSize()
+            .padding(start, top, end, bottom)
+        if (scroll) {
+            modifier = modifier.verticalScroll(rememberScrollState())
+        }
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start, top, end, bottom)
-                .verticalScroll(rememberScrollState()),
+            modifier = modifier,
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
             content
@@ -52,7 +55,9 @@ object Col {
     @Composable
     inline fun Dash(header: String, content: @Composable ColumnScope.() -> Unit) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp, bottom = 64.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp, bottom = 64.dp),
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

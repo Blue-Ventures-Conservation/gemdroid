@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.analysis.separability
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.blueventures.gemdroid.data.CRA
@@ -18,6 +17,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -34,7 +34,7 @@ object SelectTimePeriod {
                 viewModel.loadCRAs(setCRAs)
             }
             cras.isFailure -> {
-                LaunchedEffect(key1 = true) {
+                Effect.Once {
                     snack(cras.exceptionOrNull()!!.message!!)
                     back()
                 }
@@ -42,7 +42,7 @@ object SelectTimePeriod {
             else -> {
                 val pair = cras.getOrNull()!!
                 if (pair.second != null) {
-                    LaunchedEffect(key1 = true) {
+                    Effect.Once {
                         snack("Could not verify CRA upload, charts may not be available.")
                     }
                 }
