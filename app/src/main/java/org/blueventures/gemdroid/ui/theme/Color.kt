@@ -25,16 +25,10 @@ fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int): Int {
             }
         }
         else -> {
-            val odd = size%2
-            val even = when (odd) {
-                0 -> 1
-                else -> 0
-            }
             val half = size/2
-            val bumpHalf = half + even + odd // this adjustment keeps colors evenly spread, preferring to insert new colors between from and mid
             when {
-                (index + 1 >= bumpHalf) -> blend(mid, to, (index - half), (size - half))
-                else -> blend(from, mid, index, bumpHalf)
+                (index >= half) -> blend(mid, to, (index - half), (size - half))
+                else -> blend(from, mid, index, half + 1)
             }
         }
     }
@@ -45,19 +39,23 @@ fun blend(from: Color, to: Color, index: Int, size: Int): Int {
         1 -> from.toArgb()
         else -> {
             val ratio = index.toFloat() * (1.0F / (size.toFloat() - 1.0F))
-            val out = FloatArray(3)
+            val out = hsl()
             ColorUtils.blendHSL(colorToHSL(from), colorToHSL(to), ratio, out)
-            return ColorUtils.HSLToColor(out)
+            ColorUtils.HSLToColor(out)
         }
     }
 }
 
 fun colorToHSL(color: Color): FloatArray {
-    val out = FloatArray(3)
+    val out = hsl()
     ColorUtils.colorToHSL(color.toArgb(), out)
     return out
 }
 
-fun Int.hexColor(): String {
+private fun hsl(): FloatArray {
+    return FloatArray(3)
+}
+
+private fun Int.hexColor(): String {
     return String.format("#%06X", 0xFFFFFF and this)
 }

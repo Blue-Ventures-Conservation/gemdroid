@@ -8,7 +8,6 @@ import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.CRAIngestRequested
 import org.blueventures.gemdroid.data.CRAKey
 import org.blueventures.gemdroid.data.CraROI
-import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName

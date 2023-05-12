@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,6 +35,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -77,21 +75,17 @@ object Polygon {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = {
+                Butt.Text("Clear") {
                     clearFunc()
                     viewModel.clearPoints()
-                }) {
-                    Text(text = "Clear", fontSize = 20.sp)
                 }
-                Button(onClick = {
+                Butt.Next {
                     if (viewModel.validatePolygon()) {
                         clearFunc()
                         next()
                     } else {
                         snack("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
                     }
-                }) {
-                    Text(text = "Next", fontSize = 20.sp)
                 }
             }
 

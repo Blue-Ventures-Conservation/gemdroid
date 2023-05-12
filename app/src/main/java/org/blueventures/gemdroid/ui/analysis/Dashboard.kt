@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +31,9 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -74,13 +74,7 @@ object Dashboard {
 
     @Composable
     fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.Between {
             when (stage) {
                 Stage.ERROR -> {
                     LaunchedEffect(key1 = true) {
@@ -158,11 +152,7 @@ object Dashboard {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = next
-            ) {
-                Text("Next", fontSize = 20.sp)
-            }
+            Butt.Next(onClick = next)
         }
     }
 

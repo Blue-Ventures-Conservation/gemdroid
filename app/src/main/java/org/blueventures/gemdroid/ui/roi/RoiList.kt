@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -84,23 +85,17 @@ object RoiList {
             title = { Text(text = "Delete ROI") },
             text = { Text(text = "Really delete '${toDelete.name}'?") },
             confirmButton = {
-                Button(onClick = {
+                Butt.Text("DELETE") {
                     viewModel.deleteRoi(toDelete) { result ->
                         onDismiss()
                         if (result.isFailure) {
                             snackbar(result.exceptionOrNull()!!.message!!)
                         }
                     }
-                }) {
-                    Text("DELETE")
                 }
             },
             dismissButton = {
-                Button(onClick = {
-                    onDismiss()
-                }) {
-                    Text(text = "Cancel")
-                }
+                Butt.Text("Cancel", onClick = onDismiss)
             }
         )
     }

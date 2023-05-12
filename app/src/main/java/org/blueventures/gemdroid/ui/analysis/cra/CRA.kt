@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -36,7 +34,9 @@ import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -168,13 +168,7 @@ object CRA {
 
     @Composable
     fun Selection(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.Between {
             if (remoteCRAs.isEmpty()) {
                 LocalCRA(temporal, setSelectedFiles, setValidating)
             } else {
@@ -236,10 +230,8 @@ object CRA {
             )
         }
         Spacer(modifier = Modifier.height(0.dp))
-        Button(onClick = {
+        Butt.Text("Select Shapefile") {
             launcher.launch(arrayOf("*/*"))
-        }) {
-            Text(text = "Select Shapefile", fontSize = 20.sp)
         }
     }
 
@@ -252,14 +244,9 @@ object CRA {
             nextEnabled.value = true
         }
 
-        Button(
-            enabled = nextEnabled.value,
-            onClick = {
-                setRemote(selected.value)
-                next()
-            }
-        ) {
-            Text(text = "Next", fontSize = 16.sp)
+        Butt.Next(nextEnabled.value) {
+            setRemote(selected.value)
+            next()
         }
     }
 

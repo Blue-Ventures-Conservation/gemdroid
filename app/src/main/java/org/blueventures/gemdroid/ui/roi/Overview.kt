@@ -3,20 +3,19 @@ package org.blueventures.gemdroid.ui.roi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.File
@@ -35,16 +34,12 @@ object Overview {
 
     @Composable
     fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click, saving: (Boolean) -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.MidPad {
             Text(text = "Overview", fontSize = 32.sp)
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Column(
@@ -70,7 +65,7 @@ object Overview {
                     Text(text = "${viewModel.indices.list}", fontSize = 18.sp)
                 }
             }
-            Button(onClick = {
+            Butt.Done {
                 saving(true)
                 viewModel.saveRoi(filesDir) { result ->
                     saving(false)
@@ -80,8 +75,6 @@ object Overview {
                         snack(result.exceptionOrNull()!!.message!!)
                     }
                 }
-            }) {
-                Text(text = "Done", fontSize = 20.sp)
             }
         }
     }

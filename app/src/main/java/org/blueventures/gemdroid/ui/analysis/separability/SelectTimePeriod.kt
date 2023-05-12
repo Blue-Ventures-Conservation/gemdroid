@@ -1,28 +1,10 @@
 package org.blueventures.gemdroid.ui.analysis.separability
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.model.analysis.separability.ContemporaryHighTide
@@ -34,9 +16,10 @@ import org.blueventures.gemdroid.model.analysis.separability.TimePeriod
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
+import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object SelectTimePeriod {
     @Composable
@@ -81,15 +64,7 @@ object SelectTimePeriod {
 
     @Composable
     fun Dashboard(viewModel: SeparabilityViewModel, contHigh: Click, contLow: Click, histHigh: Click, histLow: Click) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Select a time period and tidal condition to inspect:", fontSize = 20.sp)
-            Spacer(modifier = Modifier.size(0.dp))
+        Col.Dash("Select a time period and tidal condition to inspect:") {
             val setPeriod: (TimePeriod) -> Unit = { viewModel.timePeriod = it }
             HighLow(viewModel, "Contemporary", { setPeriod(ContemporaryHighTide); contHigh() }) {
                 setPeriod(ContemporaryLowTide)
@@ -99,7 +74,6 @@ object SelectTimePeriod {
                 setPeriod(HistoricalLowTide)
                 histLow()
             }
-            Spacer(modifier = Modifier.size(0.dp))
         }
     }
 
@@ -110,20 +84,5 @@ object SelectTimePeriod {
         val lowLabel = "$temporal Low Tide"
         DashboardButton(highLabel) { setTitle(highLabel); high() }
         DashboardButton(lowLabel) { setTitle(lowLabel); low() }
-    }
-
-    @Composable
-    fun DashboardButton(label: String, click: Click) {
-        Card(
-            border = BorderStroke(2.dp, SkyBlue),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(10.dp))
-                .clickable { click() },
-        ) {
-            Text(modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(), text = label, fontSize = 20.sp, textAlign = TextAlign.Center)
-        }
     }
 }

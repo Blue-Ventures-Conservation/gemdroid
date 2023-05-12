@@ -1,23 +1,15 @@
 package org.blueventures.gemdroid.ui.analysis.cra
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
 import org.blueventures.gemdroid.model.analysis.cra.Fields
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
@@ -80,13 +72,7 @@ object CRAFields {
 
     @Composable
     fun SelectFields(viewModel: CraViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.Between {
             val strings = lists.strings!!
             val numerics = lists.numerics!!
             val stringValues = lists.stringValues!!
@@ -99,27 +85,22 @@ object CRAFields {
                 numeric.value = numerics[i]
             }
 
-            Button(
-                enabled = numeric.value.isNotEmpty() && string.value.isNotEmpty(),
-                onClick = {
-                    if (numeric.value == string.value) {
-                        snack("These cannot both be the same field")
-                    } else {
-                        setSaving(true)
-                        viewModel.setFields(Fields(chosenNumeric = numeric.value, chosenString = string.value, chosenStringValues = stringValues[string.value]))
-                        viewModel.saveCRAs {
-                            when {
-                                it.isSuccess -> done()
-                                else -> {
-                                    snack(it.exceptionOrNull()!!.message!!)
-                                    back()
-                                }
+            Butt.Done(numeric.value.isNotEmpty() && string.value.isNotEmpty()) {
+                if (numeric.value == string.value) {
+                    snack("These cannot both be the same field")
+                } else {
+                    setSaving(true)
+                    viewModel.setFields(Fields(chosenNumeric = numeric.value, chosenString = string.value, chosenStringValues = stringValues[string.value]))
+                    viewModel.saveCRAs {
+                        when {
+                            it.isSuccess -> done()
+                            else -> {
+                                snack(it.exceptionOrNull()!!.message!!)
+                                back()
                             }
                         }
                     }
                 }
-            ) {
-                Text(text = "Done", fontSize = 16.sp)
             }
         }
     }

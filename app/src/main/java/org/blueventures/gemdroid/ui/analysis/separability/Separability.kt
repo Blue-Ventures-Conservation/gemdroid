@@ -1,16 +1,9 @@
 package org.blueventures.gemdroid.ui.analysis.separability
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -20,6 +13,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
@@ -27,6 +21,7 @@ object Separability {
         const val timePeriod = "time_period"
         const val separabilityDashboard = "sep_dashboard"
         const val separation = "separation"
+        const val scatterChoices = "scatter_choices"
         const val scatter = "scatter"
         const val correlation = "correlation"
     }
@@ -56,6 +51,10 @@ object Separability {
             Separation.Screen(viewModel) {
                 nav.popBackStack()
             }
+        }
+
+        b.composable(Routes.scatterChoices) {
+
         }
 
         b.composable(Routes.scatter) {
@@ -89,13 +88,7 @@ object Separability {
 
         val bands = bandsAndClasses.first
         val classes = bandsAndClasses.second
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.Between {
             chart(data, bands, classes, setData)
         }
     }

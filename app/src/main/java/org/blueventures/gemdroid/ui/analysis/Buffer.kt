@@ -1,20 +1,14 @@
 package org.blueventures.gemdroid.ui.analysis
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
@@ -29,8 +23,10 @@ import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.LocalRemote
 import org.blueventures.gemdroid.ui.common.Progress
@@ -60,32 +56,21 @@ object Buffer {
     fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
         val (bufferDist, setBufferDist) = remember { mutableStateOf(Pair(-1, false)) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.Between {
             Chart(buffers)
             Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
             }
-            Button(
-                enabled = bufferDist.second,
-                onClick = {
-                    saving(true)
-                    viewModel.saveBuffer(bufferDist.first) { result ->
-                        saving(false)
-                        if (result.isSuccess) {
-                            back()
-                        } else {
-                            snack(result.exceptionOrNull()!!.message!!)
-                        }
+            Butt.Done(bufferDist.second) {
+                saving(true)
+                viewModel.saveBuffer(bufferDist.first) { result ->
+                    saving(false)
+                    if (result.isSuccess) {
+                        back()
+                    } else {
+                        snack(result.exceptionOrNull()!!.message!!)
                     }
-                },
-            ) {
-                Text(text = "Done", fontSize = 20.sp)
+                }
             }
         }
     }

@@ -1,13 +1,8 @@
 package org.blueventures.gemdroid.ui.roi
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -16,38 +11,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Name {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, nextClick: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         appBar(AppBarUpdate(title = "Create Coarse ROI"))
 
-        Column(
-            modifier = Modifier
-                .padding(64.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Col.BigPad {
             Text(text = "Name your ROI", fontSize = 24.sp, textAlign = TextAlign.Center)
             NameField(viewModel = viewModel)
-            NameButton {
+            Butt.Next {
                 if (viewModel.notSpecial() && viewModel.isUnique()) {
-                    nextClick()
+                    next()
                 } else {
                     snack("Please enter a unique name without any special characters.")
                 }
@@ -73,14 +61,5 @@ object Name {
             keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
             textStyle = TextStyle.Default.copy(fontSize = 24.sp)
         )
-    }
-
-    @Composable
-    fun NameButton(nextClick: () -> Unit) {
-        Button(
-            onClick = { nextClick() }
-        ) {
-            Text("Next", fontSize = 20.sp)
-        }
     }
 }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -28,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -43,6 +41,7 @@ import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.MainActivity
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.SignInActivity
+import org.blueventures.gemdroid.ui.common.Butt
 
 object SignIn {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -86,11 +85,9 @@ object SignIn {
                     text = stringResource(R.string.sign_in_prompt),
                     modifier = Modifier.padding(48.dp),
                 )
-                Button(onClick = {
+                Butt.Text(stringResource(R.string.sign_in_label)) {
                     setMsg("")
                     doSignIn(activity, oneTapClient, launcher)
-                }) {
-                    Text(stringResource(R.string.sign_in_label), fontSize = 24.sp)
                 }
             }
         }
