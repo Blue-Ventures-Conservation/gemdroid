@@ -33,7 +33,7 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
 
     fun getSeparation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
         if (chartJob != null) return
-        apiWithToken({ chartJob = it }, repo.getSeparation(timePeriod, getCraROI())) { result ->
+        apiWithToken({ chartJob = it }, repo.getSeparation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)
         }
@@ -43,7 +43,7 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
 
     fun getScatter(callback: (ApiResult<Map<String, Any>>) -> Unit) {
         if (chartJob != null) return
-        apiWithToken({ chartJob = it }, repo.getScatter(timePeriod, getCraROI())) { result ->
+        apiWithToken({ chartJob = it }, repo.getScatter(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)
         }
@@ -53,7 +53,7 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
 
     fun getCorrelation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
         if (chartJob != null) return
-        apiWithToken({ chartJob = it }, repo.getCorrelation(timePeriod, getCraROI())) { result ->
+        apiWithToken({ chartJob = it }, repo.getCorrelation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)
         }
@@ -61,7 +61,7 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
     fun saveCorrelationFile(data: Map<String, Any>) = scoped { repo.saveCorrelationFile(roiDir, timePeriod, data).collect() }
     fun loadCorrelationFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadCorrelationFile(roiDir, timePeriod).collect(callback) }
 
-    private fun getCraROI(): CraROI {
-        return CraROI(key = toAnalyze.shapefileStorageKey, numLabel = toAnalyze.numericClassField, charLabel = toAnalyze.stringClassField, roi = roi)
+    private fun getCraROI(timePeriod: Int): CraROI {
+        return CraROI(timePeriod, toAnalyze.shapefileStorageKey, toAnalyze.numericClassField, toAnalyze.stringClassField, roi)
     }
 }

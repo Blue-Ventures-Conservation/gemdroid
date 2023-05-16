@@ -42,9 +42,7 @@ object Name {
             }
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

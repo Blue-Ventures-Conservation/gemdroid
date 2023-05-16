@@ -26,8 +26,6 @@ object ChooseHistorical {
             )
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 }

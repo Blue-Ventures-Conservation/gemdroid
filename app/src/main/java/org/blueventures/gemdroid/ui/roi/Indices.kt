@@ -23,8 +23,6 @@ object Indices {
             )
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 }

@@ -66,9 +66,7 @@ object Dashboard {
             }
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @Composable

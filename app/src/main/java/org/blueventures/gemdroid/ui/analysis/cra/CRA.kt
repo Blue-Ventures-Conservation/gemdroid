@@ -113,9 +113,7 @@ object CRA {
             }
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @Composable

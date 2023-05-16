@@ -20,8 +20,6 @@ object Dashboard {
             DashboardButton(label = "Band Correlation", correlation)
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 }

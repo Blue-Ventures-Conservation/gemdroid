@@ -47,9 +47,7 @@ object Visualize {
             VisualizeMap(viewModel, urls, appBar)
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     private fun chotCheck(check: Boolean) = chotCheckCall(check)

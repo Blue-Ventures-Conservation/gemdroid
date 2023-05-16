@@ -29,9 +29,7 @@ object ScatterChoices {
             Choices(viewModel, bands, next)
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @Composable

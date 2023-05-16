@@ -57,9 +57,7 @@ object SelectTimePeriod {
             }
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @Composable

@@ -31,9 +31,7 @@ object ScatterPlot {
             }
         }
 
-        BackHandler {
-            back()
-        }
+        BackHandler(onBack = back)
     }
 
     @Composable

@@ -35,6 +35,6 @@ fun RefreshableError(message: String? = null, fetchFunc: (() -> Unit) -> Unit) {
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        BasicMessage(message ?: "Could not reach our server! You can swipe down to try again.")
+        BasicMessage(message ?: "Something unexpected went wrong there! You can swipe down to try again.")
     }
 }

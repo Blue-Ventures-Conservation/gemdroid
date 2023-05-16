@@ -96,6 +96,7 @@ object Paths {
 }
 
 sealed interface TimePeriod {
+    val apiVal: Int // don't modify these values without coordinating with the backend
     val separationFile: String
     val scatterFile: String
     val correlationFile: String
@@ -104,34 +105,38 @@ sealed interface TimePeriod {
     suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
 }
 object ContemporaryHighTide: TimePeriod {
+    override val apiVal: Int = 1
     override val separationFile = Paths.chotSeparationFile
     override val scatterFile = Paths.chotScatterFile
     override val correlationFile = Paths.chotCorrelationFile
-    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideSeparation(craROI)
-    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideScatter(craROI)
-    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.contemporaryHighTideCorrelation(craROI)
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.boxChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.scatterChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.correlationChart(craROI.copy(timePeriod = apiVal))
 }
 object ContemporaryLowTide: TimePeriod {
+    override val apiVal: Int = 2
     override val separationFile = Paths.clotSeparationFile
     override val scatterFile = Paths.clotScatterFile
     override val correlationFile = Paths.clotCorrelationFile
-    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideSeparation(craROI)
-    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideScatter(craROI)
-    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.contemporaryLowTideCorrelation(craROI)
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.boxChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.scatterChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.correlationChart(craROI.copy(timePeriod = apiVal))
 }
 object HistoricalHighTide: TimePeriod {
+    override val apiVal: Int = 3
     override val separationFile = Paths.hhotSeparationFile
     override val scatterFile = Paths.hhotScatterFile
     override val correlationFile = Paths.hhotCorrelationFile
-    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.historicalHighTideSeparation(craROI)
-    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.historicalHighTideScatter(craROI)
-    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.historicalHighTideCorrelation(craROI)
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.boxChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.scatterChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.correlationChart(craROI.copy(timePeriod = apiVal))
 }
 object HistoricalLowTide: TimePeriod {
+    override val apiVal: Int = 4
     override val separationFile = Paths.hlotSeparationFile
     override val scatterFile = Paths.hlotScatterFile
     override val correlationFile = Paths.hlotCorrelationFile
-    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.historicalLowTideSeparation(craROI)
-    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.historicalLowTideScatter(craROI)
-    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.historicalLowTideCorrelation(craROI)
+    override suspend fun separation(api: Api.Service, craROI: CraROI) = api.boxChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun scatter(api: Api.Service, craROI: CraROI) = api.scatterChart(craROI.copy(timePeriod = apiVal))
+    override suspend fun correlation(api: Api.Service, craROI: CraROI) = api.correlationChart(craROI.copy(timePeriod = apiVal))
 }

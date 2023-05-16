@@ -6,9 +6,7 @@ import org.blueventures.gemdroid.model.settings.SettingsViewModel
 
 object Settings {
     @Composable
-    fun Screen(viewModel: SettingsViewModel, backClick: () -> Unit) {
-        BackHandler {
-            backClick()
-        }
+    fun Screen(viewModel: SettingsViewModel, back: () -> Unit) {
+        BackHandler(onBack = back)
     }
 }
