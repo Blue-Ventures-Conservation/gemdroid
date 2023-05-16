@@ -14,19 +14,24 @@ class SeparabilityViewModel(private val repo: SeparabilityRepository = Separabil
     var roiDir = File("")
     var roi: ROI = ROI()
 
+    lateinit var cra: CRA
     lateinit var timePeriod: TimePeriod
     lateinit var toAnalyze: Shapefile
     lateinit var title: String
     lateinit var bandX: String
     lateinit var bandY: String
 
-    private var loadCRAsJob: Job? = null
+    private var awaitCRAsJob: Job? = null
     private var chartJob: Job? = null
 
-    fun loadCRAs(callback: (Result<Pair<CRA, Throwable?>>) -> Unit) {
-        if (loadCRAsJob != null) return
-        resultWithToken({ loadCRAsJob = it }, repo.loadCRAs(roiDir)) { result ->
-            loadCRAsJob = null
+    fun loadCRAs(callback: (Result<CRA>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
+
+    fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
+
+    fun awaitCRAs(callback: (Result<Throwable?>) -> Unit) {
+        if (awaitCRAsJob != null) return
+        resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
+            awaitCRAsJob = null
             callback(result)
         }
     }

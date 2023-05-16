@@ -15,6 +15,7 @@ import org.blueventures.gemdroid.data.UploadName
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
+import org.blueventures.gemdroid.model.analysis.separability.Paths.crasIngestedFile
 import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
@@ -23,13 +24,17 @@ import java.io.File
 class SeparabilityDatasource(
     private val api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api = api) {
-    suspend fun loadCRAs(roiDir: File): Result<Pair<CRA, Throwable?>> {
-        val result = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
-        if (result.isFailure) {
-            return Result.failure(result.exceptionOrNull()!!)
-        }
+    fun loadCRAs(roiDir: File) = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
 
-        val cra = result.getOrNull()!!
+    fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {
+        return try {
+            Result.success(!crasIngestedFile(roiDir).exists())
+        } catch(e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Throwable?> {
         val cont = cra.contemporaryCRA
         val hist = cra.historicalCRA
 
@@ -46,15 +51,19 @@ class SeparabilityDatasource(
 
         val err = apiResultCheck(contResult, histResult)
         if (err != null) {
-            return Result.success(Pair(cra, err))
+            return Result.success(err)
         }
 
         if (!contResult!!.data!!.success || !histResult!!.data!!.success) {
-            return Result.success(Pair(cra, Throwable()))
+            return Result.success(Throwable())
         }
 
-        return Result.success(Pair(cra, null))
+        Success.toFile(crasIngestedFile(roiDir), contResult!!.data!!)
+
+        return Result.success(null)
     }
+
+    private fun crasIngestedFile(roiDir: File) = File(File(roiDir, separabilityDir), crasIngestedFile)
 
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
 
@@ -81,6 +90,7 @@ class SeparabilityDatasource(
 
 object Paths {
     const val separabilityDir = "separability"
+    const val crasIngestedFile = "ingested.json"
     const val chotSeparationFile = "chot_separation.json"
     const val clotSeparationFile = "clot_separation.json"
     const val hhotSeparationFile = "hhot_separation.json"

@@ -26,11 +26,12 @@ object SelectTimePeriod {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
         appBar(AppBarUpdate(title = "Spectral Separability"))
 
-        val (cras, setCRAs) = remember { mutableStateOf<Result<Pair<CRA, Throwable?>>?>(null) }
+        val (cras, setCRAs) = remember { mutableStateOf<Result<CRA>?>(null) }
+        val (shouldAwait, setShouldAwait) = remember { mutableStateOf<Result<Boolean>?>(null) }
+        val (awaited, setAwaited) = remember { mutableStateOf<Result<Throwable?>?>(null) }
 
         when {
             cras == null -> {
-                PleaseWait()
                 viewModel.loadCRAs(setCRAs)
             }
             cras.isFailure -> {
@@ -39,15 +40,22 @@ object SelectTimePeriod {
                     back()
                 }
             }
+            shouldAwait == null -> {
+                viewModel.cra = cras.getOrNull()!!
+                viewModel.shouldAwaitCRAs(setShouldAwait)
+            }
+            (shouldAwait.isFailure || shouldAwait.getOrNull()!!) && awaited == null -> {
+                PleaseWait()
+                viewModel.awaitCRAs(setAwaited)
+            }
             else -> {
-                val pair = cras.getOrNull()!!
-                if (pair.second != null) {
+                if (awaited != null && (awaited.isFailure || awaited.getOrNull() != null)) {
                     Effect.Once {
                         snack("Could not verify CRA upload, charts may not be available.")
                     }
                 }
 
-                val cra = pair.first
+                val cra = cras.getOrNull()!!
                 val cont = cra.contemporaryCRA
                 val hist = cra.historicalShp()
                 val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
