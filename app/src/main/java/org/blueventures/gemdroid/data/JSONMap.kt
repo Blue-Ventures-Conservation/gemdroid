@@ -6,6 +6,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.io.File
+import kotlin.math.abs
 
 // A collection of functions related to unpacking (semi-)unstructured JSON
 object JSONMap {
@@ -25,13 +26,14 @@ object JSONMap {
     }
 
     private fun strList(m: Map<String, Any>, key: String): List<String>? {
-        return m[key] as? List<String>
+        val list = m[key] as? List<*> ?: return null
+        return list.checkItemsAre()
     }
 
     fun boxChartBandInfo(m: Map<String, Any>, band: String): Pair<String, Map<String, List<Double>>>? {
-        val bmap = m[band] as? Map<String, Any> ?: return null
+        val bmap = (m[band] as? Map<*, *>)?.checkItemsAre<String, Any>() ?: return null
         val bcopy = HashMap(bmap)
-        val seps = bcopy.remove("separability") as? List<List<String>> ?: return null
+        val seps = (bcopy.remove("separability") as? List<*>)?.checkItemsAre<List<String>>() ?: return null
 
         val sepStr = if (seps.isEmpty()) {
             "This band does not show separability between any of your classes."
@@ -54,16 +56,18 @@ object JSONMap {
             builder.toString()
         }
 
-        val cmap = bcopy as? Map<String, List<Double>> ?: return null
+        val cmap = (bcopy as? Map<*, *>)?.checkItemsAre<String, List<Double>>() ?: return null
 
         return Pair(sepStr, cmap)
     }
+
+    data class PointD(val x: Double, val y: Double)
 
     fun scatterChartInfo(m: Map<String, Any>, classes: List<String>, bandX: String, bandY: String): Map<String, List<PointD>>? {
         val out = mutableMapOf<String, MutableList<PointD>>()
 
         for (cls in classes) {
-            val cmap = m[cls] as? List<Map<String, Double>> ?: return null
+            val cmap = (m[cls] as? List<*>)?.checkItemsAre<Map<String, Double>>() ?: return null
             out[cls] = mutableListOf()
             for (pt in cmap) {
                 val x = pt[bandX] ?: return null
@@ -73,6 +77,46 @@ object JSONMap {
         }
 
         return out
+    }
+
+    enum class Correlation {
+        NONE,
+        MODERATE,
+        HIGH;
+
+        companion object {
+            fun get(value: Double, mod: Double, high: Double) =
+                when {
+                    abs(value) >= high -> HIGH
+                    abs(value) >= mod -> MODERATE
+                    else -> NONE
+                }
+        }
+    }
+
+    data class CorrelationValue(val correlation: Correlation, val value: Double)
+
+    data class Correlations(val bands: List<String>, val highThreshold: Double, val moderateThreshold: Double, val data: Map<String, List<Double>>) {
+        fun row(band: String): List<CorrelationValue> {
+            val vals = data[band] ?: emptyList()
+
+            val corrs = mutableListOf<CorrelationValue>()
+            for (v in vals) {
+                corrs.add(CorrelationValue(Correlation.get(v, moderateThreshold, highThreshold), v))
+            }
+
+            return corrs
+        }
+    }
+
+    fun correlationChartInfo(m: Map<String, Any>): Correlations? {
+        val cpy = HashMap(m)
+        return Correlations(
+            (cpy.remove("bands") as? List<*>)?.checkItemsAre() ?: return null,
+            cpy.remove("highly_correlated") as? Double ?: return null,
+            cpy.remove("moderately_correlated") as? Double ?: return null,
+            (cpy as? Map<*, *>)?.checkItemsAre() ?: return null
+        )
     }
 
     private val adapter = adapter()

@@ -1,19 +1,12 @@
 package org.blueventures.gemdroid.ui.analysis.separability
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
-import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
@@ -48,27 +41,21 @@ object Separability {
         }
 
         b.composable(Routes.separation) {
-            Separation.Screen(viewModel) {
-                nav.popBackStack()
-            }
+            Separation.Screen(viewModel, appBar, nav::popBackStack)
         }
 
         b.composable(Routes.scatterChoices) {
-            ScatterChoices.Screen(viewModel = viewModel, {
-                nav.popBackStack()
-            }) {
+            ScatterChoices.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.scatterPlot)
             }
         }
 
         b.composable(Routes.scatterPlot) {
-            ScatterPlot.Screen(viewModel) {
-                nav.popBackStack()
-            }
+            ScatterPlot.Screen(viewModel, appBar, nav::popBackStack)
         }
 
         b.composable(Routes.correlation) {
-
+            Correlation.Screen(viewModel, appBar, nav::popBackStack)
         }
     }
 
@@ -77,25 +64,6 @@ object Separability {
             Pair("CRA not found on the backend.", false)
         } else {
             Pair(null, true)
-        }
-    }
-
-    @Composable
-    fun <T> Layout(json: Map<String, Any>, back: Click, chart: @Composable (T?, List<String>, List<String>, (T?) -> Unit) -> Unit) {
-        val (data, setData) = remember { mutableStateOf<T?>(null) }
-        val bandsAndClasses = JSONMap.bandsAndClasses(json)
-
-        if (bandsAndClasses == null) {
-            Effect.Once {
-                back()
-            }
-            return
-        }
-
-        val bands = bandsAndClasses.first
-        val classes = bandsAndClasses.second
-        Col.Between {
-            chart(data, bands, classes, setData)
         }
     }
 }

@@ -6,7 +6,9 @@ import androidx.core.graphics.ColorUtils
 
 val SkyBlue = Color(0xFF25AADD)
 val LightGreen = Color(0xFF25DDAA)
+val Caution = Color(0xFFFFE968)
 val MildRed = Color(0xFFDD4425)
+val LightGrey = Color(0xFF909090)
 val MidnightBlue = Color(0xFF010135)
 val DarkSlate = Color(0xFF313B4C)
 val DarkGray = Color(0xFF222936)
@@ -56,6 +58,6 @@ private fun hsl(): FloatArray {
     return FloatArray(3)
 }
 
-private fun Int.hexColor(): String {
-    return String.format("#%06X", 0xFFFFFF and this)
-}
+fun Color.toHexString() = toArgb().hexColor()
+
+private fun Int.hexColor() = String.format("#%06X", 0xFFFFFF and this)

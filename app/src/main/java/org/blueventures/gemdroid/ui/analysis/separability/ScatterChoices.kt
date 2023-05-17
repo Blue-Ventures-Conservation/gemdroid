@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -15,14 +17,14 @@ import org.blueventures.gemdroid.ui.common.GetRemote
 
 object ScatterChoices {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, back: Click, next: Click) {
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, next: Click) {
+        appBar(AppBarUpdate(title = viewModel.title))
+
         GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, Separability::craErrorHandler) { json ->
             val bands = JSONMap.bands(json)
 
             if (bands == null) {
-                Effect.Once {
-                    back()
-                }
+                Effect.Once { back() }
                 return@AwaitSave
             }
 

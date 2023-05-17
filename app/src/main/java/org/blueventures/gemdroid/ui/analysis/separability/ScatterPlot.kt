@@ -13,38 +13,48 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Scatter
 import com.anychart.enums.MarkerType
 import org.blueventures.gemdroid.data.JSONMap
-import org.blueventures.gemdroid.data.PointD
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.ui.analysis.separability.Separability.Layout
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object ScatterPlot {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, back: Click) {
-        GetRemote.Screen(viewModel::loadScatterFile, viewModel::getScatter, Separability::craErrorHandler) { json ->
-            Layout<Map<String, List<PointD>>?>(json, back) { _, _, classes, _ ->
-                val data = JSONMap.scatterChartInfo(json, classes, viewModel.bandX, viewModel.bandY)
-                Chart(data, classes, viewModel.bandX, viewModel.bandY)
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
+        appBar(AppBarUpdate(title = viewModel.title))
+
+        GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, Separability::craErrorHandler) { json ->
+            val classes = JSONMap.classes(json)
+
+            if (classes == null) {
+                Effect.Once { back() }
+                return@Display
             }
+
+            val data = JSONMap.scatterChartInfo(json, classes, viewModel.bandX, viewModel.bandY)
+
+            if (data == null) {
+                Effect.Once { back() }
+                return@Display
+            }
+
+            Chart(data, classes, viewModel.bandX, viewModel.bandY)
         }
 
         BackHandler(onBack = back)
     }
 
     @Composable
-    fun Chart(data: Map<String, List<PointD>>?, classes: List<String>, bandX: String, bandY: String) {
+    fun Chart(data: Map<String, List<JSONMap.PointD>>, classes: List<String>, bandX: String, bandY: String) {
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
             update = { layout ->
-                if (data == null) {
-                    return@AndroidView
-                }
-
                 var idx = 0
                 val size = classes.size
                 val entries = mutableListOf<DataEntry>()

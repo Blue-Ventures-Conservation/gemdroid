@@ -68,16 +68,16 @@ class SeparabilityDatasource(
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
 
     suspend fun getSeparation(tp: TimePeriod, craROI: CraROI) = tp.separation(api, craROI)
-    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.separationFile), data) }
-    fun loadSeparationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.separationFile))
+    fun saveSeparationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(sepDir(roiDir), tp.separationFile), data) }
+    fun loadSeparationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(sepDir(roiDir), tp.separationFile))
 
     suspend fun getScatter(tp: TimePeriod, craROI: CraROI) = tp.scatter(api, craROI)
-    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.scatterFile), data) }
-    fun loadScatterFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.scatterFile))
+    fun saveScatterFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(sepDir(roiDir), tp.scatterFile), data) }
+    fun loadScatterFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(sepDir(roiDir), tp.scatterFile))
 
     suspend fun getCorrelation(tp: TimePeriod, craROI: CraROI) = tp.correlation(api, craROI)
-    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(File(roiDir, separabilityDir), tp.correlationFile), data) }
-    fun loadCorrelationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(File(roiDir, separabilityDir), tp.correlationFile))
+    fun saveCorrelationFile(roiDir: File, tp: TimePeriod, data: Map<String, Any>) = mkdir(roiDir) { JSONMap.toFile(File(sepDir(roiDir), tp.correlationFile), data) }
+    fun loadCorrelationFile(roiDir: File, tp: TimePeriod) = JSONMap.fromFile(File(sepDir(roiDir), tp.correlationFile))
 
     fun getROI(roiDir: File) = ROI.fromFile(File(roiDir, AnalysisDatasource.roiFilename))
 
@@ -86,6 +86,8 @@ class SeparabilityDatasource(
         if (err != null) return Result.failure(err)
         return func()
     }
+
+    private fun sepDir(roiDir: File) = File(roiDir, separabilityDir)
 }
 
 object Paths {

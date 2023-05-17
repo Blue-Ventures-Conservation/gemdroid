@@ -14,7 +14,7 @@ object GetRemote {
         // returns a message to display and whether or not the request should be retried
         errorHandler: (Int?, String?) -> Pair<String?, Boolean> = { _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit) {
-        Screen(getLocal, getRemote, errorHandler) { dat ->
+        Display(getLocal, getRemote, errorHandler) { dat ->
             save(dat)
             screen(dat)
         }
@@ -34,7 +34,7 @@ object GetRemote {
 
         when (saved) {
             null -> {
-                Screen(getLocal, getRemote, errorHandler) { dat ->
+                Display(getLocal, getRemote, errorHandler) { dat ->
                     save(dat) { result ->
                         when {
                             result.isSuccess -> setSaved(dat)
@@ -52,7 +52,7 @@ object GetRemote {
     }
 
     @Composable
-    fun <T> Screen(
+    fun <T> Display(
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         // returns a message to display and whether or not the request should be retried

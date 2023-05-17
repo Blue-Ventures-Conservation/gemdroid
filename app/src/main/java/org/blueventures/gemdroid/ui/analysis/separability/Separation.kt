@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -15,27 +17,47 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Cartesian
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.ui.analysis.separability.Separability.Layout
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Separation {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, back: Click) {
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
+        appBar(AppBarUpdate(title = viewModel.title))
+
         GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, Separability::craErrorHandler) { json ->
-            Layout(json, back) { data, bands, classes, setData ->
-                Chart(json, data, bands, classes, setData)
-            }
+            Layout(json, back)
         }
 
         BackHandler(onBack = back)
     }
 
     @Composable
-    fun Chart(json: Map<String, Any>, data: Pair<String, Map<String, List<Double>>>?, bands: List<String>, classes: List<String>, setData: (Pair<String, Map<String, List<Double>>>?) -> Unit) {
+    fun Layout(json: Map<String, Any>, back: Click) {
+        val bandsAndClasses = JSONMap.bandsAndClasses(json)
+
+        if (bandsAndClasses == null) {
+            Effect.Once { back() }
+            return
+        }
+
+        val bands = bandsAndClasses.first
+        val classes = bandsAndClasses.second
+        Col.Between {
+            Chart(json, bands, classes)
+        }
+    }
+
+    @Composable
+    fun Chart(json: Map<String, Any>, bands: List<String>, classes: List<String>) {
+        val (data, setData) = remember { mutableStateOf<Pair<String, Map<String, List<Double>>>?>(null) }
         Text(text = data?.first ?: "", fontSize = 16.sp)
         AndroidView(
             modifier = Modifier
