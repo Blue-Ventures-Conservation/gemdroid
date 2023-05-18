@@ -52,10 +52,10 @@ object FileService {
         }
     }
 
-    fun createDir(parent: File, name: String): Result<File> {
-        return try {
-            val dir = File(parent, name)
+    fun createDir(parent: File, name: String) = createDir(File(parent, name))
 
+    fun createDir(dir: File): Result<File> {
+        return try {
             if (dir.exists()) {
                 Result.success(dir)
             } else {
@@ -252,6 +252,13 @@ object FileService {
 
     inline fun <reified T> toFile(file: File, t: T?, adapter: JsonAdapter<T> = adapter()): Result<Unit> {
         return try {
+            val parent = file.parentFile
+            if (parent != null) {
+                val res = createDir(parent)
+                if (res.isFailure) {
+                    return Result.failure(res.exceptionOrNull()!!)
+                }
+            }
             file.writeText(adapter.toJson(t))
             Result.success(Unit)
         } catch (e: Exception) {

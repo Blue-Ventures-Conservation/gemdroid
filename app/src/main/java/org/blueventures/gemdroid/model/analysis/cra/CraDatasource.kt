@@ -457,11 +457,7 @@ class CraDatasource(
     }
 
     fun saveCRAs(roiDir: File, cra: CRA): Result<Unit> {
-        val crasDirRes = FileService.createDir(roiDir, crasDir)
-        if (crasDirRes.isFailure) {
-            return Result.failure(crasDirRes.exceptionOrNull()!!)
-        }
-        return CRA.toFile(File(crasDirRes.getOrNull()!!, crasFile), cra)
+        return CRA.toFile(File(File(roiDir, crasDir), crasFile), cra)
     }
 
     companion object {
