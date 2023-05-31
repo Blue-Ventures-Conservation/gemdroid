@@ -41,6 +41,7 @@ import org.blueventures.gemdroid.ui.common.BasicActions
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
+import org.blueventures.gemdroid.ui.theme.OffWhite
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 class MainActivity : AppCompatActivity() {
@@ -91,7 +92,7 @@ fun GEMApp(activity: ComponentActivity) {
                          modifier = Modifier.fillMaxWidth(),
                          title = { Text(appBarState.update.title) },
                          actions = { appBarState.update.actions?.invoke(this) },
-                         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = SkyBlue)
+                         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
                      )
             },
             snackbarHost = { SnackbarHost(snackHostState) }

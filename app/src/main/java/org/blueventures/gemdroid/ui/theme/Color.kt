@@ -12,6 +12,7 @@ val LightGrey = Color(0xFF909090)
 val MidnightBlue = Color(0xFF010135)
 val DarkSlate = Color(0xFF313B4C)
 val DarkGray = Color(0xFF222936)
+val OffWhite = Color(0xFFFFFBFE)
 
 fun g2R2B(index: Int, size: Int): String {
     return blend3Way(LightGreen, MildRed, SkyBlue, index, size).hexColor()
