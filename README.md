@@ -5,13 +5,18 @@ Includes a submodule "DroidBones" that is some shared open source code.
 
 ### local.properties
 
-We have some secrets in this file at the root of the project. It is not checked in to git.
+We have some secrets in `local.properties` at the root of the project. It is not checked in to git.
 
-A Google Maps API key and our AnyChart license are in this file. These secrets are also
-in our Secret Manager in Goole Cloud. They are referenced in the `AndroidManifest.xml`
-as `meta-data` tags on the `application`. Pulling the values out of local.properties
-and filling them into the manifest is done by the secrets gradle plugin that is part
-of the maps SDK:
+A Google Maps API key and our AnyChart license are entered in `local.properties`:
+
+`MAPS_API_KEY=xyz`
+
+`ANYCHART_LICENSE=xyz`
+
+These secrets are also in our Secret Manager in Goole Cloud. They are referenced in the
+`AndroidManifest.xml` as `meta-data` tags on the `application`. Pulling the values out of
+`local.properties` and filling them into the manifest is done by the secrets gradle plugin that
+is part of the maps SDK:
 
 https://developers.google.com/maps/documentation/android-sdk/config
 

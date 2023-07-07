@@ -13,6 +13,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Scatter
 import com.anychart.enums.MarkerType
 import org.blueventures.gemdroid.data.JSONMap
+import org.blueventures.gemdroid.data.PointD
 import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -49,7 +50,7 @@ object ScatterPlot {
     }
 
     @Composable
-    fun Chart(data: Map<String, List<JSONMap.PointD>>, classes: List<String>, bandX: String, bandY: String) {
+    fun Chart(data: Map<String, List<PointD>>, classes: List<String>, bandX: String, bandY: String) {
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()

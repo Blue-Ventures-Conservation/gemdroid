@@ -61,8 +61,6 @@ object JSONMap {
         return Pair(sepStr, cmap)
     }
 
-    data class PointD(val x: Double, val y: Double)
-
     fun scatterChartInfo(m: Map<String, Any>, classes: List<String>, bandX: String, bandY: String): Map<String, List<PointD>>? {
         val out = mutableMapOf<String, MutableList<PointD>>()
 

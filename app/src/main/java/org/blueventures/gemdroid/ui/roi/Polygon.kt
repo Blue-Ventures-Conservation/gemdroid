@@ -154,9 +154,8 @@ object Polygon {
             map.setOnMapClickListener { point ->
                 if (drawingGetter()) {
                     map.addMarker(MarkerOptions().position(point))?.let { marker ->
-                        viewModel.addPoint(point)
+                        viewModel.addPoint(point) { addPolygon(map) }
                         markerAdd(marker)
-                        addPolygon(map)
                     }
                 }
             }

@@ -36,4 +36,8 @@ class RoiRepository(
     fun deleteRoi(dir: File) = flow {
         emit(datasource.deleteRoi(dir))
     }.flowOn(ioDispatcher)
+
+    fun addPoint(polygon: MutableList<LatLng>, point: LatLng) = flow {
+        emit(datasource.addPoint(polygon, point))
+    }.flowOn(ioDispatcher)
 }
