@@ -63,10 +63,5 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
             callback(result)
         }
     }
-
-    fun chotTileDir(): File = repo.chotTileDir(roiDir)
-    fun clotTileDir(): File = repo.clotTileDir(roiDir)
-    fun hhotTileDir(): File = repo.hhotTileDir(roiDir)
-    fun hlotTileDir(): File = repo.hlotTileDir(roiDir)
 }
 

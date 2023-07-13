@@ -17,6 +17,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
  * Until an official solution is available, one possible interim solution is here:
  * https://github.com/Omico/androidx-compose-material3-pullrefresh
  * https://stackoverflow.com/questions/75683184/jetpack-compose-material3-pull-to-refresh-functionality
+ * https://issuetracker.google.com/issues/261760718
  */
 @Composable
 fun RefreshableError(message: String? = null, fetchFunc: (() -> Unit) -> Unit) {
