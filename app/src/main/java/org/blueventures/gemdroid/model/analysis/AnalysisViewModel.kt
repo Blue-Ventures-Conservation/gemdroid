@@ -19,6 +19,7 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
             field = value
             craViewModel.roiDir = value
             sepViewModel.roiDir = value
+            setTileDirs()
         }
 
     var roi = ROI()
@@ -29,6 +30,11 @@ class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepositor
 
     var buffersJob: Job? = null
     var visualizeURLsJob: Job? = null
+
+    var tileDirs: List<File> = listOf()
+    private fun setTileDirs() {
+        tileDirs = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
+    }
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = scoped { repo.getROI(roiDir).collect(callback) }

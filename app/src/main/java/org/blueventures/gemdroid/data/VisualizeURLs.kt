@@ -10,7 +10,19 @@ data class VisualizeURLs(
     @Json(name = "clot_url") val clotURL: String,
     @Json(name = "hhot_url") val hhotURL: String,
     @Json(name = "hlot_url") val hlotURL: String,
+    @Json(name = "created_at") val createdAt: Int, // seconds
+    @Json(name = "timeout") val timeout: Int, // seconds
 ) {
+    fun ordered(i: Int): String {
+        return when(i) {
+            0 -> chotURL
+            1 -> clotURL
+            2 -> hhotURL
+            3 -> hlotURL
+            else -> chotURL
+        }
+    }
+
     companion object {
         private val adapter = FileService.adapter<VisualizeURLs>()
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
