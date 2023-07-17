@@ -8,6 +8,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
+import java.net.HttpURLConnection
 
 object Separability {
     object Routes {
@@ -60,7 +61,7 @@ object Separability {
     }
 
     fun craErrorHandler(code: Int?, message: String?): Pair<String?, Boolean> {
-        return if (code == 400 && message?.contains("missing asset") == true) {
+        return if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("missing asset") == true) {
             Pair("CRA not found on the backend.", false)
         } else {
             Pair(null, true)

@@ -1,11 +1,4 @@
 <resources>
-    <string name="app_name">GEM</string>
-    <string name="sign_in_prompt">This app requires you to log in with a Google Account. By logging in and using the app, you consent to give Blue Ventures access to some basic location data about the regions you are working with in the app.</string>
-    <string name="sign_in_label">Sign In</string>
-    <string name="sign_out_label">Sign Out</string>
-    <string name="sign_in_failed">Sign In Failed!</string>
-    <string name="visualize_imagery_title">Visualize Imagery</string>
-
     <!--  Months  -->
     <string name="january">January</string>
     <string name="february">February</string>
@@ -19,4 +12,15 @@
     <string name="october">October</string>
     <string name="november">November</string>
     <string name="december">December</string>
+
+    <string name="app_name">GEM</string>
+    <string name="sign_in_prompt">This app requires you to log in with a Google Account. By logging in and using the app, you consent to give Blue Ventures access to some basic location data about the regions you are working with in the app.</string>
+    <string name="sign_in_label">Sign In</string>
+    <string name="sign_out_label">Sign Out</string>
+    <string name="sign_in_failed">Sign In Failed!</string>
+    <string name="visualize_imagery_title">Visualize Imagery</string>
+    <string name="unrecoverable_error">Unrecoverable error, please press Back.</string>
+    <string name="access_email_subject">Requesting Access to GEM app</string>
+    <string name="access_email_rationale">Apologies! We need to verify that you are not using this app for profit in order to comply with the policies of Google Earth Engine. Please tap on this message to send us an email at bv.gemapp@gmail.com and fill out the information requested, thank you!</string>
+    <string name="access_email_body">Your name:\n\n\nYour country:\n\n\nYour organization (link if possible):\n\n\nYour reason for using this App:\n\n\nThank you!</string>
 </resources>

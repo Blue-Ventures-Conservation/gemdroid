@@ -1,9 +1,14 @@
 package org.blueventures.gemdroid.ui.common
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
+import org.blueventures.gemdroid.R
+import java.net.HttpURLConnection
 
 object GetRemote {
     @Composable
@@ -77,17 +82,32 @@ object GetRemote {
                 }
             }
             remote is ApiResult.Error -> {
-                val p = errorHandler(remote.code, remote.message)
-
-                if (p.second) {
-                    RefreshableError(p.first) { stopRefresh ->
-                        getRemote { result ->
-                            stopRefresh()
-                            setRemote(result)
+                if (remote.code == HttpURLConnection.HTTP_FORBIDDEN) {
+                    BasicMessage(message = stringResource(R.string.access_email_rationale)) { context ->
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:") // Only email apps handle this.
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf("bv.gemapp@gmail.com"))
+                            putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.access_email_subject))
+                            putExtra(Intent.EXTRA_TEXT, context.getString(R.string.access_email_body))
+                        }
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            val chooser = Intent.createChooser(intent, null)
+                            context.startActivity(chooser)
                         }
                     }
                 } else {
-                    BasicMessage(message = p.first ?: "Unrecoverable error, please press Back.")
+                    val p = errorHandler(remote.code, remote.message)
+
+                    if (p.second) {
+                        RefreshableError(p.first) { stopRefresh ->
+                            getRemote { result ->
+                                stopRefresh()
+                                setRemote(result)
+                            }
+                        }
+                    } else {
+                        BasicMessage(message = p.first ?: stringResource(R.string.unrecoverable_error))
+                    }
                 }
             }
             else -> {
