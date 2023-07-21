@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
@@ -17,7 +18,7 @@ object GetRemote {
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T) -> Unit,
         // returns a message to display and whether or not the request should be retried
-        errorHandler: (Int?, String?) -> Pair<String?, Boolean> = { _, _ -> Pair(null, true) },
+        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit) {
         Display(getLocal, getRemote, errorHandler) { dat ->
             save(dat)
@@ -31,7 +32,7 @@ object GetRemote {
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T, (Result<Unit>) -> Unit) -> Unit,
         // returns a message to display and whether or not the request should be retried
-        errorHandler: (Int?, String?) -> Pair<String?, Boolean> = { _, _ -> Pair(null, true) },
+        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         saveFail: ((T) -> Unit)? = null,
         screen: @Composable (T) -> Unit
     ) {
@@ -61,7 +62,7 @@ object GetRemote {
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         // returns a message to display and whether or not the request should be retried
-        errorHandler: (Int?, String?) -> Pair<String?, Boolean> = { _, _ -> Pair(null, true) },
+        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit,
     ) {
         val (local, setLocal) = remember { mutableStateOf<Result<T>?>(null) }
@@ -96,7 +97,7 @@ object GetRemote {
                         }
                     }
                 } else {
-                    val p = errorHandler(remote.code, remote.message)
+                    val p = errorHandler(LocalContext.current, remote.code, remote.message)
 
                     if (p.second) {
                         RefreshableError(p.first) { stopRefresh ->

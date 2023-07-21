@@ -38,4 +38,18 @@
     <string name="could_not_verify_cras_charts">Could not verify CRA upload, charts may not be available.</string>
     <string name="could_not_verify_cras_classification">Could not verify CRA upload, classification may not be available.</string>
     <string name="spectral_separability">Spectral Separability</string>
+    <string name="contemporary">Contemporary</string>
+    <string name="historical">Historical</string>
+    <string name="high_tide">High Tide</string>
+    <string name="low_tide">Low Tide</string>
+    <string name="select_time_period">Select a time period and tidal condition to inspect:</string>
+    <string name="cra_not_found">CRA not found on the backend.</string>
+    <string name="select_band">Select Band</string>
+    <string name="select_x_band">Select X Band</string>
+    <string name="select_y_band">Select Y Band</string>
+    <string name="select_a_chart">Select a chart to view:</string>
+    <string name="band_separation">Band Separation</string>
+    <string name="band_scatter_plot">Band Scatter Plot</string>
+    <string name="band_correlation">Band Correlation</string>
+    <string name="correlation_matrix">Correlation Matrix of Image Bands</string>
 </resources>

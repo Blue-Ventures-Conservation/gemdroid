@@ -15,6 +15,7 @@ import com.anychart.enums.MarkerType
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.PointD
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
@@ -28,7 +29,7 @@ object ScatterPlot {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, Separability::craErrorHandler) { json ->
+        GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, CRA::errHandler) { json ->
             val classes = JSONMap.classes(json)
 
             if (classes == null) {
@@ -69,8 +70,8 @@ object ScatterPlot {
 
                 val view = AnyChartView(layout.context)
                 val scatter = Charts.prep(view, AnyChart::scatter) as Scatter
-                scatter.xAxis(0).title("$bandX band")
-                scatter.yAxis(0).title("$bandY band")
+                scatter.xAxis(0).title(bandX)
+                scatter.yAxis(0).title(bandY)
                 val marker = scatter.marker(entries)
                 marker.type(MarkerType.CIRCLE).size(14)
                 marker.tooltip().titleFormat("{%title}")

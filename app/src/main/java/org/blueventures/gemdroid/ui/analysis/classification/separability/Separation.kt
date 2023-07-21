@@ -9,14 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Cartesian
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
@@ -32,7 +35,7 @@ object Separation {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, Separability::craErrorHandler) { json ->
+        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
             Layout(json, back)
         }
 
@@ -91,7 +94,7 @@ object Separation {
                 FrameLayout(context)
             }
         )
-        Dropdown(title = "Select Band", labels = bands) { i ->
+        Dropdown(title = stringResource(R.string.select_band), labels = bands) { i ->
             val band = bands[i]
             setData(JSONMap.boxChartBandInfo(json, band))
         }

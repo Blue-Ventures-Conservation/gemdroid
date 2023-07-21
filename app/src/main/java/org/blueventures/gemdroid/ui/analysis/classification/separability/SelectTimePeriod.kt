@@ -38,13 +38,13 @@ object SelectTimePeriod {
 
     @Composable
     fun Dashboard(viewModel: SeparabilityViewModel, contHigh: Click, contLow: Click, histHigh: Click, histLow: Click) {
-        Col.Dash("Select a time period and tidal condition to inspect:") {
+        Col.Dash(stringResource(R.string.select_time_period)) {
             val setPeriod: (TimePeriod) -> Unit = { viewModel.timePeriod = it }
-            HighLow(viewModel, "Contemporary", { setPeriod(ContemporaryHighTide); contHigh() }) {
+            HighLow(viewModel, stringResource(R.string.contemporary), { setPeriod(ContemporaryHighTide); contHigh() }) {
                 setPeriod(ContemporaryLowTide)
                 contLow()
             }
-            HighLow(viewModel, "Historical", { setPeriod(HistoricalHighTide); histHigh() }) {
+            HighLow(viewModel, stringResource(R.string.historical), { setPeriod(HistoricalHighTide); histHigh() }) {
                 setPeriod(HistoricalLowTide)
                 histLow()
             }
@@ -54,8 +54,8 @@ object SelectTimePeriod {
     @Composable
     fun HighLow(viewModel: SeparabilityViewModel, temporal: String, high: Click, low: Click) {
         val setTitle: (String) -> Unit = { viewModel.title = it }
-        val highLabel = "$temporal High Tide"
-        val lowLabel = "$temporal Low Tide"
+        val highLabel = "$temporal ${stringResource(R.string.high_tide)}"
+        val lowLabel = "$temporal ${stringResource(R.string.low_tide)}"
         DashboardButton(highLabel) { setTitle(highLabel); high() }
         DashboardButton(lowLabel) { setTitle(lowLabel); low() }
     }

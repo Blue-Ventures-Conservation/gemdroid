@@ -17,8 +17,10 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.HeatMap
 import com.anychart.enums.SelectionMode
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
@@ -36,7 +38,7 @@ object Correlation {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, Separability::craErrorHandler) { json ->
+        GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, CRA::errHandler) { json ->
             val corrs = JSONMap.correlationChartInfo(json)
 
             if (corrs == null) {
@@ -76,7 +78,7 @@ object Correlation {
 
                     heat.title().enabled(true)
                     heat.title()
-                        .text("Correlation Matrix of Image Bands")
+                        .text(layout.context.getString(R.string.correlation_matrix))
                         .padding(0.0, 0.0, 20.0, 0.0)
 
                     heat.labels().enabled(true)

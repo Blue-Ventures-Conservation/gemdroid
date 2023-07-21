@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
@@ -41,6 +42,7 @@ import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.InputStream
+import java.net.HttpURLConnection
 
 object CRA {
     object Routes {
@@ -245,6 +247,14 @@ object CRA {
         Butt.Next(nextEnabled.value) {
             setRemote(selected.value)
             next()
+        }
+    }
+
+    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
+        return if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("missing asset") == true) {
+            Pair(ctx.getString(R.string.cra_not_found), false)
+        } else {
+            Pair(null, true)
         }
     }
 
