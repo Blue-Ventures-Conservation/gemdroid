@@ -10,7 +10,9 @@ import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
-class SeparabilityViewModel(private val repo: SeparabilityRepository = SeparabilityRepository()): ApiViewModel(repo) {
+class SeparabilityViewModel(
+    private val repo: SeparabilityRepository = SeparabilityRepository()
+): ApiViewModel(repo) {
     var roiDir = File("")
     var roi: ROI = ROI()
 

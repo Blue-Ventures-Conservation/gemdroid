@@ -51,7 +51,6 @@ object Overview {
                     Text(text = "Historical Years: ", fontSize = 18.sp)
                     Text(text = "Historical Months: ", fontSize = 18.sp)
                     Text(text = "Polygon ROI: ", fontSize = 18.sp)
-                    Text(text = "Spectral Indices: ", fontSize = 18.sp)
                 }
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly
@@ -62,7 +61,6 @@ object Overview {
                     Text(text = "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
-                    Text(text = "${viewModel.indices.list}", fontSize = 18.sp)
                 }
             }
             Butt.Done {

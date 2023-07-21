@@ -29,9 +29,9 @@ import kotlin.coroutines.suspendCoroutine
 
 class CraDatasource(
     private val storage: FirebaseStorage = Firebase.storage,
-    private val auth: FirebaseAuth = Firebase.auth,
     private val api: Api.Service = Api.Service.instance(),
-): ApiDatasource(auth, api) {
+    private val auth: FirebaseAuth = Firebase.auth,
+): ApiDatasource(api, auth) {
     suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { cont ->
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()

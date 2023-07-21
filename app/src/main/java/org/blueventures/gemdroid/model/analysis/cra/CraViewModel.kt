@@ -8,7 +8,9 @@ import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 import java.io.InputStream
 
-class CraViewModel(private val repo: CraRepository = CraRepository()): ApiViewModel(repo) {
+class CraViewModel(
+    private val repo: CraRepository = CraRepository()
+): ApiViewModel(repo) {
     var roiDir = File("")
     var contemporaryCRA: CRAFile = CRAFile()
     var historicalCRA: CRAFile? = null

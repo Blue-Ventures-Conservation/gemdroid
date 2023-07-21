@@ -19,7 +19,6 @@ object Roi {
         const val contemporaryMonths = "roi_cont_months"
         const val historicalYears = "roi_hist_dates"
         const val historicalMonths = "roi_hist_months"
-        const val indices = "roi_indices"
         const val polygon = "roi_polygon"
         const val overview = "roi_overview"
     }
@@ -79,16 +78,6 @@ object Roi {
         b.composable(Routes.historicalMonths) {
             HistoricalMonths.Screen(roiModel, snack, back = {
                 roiModel.clearHistoricalMonths()
-                nav.popBackStack()
-            }) {
-                nav.navigate(Routes.indices)
-            }
-        }
-
-        // ROI indices selection
-        b.composable(Routes.indices) {
-            Indices.Screen(roiModel, back = {
-                roiModel.clearIndices()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.polygon)

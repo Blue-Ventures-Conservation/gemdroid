@@ -11,7 +11,9 @@ import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewMod
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
-class AnalysisViewModel(private val repo: AnalysisRepository = AnalysisRepository()): ApiViewModel(repo) {
+class AnalysisViewModel(
+    private val repo: AnalysisRepository = AnalysisRepository()
+): ApiViewModel(repo) {
     lateinit var craViewModel: CraViewModel
     lateinit var sepViewModel: SeparabilityViewModel
     var roiDir = File("")

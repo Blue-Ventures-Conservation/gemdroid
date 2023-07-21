@@ -7,7 +7,9 @@ import com.google.maps.android.SphericalUtil
 import java.io.File
 import java.util.Calendar
 
-class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewModel() {
+class RoiViewModel(
+    private val repo: RoiRepository = RoiRepository()
+): BaseViewModel() {
     var rois: List<File> = emptyList()
     var name: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
@@ -18,7 +20,6 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var indices: Indices = defaultIndices
     var points: MutableList<LatLng> = mutableListOf()
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
@@ -35,7 +36,6 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            indices.list,
             points
         ).collect(callback)
     }
@@ -66,8 +66,6 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun validateHistoricalMonthsOrder() = validateDateIntsOrder(historicalMonthStart, historicalMonthEnd)
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
-    fun getIndices() = listOf(Indices.BEST, Indices.STANDARD, Indices.LS)
-    fun clearIndices() { indices = defaultIndices }
     fun addPoint(point: LatLng, callback: () -> Unit) = scoped { repo.addPoint(points, point).collect { poly ->
         points = poly
         callback()
@@ -90,7 +88,7 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
     }
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearIndices(); clearPoints() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
@@ -104,17 +102,5 @@ class RoiViewModel(private val repo: RoiRepository = RoiRepository()): BaseViewM
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
-        val defaultIndices = Indices.BEST
     }
-}
-
-/**
- * 1: the six Landsat bands on their own = ‘LS’
- * 2: the six Landsat bands + the “best” index (CMRI) = ‘LS+best’
- * 3: the six Landsat bands + three optimal indices MNDWI, MMRI, SAVI) = ‘LS+standard’
- */
-sealed class Indices(val label: String, val list: List<String>) {
-    object LS: Indices("Six Landsat Bands", emptyList())
-    object BEST: Indices("Six Landsat Bands + the best index (CMRI)", listOf("CMRI"))
-    object STANDARD: Indices("Six Landsat Bands + 3 optimal indices (MNDWI, MMRI, SAVI)", listOf("MNDWI", "MMRI", "SAVI"))
 }

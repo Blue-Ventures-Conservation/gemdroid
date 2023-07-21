@@ -17,7 +17,6 @@ data class ROI(
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
-    @Json(name = "indices") val indices: List<String> = emptyList(),
     @Json(name = "polygon") val polygon: Polygon = Polygon(),
 ) {
     companion object {
@@ -33,7 +32,6 @@ data class ROI(
             histYearEnd: Int,
             histMonthStart: Int,
             histMonthEnd: Int,
-            indices: List<String>,
             points: List<LatLng>,
             buffDist: Int = -1
         ): ROI {
@@ -48,7 +46,6 @@ data class ROI(
                 histYearEnd,
                 histMonthStart,
                 histMonthEnd,
-                indices,
                 polygonFromState(points)
             )
         }

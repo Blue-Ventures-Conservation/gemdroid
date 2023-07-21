@@ -21,7 +21,7 @@ import java.io.File
 
 class SeparabilityDatasource(
     private val api: Api.Service = Api.Service.instance(),
-): ApiDatasource(api = api) {
+): ApiDatasource(api) {
     fun loadCRAs(roiDir: File) = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
 
     fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {

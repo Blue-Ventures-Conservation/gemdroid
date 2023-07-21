@@ -93,7 +93,6 @@ class RoiDatasource(
         histYearEnd: Int,
         histMonthStart: Int,
         histMonthEnd: Int,
-        indices: List<String>,
         points: List<LatLng>
     ): Result<Unit> {
         return try {
@@ -114,7 +113,6 @@ class RoiDatasource(
                         histYearEnd,
                         histMonthStart,
                         histMonthEnd,
-                        indices,
                         points
                     ))
                 } else {
