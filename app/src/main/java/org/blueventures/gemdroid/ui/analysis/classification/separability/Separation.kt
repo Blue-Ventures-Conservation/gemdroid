@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis.separability
+package org.blueventures.gemdroid.ui.analysis.classification.separability
 
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
@@ -16,7 +16,7 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Cartesian
 import org.blueventures.gemdroid.data.JSONMap
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts

@@ -8,7 +8,6 @@ import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
-import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
@@ -22,9 +21,7 @@ class AnalysisDatasource(
                 !File(roiDir, bufferFile).exists() -> Stage.BUFFER
                 !File(roiDir, visualizeDir).exists() -> Stage.VISUALIZE
                 !File(File(roiDir, crasDir), crasFile).exists() -> Stage.CRAS
-                !File(roiDir, separabilityDir).exists() -> Stage.SEPARABILITY
                 !File(roiDir, classificationDir).exists() -> Stage.CLASSIFICATION
-                !File(roiDir, countryFile).exists() -> Stage.COUNTRY
                 !File(roiDir, dynamicsDir).exists() -> Stage.DYNAMICS
                 else -> Stage.DONE
             }
@@ -80,9 +77,6 @@ class AnalysisDatasource(
         const val ccomClassifyFile = "ccom_classify.json"
         const val hcomClassifyFile = "hcom_classify.json"
 
-        // Country Stage
-        const val countryFile = "country"
-
         // Dynamics Stage
         const val dynamicsDir = "dynamics"
         const val dynamicsDataFile = "dynamics.json"
@@ -96,5 +90,5 @@ class AnalysisDatasource(
 }
 
 enum class Stage {
-    ERROR, BUFFER, VISUALIZE, CRAS, SEPARABILITY, CLASSIFICATION, COUNTRY, DYNAMICS, DONE
+    ERROR, BUFFER, VISUALIZE, CRAS, CLASSIFICATION, DYNAMICS, DONE
 }

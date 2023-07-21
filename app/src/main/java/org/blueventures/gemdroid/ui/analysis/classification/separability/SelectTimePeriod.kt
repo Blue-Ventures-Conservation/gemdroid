@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis.separability
+package org.blueventures.gemdroid.ui.analysis.classification.separability
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -6,12 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Shapefile
-import org.blueventures.gemdroid.model.analysis.separability.ContemporaryHighTide
-import org.blueventures.gemdroid.model.analysis.separability.ContemporaryLowTide
-import org.blueventures.gemdroid.model.analysis.separability.HistoricalHighTide
-import org.blueventures.gemdroid.model.analysis.separability.HistoricalLowTide
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.model.analysis.separability.TimePeriod
+import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryHighTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryLowTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.HistoricalHighTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.HistoricalLowTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.classification.separability.TimePeriod
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click

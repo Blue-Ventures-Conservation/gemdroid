@@ -1,9 +1,9 @@
-package org.blueventures.gemdroid.ui.analysis.separability
+package org.blueventures.gemdroid.ui.analysis.classification.separability
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -12,24 +12,24 @@ import java.net.HttpURLConnection
 
 object Separability {
     object Routes {
-        const val timePeriod = "time_period"
-        const val separabilityDashboard = "sep_dashboard"
-        const val separation = "separation"
-        const val scatterChoices = "scatter_choices"
-        const val scatterPlot = "scatter_plot"
-        const val correlation = "correlation"
+        const val timePeriod = "analysis_classification_separability_time_period"
+        const val dashboard = "analysis_classification_separability_dash"
+        const val separation = "analysis_classification_separability_separation"
+        const val scatterChoices = "analysis_classification_separability_scatter_choices"
+        const val scatterPlot = "analysis_classification_separability_scatter_plot"
+        const val correlation = "analysis_classification_separability_correlation"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun) {
         b.composable(Routes.timePeriod) {
             SelectTimePeriod.Screen(viewModel, appBar, snack, {
-                nav.navigate(Routes.separabilityDashboard)
+                nav.navigate(Routes.dashboard)
             }) {
                 nav.popClear(Analysis.Routes.dashboard)
             }
         }
 
-        b.composable(Routes.separabilityDashboard) {
+        b.composable(Routes.dashboard) {
             Dashboard.Screen(viewModel, appBar, separation = {
                 nav.navigate(Routes.separation)
             }, scatter = {

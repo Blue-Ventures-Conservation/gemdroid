@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.ui.analysis.separability
+package org.blueventures.gemdroid.ui.analysis.classification.separability
 
 import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
@@ -18,7 +18,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.HeatMap
 import com.anychart.enums.SelectionMode
 import org.blueventures.gemdroid.data.JSONMap
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
@@ -30,7 +30,6 @@ import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.LightGrey
 import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.toHexString
-
 
 object Correlation {
     @Composable

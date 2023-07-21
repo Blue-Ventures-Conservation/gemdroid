@@ -1,13 +1,15 @@
 package org.blueventures.gemdroid.model.analysis
 
+import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
@@ -15,20 +17,26 @@ class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
 ): ApiViewModel(repo) {
     lateinit var craViewModel: CraViewModel
-    lateinit var sepViewModel: SeparabilityViewModel
+    lateinit var classViewModel: ClassificationViewModel
     var roiDir = File("")
         set(value) {
             field = value
             craViewModel.roiDir = value
-            sepViewModel.roiDir = value
+            classViewModel.roiDir = value
             setTileDirs()
         }
 
     var roi = ROI()
         set(value) {
             field = value
-            sepViewModel.roi = value
+            classViewModel.roi = value
         }
+
+    fun init(activity: ComponentActivity) {
+        craViewModel = activity.viewModels<CraViewModel>().value
+        classViewModel = activity.viewModels<ClassificationViewModel>().value
+        classViewModel.init(activity)
+    }
 
     var buffersJob: Job? = null
     var visualizeURLsJob: Job? = null

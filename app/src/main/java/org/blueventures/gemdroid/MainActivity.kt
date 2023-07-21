@@ -31,8 +31,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
-import org.blueventures.gemdroid.model.analysis.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarState
@@ -61,8 +59,7 @@ class MainActivity : AppCompatActivity() {
 fun GEMApp(activity: ComponentActivity) {
     val roiModel: RoiViewModel by activity.viewModels()
     val analysisModel: AnalysisViewModel by activity.viewModels()
-    analysisModel.craViewModel = activity.viewModels<CraViewModel>().value
-    analysisModel.sepViewModel = activity.viewModels<SeparabilityViewModel>().value
+    analysisModel.init(activity)
 
     val nav = rememberNavController()
     val snackHostState = remember { SnackbarHostState() }

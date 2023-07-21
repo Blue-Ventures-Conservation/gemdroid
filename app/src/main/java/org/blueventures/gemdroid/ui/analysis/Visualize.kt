@@ -17,20 +17,21 @@ object Visualize {
     @StringRes
     private const val title = R.string.visualize_imagery_title
 
+    private lateinit var chot: Maps.Layer
+    private lateinit var clot: Maps.Layer
+    private lateinit var hhot: Maps.Layer
+    private lateinit var hlot: Maps.Layer
+
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(stringResource(title)))
+        Setup()
         GetRemote.Save(viewModel::loadVisualizeURLsFile, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile) { urls ->
             VisualizeMap(viewModel, urls, appBar)
         }
 
         BackHandler(onBack = back)
     }
-
-    private val chot = Maps.Layer("Contemporary High Tide")
-    private val clot = Maps.Layer("Contemporary Low Tide")
-    private val hhot = Maps.Layer("Historical High Tide")
-    private val hlot = Maps.Layer("Historical Low Tide")
 
     @Composable
     fun VisualizeMap(viewModel: AnalysisViewModel, visualizeURLs: VisualizeURLs, appBar: AppBarFun) {
@@ -41,5 +42,13 @@ object Visualize {
         }, url = { i, urls ->
             urls.ordered(i)
         }, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile, viewModel.roi.polygon.coordinates[0], chot, clot, hhot, hlot)
+    }
+
+    @Composable
+    private fun Setup() {
+        chot = Maps.Layer(stringResource(R.string.cont_high_tide))
+        clot = Maps.Layer(stringResource(R.string.cont_low_tide))
+        hhot = Maps.Layer(stringResource(R.string.hist_high_tide))
+        hlot = Maps.Layer(stringResource(R.string.hist_low_tide))
     }
 }

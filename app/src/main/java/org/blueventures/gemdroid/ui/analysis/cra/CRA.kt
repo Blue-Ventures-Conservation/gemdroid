@@ -44,10 +44,10 @@ import java.io.InputStream
 
 object CRA {
     object Routes {
-        const val cont_cra = "cont_cra"
-        const val hist_choice = "hist_choice"
-        const val hist_cra = "hist_cra"
-        const val cra_fields = "fields"
+        const val cont_cra = "analysis_cra_cont"
+        const val hist_choice = "analysis_cra_hist_choice"
+        const val hist_cra = "analysis_cra_hist"
+        const val cra_fields = "analysis_cra_fields"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CraViewModel, appBar: AppBarFun, snack: SnackFun) {

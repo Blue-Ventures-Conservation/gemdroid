@@ -39,7 +39,7 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: (Stage) -> Unit, back: Click, vis: Click, clazz: Click, dyn: Click) {
         appBar(AppBarUpdate(title = "${viewModel.roiDir.name} Analysis"))
         val (roi, setRoi) = remember { mutableStateOf<Result<ROI>?>(null) }
         val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
@@ -62,7 +62,7 @@ object Dashboard {
             }
             else -> {
                 viewModel.roi = roi.getOrNull()!!
-                Dashboard(stage, snack, next, back, vis, sep, clazz, dyn)
+                Dashboard(stage, snack, next, back, vis, clazz, dyn)
             }
         }
 
@@ -70,7 +70,7 @@ object Dashboard {
     }
 
     @Composable
-    fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, sep: Click, clazz: Click, dyn: Click) {
+    fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, clazz: Click, dyn: Click) {
         Col.Between {
             when (stage) {
                 Stage.ERROR -> {
@@ -103,29 +103,17 @@ object Dashboard {
                             Stage.CRAS -> {
                                 VisualizeRow(vis)
                             }
-                            Stage.SEPARABILITY -> {
-                                VisualizeRow(vis)
-                                SeparabilityRow(sep)
-                            }
                             Stage.CLASSIFICATION -> {
                                 VisualizeRow(vis)
-                                SeparabilityRow(sep)
-                                ClassificationRow(clazz)
-                            }
-                            Stage.COUNTRY -> {
-                                VisualizeRow(vis)
-                                SeparabilityRow(sep)
                                 ClassificationRow(clazz)
                             }
                             Stage.DYNAMICS -> {
                                 VisualizeRow(vis)
-                                SeparabilityRow(sep)
                                 ClassificationRow(clazz)
                                 DynamicsRow(dyn)
                             }
                             Stage.DONE -> {
                                 VisualizeRow(vis)
-                                SeparabilityRow(sep)
                                 ClassificationRow(clazz)
                                 DynamicsRow(dyn)
                             }

@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.analysis.separability
+package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job

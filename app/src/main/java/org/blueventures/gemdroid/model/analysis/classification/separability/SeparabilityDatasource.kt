@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.model.analysis.separability
+package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.apiResultCheck
@@ -12,10 +12,10 @@ import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource
+import org.blueventures.gemdroid.model.analysis.classification.separability.Paths.crasIngestedFile
+import org.blueventures.gemdroid.model.analysis.classification.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
-import org.blueventures.gemdroid.model.analysis.separability.Paths.crasIngestedFile
-import org.blueventures.gemdroid.model.analysis.separability.Paths.separabilityDir
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 
