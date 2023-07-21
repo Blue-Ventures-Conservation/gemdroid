@@ -4,13 +4,14 @@ import com.github.zibnix.droidbones.NoStack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 import java.io.InputStream
 
-class CraViewModel(
-    private val repo: CraRepository = CraRepository()
-): ApiViewModel(repo) {
+class CRAViewModel(
+    private val repo: CRARepository = CRARepository()
+): CRAAwaiter, ApiViewModel(repo) {
     var roiDir = File("")
     var contemporaryCRA: CRAFile = CRAFile()
     var historicalCRA: CRAFile? = null
@@ -122,6 +123,30 @@ class CraViewModel(
     }
 
     fun clear() { clearHistoricalChoice() }
+
+    /**
+     * Following functions below are intended to be used by other packages for getting CRAs.
+     */
+
+    private var awaitCRAsJob: Job? = null
+
+    override fun loadCRAs(callback: (Result<CRA>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
+
+    override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
+
+    override fun awaitCRAs(cra: CRA, callback: (Result<Throwable?>) -> Unit) {
+        if (awaitCRAsJob != null) return
+        resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
+            awaitCRAsJob = null
+            callback(result)
+        }
+    }
+}
+
+interface CRAAwaiter {
+    fun loadCRAs(callback: (Result<CRA>) -> Unit): Job
+    fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
+    fun awaitCRAs(cra: CRA, callback: (Result<Throwable?>) -> Unit)
 }
 
 /**

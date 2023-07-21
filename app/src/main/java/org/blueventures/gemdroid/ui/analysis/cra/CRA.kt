@@ -28,7 +28,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.cra.CRAFile
-import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
@@ -50,7 +50,7 @@ object CRA {
         const val cra_fields = "analysis_cra_fields"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CraViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun) {
         b.composable(Routes.cont_cra) {
             ContemporaryCRA.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.hist_choice)
@@ -91,7 +91,7 @@ object CRA {
     }
 
     @Composable
-    fun Screen(viewModel: CraViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun Screen(viewModel: CRAViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val (remoteCRAs, setRemoteCRAs) = remember { mutableStateOf<Result<List<String>>?>(null) }
 
         when {
@@ -117,7 +117,7 @@ object CRA {
     }
 
     @Composable
-    fun SelectCRA(viewModel: CraViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun SelectCRA(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val (selectedFiles, setSelectedFiles) = remember { mutableStateOf<List<Uri>?>(null) }
         val (validating, setValidating) = remember { mutableStateOf(false) }
         val (localCRA, setLocalCRA) = remember { mutableStateOf<Result<CRAFile>?>(null) }

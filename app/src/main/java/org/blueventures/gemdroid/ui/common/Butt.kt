@@ -3,17 +3,19 @@ package org.blueventures.gemdroid.ui.common
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.R
 
 object Butt {
     @Composable
     fun Next(enabled: Boolean = true, onClick: () -> Unit) {
-        Text("Next", enabled, onClick)
+        Text(stringResource(R.string.next_button), enabled, onClick)
     }
 
     @Composable
     fun Done(enabled: Boolean = true, onClick: () -> Unit) {
-        Text("Done", enabled, onClick)
+        Text(stringResource(R.string.done_button), enabled, onClick)
     }
 
     @Composable

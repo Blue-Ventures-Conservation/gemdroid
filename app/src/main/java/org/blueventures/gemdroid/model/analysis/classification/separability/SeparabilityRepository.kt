@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.CraROI
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
@@ -13,18 +12,6 @@ class SeparabilityRepository(
     private val datasource: SeparabilityDatasource = SeparabilityDatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): ApiRepository(datasource) {
-    fun loadCRAs(roiDir: File) = flow {
-        emit(datasource.loadCRAs(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun shouldAwaitCRAs(roiDir: File) = flow {
-        emit(datasource.shouldAwaitCRAs(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun awaitCRAs(roiDir: File, cra: CRA) = flow {
-        emit(datasource.awaitCRAs(roiDir, cra))
-    }.flowOn(ioDispatcher)
-
     fun getSeparation(tp: TimePeriod, craROI: CraROI) = flow {
         emit(datasource.getSeparation(tp, craROI))
     }.flowOn(ioDispatcher)
@@ -59,9 +46,5 @@ class SeparabilityRepository(
 
     fun loadCorrelationFile(roiDir: File, tp: TimePeriod) = flow {
         emit(datasource.loadCorrelationFile(roiDir, tp))
-    }.flowOn(ioDispatcher)
-
-    fun getROI(roiDir: File) = flow {
-        emit(datasource.getROI(roiDir))
     }.flowOn(ioDispatcher)
 }

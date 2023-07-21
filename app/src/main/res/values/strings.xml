@@ -27,4 +27,15 @@
     <string name="cont_low_tide">Contemporary Low Tide</string>
     <string name="hist_high_tide">Historical High Tide</string>
     <string name="hist_low_tide">Historical Low Tide</string>
+    <string name="unexpected_error">Something unexpected went wrong there! You can swipe down to try again.</string>
+    <string name="please_wait">Please Wait</string>
+    <string name="this_may_take_minutes">This may take a few minutes …</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="next_button">Next</string>
+    <string name="done_button">Done</string>
+    <string name="settings_label">Settings</string>
+    <string name="logout_label">Logout</string>
+    <string name="could_not_verify_cras_charts">Could not verify CRA upload, charts may not be available.</string>
+    <string name="could_not_verify_cras_classification">Could not verify CRA upload, classification may not be available.</string>
+    <string name="spectral_separability">Spectral Separability</string>
 </resources>

@@ -7,36 +7,29 @@ import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.CraROI
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
 class SeparabilityViewModel(
     private val repo: SeparabilityRepository = SeparabilityRepository()
 ): ApiViewModel(repo) {
-    var roiDir = File("")
-    var roi: ROI = ROI()
+    lateinit var craAwaiter: CRAAwaiter
 
-    lateinit var cra: CRA
     lateinit var timePeriod: TimePeriod
     lateinit var toAnalyze: Shapefile
     lateinit var title: String
     lateinit var bandX: String
     lateinit var bandY: String
 
-    private var awaitCRAsJob: Job? = null
-    private var chartJob: Job? = null
+    var roiDir = File("")
+    var roi: ROI = ROI()
 
-    fun loadCRAs(callback: (Result<CRA>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
-
-    fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
-
-    fun awaitCRAs(callback: (Result<Throwable?>) -> Unit) {
-        if (awaitCRAsJob != null) return
-        resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
-            awaitCRAsJob = null
-            callback(result)
-        }
+    fun init(awaiter: CRAAwaiter) {
+        craAwaiter = awaiter
     }
+
+    private var chartJob: Job? = null
 
     fun getSeparation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
         if (chartJob != null) return

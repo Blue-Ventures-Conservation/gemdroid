@@ -8,9 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.R
 
 @Composable
 fun Progress() {
@@ -25,7 +27,7 @@ fun Progress() {
 
 @Composable
 fun PleaseWait() {
-    TitledProgress("Please Wait", "This may take a few minutes...")
+    TitledProgress(stringResource(R.string.please_wait), stringResource(R.string.this_may_take_minutes))
 }
 
 @Composable

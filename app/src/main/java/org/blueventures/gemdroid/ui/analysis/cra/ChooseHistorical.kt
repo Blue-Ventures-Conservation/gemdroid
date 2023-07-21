@@ -6,14 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Rad
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: CraViewModel, next: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, next: Click, back: Click) {
         val choices = viewModel.getHistoricalChoices()
 
         Col.Between(bottom = 24.dp) {

@@ -4,7 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.Fields
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: CraViewModel, snack: SnackFun, done: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, snack: SnackFun, done: Click, back: Click) {
         val (saving, setSaving) = remember{ mutableStateOf(false) }
 
         if (saving) {
@@ -28,7 +28,7 @@ object CRAFields {
     }
 
     @Composable
-    fun CRAFields(viewModel: CraViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
+    fun CRAFields(viewModel: CRAViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
         val (fields, setFields) = remember { mutableStateOf<Result<Fields>?>(null) }
 
         when {
@@ -69,7 +69,7 @@ object CRAFields {
     }
 
     @Composable
-    fun SelectFields(viewModel: CraViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
+    fun SelectFields(viewModel: CRAViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
         Col.Between {
             val strings = lists.strings!!
             val numerics = lists.numerics!!

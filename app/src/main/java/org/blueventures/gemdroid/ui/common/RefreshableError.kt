@@ -7,9 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import org.blueventures.gemdroid.R
 
 /**
  * accompanist.SwipeRefresh is deprecated, but material3 doesn't have a working, equivalent library.
@@ -36,6 +38,6 @@ fun RefreshableError(message: String? = null, fetchFunc: (() -> Unit) -> Unit) {
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        BasicMessage(message ?: "Something unexpected went wrong there! You can swipe down to try again.")
+        BasicMessage(message ?: stringResource(R.string.unexpected_error))
     }
 }

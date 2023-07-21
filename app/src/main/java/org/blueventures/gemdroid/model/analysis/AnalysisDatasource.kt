@@ -6,8 +6,8 @@ import org.blueventures.gemdroid.data.Buffer
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
-import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasDir
-import org.blueventures.gemdroid.model.analysis.cra.CraDatasource.Companion.crasFile
+import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
@@ -20,8 +20,8 @@ class AnalysisDatasource(
             when {
                 !File(roiDir, bufferFile).exists() -> Stage.BUFFER
                 !File(roiDir, visualizeDir).exists() -> Stage.VISUALIZE
-                !File(File(roiDir, crasDir), crasFile).exists() -> Stage.CRAS
-                !File(roiDir, classificationDir).exists() -> Stage.CLASSIFICATION
+                !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists() -> Stage.CRAS
+                !File(roiDir, ClassificationDatasource.classificationDir).exists() -> Stage.CLASSIFICATION
                 !File(roiDir, dynamicsDir).exists() -> Stage.DYNAMICS
                 else -> Stage.DONE
             }
@@ -68,14 +68,7 @@ class AnalysisDatasource(
         const val hlotTilesDir = "hlot_tiles"
         val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
-        // CRA and Separability Stages in their own respective datasources
-
-        // Classification Stage
-        const val classificationDir = "classification"
-        const val contLCTilesDir = "cont_lc_tiles" // land cover tiles
-        const val histLCTilesDir = "hist_lc_tiles" // land cover tiles
-        const val ccomClassifyFile = "ccom_classify.json"
-        const val hcomClassifyFile = "hcom_classify.json"
+        // CRA and Classification Stages in their own respective datasources
 
         // Dynamics Stage
         const val dynamicsDir = "dynamics"

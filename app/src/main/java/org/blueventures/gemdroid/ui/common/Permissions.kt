@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,6 +17,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import org.blueventures.gemdroid.R
 
 @ExperimentalPermissionsApi
 @Composable
@@ -41,7 +43,7 @@ fun RequestPermission(
                     rationaleShown = true
                     rationale
                 } else { description }, fontSize = 24.sp, textAlign = TextAlign.Center)
-                Butt.Text("Grant Permission") {
+                Butt.Text(stringResource(R.string.grant_permission)) {
                     perm.launchPermissionRequest()
                 }
             }

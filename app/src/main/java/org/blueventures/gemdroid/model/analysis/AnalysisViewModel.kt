@@ -9,15 +9,16 @@ import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.data.VisualizeURLs
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
-import org.blueventures.gemdroid.model.analysis.cra.CraViewModel
+import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
 class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
 ): ApiViewModel(repo) {
-    lateinit var craViewModel: CraViewModel
+    lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
+
     var roiDir = File("")
         set(value) {
             field = value
@@ -33,9 +34,9 @@ class AnalysisViewModel(
         }
 
     fun init(activity: ComponentActivity) {
-        craViewModel = activity.viewModels<CraViewModel>().value
+        craViewModel = activity.viewModels<CRAViewModel>().value
         classViewModel = activity.viewModels<ClassificationViewModel>().value
-        classViewModel.init(activity)
+        classViewModel.init(activity, craViewModel)
     }
 
     var buffersJob: Job? = null

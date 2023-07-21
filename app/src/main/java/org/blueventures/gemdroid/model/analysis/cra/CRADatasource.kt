@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.model.analysis.cra
 
 import android.net.Uri
 import com.github.zibnix.droidbones.NoStack
+import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.apiResultCheck
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.firebase.auth.FirebaseAuth
@@ -9,12 +10,15 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.CRAKey
 import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.Success
 import org.blueventures.gemdroid.data.UploadName
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
@@ -27,7 +31,7 @@ import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class CraDatasource(
+class CRADatasource(
     private val storage: FirebaseStorage = Firebase.storage,
     private val api: Api.Service = Api.Service.instance(),
     private val auth: FirebaseAuth = Firebase.auth,
@@ -460,9 +464,52 @@ class CraDatasource(
         return CRA.toFile(File(File(roiDir, crasDir), crasFile), cra)
     }
 
+    fun loadCRAs(roiDir: File) = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
+
+    fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {
+        return try {
+            Result.success(!crasIngestedFile(roiDir).exists())
+        } catch(e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Throwable?> {
+        val cont = cra.contemporaryCRA
+        val hist = cra.historicalCRA
+
+        var contResult: ApiResult<Success>? = null
+        var histResult: ApiResult<Success>? = null
+
+        // returns when all children coroutines are complete
+        coroutineScope {
+            if (hist != null && cont != hist) {
+                launch { histResult = awaitCRAIngestion(hist.tableUploadOperationName, hist.shapefileStorageKey) }
+            }
+            launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.shapefileStorageKey) }
+        }
+
+        val err = apiResultCheck(contResult, histResult)
+        if (err != null) {
+            return Result.success(err)
+        }
+
+        if (!contResult!!.data!!.success || !histResult!!.data!!.success) {
+            return Result.success(Throwable())
+        }
+
+        Success.toFile(crasIngestedFile(roiDir), contResult!!.data!!)
+
+        return Result.success(null)
+    }
+
+    private fun crasIngestedFile(roiDir: File) = File(File(roiDir, crasDir), crasIngestedFile)
+    private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
+
     companion object {
         const val crasDir = "cras"
         const val crasUnzipDir = "unzip"
         const val crasFile = "cras.json"
+        const val crasIngestedFile = "ingested.json"
     }
 }

@@ -9,8 +9,8 @@ import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 import java.io.InputStream
 
-class CraRepository(
-    private val datasource: CraDatasource = CraDatasource(),
+class CRARepository(
+    private val datasource: CRADatasource = CRADatasource(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): ApiRepository(datasource) {
     fun getRemoteCRAs() = flow {
@@ -51,5 +51,17 @@ class CraRepository(
 
     fun saveCRAs(roiDir: File, cra: CRA) = flow {
         emit(datasource.saveCRAs(roiDir, cra))
+    }.flowOn(ioDispatcher)
+
+    fun loadCRAs(roiDir: File) = flow {
+        emit(datasource.loadCRAs(roiDir))
+    }.flowOn(ioDispatcher)
+
+    fun shouldAwaitCRAs(roiDir: File) = flow {
+        emit(datasource.shouldAwaitCRAs(roiDir))
+    }.flowOn(ioDispatcher)
+
+    fun awaitCRAs(roiDir: File, cra: CRA) = flow {
+        emit(datasource.awaitCRAs(roiDir, cra))
     }.flowOn(ioDispatcher)
 }
