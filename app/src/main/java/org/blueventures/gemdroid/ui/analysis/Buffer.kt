@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
@@ -17,6 +18,7 @@ import com.anychart.enums.Anchor
 import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
+import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.data.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -57,6 +59,7 @@ object Buffer {
             Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
             }
+            val ctx = LocalContext.current
             Butt.Done(bufferDist.second) {
                 saving(true)
                 viewModel.saveBuffer(bufferDist.first) { result ->
@@ -64,7 +67,7 @@ object Buffer {
                     if (result.isSuccess) {
                         back()
                     } else {
-                        snack(result.exceptionOrNull()!!.message!!)
+                        snack(result.exceptionOrNull()!!.localized(ctx))
                     }
                 }
             }

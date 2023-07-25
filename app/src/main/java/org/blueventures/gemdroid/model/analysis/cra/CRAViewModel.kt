@@ -4,6 +4,7 @@ import com.github.zibnix.droidbones.NoStack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
@@ -40,7 +41,7 @@ class CRAViewModel(
     }
 
     fun saveCRAs(callback: (Result<Unit>) -> Unit) {
-        val badState = NoStack("Internal CRA data error, sorry!")
+        val badState = NoStack(R.string.internal_cra_err)
         val cont = contemporaryCRA
 
         if (cont.badFinalState()) {

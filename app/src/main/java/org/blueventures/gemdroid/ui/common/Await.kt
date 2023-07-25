@@ -3,6 +3,8 @@ package org.blueventures.gemdroid.ui.common
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 
@@ -24,8 +26,9 @@ object Await {
                 awaiter.loadCRAs(setCRAs)
             }
             cras.isFailure -> {
+                val msg = cras.exceptionOrNull()!!.localized(LocalContext.current)
                 Effect.Once {
-                    snack(cras.exceptionOrNull()!!.message!!)
+                    snack(msg)
                     back()
                 }
             }

@@ -8,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
@@ -74,7 +75,7 @@ class RoiDatasource(
                 if (roisDir.exists() || roisDir.mkdirs()) {
                     Result.success(FileService.getSubdirs(roisDir))
                 } else {
-                    Result.failure(NoStack("Could not read filesystem"))
+                    Result.failure(NoStack(R.string.could_not_read_fs))
                 }
             }
         } catch (e: Exception) {
@@ -116,7 +117,7 @@ class RoiDatasource(
                         points
                     ))
                 } else {
-                    Result.failure(NoStack("Could not read filesystem"))
+                    Result.failure(NoStack(R.string.could_not_read_fs))
                 }
             }
         } catch(e: Exception) {

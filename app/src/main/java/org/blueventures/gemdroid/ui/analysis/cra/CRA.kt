@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
@@ -105,8 +106,9 @@ object CRA {
             }
             remoteCRAs.isFailure -> {
                 Progress()
+                val msg = remoteCRAs.exceptionOrNull()!!.localized(LocalContext.current)
                 Effect.Once {
-                    snack(remoteCRAs.exceptionOrNull()!!.message!!)
+                    snack(msg)
                     back()
                 }
             }
@@ -138,8 +140,9 @@ object CRA {
                 }
                 localCRA.isFailure -> {
                     val e = localCRA.exceptionOrNull()!!
+                    val msg = e.localized(LocalContext.current)
                     LaunchedEffect(key1 = e) {
-                        snack(e.message!!)
+                        snack(msg)
                         setLocalCRA(null)
                         setSelectedFiles(null)
                         setValidating(false)

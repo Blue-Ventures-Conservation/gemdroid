@@ -14,6 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.reader.DbfReader
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.CRAKey
@@ -49,7 +50,7 @@ class CRADatasource(
                     cont.resume(Result.success(files))
                 }
                 .addOnFailureListener {
-                    cont.resume(Result.failure(NoStack(it)))
+                    cont.resume(Result.failure(NoStack(R.string.could_not_reach_storage)))
                 }
         } ?: run {
             cont.resume(Result.failure(SignIn.not))
@@ -72,7 +73,7 @@ class CRADatasource(
         val unzipDir = unzipDirRes.getOrNull()!!
 
         val result = when {
-            files.isEmpty() -> Result.failure(NoStack("No file selected."))
+            files.isEmpty() -> Result.failure(NoStack(R.string.no_file_selected))
             files.size == 1 -> validateShapes(crasDir, remoteCRAs, previous, unzip(unzipDir, files[0], names[0]))
             else -> validateShapes(crasDir, remoteCRAs, previous, copyShapes(unzipDir, files, names))
         }
@@ -86,7 +87,7 @@ class CRADatasource(
         val paths = mutableListOf<String>()
         shps.forEachIndexed { i, shp ->
             if (shp == null || names[i] == null) {
-                return Result.failure(NoStack("Could not read shapefiles"))
+                return Result.failure(NoStack(R.string.could_not_read_shps))
             }
             val path = File(dir, names[i]!!).path
             val streamRes = FileService.streamToFile(shp, path)
@@ -101,13 +102,13 @@ class CRADatasource(
     }
 
     private fun unzip(dir: File, zip: InputStream?, name: String?): Result<List<String>> {
-        val notZip = NoStack("If one file is selected, it must be a .zip")
+        val notZip = NoStack(R.string.extract_must_be_zip)
         if (name?.substringAfterLast(".")?.lowercase() != "zip") {
             return Result.failure(notZip)
         }
 
         if (zip == null) {
-            return Result.failure(NoStack("Could not open selected .zip for validation"))
+            return Result.failure(NoStack(R.string.could_not_open_zip))
         }
 
         val pathsRes = FileService.unzip(zip, dir.path)
@@ -125,7 +126,7 @@ class CRADatasource(
 
         val paths = pathsResult.getOrNull()!!
 
-        val badShape = NoStack("Your shapefile must include a .shp, .shx, .dbf and .prj")
+        val badShape = NoStack(R.string.shp_missing_files)
         if (paths.size < 4) {
             return Result.failure(badShape)
         }
@@ -168,15 +169,15 @@ class CRADatasource(
         }
 
         if (shpName != shxName || shpName != dbfName || shpName != prjName) {
-            return Result.failure(NoStack("Shapefiles should all have the same name."))
+            return Result.failure(NoStack(R.string.shps_names_must_match))
         }
 
         if (previous != null && previous == shpName) {
-            return Result.failure(NoStack("Please select two different shapefiles."))
+            return Result.failure(NoStack(R.string.shps_must_differ))
         }
 
         if (remoteCRAs.contains(shpName)) {
-            return Result.failure(NoStack("Please use the previously uploaded shapefile by that name."))
+            return Result.failure(NoStack(R.string.please_reuse_shp))
         }
 
         val numerics = mutableListOf<String>()
@@ -229,15 +230,15 @@ class CRADatasource(
         }
 
         if (numerics.size <= 0) {
-            return Result.failure(NoStack("Shapefile has no candidate fields for the numeric class field."))
+            return Result.failure(NoStack(R.string.shp_no_candidate_num))
         }
 
         if (strings.size <= 0) {
-            return Result.failure(NoStack("Shapefile has no candidate fields for the character class field."))
+            return Result.failure(NoStack(R.string.shp_no_candidate_char))
         }
 
         if (!assetRegex.matches(shpName)) {
-            return Result.failure(NoStack("Shapefile name can only contain alphanumeric characters, dashes and underscores."))
+            return Result.failure(NoStack(R.string.shp_name_alphanumeric))
         }
 
         val zipFile = File(crasDir, "$shpName.zip")
@@ -282,24 +283,24 @@ class CRADatasource(
     }
 
     private fun mergeFields(f1: Fields, f2: Fields): Result<Fields> {
-        val mismatch = NoStack("Please select shapefiles that have matching fields")
+        val mismatch = NoStack(R.string.shps_must_match_fields)
         return when {
             f1.complete() && f2.complete() -> {
-                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString) {
+                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString && f1.chosenStringValues == f2.chosenStringValues) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f1.complete() && !f2.complete() -> {
-                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString)) {
+                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString) && f2.stringValues!![f1.chosenString] == f1.chosenStringValues) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f2.complete() && !f1.complete() -> {
-                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString)) {
+                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString) && f1.stringValues!![f2.chosenString] == f2.chosenStringValues) {
                     Result.success(f2)
                 } else {
                     Result.failure(mismatch)
@@ -310,7 +311,9 @@ class CRADatasource(
                 val n2 = f2.numerics!!
                 val s1 = f1.strings!!
                 val s2 = f2.strings!!
-                if (n1.size == n2.size && n1.containsAll(n2) && s1.size == s2.size && s1.containsAll(s2)) {
+                val sv1 = f1.stringValues!!
+                val sv2 = f2.stringValues!!
+                if (s1 == s2 && n1 == n2 && sv1 == sv2) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
@@ -318,14 +321,14 @@ class CRADatasource(
             }
             else -> {
                 // should not be reachable
-                Result.failure(NoStack("Unreachable error encountered..."))
+                Result.failure(NoStack(R.string.unreachable_err))
             }
         }
     }
 
     private suspend fun craFields(cra: CRAFile): Result<Fields> {
         if (cra.fields.parsedLocally() || cra.fields.complete()) return Result.success(cra.fields)
-        if (cra.storageKey == null) return Result.failure(NoStack("Internal storage key error, sorry!"))
+        if (cra.storageKey == null) return Result.failure(NoStack(R.string.internal_storage_key_err))
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
         val uid = auth.currentUser!!.uid
         return try {
@@ -370,7 +373,7 @@ class CRADatasource(
 
     suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
         if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
-            return Result.failure(NoStack("Internal shapefile error, sorry!"))
+            return Result.failure(NoStack(R.string.internal_sho_err))
         }
 
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
@@ -410,7 +413,7 @@ class CRADatasource(
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         val data = result.data!!
-        if (!data.success) return Result.failure(NoStack("Ingestion of CRA into Earth Engine failed."))
+        if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_falied))
         cra.eeUploadName = data.name
         return Result.success(Unit)
     }

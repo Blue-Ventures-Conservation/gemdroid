@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="turn_on_location">Please turn Location ON in settings, and choose High Accuracy for the locating method (if available)</string>
+    <string name="parsed_null">Parsed value was null</string>
+    <string name="file_was_empty">File was empty</string>
+    <string name="could_not_delete_dir">Could not delete directory</string>
+    <string name="could_not_del_dir_contents">Could not delete directory contents</string>
+    <string name="could_not_del_file">Could not delete file</string>
+    <string name="could_not_rename_file">Could not rename file</string>
+    <string name="could_not_read_parent_dir">Could not read parent directory name</string>
+    <string name="could_not_create_file">Could not create file</string>
+    <string name="could_not_create_dir">Could not create directory</string>
+    <string name="network_error_try_again">Network error encountered, please try again</string>
+    <string name="unknown_error">Unknown error encountered</string>
 </resources>

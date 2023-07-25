@@ -24,9 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -54,7 +56,7 @@ object RoiList {
                 viewModel.refreshRois(filesDir, setRois)
             }
             rois.isFailure -> {
-                snack(rois.exceptionOrNull()!!.message!!)
+                snack(rois.exceptionOrNull()!!.localized(LocalContext.current))
             }
             else -> {
                 val list = rois.getOrNull()!!
@@ -84,11 +86,12 @@ object RoiList {
             title = { Text(text = "Delete ROI") },
             text = { Text(text = "Really delete '${toDelete.name}'?") },
             confirmButton = {
+                val ctx = LocalContext.current
                 Butt.Text("DELETE") {
                     viewModel.deleteRoi(toDelete) { result ->
                         onDismiss()
                         if (result.isFailure) {
-                            snackbar(result.exceptionOrNull()!!.message!!)
+                            snackbar(result.exceptionOrNull()!!.localized(ctx))
                         }
                     }
                 }

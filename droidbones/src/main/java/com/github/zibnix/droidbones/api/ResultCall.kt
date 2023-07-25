@@ -6,23 +6,17 @@ import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.net.UnknownHostException
 
 class ResultCall<T : Any>(private val proxy: Call<T>) : Call<ApiResult<T>> {
 
     override fun enqueue(callback: Callback<ApiResult<T>>) {
         proxy.enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>, response: Response<T>) {
-                val networkResult = handleResponse { response }
-                callback.onResponse(this@ResultCall, Response.success(networkResult))
+                callback.onResponse(this@ResultCall, Response.success(handleResponse { response }))
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {
-                val networkResult: ApiResult.Error<T> = when(t) {
-                    is UnknownHostException -> ApiResult.Error(null, "Code not reach host, are you offline?")
-                    else -> ApiResult.Error(null, t.message)
-                }
-                callback.onResponse(this@ResultCall, Response.success(networkResult))
+                callback.onResponse(this@ResultCall, Response.success(ApiResult.Error(null, t.message)))
             }
         })
     }

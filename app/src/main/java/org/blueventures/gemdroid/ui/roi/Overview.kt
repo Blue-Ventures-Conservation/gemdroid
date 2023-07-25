@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -63,6 +65,7 @@ object Overview {
                     Text(text = "${viewModel.points.size} points, ${"%,d".format(viewModel.polygonArea().toInt())} km²", fontSize = 18.sp)
                 }
             }
+            val ctx = LocalContext.current
             Butt.Done {
                 saving(true)
                 viewModel.saveRoi(filesDir) { result ->
@@ -70,7 +73,7 @@ object Overview {
                     if (result.isSuccess) {
                         done()
                     } else {
-                        snack(result.exceptionOrNull()!!.message!!)
+                        snack(result.exceptionOrNull()!!.localized(ctx))
                     }
                 }
             }
