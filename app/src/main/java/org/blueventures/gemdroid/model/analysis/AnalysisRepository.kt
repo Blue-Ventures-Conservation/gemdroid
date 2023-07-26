@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 

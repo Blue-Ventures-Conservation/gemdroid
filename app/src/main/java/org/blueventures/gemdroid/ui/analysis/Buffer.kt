@@ -19,7 +19,7 @@ import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.localized
-import org.blueventures.gemdroid.data.Buffers
+import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate

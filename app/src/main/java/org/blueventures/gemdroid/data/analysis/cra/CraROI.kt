@@ -1,6 +1,7 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.analysis.cra
 
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.roi.ROI
 
 // Sent to the backend when requesting separability charts
 data class CraROI(

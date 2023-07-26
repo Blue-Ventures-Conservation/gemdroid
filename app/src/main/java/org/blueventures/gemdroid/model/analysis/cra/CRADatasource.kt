@@ -16,11 +16,11 @@ import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.CRA
-import org.blueventures.gemdroid.data.CRAKey
-import org.blueventures.gemdroid.data.Shapefile
-import org.blueventures.gemdroid.data.Success
-import org.blueventures.gemdroid.data.UploadName
+import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.analysis.cra.CRAKey
+import org.blueventures.gemdroid.data.analysis.cra.Shapefile
+import org.blueventures.gemdroid.data.analysis.cra.Success
+import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck

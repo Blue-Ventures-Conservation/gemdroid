@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.roi
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng

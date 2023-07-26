@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json

@@ -4,7 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.analysis.cra.Shapefile
 import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryHighTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryLowTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.HistoricalHighTide

@@ -3,10 +3,9 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import org.blueventures.gemdroid.data.CRA
-import org.blueventures.gemdroid.data.CraROI
-import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.analysis.cra.CraROI
+import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.data.analysis.cra.Shapefile
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File

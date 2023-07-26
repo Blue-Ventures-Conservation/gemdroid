@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.analysis.cra
 
 import com.squareup.moshi.Json
 

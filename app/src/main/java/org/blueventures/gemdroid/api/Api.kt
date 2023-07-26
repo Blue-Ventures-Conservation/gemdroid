@@ -4,14 +4,16 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.BaseApi
 import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
-import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.CRAIngestRequested
-import org.blueventures.gemdroid.data.CRAKey
-import org.blueventures.gemdroid.data.CraROI
-import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.Success
-import org.blueventures.gemdroid.data.UploadName
-import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.classification.Classification
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
+import org.blueventures.gemdroid.data.analysis.cra.CRAIngestRequested
+import org.blueventures.gemdroid.data.analysis.cra.CRAKey
+import org.blueventures.gemdroid.data.analysis.cra.CraROI
+import org.blueventures.gemdroid.data.analysis.cra.Success
+import org.blueventures.gemdroid.data.analysis.cra.UploadName
+import org.blueventures.gemdroid.data.roi.ROI
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -35,6 +37,9 @@ object Api {
 
         @POST("/await_cra_upload")
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
+
+        @POST("/classification")
+        suspend fun classification(@Body classificationROI: ClassificationROI): ApiResult<Classification>
 
         @POST("/box_chart")
         suspend fun boxChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>

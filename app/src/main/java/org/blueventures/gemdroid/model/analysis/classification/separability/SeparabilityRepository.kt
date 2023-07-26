@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import org.blueventures.gemdroid.data.CraROI
+import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 

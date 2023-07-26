@@ -1,10 +1,12 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.analysis.classification.separability
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import org.blueventures.gemdroid.data.PointD
+import org.blueventures.gemdroid.data.checkItemsAre
 import java.io.File
 import kotlin.math.abs
 

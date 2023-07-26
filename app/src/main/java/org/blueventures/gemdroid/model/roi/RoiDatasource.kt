@@ -9,7 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
 import java.math.BigInteger

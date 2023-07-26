@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.ui.common.AppBarFun

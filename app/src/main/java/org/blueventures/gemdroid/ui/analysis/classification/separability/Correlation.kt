@@ -18,7 +18,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.HeatMap
 import com.anychart.enums.SelectionMode
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBarFun

@@ -1,8 +1,8 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
-import org.blueventures.gemdroid.data.CRA
-import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.analysis.cra.Shapefile
 import java.io.File
 
 class CRAFile(

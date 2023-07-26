@@ -5,9 +5,9 @@ import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel

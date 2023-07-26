@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.github.zibnix.droidbones.localized
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.analysis.cra.CRA
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 
 object Await {

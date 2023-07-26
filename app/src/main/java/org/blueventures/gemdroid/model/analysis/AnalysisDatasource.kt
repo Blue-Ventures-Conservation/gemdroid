@@ -2,10 +2,10 @@ package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.Buffer
-import org.blueventures.gemdroid.data.Buffers
-import org.blueventures.gemdroid.data.ROI
-import org.blueventures.gemdroid.data.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.Buffer
+import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiDatasource

@@ -2,8 +2,8 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.CraROI
-import org.blueventures.gemdroid.data.JSONMap
+import org.blueventures.gemdroid.data.analysis.cra.CraROI
+import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 

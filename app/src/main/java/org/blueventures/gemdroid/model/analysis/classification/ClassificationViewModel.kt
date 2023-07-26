@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.model.analysis.classification
 
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import org.blueventures.gemdroid.data.ROI
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel

@@ -5,7 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.analysis.cra.CRA
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 import java.io.InputStream
