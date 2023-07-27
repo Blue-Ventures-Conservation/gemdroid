@@ -6,13 +6,15 @@ import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
-import org.blueventures.gemdroid.data.analysis.classification.Classification
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.cra.CRAIngestRequested
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.data.roi.ROI
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -39,7 +41,7 @@ object Api {
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
 
         @POST("/classification")
-        suspend fun classification(@Body classificationROI: ClassificationROI): ApiResult<Classification>
+        suspend fun classification(@Body classificationROI: ClassificationROI): ApiResult<ClassificationURLs>
 
         @POST("/box_chart")
         suspend fun boxChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
@@ -49,6 +51,9 @@ object Api {
 
         @POST("/correlation_chart")
         suspend fun correlationChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
+
+        @POST("/dynamics")
+        suspend fun dynamics(@Body dynamicsROI: DynamicsROI): ApiResult<DynamicsURLs>
     }
 
     class Service(private val backend: Backend, private val tokenHolder: TokenInterceptor): Backend by backend {

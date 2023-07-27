@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -33,10 +31,12 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polygon
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -109,15 +109,11 @@ object Polygon {
                 mapFragment.getMapAsync(MapCallback(fineLocation, viewModel, polyGetter, polySetter, markerAdd) { drawing })
             }
 
-            FloatingActionButton(
-                onClick = { drawing = !drawing }, modifier = Modifier
-                    .padding(bottom = 64.dp, end = 24.dp)
-                    .align(Alignment.BottomEnd)
-            ) {
+            MapActionButton({ drawing = !drawing }) {
                 if (drawing) {
-                    Icon(Icons.Filled.Close, "")
+                    Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
                 } else {
-                    Icon(Icons.Filled.Place, "")
+                    Icon(Icons.Filled.Place, stringResource(R.string.place_polygon_corner))
                 }
             }
         }

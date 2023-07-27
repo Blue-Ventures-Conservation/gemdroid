@@ -7,9 +7,9 @@ import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
-object Accuracy {
+object Details {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun, accuracy: Click, back: Click) {
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun, separability: Click, back: Click) {
         BackHandler(onBack = back)
     }
 }

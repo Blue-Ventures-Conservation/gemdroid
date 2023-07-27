@@ -25,7 +25,14 @@ object Visualize {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         appBar(AppBarUpdate(stringResource(title)))
-        Setup()
+
+        Maps.LayerSetup({ layers ->
+            chot = layers[0]
+            clot = layers[1]
+            hhot = layers[2]
+            hlot = layers[3]
+        }, R.string.cont_high_tide, R.string.cont_low_tide, R.string.hist_high_tide, R.string.hist_low_tide)
+
         GetRemote.Save(viewModel::loadVisualizeURLsFile, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile) { urls ->
             VisualizeMap(viewModel, urls, appBar)
         }
@@ -41,14 +48,6 @@ object Visualize {
             viewModel.tileDirs[i]
         }, url = { i, urls ->
             urls.ordered(i)
-        }, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile, viewModel.roi.polygon.coordinates[0], chot, clot, hhot, hlot)
-    }
-
-    @Composable
-    private fun Setup() {
-        chot = Maps.Layer(stringResource(R.string.cont_high_tide))
-        clot = Maps.Layer(stringResource(R.string.cont_low_tide))
-        hhot = Maps.Layer(stringResource(R.string.hist_high_tide))
-        hlot = Maps.Layer(stringResource(R.string.hist_low_tide))
+        }, viewModel::getVisualizeURLs, viewModel::saveVisualizeURLsFile, {}, viewModel.roi.polygon.coordinates[0], chot, clot, hhot, hlot)
     }
 }

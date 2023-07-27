@@ -1,21 +1,13 @@
 package org.blueventures.gemdroid.model.roi
 
+import com.github.zibnix.droidbones.mvvm.IORepository
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import java.io.File
 
 class RoiRepository(
     private val datasource: RoiDatasource = RoiDatasource(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-) {
-    fun getRois(filesDir: File) = flow {
-        emit(datasource.getRois(filesDir))
-    }.flowOn(ioDispatcher)
-
+): IORepository() {
+    fun getRois(filesDir: File) = goFlow { datasource.getRois(filesDir) }
     fun saveRoi(
         filesDir: File,
         name: String,
@@ -28,15 +20,7 @@ class RoiRepository(
         histMonthStart: Int,
         histMonthEnd: Int,
         points: List<LatLng>
-    ): Flow<Result<Unit>>  = flow {
-        emit(datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, contMonthStart, contMonthEnd, histYearStart, histYearEnd, histMonthStart, histMonthEnd, points))
-    }.flowOn(ioDispatcher)
-
-    fun deleteRoi(dir: File) = flow {
-        emit(datasource.deleteRoi(dir))
-    }.flowOn(ioDispatcher)
-
-    fun addPoint(polygon: MutableList<LatLng>, point: LatLng) = flow {
-        emit(datasource.addPoint(polygon, point))
-    }.flowOn(ioDispatcher)
+    ) = goFlow{ datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, contMonthStart, contMonthEnd, histYearStart, histYearEnd, histMonthStart, histMonthEnd, points) }
+    fun deleteRoi(dir: File) = goFlow { datasource.deleteRoi(dir) }
+    fun addPoint(polygon: MutableList<LatLng>, point: LatLng) = goFlow { datasource.addPoint(polygon, point) }
 }

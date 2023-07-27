@@ -6,7 +6,6 @@ import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource
@@ -19,11 +18,8 @@ class AnalysisDatasource(
         return try {
             when {
                 !File(roiDir, bufferFile).exists() -> Stage.BUFFER
-                !File(roiDir, visualizeDir).exists() -> Stage.VISUALIZE
                 !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists() -> Stage.CRAS
-                !File(roiDir, ClassificationDatasource.classificationDir).exists() -> Stage.CLASSIFICATION
-                !File(roiDir, dynamicsDir).exists() -> Stage.DYNAMICS
-                else -> Stage.DONE
+                else -> Stage.ALL
             }
         } catch(e: Exception) {
             Stage.ERROR
@@ -48,18 +44,18 @@ class AnalysisDatasource(
         return VisualizeURLs.toFile(File(File(roiDir, visualizeDir), visualizeURLsFile), urls)
     }
     fun loadVisualizeURLs(roiDir: File) = VisualizeURLs.fromFile(File(File(roiDir, visualizeDir), visualizeURLsFile))
-    fun chotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), chotTilesDir)
-    fun clotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), clotTilesDir)
-    fun hhotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hhotTilesDir)
-    fun hlotTileDir(roiDir: File): File = File(File(roiDir, visualizeDir), hlotTilesDir)
+    fun chotTileDir(roiDir: File) = File(File(roiDir, visualizeDir), chotTilesDir)
+    fun clotTileDir(roiDir: File) = File(File(roiDir, visualizeDir), clotTilesDir)
+    fun hhotTileDir(roiDir: File) = File(File(roiDir, visualizeDir), hhotTilesDir)
+    fun hlotTileDir(roiDir: File) = File(File(roiDir, visualizeDir), hlotTilesDir)
     suspend fun getVisualizeURLs(roi: ROI) = api.getVisualizeURLs(roi)
 
     companion object {
-        // Buffer Stage
+        // Buffer
         const val bufferFile = "buffer_dist.json"
         const val buffersChartFile = "buffers_chart.json"
 
-        // Visualize Stage
+        // Visualize
         const val visualizeURLsFile = "urls.json"
         const val visualizeDir = "visualize"
         const val chotTilesDir = "chot_tiles"
@@ -68,20 +64,11 @@ class AnalysisDatasource(
         const val hlotTilesDir = "hlot_tiles"
         val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
-        // CRA and Classification Stages in their own respective datasources
-
-        // Dynamics Stage
-        const val dynamicsDir = "dynamics"
-        const val dynamicsDataFile = "dynamics.json"
-        const val gainTilesDir = "gain_tiles"
-        const val lossTilesDir = "loss_tiles"
-        const val persistenceTilesDir = "persistence_tiles"
-
         // roi file details
         const val roiFilename = RoiDatasource.filename
     }
 }
 
 enum class Stage {
-    ERROR, BUFFER, VISUALIZE, CRAS, CLASSIFICATION, DYNAMICS, DONE
+    ERROR, BUFFER, CRAS, ALL
 }

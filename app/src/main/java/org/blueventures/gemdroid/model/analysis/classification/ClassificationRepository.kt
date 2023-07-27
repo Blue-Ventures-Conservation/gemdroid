@@ -1,11 +1,16 @@
 package org.blueventures.gemdroid.model.analysis.classification
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
 import org.blueventures.gemdroid.model.api.ApiRepository
+import java.io.File
 
 class ClassificationRepository(
     private val datasource: ClassificationDatasource = ClassificationDatasource(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-): ApiRepository(datasource = datasource) {
+): ApiRepository(datasource) {
+    fun getClassification(classificationROI: ClassificationROI) = goFlow { datasource.getClassification(classificationROI) }
+    fun saveClassificationFile(roiDir: File, urls: ClassificationURLs) = goFlow { datasource.saveClassificationFile(roiDir, urls) }
+    fun loadClassificationFile(roiDir: File) = goFlow { datasource.loadClassificationFile(roiDir) }
+    fun contLCTileDir(roiDir: File) = datasource.contLCTileDir(roiDir)
+    fun histLCTileDir(roiDir: File) = datasource.histLCTileDir(roiDir)
 }

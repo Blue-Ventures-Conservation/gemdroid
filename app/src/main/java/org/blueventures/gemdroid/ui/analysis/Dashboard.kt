@@ -103,22 +103,10 @@ object Dashboard {
                             .verticalScroll(rememberScrollState())
                     ) {
                         when (stage) {
-                            Stage.VISUALIZE -> {
-                                VisualizeRow(vis)
-                            }
                             Stage.CRAS -> {
                                 VisualizeRow(vis)
                             }
-                            Stage.CLASSIFICATION -> {
-                                VisualizeRow(vis)
-                                ClassificationRow(clazz)
-                            }
-                            Stage.DYNAMICS -> {
-                                VisualizeRow(vis)
-                                ClassificationRow(clazz)
-                                DynamicsRow(dyn)
-                            }
-                            Stage.DONE -> {
+                            Stage.ALL -> {
                                 VisualizeRow(vis)
                                 ClassificationRow(clazz)
                                 DynamicsRow(dyn)
@@ -129,7 +117,7 @@ object Dashboard {
                 }
             }
 
-            if (stage != Stage.DONE) {
+            if (stage != Stage.ALL) {
                 DashboardNextButton {
                     nextClick(stage)
                 }

@@ -23,6 +23,7 @@ data class CRA(
     }
 
     fun historicalShp() = historicalCRA ?: contemporaryCRA
+    fun useContSpec() = historicalCRA == null
 }
 
 // Saved in Cloud Storage alongside the zip to keep track of

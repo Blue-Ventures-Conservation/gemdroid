@@ -65,8 +65,8 @@
     <string name="shp_no_candidate_num">Shapefile has no candidate fields for the numeric class field.</string>
     <string name="shp_no_candidate_char">Shapefile has no candidate fields for the character class field.</string>
     <string name="shp_name_alphanumeric">Shapefile name can only contain alphanumeric characters, dashes and underscores.</string>
-    <string name="shps_must_match_fields">Please select shapefiles that have matching fields names and values.</string>
-    <string name="unreachable_err">Unreachable error encountered...</string>
+    <string name="shps_must_match_fields">Please select shapefiles that have matching field names and values.</string>
+    <string name="unreachable_err">Unreachable error encountered …</string>
     <string name="internal_storage_key_err">Internal storage key error, sorry!</string>
     <string name="internal_sho_err">Internal shapefile error, sorry!</string>
     <string name="gee_ingestion_falied">Ingestion of CRA into Earth Engine failed.</string>
@@ -76,4 +76,11 @@
     <string name="select_num_field">Select Numeric Class Field:</string>
     <string name="cannot_be_same_field">These cannot both be the same field</string>
     <string name="not_logged_in">You don\'t appear to be logged in.</string>
+    <string name="classification">Classification</string>
+    <string name="contemporary_classification">Contemporary Classification</string>
+    <string name="historical_classification">Historical Classification</string>
+    <string name="stop_drawing_polygon">Stop drawing a polygon</string>
+    <string name="place_polygon_corner">Place polygon corner</string>
+    <string name="view_classifications_details">View classificaiton details</string>
+    <string name="classifier_training_failed">Make sure your CRAs have multiple classes, and your polygon contains all CRA plots!</string>
 </resources>

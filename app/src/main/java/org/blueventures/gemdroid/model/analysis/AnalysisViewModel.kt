@@ -10,6 +10,7 @@ import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
@@ -18,12 +19,14 @@ class AnalysisViewModel(
 ): ApiViewModel(repo) {
     lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
+    lateinit var dynamicsViewModel: DynamicsViewModel
 
     var roiDir = File("")
         set(value) {
             field = value
             craViewModel.roiDir = value
             classViewModel.roiDir = value
+            dynamicsViewModel.roiDir = value
             setTileDirs()
         }
 
@@ -31,12 +34,15 @@ class AnalysisViewModel(
         set(value) {
             field = value
             classViewModel.roi = value
+            dynamicsViewModel.roi = value
         }
 
     fun init(activity: ComponentActivity) {
         craViewModel = activity.viewModels<CRAViewModel>().value
         classViewModel = activity.viewModels<ClassificationViewModel>().value
         classViewModel.init(activity, craViewModel)
+        dynamicsViewModel = activity.viewModels<DynamicsViewModel>().value
+        dynamicsViewModel.init(craViewModel)
     }
 
     var buffersJob: Job? = null

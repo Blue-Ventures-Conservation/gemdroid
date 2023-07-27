@@ -1,9 +1,5 @@
 package org.blueventures.gemdroid.model.analysis
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.roi.ROI
@@ -12,51 +8,25 @@ import java.io.File
 
 class AnalysisRepository(
     private val datasource: AnalysisDatasource = AnalysisDatasource(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): ApiRepository(datasource) {
-    fun getStage(roiDir: File) = flow {
-        emit(datasource.getStage(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun getROI(roiDir: File) = flow {
-        emit(datasource.getROI(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun saveBuffersFile(roiDir: File, buffers: Buffers) = flow {
-        emit(datasource.saveBuffersFile(roiDir, buffers))
-    }.flowOn(ioDispatcher)
-
-    fun loadBuffersFile(roiDir: File) = flow {
-        emit(datasource.loadBuffersFile(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun getBuffers(roi: ROI) = flow {
-        emit(datasource.getBuffers(roi))
-    }.flowOn(ioDispatcher)
-
-    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int) = flow {
+    fun getStage(roiDir: File) = goFlow { datasource.getStage(roiDir) }
+    fun getROI(roiDir: File) = goFlow { datasource.getROI(roiDir) }
+    fun saveBuffersFile(roiDir: File, buffers: Buffers) = goFlow { datasource.saveBuffersFile(roiDir, buffers) }
+    fun loadBuffersFile(roiDir: File) = goFlow { datasource.loadBuffersFile(roiDir) }
+    fun getBuffers(roi: ROI) = goFlow { datasource.getBuffers(roi) }
+    fun saveBuffer(roiDir: File, roi: ROI, buffer: Int) = goFlow { // we resave the roi with the buffer distance attached
         val roiSaved = datasource.saveROI(roiDir, roi)
         if (roiSaved.isFailure) {
-            emit(roiSaved)
+            roiSaved
         } else {
-            emit(datasource.saveBuffer(roiDir, buffer))
+            datasource.saveBuffer(roiDir, buffer)
         }
-    }.flowOn(ioDispatcher)
-
-    fun getVisualizeURLs(roi: ROI) = flow {
-        emit(datasource.getVisualizeURLs(roi))
-    }.flowOn(ioDispatcher)
-
-    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs) = flow {
-        emit(datasource.saveVisualizeURLs(roiDir, urls))
-    }.flowOn(ioDispatcher)
-
-    fun loadVisualizeURLs(roiDir: File) = flow {
-        emit(datasource.loadVisualizeURLs(roiDir))
-    }.flowOn(ioDispatcher)
-
-    fun chotTileDir(roiDir: File): File = datasource.chotTileDir(roiDir)
-    fun clotTileDir(roiDir: File): File = datasource.clotTileDir(roiDir)
-    fun hhotTileDir(roiDir: File): File = datasource.hhotTileDir(roiDir)
-    fun hlotTileDir(roiDir: File): File = datasource.hlotTileDir(roiDir)
+    }
+    fun getVisualizeURLs(roi: ROI) = goFlow { datasource.getVisualizeURLs(roi) }
+    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs) = goFlow { datasource.saveVisualizeURLs(roiDir, urls) }
+    fun loadVisualizeURLs(roiDir: File) = goFlow { datasource.loadVisualizeURLs(roiDir) }
+    fun chotTileDir(roiDir: File) = datasource.chotTileDir(roiDir)
+    fun clotTileDir(roiDir: File) = datasource.clotTileDir(roiDir)
+    fun hhotTileDir(roiDir: File) = datasource.hhotTileDir(roiDir)
+    fun hlotTileDir(roiDir: File) = datasource.hlotTileDir(roiDir)
 }
