@@ -34,11 +34,10 @@ object Months {
 
         fun setMonthStart(month: Int)
         fun setMonthEnd(month: Int)
-        fun validateMonths(): Boolean
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(selector: Selector, temporal: String, back: Click, next: Click) {
         val months = mutableListOf<String>()
         for (res in resources) {
             months.add(stringResource(res))
@@ -55,11 +54,7 @@ object Months {
                 SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
             }
             Butt.Next {
-                if (selector.validateMonths()) {
-                    next()
-                } else {
-                    snack("Month on the left must be equal to or less than the one on the right")
-                }
+                next()
             }
         }
 

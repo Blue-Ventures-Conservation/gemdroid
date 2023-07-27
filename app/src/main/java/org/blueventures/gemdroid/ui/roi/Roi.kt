@@ -56,7 +56,7 @@ object Roi {
 
         // ROI contemporary months selection
         b.composable(Routes.contemporaryMonths) {
-            ContemporaryMonths.Screen(roiModel, snack, back = {
+            ContemporaryMonths.Screen(roiModel, back = {
                 roiModel.clearContemporaryMonths()
                 nav.popBackStack()
             }) {
@@ -76,7 +76,7 @@ object Roi {
 
         // ROI months range selection
         b.composable(Routes.historicalMonths) {
-            HistoricalMonths.Screen(roiModel, snack, back = {
+            HistoricalMonths.Screen(roiModel, back = {
                 roiModel.clearHistoricalMonths()
                 nav.popBackStack()
             }) {
