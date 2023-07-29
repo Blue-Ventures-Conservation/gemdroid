@@ -86,12 +86,15 @@ class RoiViewModel(
     }
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
+    fun polygonSquareKms() = squareKms(polygonArea().toInt())
+    fun squareKms(km: Int) = "${"%,d".format(km)} km²"
+
     fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
     companion object {
-        const val maxROIArea = 10_000 // square kilometers
+        const val maxROIArea = 40_000 // square kilometers
         const val maxYearGap = 5
         const val defaultContemporaryYearStart = 2019
         const val defaultContemporaryYearEnd = 2021

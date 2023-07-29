@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -43,7 +44,7 @@ object Visualize {
     @Composable
     fun VisualizeMap(viewModel: AnalysisViewModel, visualizeURLs: VisualizeURLs, appBar: AppBarFun) {
         Maps.Screen(stringResource(title), visualizeURLs, viewModel.roiDir, appBar, staleCheck = { urls ->
-            (System.currentTimeMillis() / 1000) - urls.createdAt > urls.timeout
+            staleCheck(urls.createdAt, urls.timeout)
         }, tileDir = { i ->
             viewModel.tileDirs[i]
         }, url = { i, urls ->

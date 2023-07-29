@@ -83,4 +83,13 @@
     <string name="place_polygon_corner">Place polygon corner</string>
     <string name="view_classifications_details">View classificaiton details</string>
     <string name="classifier_training_failed">Make sure your CRAs have multiple classes, and your polygon contains all CRA plots!</string>
+    <string name="classification_details">Classification Details</string>
+    <string name="legend">Legend</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="resubstitution">Resubstitution:</string>
+    <string name="validation">Validation:</string>
+    <string name="contemporary_accuracy">Contemporary</string>
+    <string name="historical_accuracy">Historical</string>
+    <string name="separability">Separability</string>
+    <string name="explore">Explore</string>
 </resources>

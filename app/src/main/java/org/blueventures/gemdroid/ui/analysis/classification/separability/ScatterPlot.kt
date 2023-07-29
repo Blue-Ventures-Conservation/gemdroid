@@ -22,7 +22,7 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.theme.g2R2B
+import org.blueventures.gemdroid.ui.theme.g2R2BHex
 
 object ScatterPlot {
     @Composable
@@ -61,7 +61,7 @@ object ScatterPlot {
                 val size = classes.size
                 val entries = mutableListOf<DataEntry>()
                 for ((cls, pts) in data) {
-                    val color = g2R2B(idx, size)
+                    val color = g2R2BHex(idx, size)
                     for (pt in pts) {
                         entries.add(ScatterDataEntry(cls, color, pt.x, pt.y))
                     }

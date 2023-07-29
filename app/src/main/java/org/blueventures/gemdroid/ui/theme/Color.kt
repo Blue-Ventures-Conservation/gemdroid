@@ -14,8 +14,12 @@ val DarkSlate = Color(0xFF313B4C)
 val DarkGray = Color(0xFF222936)
 val OffWhite = Color(0xFFFFFBFE)
 
-fun g2R2B(index: Int, size: Int): String {
-    return blend3Way(LightGreen, MildRed, SkyBlue, index, size).hexColor()
+fun g2R2BHex(index: Int, size: Int): String {
+    return g2R2B(index, size).toHexString()
+}
+
+fun g2R2B(index: Int, size: Int): Color {
+    return Color(blend3Way(LightGreen, MildRed, SkyBlue, index, size))
 }
 
 fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int): Int {

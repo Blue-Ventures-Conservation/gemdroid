@@ -16,7 +16,7 @@ object ChooseHistorical {
     fun Screen(viewModel: CRAViewModel, next: Click, back: Click) {
         val choices = viewModel.getHistoricalChoices()
 
-        Col.Between(bottom = 24.dp) {
+        Col.Col(bottom = 24.dp) {
             Text("Is a historical CRA shapefile available?", fontSize = 24.sp, textAlign = TextAlign.Center)
             Text("(Fields must match contemporary shapefile)", fontSize = 16.sp, textAlign = TextAlign.Center)
             Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->

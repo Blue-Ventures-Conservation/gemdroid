@@ -76,7 +76,7 @@ object Dashboard {
 
     @Composable
     fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, clazz: Click, dyn: Click) {
-        Col.Between {
+        Col.Col {
             when (stage) {
                 Stage.ERROR -> {
                     val msg = stringResource(R.string.could_not_read_fs)

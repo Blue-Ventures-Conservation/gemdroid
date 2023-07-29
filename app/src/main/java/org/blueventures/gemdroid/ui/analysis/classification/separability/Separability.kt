@@ -4,8 +4,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.popClear
-import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -24,7 +22,7 @@ object Separability {
             SelectTimePeriod.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.dashboard)
             }) {
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.popBackStack()
             }
         }
 

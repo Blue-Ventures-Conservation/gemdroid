@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel
-import org.blueventures.gemdroid.ui.theme.g2R2B
+import org.blueventures.gemdroid.ui.theme.g2R2BHex
 import java.io.File
 
 class ClassificationViewModel(
@@ -33,6 +33,8 @@ class ClassificationViewModel(
             field = value
             sepViewModel.roi = value
         }
+
+    lateinit var urls: ClassificationURLs
 
     fun init(activity: ComponentActivity, awaiter: CRAAwaiter) {
         sepViewModel = activity.viewModels<SeparabilityViewModel>().value
@@ -69,7 +71,7 @@ class ClassificationViewModel(
         val pal = mutableListOf<String>()
         val size = cra.contemporaryCRA.stringClassValues.size
         for (i in 0 until size) {
-            pal.add(g2R2B(i, size))
+            pal.add(g2R2BHex(i, size))
         }
         return pal
     }

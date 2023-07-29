@@ -171,7 +171,7 @@ object CRA {
 
     @Composable
     fun Selection(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
-        Col.Between {
+        Col.Col {
             if (remoteCRAs.isEmpty()) {
                 LocalCRA(temporal, setSelectedFiles, setValidating)
             } else {

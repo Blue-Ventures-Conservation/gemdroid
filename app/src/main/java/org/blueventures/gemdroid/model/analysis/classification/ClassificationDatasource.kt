@@ -12,8 +12,8 @@ class ClassificationDatasource(
     suspend fun getClassification(classificationROI: ClassificationROI) = api.classification(classificationROI)
     fun saveClassificationFile(roiDir: File, urls: ClassificationURLs) = ClassificationURLs.toFile(File(classDir(roiDir), classificationURLsFile), urls)
     fun loadClassificationFile(roiDir: File) = ClassificationURLs.fromFile(File(classDir(roiDir), classificationURLsFile))
-    fun contLCTileDir(roiDir: File) = File(File(roiDir, classificationDir), contLCTilesDir)
-    fun histLCTileDir(roiDir: File) = File(File(roiDir, classificationDir), histLCTilesDir)
+    fun contLCTileDir(roiDir: File) = File(classDir(roiDir), contLCTilesDir)
+    fun histLCTileDir(roiDir: File) = File(classDir(roiDir), histLCTilesDir)
 
     private fun classDir(roiDir: File) = File(roiDir, classificationDir)
 

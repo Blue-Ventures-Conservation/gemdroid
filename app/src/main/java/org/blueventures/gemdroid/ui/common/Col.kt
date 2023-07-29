@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,26 +27,30 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Col {
     @Composable
-    inline fun BigPad(content: @Composable ColumnScope.() -> Unit) {
-        Between(64.dp, 64.dp, 64.dp, content = content)
+    inline fun BigPad(arrange: Arrangement.Vertical = Arrangement.SpaceBetween, fill: Boolean = true, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+        Col(64.dp, 64.dp, 64.dp, arrange = arrange, fill = fill, scroll = scroll, content = content)
     }
 
     @Composable
-    inline fun MidPad(content: @Composable ColumnScope.() -> Unit) {
-        Between(start = 24.dp, end = 24.dp, bottom = 24.dp, content = content)
+    inline fun MidPad(arrange: Arrangement.Vertical = Arrangement.SpaceBetween, fill: Boolean = true, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+        Col(start = 24.dp, end = 24.dp, bottom = 24.dp, arrange = arrange, fill = fill, scroll = scroll, content = content)
     }
 
     @Composable
-    inline fun Between(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+    inline fun Col(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, arrange: Arrangement.Vertical = Arrangement.SpaceBetween, fill: Boolean = true, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
         var modifier = Modifier
-            .fillMaxSize()
             .padding(start, top, end, bottom)
+
+        if (fill) {
+            modifier = modifier.fillMaxSize()
+        }
+
         if (scroll) {
             modifier = modifier.verticalScroll(rememberScrollState())
         }
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = arrange,
             horizontalAlignment = Alignment.CenterHorizontally,
             content
         )
@@ -54,12 +58,8 @@ object Col {
 
     @Composable
     inline fun Dash(header: String, content: @Composable ColumnScope.() -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp, bottom = 64.dp),
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Col(
+            arrange = Arrangement.SpaceAround,
         ) {
             Text(text = header, fontSize = 20.sp)
             Spacer(modifier = Modifier.size(0.dp))
@@ -70,7 +70,7 @@ object Col {
 
     @Composable
     fun DashboardButton(label: String, click: Click) {
-        Card(
+        Surface(
             border = BorderStroke(2.dp, SkyBlue),
             modifier = Modifier
                 .fillMaxWidth()

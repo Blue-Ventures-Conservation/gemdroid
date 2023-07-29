@@ -32,7 +32,7 @@ object Classification {
         }
 
         b.composable(Routes.details) {
-            Details.Screen(viewModel, appBar, snack, {
+            Details.Screen(viewModel, appBar, {
                 nav.navigate(timePeriod)
             }) {
                 nav.popBackStack()

@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -47,6 +48,7 @@ object Map {
         GetRemote.Save(viewModel::loadClassificationFile, { callback ->
             viewModel.getClassification(cra, callback)
         }, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
+            viewModel.urls = urls
             ClassificationMap(viewModel, cra, urls, appBar, details)
         }
     }
@@ -54,7 +56,7 @@ object Map {
     @Composable
     fun ClassificationMap(viewModel: ClassificationViewModel, cra: CRA, classificationURLs: ClassificationURLs, appBar: AppBarFun, details: Click) {
         Maps.Screen(stringResource(title), classificationURLs, viewModel.roiDir, appBar, staleCheck = { urls ->
-            (System.currentTimeMillis() / 1000) - urls.createdAt > urls.timeout
+            staleCheck(urls.createdAt, urls.timeout)
         }, tileDir = { i ->
             viewModel.tileDirs[i]
         }, url = { i, urls ->

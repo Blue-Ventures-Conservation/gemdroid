@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun BasicMessage(message: String, click: (Context) -> Unit = {}) {
-    Col.Between(scroll = true) {
+    Col.Col(scroll = true) {
         val ctx = LocalContext.current
         Text(
             text = message,

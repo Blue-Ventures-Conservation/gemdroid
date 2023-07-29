@@ -76,7 +76,7 @@ object CRAFields {
 
     @Composable
     fun SelectFields(viewModel: CRAViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
-        Col.Between {
+        Col.Col {
             val strings = lists.strings!!
             val numerics = lists.numerics!!
             val stringValues = lists.stringValues!!

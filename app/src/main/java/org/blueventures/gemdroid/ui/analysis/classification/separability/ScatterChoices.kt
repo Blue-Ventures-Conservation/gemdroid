@@ -41,7 +41,7 @@ object ScatterChoices {
     fun Choices(viewModel: SeparabilityViewModel, bands: List<String>, next: Click) {
         val (bandX, setBandX) = remember { mutableStateOf<String?>(null) }
         val (bandY, setBandY) = remember { mutableStateOf<String?>(null) }
-        Col.Between {
+        Col.Col {
             Dropdown(title = stringResource(R.string.select_x_band), labels = bands) { setBandX(bands[it]) }
             Dropdown(title = stringResource(R.string.select_y_band), labels = bands) { setBandY(bands[it]) }
             Butt.Next(bandX != null && bandY != null && bandX != bandY) {

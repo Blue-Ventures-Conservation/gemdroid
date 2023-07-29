@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.Polygon
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.model.roi.RoiViewModel.Companion.maxROIArea
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Maps.MapActionButton
@@ -84,7 +85,7 @@ object Polygon {
                         clearFunc()
                         next()
                     } else {
-                        snack("Please create a polygon. It's area must be less than 10,000 km². Yours is currently ${"%,d".format(viewModel.polygonArea().toInt())} km²")
+                        snack("Please create a polygon. It's area must be less than ${viewModel.squareKms(maxROIArea)}. Yours is currently ${viewModel.polygonSquareKms()}")
                     }
                 }
             }

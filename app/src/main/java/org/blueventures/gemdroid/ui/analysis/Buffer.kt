@@ -54,7 +54,7 @@ object Buffer {
     fun BufferChoice(viewModel: AnalysisViewModel, buffers: Buffers, snack: SnackFun, back: Click, saving: (Boolean) -> Unit) {
         val (bufferDist, setBufferDist) = remember { mutableStateOf(Pair(-1, false)) }
 
-        Col.Between {
+        Col.Col {
             Chart(buffers)
             Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
