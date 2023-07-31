@@ -61,7 +61,7 @@ object Col {
         Col(
             arrange = Arrangement.SpaceAround,
         ) {
-            Text(text = header, fontSize = 20.sp)
+            Text(text = header, fontSize = 20.sp, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.size(0.dp))
             content()
             Spacer(modifier = Modifier.size(0.dp))

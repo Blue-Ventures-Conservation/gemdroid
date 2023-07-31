@@ -47,7 +47,6 @@
     <string name="select_band">Select Band</string>
     <string name="select_x_band">Select X Band</string>
     <string name="select_y_band">Select Y Band</string>
-    <string name="select_a_chart">Select a chart to view:</string>
     <string name="band_separation">Band Separation</string>
     <string name="band_scatter_plot">Band Scatter Plot</string>
     <string name="band_correlation">Band Correlation</string>
@@ -92,4 +91,10 @@
     <string name="historical_accuracy">Historical</string>
     <string name="separability">Separability</string>
     <string name="explore">Explore</string>
+    <string name="good_separation_msg">Your CRAs show good band separation between your classes for this %s imagery!</string>
+    <string name="bad_separation_msg">Your CRAs are not providing band separation between some of your classes for this %s imagery.</string>
+    <string name="and_between">and between</string>
+    <string name="band_not_show_separability">This band does not show separability between any of your classes.</string>
+    <string name="band_separability_between">This band provides separability between</string>
+    <string name="separability_lacking_between">Separation is lacking between</string>
 </resources>

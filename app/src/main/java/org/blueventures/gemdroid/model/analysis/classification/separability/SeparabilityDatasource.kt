@@ -2,8 +2,8 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 
@@ -49,6 +49,9 @@ sealed interface TimePeriod {
     suspend fun separation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
     suspend fun scatter(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
     suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
+
+    fun contemporary() = this is ContemporaryHighTide || this is ContemporaryLowTide
+    fun historical() = !contemporary()
 }
 object ContemporaryHighTide: TimePeriod {
     override val apiVal: Int = 1
