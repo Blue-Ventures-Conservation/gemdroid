@@ -80,7 +80,7 @@
     <string name="historical_classification">Historical Classification</string>
     <string name="stop_drawing_polygon">Stop drawing a polygon</string>
     <string name="place_polygon_corner">Place polygon corner</string>
-    <string name="view_classifications_details">View classificaiton details</string>
+    <string name="view_classifications_details">View classification details</string>
     <string name="classifier_training_failed">Make sure your CRAs have multiple classes, and your polygon contains all CRA plots!</string>
     <string name="classification_details">Classification Details</string>
     <string name="legend">Legend</string>
@@ -97,4 +97,8 @@
     <string name="band_not_show_separability">This band does not show separability between any of your classes.</string>
     <string name="band_separability_between">This band provides separability between</string>
     <string name="separability_lacking_between">Separation is lacking between</string>
+    <string name="gps_rationale">This app uses GPS to help zoom the map to your location. Please grant the permission.</string>
+    <string name="gps_rationale_description">Please grant permission for the app to use GPS.</string>
+    <string name="clear">Clear</string>
+    <string name="polygon_sizing">Please create a polygon. It\'s area must be less than %s. Yours is currently %s</string>
 </resources>

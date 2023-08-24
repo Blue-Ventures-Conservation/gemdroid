@@ -118,6 +118,11 @@ class CRADatasource(
         return Result.success(pathsRes.getOrNull()!!)
     }
 
+    private data class OrderedField(val values: MutableList<String>, val counts: MutableList<Int>) {
+        fun size() = values.size
+        fun indexOf(field: String) = values.indexOf(field)
+    }
+
     private val assetRegex by lazy { Regex("[a-zA-Z\\d\\-_]+") }
     private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
         if (pathsResult.isFailure) {
@@ -182,8 +187,9 @@ class CRADatasource(
 
         val numerics = mutableListOf<String>()
         val strings = mutableListOf<String>()
-        val numericsMap = mutableMapOf<String, MutableMap<String, Int>>()
-        val stringsMap = mutableMapOf<String, MutableMap<String, Int>>()
+        val numericsMap = mutableMapOf<String, OrderedField>()
+        val stringsMap = mutableMapOf<String, OrderedField>()
+        val stringValues = mutableMapOf<String, List<String>>()
 
         try {
             // these constructors will inspect the file header
@@ -215,12 +221,13 @@ class CRADatasource(
             shpStream.close()
             dr.close()
 
-            numericsMap.forEach { (nf, nc) ->
-                if (nc.size < count) {
-                    stringsMap.forEach { (sf, sc) ->
-                        if (nc.size == sc.size) {
-                            numerics.add(nf)
+            numericsMap.forEach { (nf, nof) ->
+                stringsMap.forEach { (sf, sof) ->
+                    if (nof.size() == sof.size()) {
+                        numerics.add(nf)
+                        if (!strings.contains(sf)) {
                             strings.add(sf)
+                            stringValues[sf] = sof.values
                         }
                     }
                 }
@@ -248,28 +255,25 @@ class CRADatasource(
             return Result.failure(zipRes.exceptionOrNull()!!)
         }
 
-        val stringValues = mutableMapOf<String, List<String>>()
-        stringsMap.forEach { (k, v) ->
-            stringValues[k] = v.keys.toList()
-        }
-
         return Result.success(CRAFile(
             localFile = zipFile,
             fields = Fields(numerics, strings, stringValues))
         )
     }
 
-    private fun addToMap(m: MutableMap<String, MutableMap<String, Int>>, field: String, value: String) {
-        var fieldMap = m[field]
-        if (fieldMap == null) {
-            fieldMap = mutableMapOf()
-            m[field] = fieldMap
+    private fun addToMap(m: MutableMap<String, OrderedField>, field: String, value: String) {
+        var of = m[field]
+        if (of == null) {
+            of = OrderedField(mutableListOf(), mutableListOf())
+            m[field] = of
         }
-        val count = fieldMap[value]
-        if (count == null) {
-            fieldMap[value] = 1
+
+        val i = of.indexOf(value)
+        if (i < 0) {
+            of.values.add(value)
+            of.counts.add(1)
         } else {
-            fieldMap[value] = count + 1
+            of.counts[i] = of.counts[i] + 1
         }
     }
 
@@ -286,21 +290,21 @@ class CRADatasource(
         val mismatch = NoStack(R.string.shps_must_match_fields)
         return when {
             f1.complete() && f2.complete() -> {
-                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString && f1.chosenStringValues == f2.chosenStringValues) {
+                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString && f1.chosenStringValues!!.containsAll(f2.chosenStringValues!!)) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f1.complete() && !f2.complete() -> {
-                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString) && f2.stringValues!![f1.chosenString] == f1.chosenStringValues) {
+                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString) && f2.stringValues!![f1.chosenString]!!.containsAll(f1.chosenStringValues!!)) {
                     Result.success(f1)
                 } else {
                     Result.failure(mismatch)
                 }
             }
             f2.complete() && !f1.complete() -> {
-                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString) && f1.stringValues!![f2.chosenString] == f2.chosenStringValues) {
+                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString) && f1.stringValues!![f2.chosenString]!!.containsAll(f2.chosenStringValues!!)) {
                     Result.success(f2)
                 } else {
                     Result.failure(mismatch)
@@ -313,8 +317,23 @@ class CRADatasource(
                 val s2 = f2.strings!!
                 val sv1 = f1.stringValues!!
                 val sv2 = f2.stringValues!!
-                if (s1 == s2 && n1 == n2 && sv1 == sv2) {
-                    Result.success(f1)
+                if (s1.containsAll(s2) && n1.containsAll(n2)) {
+                    var success = true
+
+                    for (entry in sv1) {
+                        if (sv2.contains(entry.key) && entry.value.containsAll(sv2[entry.key]!!)) {
+                            continue
+                        }
+
+                        success = false
+                        break
+                    }
+
+                    if (success) {
+                        Result.success(f1)
+                    } else {
+                        Result.failure(mismatch)
+                    }
                 } else {
                     Result.failure(mismatch)
                 }
@@ -368,23 +387,18 @@ class CRADatasource(
 
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
+
         return Result.success(Unit)
     }
 
     suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
-        if (cra.localFile == null || cra.fields.chosenNumeric == null || cra.fields.chosenString == null) {
+        if (cra.localFile == null || !cra.fields.complete()) {
             return Result.failure(NoStack(R.string.internal_sho_err))
         }
 
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
-        val uid = auth.currentUser!!.uid
-        val key = cra.key()
-        val zip = cra.localFile
-        val result = uploadShapefile(key, uid, zip)
 
-        FileService.deleteFile(zip)
-
-        return result
+        return uploadShapefile(cra.key(), auth.currentUser!!.uid, cra.localFile)
     }
 
     private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCoroutine { cont ->
@@ -415,6 +429,7 @@ class CRADatasource(
         val data = result.data!!
         if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_falied))
         cra.eeUploadName = data.name
+        FileService.deleteFile(cra.localFile ?: File(""))
         return Result.success(Unit)
     }
 

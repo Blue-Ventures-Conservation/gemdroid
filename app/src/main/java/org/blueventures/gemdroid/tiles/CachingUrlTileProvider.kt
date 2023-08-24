@@ -13,7 +13,7 @@ import java.io.File
 import java.net.URL
 
 class CachingUrlTileProvider(
-    private val roiDir: File,
+    private val parentDir: File,
     private val tileDir: File,
     private val baseUrl: String,
     private val width: Int = 256,
@@ -37,7 +37,7 @@ class CachingUrlTileProvider(
             tile?.let {
                 it.data?.let { img ->
                     launch(ioDispatcher) {
-                        if (roiDir.exists()) {
+                        if (parentDir.exists()) {
                             val result = FileService.createDir(tileDir, "$z$sep$x")
                             if (result.isSuccess) {
                                 FileService.writeFile(File(result.getOrNull()!!, "$y"), img)

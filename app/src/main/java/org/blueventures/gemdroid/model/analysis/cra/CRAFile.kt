@@ -5,7 +5,7 @@ import org.blueventures.gemdroid.data.analysis.cra.CRA
 import org.blueventures.gemdroid.data.analysis.cra.Shapefile
 import java.io.File
 
-class CRAFile(
+data class CRAFile(
     val storageKey: String? = null,
     val localFile: File? = null,
     var fields: Fields = Fields(),

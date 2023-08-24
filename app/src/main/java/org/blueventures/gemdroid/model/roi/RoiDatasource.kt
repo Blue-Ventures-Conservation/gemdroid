@@ -9,6 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
@@ -140,72 +141,7 @@ class RoiDatasource(
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)
 
-    fun addPoint(polygon: MutableList<LatLng>, point: LatLng): MutableList<LatLng> {
-        var points = polygon
-
-        if (points.size > 2) {
-            val distances = mutableListOf<Double>()
-
-            for (i in points.indices) {
-                // 1. Find the start and end points of the next line segment
-                var start: LatLng
-                var end: LatLng
-                if (i == points.size - 1) {
-                    start = points.last()
-                    end = points.first()
-                } else {
-                    start = points[i]
-                    end = points[i+1]
-                }
-
-                // 2. Calculate the nearest coordinate by finding distance between the line segment and the coordinate to be drawn
-                val distance = PolyUtil.distanceToLine(point, start, end)
-                distances.add(distance)
-            }
-
-            // 3. The nearest coordinate = the edge with minimum distance to the coordinate to be drawn
-            // in some cases, there may be two edges the same distance from the new point, then
-            // we check to see which potential polygon has a positive signed area to avoid self intersections
-            val min = Collections.min(distances)
-            val last = distances.lastIndexOf(min)
-            val first = distances.indexOf(min)
-            val position =  when {
-                last == first -> first
-                signedArea(points, first, point) > signedArea(points, last, point) -> first
-                else -> last
-            }
-
-            // 4. move the nearest coordinate at the end by shifting array right
-            points = rotate(points, position)
-        }
-
-        // 5. Now add coordinate to be drawn
-        points.add(point)
-        return points
-    }
-
-    private fun signedArea(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
-        // toMutableList makes a copy so we aren't modifying the original list
-        val poly = rotate(points.toMutableList(), nearestIdx)
-        poly.add(point)
-        return SphericalUtil.computeSignedArea(poly)
-    }
-
-    private fun <T> rotate(points: MutableList<T>, nearestIdx: Int): MutableList<T> {
-        val shift = points.size - (nearestIdx + 1)
-
-        if (shift <= 0 || shift == points.size) {
-            return points
-        }
-
-        var element: T?
-        for (i in 0 until shift) {
-            // remove last element, add it to front of the List
-            element = points.removeAt(points.size - 1)
-            points.add(0, element)
-        }
-        return points
-    }
+    fun addPoint(polygon: DrawPolygon, point: LatLng) = polygon.addPoint(point)
 
     companion object {
         const val filename = "roi.json"

@@ -2,8 +2,7 @@ package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolygonOptions
-import com.google.maps.android.SphericalUtil
+import org.blueventures.gemdroid.data.DrawPolygon
 import java.io.File
 import java.util.Calendar
 
@@ -20,7 +19,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var points: MutableList<LatLng> = mutableListOf()
+    var polygon = DrawPolygon()
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -36,7 +35,7 @@ class RoiViewModel(
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            points
+            polygon.points
         ).collect(callback)
     }
 
@@ -64,30 +63,13 @@ class RoiViewModel(
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
-    fun addPoint(point: LatLng, callback: () -> Unit) = scoped { repo.addPoint(points, point).collect { poly ->
-        points = poly
-        callback()
-    }}
-    fun clearPoints() { points = mutableListOf() }
-    fun polygonArea() = SphericalUtil.computeArea(points)/1_000_000
-    fun validatePolygon(): Boolean {
-        val area = polygonArea()
-        return area > 0 && area <= maxROIArea
-    }
-    fun polygonOpts(): PolygonOptions? {
-        if (points.size < 3) {
-            return null
-        }
-        val opts = PolygonOptions().strokeWidth(2F).fillColor(0x7F00FF00)
-        for (latlng in points) {
-            opts.add(latlng)
-        }
-        return opts
-    }
+    fun addPoint(point: LatLng, callback: () -> Unit) = scoped { repo.addPoint(polygon, point).collect { callback() }}
+    fun clearPoints() { polygon.points = mutableListOf() }
+    fun validatePolygon() = polygon.validate(maxROIArea)
+    fun polygonOpts() = polygon.opts()
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
-
-    fun polygonSquareKms() = squareKms(polygonArea().toInt())
-    fun squareKms(km: Int) = "${"%,d".format(km)} km²"
+    fun polygonSquareKms() = polygon.areaStr()
+    fun squareKms(km: Int) = DrawPolygon.squareKms(km)
 
     fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
@@ -98,7 +80,7 @@ class RoiViewModel(
         const val maxYearGap = 5
         const val defaultContemporaryYearStart = 2019
         const val defaultContemporaryYearEnd = 2021
-        const val defaultHistoricalYearStart = 1999
+        const val defaultHistoricalYearStart = 1998
         const val defaultHistoricalYearEnd = 2001
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
