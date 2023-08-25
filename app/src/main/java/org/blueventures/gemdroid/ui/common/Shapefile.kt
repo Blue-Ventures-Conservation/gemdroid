@@ -42,8 +42,8 @@ object Shapefile {
                     validation == null -> validator(streams, setValidation)
                     validation.isFailure -> {
                         failure(validation.exceptionOrNull()!!.localized(LocalContext.current))
-                        setValidation(null)
                         setStreams(null)
+                        setValidation(null)
                     }
                     validation.isSuccess -> success(validation.getOrNull()!!)
                 }

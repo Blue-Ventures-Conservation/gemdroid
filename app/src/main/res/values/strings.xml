@@ -105,7 +105,7 @@
     <string name="no_polygons_found">No polygons found in Shapefile</string>
     <string name="choose_class_dynamics">Choose one of your classes to measure dynamics:</string>
     <string name="classification_reference_areas">Classification Reference Areas (CRAs)</string>
-    <string name="would_you_like_subregions">Would you like to see dynamics for sub-regions within your ROI?</string>
+    <string name="would_you_like_subregions">Would you like to see Dynamics for Sub-Regions within your ROI?</string>
     <string name="yes_add_sub_regions">Yes: Add Sub-Regions</string>
     <string name="no_skip_sub_regions">No: I don\'t need Sub-Regions</string>
     <string name="draw_sub_region_or_shapefile">Draw a Sub-Region, or use a Shapefile?</string>
@@ -118,4 +118,14 @@
     <string name="select_a_temporal_shapefile">Select a %s shapefile</string>
     <string name="reuse_a_previously_uploaded_shapefile">Re-use a previously uploaded shapefile</string>
     <string name="select_a_shapefile_from_local_files">Select a shapefile from local files</string>
+    <string name="select_a_sub_region_shapefile">Select a Sub-Region Shapefile</string>
+    <string name="would_you_like_more_sub_regions">Would you like to add more Sub-Regions?</string>
+    <string name="yes_add_another_sub_region">Yes: Add another Sub-Regions</string>
+    <string name="no_skip_more_sub_regions">No: I don\'t need more Sub-Regions</string>
+    <string name="create_coarse_roi">Create Coarse ROI</string>
+    <string name="name_your_roi">Name your ROI</string>
+    <string name="please_enter_name">Please enter a name</string>
+    <string name="please_enter_unique_non_special_name">Please enter a unique name without any special characters.</string>
+    <string name="please_enter_without_special_chars">Please enter a name with any special characters.</string>
+    <string name="name_your_sub_region">Name your Sub-Region</string>
 </resources>

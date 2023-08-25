@@ -12,6 +12,9 @@ import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_map
+import org.blueventures.gemdroid.ui.analysis.screens.Buffer
+import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
+import org.blueventures.gemdroid.ui.analysis.screens.Visualize
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi

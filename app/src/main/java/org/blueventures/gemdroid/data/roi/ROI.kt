@@ -3,6 +3,8 @@ package org.blueventures.gemdroid.data.roi
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Polygon
+import org.blueventures.gemdroid.data.Polygon.Companion.ringFromState
 import java.io.File
 
 // Saved on device based on user input when creating an ROI
@@ -17,7 +19,7 @@ data class ROI(
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
-    @Json(name = "polygon") val polygon: Polygon = Polygon(),
+    @Json(name = "polygon") val polygon: Polygon = Polygon(emptyList()),
 ) {
     companion object {
         private val adapter = FileService.adapter<ROI>()
@@ -46,32 +48,11 @@ data class ROI(
                 histYearEnd,
                 histMonthStart,
                 histMonthEnd,
-                polygonFromState(points)
+                Polygon(listOf(ringFromState(points)))
             )
         }
 
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
         fun toFile(file: File, roi: ROI) = FileService.toFile(file, roi, adapter)
-
-        private fun polygonFromState(points: List<LatLng>): Polygon {
-            val coordinates = mutableListOf<List<Double>>()
-            for (point in points) {
-                coordinates.add(listOf(point.longitude, point.latitude))
-            }
-
-            val first = points.first()
-            if (first != points.last()) {
-                coordinates.add(listOf(first.longitude, first.latitude))
-            }
-
-            return Polygon(
-                coordinates = listOf(coordinates.toList())
-            )
-        }
     }
 }
-
-data class Polygon(
-    @Json(name = "type") val type: String = "Polygon",
-    @Json(name = "coordinates") val coordinates: List<List<List<Double>>> = emptyList(),
-)

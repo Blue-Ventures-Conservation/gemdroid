@@ -10,6 +10,14 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.roi.screens.CoarseRoi
+import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
+import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
+import org.blueventures.gemdroid.ui.roi.screens.HistoricalMonths
+import org.blueventures.gemdroid.ui.roi.screens.HistoricalYears
+import org.blueventures.gemdroid.ui.roi.screens.Name
+import org.blueventures.gemdroid.ui.roi.screens.Overview
+import org.blueventures.gemdroid.ui.roi.screens.RoiList
 
 object Roi {
     object Routes {

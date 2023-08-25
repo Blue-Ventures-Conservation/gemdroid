@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.model.roi
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.Regexp
 import java.io.File
 import java.util.Calendar
 
@@ -51,8 +52,7 @@ class RoiViewModel(
         return true
     }
 
-    private val nameRegex by lazy { Regex("[a-zA-Z\\d]+[a-zA-Z\\d\\s]*") }
-    fun notSpecial() = nameRegex.matches(name)
+    fun notSpecial() = Regexp.roiName.matches(name)
 
     fun clearName() { name = "" }
     fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)

@@ -4,6 +4,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Correlation
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Dashboard
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterChoices
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterPlot
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.SelectTimePeriod
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Separation
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 

@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.roi.Polygon
+import org.blueventures.gemdroid.data.Polygon
 import org.blueventures.gemdroid.data.roi.ROI
 
 data class DynamicsROI(

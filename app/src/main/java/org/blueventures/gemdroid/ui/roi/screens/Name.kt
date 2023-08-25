@@ -1,0 +1,25 @@
+package org.blueventures.gemdroid.ui.roi.screens
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Collect
+import org.blueventures.gemdroid.ui.common.SnackFun
+
+object Name {
+    @Composable
+    fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
+        appBar(AppBarUpdate(title = stringResource(R.string.create_coarse_roi)))
+        val err = stringResource(R.string.please_enter_unique_non_special_name)
+        Collect.Text(header = stringResource(R.string.name_your_roi), label = stringResource(R.string.please_enter_name), initial = viewModel.name, snack, { name ->
+            viewModel.name = name
+            if (viewModel.notSpecial() && viewModel.isUnique()) null else err
+        }, next)
+        BackHandler(onBack = back)
+    }
+}

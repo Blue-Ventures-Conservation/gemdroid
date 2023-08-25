@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.Shapefile.inspectAndZip
 import org.blueventures.gemdroid.data.Shapefile.unzipOrCopy
 import org.blueventures.gemdroid.data.analysis.cra.CRA
@@ -69,7 +70,6 @@ class CRADatasource(
         fun indexOf(field: String) = values.indexOf(field)
     }
 
-    private val assetRegex by lazy { Regex("[a-zA-Z\\d\\-_]+") }
     private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
         val numerics = mutableListOf<String>()
         val strings = mutableListOf<String>()
@@ -81,7 +81,7 @@ class CRADatasource(
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
                 remoteCRAs.contains(shpName) -> NoStack(R.string.please_reuse_shp)
-                !assetRegex.matches(shpName) -> NoStack(R.string.shp_name_alphanumeric)
+                !Regexp.assetName.matches(shpName) -> NoStack(R.string.shp_name_alphanumeric)
                 else -> null
             }
         }) { _, record ->
