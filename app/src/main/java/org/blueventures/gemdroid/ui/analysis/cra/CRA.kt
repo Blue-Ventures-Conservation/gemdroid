@@ -1,28 +1,19 @@
 package org.blueventures.gemdroid.ui.analysis.cra
 
 import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -41,8 +32,8 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
-import java.io.InputStream
 import java.net.HttpURLConnection
 
 object CRA {
@@ -113,7 +104,11 @@ object CRA {
                 }
             }
             else -> {
-                SelectCRA(viewModel, temporal, remoteCRAs.getOrNull()!!, snack, next, previous, setLocal, setRemote)
+                val remotes = remoteCRAs.getOrNull()!!.toMutableList()
+                if (previous != null && remotes.contains(previous)) {
+                    remotes.remove(previous)
+                }
+                Selection(viewModel, temporal, remotes, snack, next, previous, setLocal, setRemote)
             }
         }
 
@@ -121,67 +116,18 @@ object CRA {
     }
 
     @Composable
-    fun SelectCRA(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
-        val (selectedFiles, setSelectedFiles) = remember { mutableStateOf<List<Uri>?>(null) }
-        val (validating, setValidating) = remember { mutableStateOf(false) }
-        val (localCRA, setLocalCRA) = remember { mutableStateOf<Result<CRAFile>?>(null) }
-
-        if (validating) {
-            Progress()
-            when {
-                localCRA == null -> {
-                    val streams = mutableListOf<InputStream?>()
-                    val names = mutableListOf<String?>()
-                    selectedFiles?.forEach { uri ->
-                        streams.add(LocalContext.current.contentResolver.openInputStream(uri))
-                        names.add(contentDisplayName(LocalContext.current, uri))
-                    }
-                    viewModel.validateLocalCRA(streams, names, remoteCRAs, previous, setLocalCRA)
-                }
-                localCRA.isFailure -> {
-                    val e = localCRA.exceptionOrNull()!!
-                    val msg = e.localized(LocalContext.current)
-                    LaunchedEffect(key1 = e) {
-                        snack(msg)
-                        setLocalCRA(null)
-                        setSelectedFiles(null)
-                        setValidating(false)
-                    }
-                }
-                localCRA.isSuccess -> {
-                    val cra = localCRA.getOrNull()!!
-                    LaunchedEffect(key1 = cra) {
-                        setLocal(cra)
-                        setLocalCRA(null)
-                        setSelectedFiles(null)
-                        setValidating(false)
-                        next()
-                    }
-                }
-            }
-        } else {
-            val remotes = remoteCRAs.toMutableList()
-            if (previous != null && remotes.contains(previous)) {
-                remotes.remove(previous)
-            }
-
-            Selection(temporal, remotes, setSelectedFiles, setValidating, next, setRemote)
-        }
-    }
-
-    @Composable
-    fun Selection(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
+    fun Selection(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         Col.Col {
             if (remoteCRAs.isEmpty()) {
-                LocalCRA(temporal, setSelectedFiles, setValidating)
+                LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, setLocal)
             } else {
-                LocalRemoteSwitch(temporal, remoteCRAs, setSelectedFiles, setValidating, next, setRemote)
+                LocalRemoteSwitch(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal, setRemote)
             }
         }
     }
 
     @Composable
-    fun LocalRemoteSwitch(temporal: String, remoteCRAs: List<String>, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit, next: Click, setRemote: (String) -> Unit) {
+    fun LocalRemoteSwitch(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val checkedState = remember { mutableStateOf(true) }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -189,9 +135,9 @@ object CRA {
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (checkedState.value) {
-                Text(text = "Re-use a previously uploaded shapefile", fontSize = 16.sp)
+                Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
             } else {
-                Text(text = "Select a shapefile from local files", fontSize = 16.sp)
+                Text(text = stringResource(R.string.select_a_shapefile_from_local_files), fontSize = 16.sp)
             }
             Switch(
                 checked = checkedState.value,
@@ -202,47 +148,26 @@ object CRA {
         if (checkedState.value) {
             RemoteCRA(temporal, remoteCRAs, next, setRemote)
         } else {
-            LocalCRA(temporal, setSelectedFiles, setValidating)
+            LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, setLocal)
         }
     }
 
     @Composable
-    fun LocalCRA(temporal: String, setSelectedFiles: (List<Uri>?) -> Unit, setValidating: (Boolean) -> Unit) {
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { files ->
-            setValidating(true)
-            setSelectedFiles(files)
-        }
-
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Select a $temporal CRA shapefile.",
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(modifier = Modifier.fillMaxWidth(), text = "You should select all of: ", fontSize = 16.sp, textAlign = TextAlign.Center)
-            Text(modifier = Modifier.fillMaxWidth(), text = ".shp, .dbf, .shx, .prj", fontSize = 16.sp, textAlign = TextAlign.Center)
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Or you can select a .zip that contains these.",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-        Spacer(modifier = Modifier.height(0.dp))
-        Butt.Text("Select Shapefile") {
-            launcher.launch(arrayOf("*/*"))
-        }
+    fun LocalCRA(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, setLocal: (CRAFile) -> Unit) {
+        Shapefile.Screen(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { streams, callback ->
+            viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, callback)
+        }, { err ->
+            snack(err)
+        }, { cra ->
+            setLocal(cra)
+        })
     }
 
     @Composable
     fun RemoteCRA(temporal: String, remoteCRAs: List<String>, next: Click, setRemote: (String) -> Unit) {
         val nextEnabled = remember { mutableStateOf(false) }
         val selected = remember { mutableStateOf("") }
-        Dropdown(title = "Select $temporal Shapefile:", labels = remoteCRAs) { i ->
+        Dropdown(title = stringResource(R.string.select_a_temporal_shapefile).format(temporal), labels = remoteCRAs) { i ->
             selected.value = remoteCRAs[i]
             nextEnabled.value = true
         }
@@ -259,20 +184,5 @@ object CRA {
         } else {
             Pair(null, true)
         }
-    }
-
-    private fun contentDisplayName(context: Context, uri: Uri): String? {
-        var name: String? = null
-
-        if (uri.scheme == "content") {
-            context.contentResolver.query(uri, null, null, null, null)?.let { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.moveToFirst()
-                name = cursor.getString(nameIndex)
-                cursor.close()
-            }
-        }
-
-        return name
     }
 }

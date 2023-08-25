@@ -59,19 +59,21 @@ class DrawPolygon {
         return area > 0 && area <= max
     }
 
-    fun opts(stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
-        if (points.size < 3) {
-            return null
-        }
-        val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill)
-        for (latlng in points) {
-            opts.add(latlng)
-        }
-        return opts
-    }
+    fun opts() = Companion.opts(points)
 
     companion object {
         fun squareKms(km: Int) = "${"%,d".format(km)} km²"
+
+        fun opts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
+            if (points.size < 3) {
+                return null
+            }
+            val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill)
+            for (latlng in points) {
+                opts.add(latlng)
+            }
+            return opts
+        }
 
         private fun signedArea(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
             // toMutableList makes a copy so we aren't modifying the original list

@@ -25,7 +25,6 @@ class ClassificationViewModel(
         set(value) {
             field = value
             sepViewModel.roiDir = value
-            setTileDirs()
         }
 
     var roi = ROI()
@@ -44,10 +43,7 @@ class ClassificationViewModel(
 
     private var classificationJob: Job? = null
 
-    var tileDirs: List<File> = listOf()
-    private fun setTileDirs() {
-        tileDirs = listOf(repo.contLCTileDir(roiDir), repo.histLCTileDir(roiDir))
-    }
+    fun tileDirs() = listOf(repo.contLCTileDir(roiDir), repo.histLCTileDir(roiDir))
 
     fun getClassification(cra: CRA, callback: (ApiResult<ClassificationURLs>) -> Unit) {
         if (classificationJob != null) return

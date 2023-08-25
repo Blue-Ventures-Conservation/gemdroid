@@ -16,7 +16,7 @@ import java.io.File
 
 class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
-): ApiViewModel(repo) {
+): Visualizer, ApiViewModel(repo) {
     lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
     lateinit var dynamicsViewModel: DynamicsViewModel
@@ -27,7 +27,6 @@ class AnalysisViewModel(
             craViewModel.roiDir = value
             classViewModel.roiDir = value
             dynamicsViewModel.roiDir = value
-            setTileDirs()
         }
 
     var roi = ROI()
@@ -42,16 +41,13 @@ class AnalysisViewModel(
         classViewModel = activity.viewModels<ClassificationViewModel>().value
         classViewModel.init(activity, craViewModel)
         dynamicsViewModel = activity.viewModels<DynamicsViewModel>().value
-        dynamicsViewModel.init(craViewModel)
+        dynamicsViewModel.init(craViewModel, this)
     }
 
     var buffersJob: Job? = null
     var visualizeURLsJob: Job? = null
 
-    var tileDirs: List<File> = listOf()
-    private fun setTileDirs() {
-        tileDirs = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
-    }
+    override fun tileDirs() = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = scoped { repo.getROI(roiDir).collect(callback) }
@@ -71,9 +67,9 @@ class AnalysisViewModel(
         repo.saveBuffer(roiDir, roi, buffer).collect(callback)
     }
 
-    fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
-    fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
-    fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
+    override fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
+    override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
+    override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
         if (visualizeURLsJob != null) return
         apiWithToken({ visualizeURLsJob = it }, repo.getVisualizeURLs(roi)) { result ->
             visualizeURLsJob = null
@@ -82,3 +78,9 @@ class AnalysisViewModel(
     }
 }
 
+interface Visualizer {
+    fun tileDirs(): List<File>
+    fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit): Job
+    fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
+    fun saveVisualizeURLsFile(urls: VisualizeURLs): Job
+}

@@ -9,9 +9,9 @@ class DynamicsRepository(
     private val datasource: DynamicsDatasource = DynamicsDatasource(),
 ): ApiRepository(datasource) {
     fun getDynamics(dynamicsROI: DynamicsROI) = goFlow { datasource.getDynamics(dynamicsROI) }
-    fun saveDynamicsFile(roiDir: File, urls: DynamicsURLs) = goFlow { datasource.saveDynamicsFile(roiDir, urls) }
-    fun loadDynamicsFile(roiDir: File) = goFlow { datasource.loadDynamicsFile(roiDir) }
-    fun gainTileDir(roiDir: File) = datasource.gainTileDir(roiDir)
-    fun lossTileDir(roiDir: File) = datasource.lossTileDir(roiDir)
-    fun persistenceTileDir(roiDir: File) = datasource.persistenceTileDir(roiDir)
+    fun saveDynamicsFile(classDir: File, urls: DynamicsURLs) = goFlow { datasource.saveDynamicsFile(classDir, urls) }
+    fun loadDynamicsFile(classDir: File) = goFlow { datasource.loadDynamicsFile(classDir) }
+    fun gainTileDir(classDir: File) = datasource.gainTileDir(classDir)
+    fun lossTileDir(classDir: File) = datasource.lossTileDir(classDir)
+    fun persistenceTileDir(classDir: File) = datasource.persistenceTileDir(classDir)
 }

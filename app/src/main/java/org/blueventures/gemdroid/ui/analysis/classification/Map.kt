@@ -46,7 +46,7 @@ object Map {
                 override val bounds = viewModel.roi.polygon.coordinates[0].map { LatLng(it[1], it[0]) }
 
                 override fun url(i: Int, urls: ClassificationURLs) = urls.ordered(i)
-                override fun tileDir(i: Int) = viewModel.tileDirs[i]
+                override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun staleCheck(urls: ClassificationURLs) = StaleCheck(urls.createdAt, urls.timeout)
                 override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(cra, callback)
                 override fun save(urls: ClassificationURLs) = viewModel.saveClassificationFile(urls)

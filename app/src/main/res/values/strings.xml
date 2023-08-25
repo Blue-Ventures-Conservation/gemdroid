@@ -37,6 +37,7 @@
     <string name="logout_label">Logout</string>
     <string name="could_not_verify_cras_charts">Could not verify CRA upload, charts may not be available.</string>
     <string name="could_not_verify_cras_classification">Could not verify CRA upload, classification may not be available.</string>
+    <string name="could_not_verify_cras_dynamics">Could not verify CRA upload, dynamics may not be available.</string>
     <string name="spectral_separability">Spectral Separability</string>
     <string name="contemporary">Contemporary</string>
     <string name="historical">Historical</string>
@@ -101,4 +102,20 @@
     <string name="gps_rationale_description">Please grant permission for the app to use GPS.</string>
     <string name="clear">Clear</string>
     <string name="polygon_sizing">Please create a polygon. It\'s area must be less than %s. Yours is currently %s</string>
+    <string name="no_polygons_found">No polygons found in Shapefile</string>
+    <string name="choose_class_dynamics">Choose one of your classes to measure dynamics:</string>
+    <string name="classification_reference_areas">Classification Reference Areas (CRAs)</string>
+    <string name="would_you_like_subregions">Would you like to see dynamics for sub-regions within your ROI?</string>
+    <string name="yes_add_sub_regions">Yes: Add Sub-Regions</string>
+    <string name="no_skip_sub_regions">No: I don\'t need Sub-Regions</string>
+    <string name="draw_sub_region_or_shapefile">Draw a Sub-Region, or use a Shapefile?</string>
+    <string name="draw_a_sub_region">Draw a Sub-Region</string>
+    <string name="use_a_shapefile">Use a Shapefile</string>
+    <string name="select_shapefile">Select Shapefile</string>
+    <string name="or_you_can_select_a_zip">Or you can select a .zip that contains these.</string>
+    <string name="you_should_select_all_of">\"You should select all of: \"</string>
+    <string name="shp_file_extensions">.shp, .dbf, .shx, .prj</string>
+    <string name="select_a_temporal_shapefile">Select a %s shapefile</string>
+    <string name="reuse_a_previously_uploaded_shapefile">Re-use a previously uploaded shapefile</string>
+    <string name="select_a_shapefile_from_local_files">Select a shapefile from local files</string>
 </resources>

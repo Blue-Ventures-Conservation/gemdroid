@@ -26,7 +26,7 @@ object Visualize {
                 override val bounds = viewModel.roi.polygon.coordinates[0].map { LatLng(it[1], it[0]) }
 
                 override fun url(i: Int, urls: VisualizeURLs) = urls.ordered(i)
-                override fun tileDir(i: Int) = viewModel.tileDirs[i]
+                override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun staleCheck(urls: VisualizeURLs) = StaleCheck(urls.createdAt, urls.timeout)
                 override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = viewModel.getVisualizeURLs(callback)
                 override fun save(urls: VisualizeURLs) = viewModel.saveVisualizeURLsFile(urls)

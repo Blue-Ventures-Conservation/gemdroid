@@ -6,16 +6,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.maps.android.PolyUtil
-import com.google.maps.android.SphericalUtil
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.MD5
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
-import java.math.BigInteger
-import java.security.MessageDigest
-import java.util.Collections
 
 class RoiDatasource(
     private val auth: FirebaseAuth = Firebase.auth
@@ -128,15 +124,7 @@ class RoiDatasource(
 
     private fun roisDir(filesDir: File): Result<File> {
         val uid = auth.uid ?: return Result.failure(SignIn.not)
-        return Result.success(File(File(filesDir, md5(uid)), dirname))
-    }
-
-    private fun md5(str: String): String {
-        val digest = MessageDigest.getInstance("MD5")
-        digest.update(str.encodeToByteArray())
-        val magnitude = digest.digest()
-        val bi = BigInteger(1, magnitude)
-        return String.format("%0" + (magnitude.size shl 1) + "x", bi)
+        return Result.success(File(File(filesDir, MD5.string(uid)), dirname))
     }
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)

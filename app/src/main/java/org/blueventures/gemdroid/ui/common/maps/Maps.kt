@@ -25,7 +25,7 @@ import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Poly.DrawingButton
+import org.blueventures.gemdroid.ui.common.maps.Draw.DrawingButton
 
 object Maps {
     /**
@@ -42,6 +42,7 @@ object Maps {
         floatingContent: @Composable BoxScope.() -> Unit = {},
         attemptGps: Boolean = false,
         tiles: Tiles.Model<T>? = null,
+        draw: Draw.Model? = null,
         poly: Poly.Model? = null
     ) {
         if (attemptGps) {
@@ -51,10 +52,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Layout(title, appBar, snack, back, next, floatingContent, granted, tiles, poly)
+                Layout(title, appBar, snack, back, next, floatingContent, granted, tiles, draw, poly)
             }
         } else {
-            Layout(title, appBar, snack, back, next, floatingContent, false, tiles, poly)
+            Layout(title, appBar, snack, back, next, floatingContent, false, tiles, draw, poly)
         }
     }
 
@@ -68,16 +69,20 @@ object Maps {
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         tiles: Tiles.Model<T>?,
+        draw: Draw.Model?,
         poly: Poly.Model?
     ){
         Tiles.Setup(title, appBar, tiles) { urls ->
             var bounds = tiles?.bounds
-            Poly.Setup(poly, snack, back, next) { drawing ->
-                if (drawing != null && poly!!.points().isNotEmpty()) {
-                    bounds = poly.points()
+            Draw.Setup(draw, snack, next,{
+                poly?.clearMapObjects()
+                back()
+            }) { drawing ->
+                if (drawing != null && draw!!.points().isNotEmpty()) {
+                    bounds = draw.points()
                 }
 
-                Map(floatingContent, fineLocation, bounds, tiles, urls, poly, drawing)
+                Map(floatingContent, fineLocation, bounds, tiles, urls, draw, drawing, poly)
             }
         }
     }
@@ -88,10 +93,11 @@ object Maps {
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         bounds: List<LatLng>?,
-        tilesModel: Tiles.Model<T>?,
+        tiles: Tiles.Model<T>?,
         urls: Tiles.UrlHandler<T>?,
-        drawer: Poly.Model?,
-        drawing: Poly.DrawingHandler?
+        draw: Draw.Model?,
+        drawing: Draw.DrawingHandler?,
+        poly: Poly.Model?
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -108,15 +114,19 @@ object Maps {
                         map.uiSettings.isMyLocationButtonEnabled = true
                     }
 
-                    tilesModel?.let { tiles ->
-                        urls?.let { u ->
-                            Tiles.MapCallback(tiles, u).onMapReady(map)
+                    tiles?.let {
+                        urls?.let {
+                            Tiles.MapCallback(tiles, urls).onMapReady(map)
                         }
                     }
 
-                    drawer?.let {
+                    poly?.let {
+                        Poly.MapCallback(poly).onMapReady(map)
+                    }
+
+                    draw?.let {
                         drawing?.let {
-                            Poly.MapCallback(drawer, drawing).onMapReady(map)
+                            Draw.MapCallback(draw, drawing).onMapReady(map)
                         }
                     }
 

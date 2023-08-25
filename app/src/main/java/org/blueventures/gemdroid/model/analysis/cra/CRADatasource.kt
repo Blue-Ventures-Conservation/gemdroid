@@ -13,9 +13,10 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
-import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.data.Shapefile.inspectAndZip
+import org.blueventures.gemdroid.data.Shapefile.unzipOrCopy
 import org.blueventures.gemdroid.data.analysis.cra.CRA
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.Shapefile
@@ -24,9 +25,7 @@ import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
-import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.resume
@@ -58,64 +57,11 @@ class CRADatasource(
     }
 
     fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
-        val craDirRes = FileService.createDir(roiDir, crasDir)
-        if (craDirRes.isFailure) {
-            return Result.failure(craDirRes.exceptionOrNull()!!)
-        }
-
-        val crasDir = craDirRes.getOrNull()!!
-
-        val unzipDirRes = FileService.createDir(crasDir, crasUnzipDir)
-        if (unzipDirRes.isFailure) {
-            return Result.failure(unzipDirRes.exceptionOrNull()!!)
-        }
-
-        val unzipDir = unzipDirRes.getOrNull()!!
-
-        val result = when {
-            files.isEmpty() -> Result.failure(NoStack(R.string.no_file_selected))
-            files.size == 1 -> validateShapes(crasDir, remoteCRAs, previous, unzip(unzipDir, files[0], names[0]))
-            else -> validateShapes(crasDir, remoteCRAs, previous, copyShapes(unzipDir, files, names))
-        }
-
+        val crasDir = File(roiDir, crasDir)
+        val unzipDir = File(crasDir, crasUnzipDir)
+        val result = validateShapes(crasDir, remoteCRAs, previous, unzipOrCopy(unzipDir, files, names))
         FileService.deleteDir(unzipDir)
-
         return result
-    }
-
-    private fun copyShapes(dir: File, shps: List<InputStream?>, names: List<String?>): Result<List<String>> {
-        val paths = mutableListOf<String>()
-        shps.forEachIndexed { i, shp ->
-            if (shp == null || names[i] == null) {
-                return Result.failure(NoStack(R.string.could_not_read_shps))
-            }
-            val path = File(dir, names[i]!!).path
-            val streamRes = FileService.streamToFile(shp, path)
-            if (streamRes.isFailure) {
-                return Result.failure(streamRes.exceptionOrNull()!!)
-            }
-
-            paths.add(path)
-        }
-
-        return Result.success(paths)
-    }
-
-    private fun unzip(dir: File, zip: InputStream?, name: String?): Result<List<String>> {
-        val notZip = NoStack(R.string.extract_must_be_zip)
-        if (name?.substringAfterLast(".")?.lowercase() != "zip") {
-            return Result.failure(notZip)
-        }
-
-        if (zip == null) {
-            return Result.failure(NoStack(R.string.could_not_open_zip))
-        }
-
-        val pathsRes = FileService.unzip(zip, dir.path)
-        if (pathsRes.isFailure) {
-            return Result.failure(pathsRes.exceptionOrNull()!!)
-        }
-        return Result.success(pathsRes.getOrNull()!!)
     }
 
     private data class OrderedField(val values: MutableList<String>, val counts: MutableList<Int>) {
@@ -125,115 +71,43 @@ class CRADatasource(
 
     private val assetRegex by lazy { Regex("[a-zA-Z\\d\\-_]+") }
     private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
-        if (pathsResult.isFailure) {
-            return Result.failure(pathsResult.exceptionOrNull()!!)
-        }
-
-        val paths = pathsResult.getOrNull()!!
-
-        val badShape = NoStack(R.string.shp_missing_files)
-        if (paths.size < 4) {
-            return Result.failure(badShape)
-        }
-
-        var shp: String? = null
-        var shpName = "shp"
-        var shx: String? = null
-        var shxName = "shx"
-        var dbf: String? = null
-        var dbfName = "dbf"
-        var prj: String? = null
-        var prjName = "prj"
-
-        paths.forEach { path ->
-            when(path.substringAfterLast(".").lowercase()) {
-                "shp" -> {
-                    shp = path
-                    shpName = path.substringAfterLast(FileService.sep).substringBeforeLast(".")
-                }
-                "shx" -> {
-                    shx = path
-                    shxName = path.substringAfterLast(FileService.sep).substringBeforeLast(".")
-                }
-                "dbf" -> {
-                    dbf = path
-                    dbfName = path.substringAfterLast(FileService.sep).substringBeforeLast(".")
-                }
-                "prj" -> {
-                    prj = path
-                    prjName = path.substringAfterLast(FileService.sep).substringBeforeLast(".")
-                }
-                else -> {
-                    return Result.failure(badShape)
-                }
-            }
-        }
-
-        if (shp == null || shx == null || dbf == null || prj == null) {
-            return Result.failure(badShape)
-        }
-
-        if (shpName != shxName || shpName != dbfName || shpName != prjName) {
-            return Result.failure(NoStack(R.string.shps_names_must_match))
-        }
-
-        if (previous != null && previous == shpName) {
-            return Result.failure(NoStack(R.string.shps_must_differ))
-        }
-
-        if (remoteCRAs.contains(shpName)) {
-            return Result.failure(NoStack(R.string.please_reuse_shp))
-        }
-
         val numerics = mutableListOf<String>()
         val strings = mutableListOf<String>()
         val numericsMap = mutableMapOf<String, OrderedField>()
         val stringsMap = mutableMapOf<String, OrderedField>()
         val stringValues = mutableMapOf<String, List<String>>()
 
-        try {
-            // these constructors will inspect the file header
-            val shpStream = FileInputStream(shp)
-            val sr = ShapeFileReader(shpStream)
-            val dr = DbfReader(FileInputStream(dbf))
-
-            var count = 0
-            var s = sr.next()
-            while(s != null) {
-                count++
-
-                val rec = dr.read()
-                rec.fields.forEach { field ->
-                    val name = field.name
-                    when(field.type) {
-                        DbfFieldTypeEnum.Numeric -> {
-                            addToMap(numericsMap, name, rec.getString(name).toFloat().toInt().toString())
-                        }
-                        DbfFieldTypeEnum.Character -> {
-                            addToMap(stringsMap, name, rec.getString(name))
-                        }
-                        else -> {}
-                    }
-                }
-
-                s = sr.next()
+        val zipResult = inspectAndZip(crasDir, pathsResult, { shpName ->
+            when {
+                previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
+                remoteCRAs.contains(shpName) -> NoStack(R.string.please_reuse_shp)
+                !assetRegex.matches(shpName) -> NoStack(R.string.shp_name_alphanumeric)
+                else -> null
             }
-            shpStream.close()
-            dr.close()
+        }) { _, record ->
+            record.fields.forEach { field ->
+                val name = field.name
+                when (field.type) {
+                    DbfFieldTypeEnum.Numeric -> addToMap(numericsMap, name, record.getString(name).toFloat().toInt().toString())
+                    DbfFieldTypeEnum.Character -> addToMap(stringsMap, name, record.getString(name))
+                    else -> {}
+                }
+            }
+        }
 
-            numericsMap.forEach { (nf, nof) ->
-                stringsMap.forEach { (sf, sof) ->
-                    if (nof.size() == sof.size()) {
-                        numerics.add(nf)
-                        if (!strings.contains(sf)) {
-                            strings.add(sf)
-                            stringValues[sf] = sof.values
-                        }
+        if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
+        val zipFile = zipResult.getOrNull()!!
+
+        numericsMap.forEach { (nf, nof) ->
+            stringsMap.forEach { (sf, sof) ->
+                if (nof.size() == sof.size()) {
+                    numerics.add(nf)
+                    if (!strings.contains(sf)) {
+                        strings.add(sf)
+                        stringValues[sf] = sof.values
                     }
                 }
             }
-        } catch (e: Exception) {
-            return Result.failure(e)
         }
 
         if (numerics.size <= 0) {
@@ -242,17 +116,6 @@ class CRADatasource(
 
         if (strings.size <= 0) {
             return Result.failure(NoStack(R.string.shp_no_candidate_char))
-        }
-
-        if (!assetRegex.matches(shpName)) {
-            return Result.failure(NoStack(R.string.shp_name_alphanumeric))
-        }
-
-        val zipFile = File(crasDir, "$shpName.zip")
-
-        val zipRes = FileService.zip(arrayOf(shp!!, shx!!, dbf!!, prj!!), zipFile.path)
-        if (zipRes.isFailure) {
-            return Result.failure(zipRes.exceptionOrNull()!!)
         }
 
         return Result.success(CRAFile(

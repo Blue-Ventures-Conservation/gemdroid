@@ -5,7 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.maps.Maps
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Draw
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object CoarseRoi {
@@ -16,7 +16,7 @@ object CoarseRoi {
             back = back,
             next = next,
             attemptGps = true,
-            poly = object : Poly.Model() {
+            draw = object : Draw.Model() {
                 override fun polygonOptions() = viewModel.polygonOpts()
                 override fun addPoint(point: LatLng, callback: () -> Unit) = viewModel.addPoint(point, callback)
                 override fun validatePolygon() = viewModel.validatePolygon()

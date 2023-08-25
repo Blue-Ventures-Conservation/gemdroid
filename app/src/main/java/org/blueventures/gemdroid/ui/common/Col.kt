@@ -57,9 +57,10 @@ object Col {
     }
 
     @Composable
-    inline fun Dash(header: String, content: @Composable ColumnScope.() -> Unit) {
+    inline fun Dash(header: String, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
         Col(
             arrange = Arrangement.SpaceAround,
+            scroll = scroll,
         ) {
             Text(text = header, fontSize = 20.sp, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.size(0.dp))
