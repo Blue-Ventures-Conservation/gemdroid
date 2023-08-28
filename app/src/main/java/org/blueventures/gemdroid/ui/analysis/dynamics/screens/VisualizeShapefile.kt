@@ -22,7 +22,7 @@ object VisualizeShapefile {
                 viewModel.shapefileLooksGood()
                 next()
             }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }}, poly = object : Poly.Model() {
-            override fun polygons() = listOf(viewModel.shapefile)
+            override fun polygons() = if (viewModel.shapefile.isEmpty()) emptyList() else listOf(viewModel.shapefile)
         })
         BackHandler(onBack = back)
     }

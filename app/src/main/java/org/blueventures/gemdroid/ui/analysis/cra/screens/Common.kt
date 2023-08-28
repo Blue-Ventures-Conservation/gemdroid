@@ -99,7 +99,7 @@ object Common {
     @Composable
     fun LocalCRA(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit) {
         Shapefile.Screen(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { bg ->
-            viewModel.backgroundJob(bg)
+            viewModel.background(bg)
         }, { streams, callback ->
             viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, callback)
         }, { err ->

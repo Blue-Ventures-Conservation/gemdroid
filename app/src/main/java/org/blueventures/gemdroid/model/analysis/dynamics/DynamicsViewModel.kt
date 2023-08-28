@@ -54,15 +54,15 @@ class DynamicsViewModel(
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)
     fun tileDirs() = listOf(repo.lossTileDir(classDir()), repo.persistenceTileDir(classDir()), repo.gainTileDir(classDir()))
 
-    fun loadSubRegionsFile(callback: (Result<SubRegionsFile>) -> Unit) = scoped { repo.loadSubRegionsFile(File(roiDir, dynamicsDir)).collect(callback) }
-    fun saveSubRegionsFile() = scoped { repo.saveSubRegionsFile(File(roiDir, dynamicsDir), subRegions).collect() }
+    fun loadSubRegionsFile(callback: (Result<SubRegionsFile>) -> Unit) = scoped { repo.loadSubRegionsFile(dynamicsDir()).collect(callback) }
+    fun saveSubRegionsFile() = scoped { repo.saveSubRegionsFile(dynamicsDir(), subRegions).collect() }
+    fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(dynamicsDir(), streams.streams, streams.names).collect(callback) }
 
     fun validateRegionName() = Regexp.subRegionName.matches(regionName)
     fun polygonDrawn() {
         subRegions.add(SubRegion(regionName, GeojsonPolygon.fromState(listOf(drawPoly.points))))
         drawPoly.clearPoints()
     }
-    fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(classDir(), streams.streams, streams.names).collect(callback) }
     fun shapefileLooksGood() {
         subRegions.add(SubRegion(regionName, GeojsonPolygon.fromState(shapefile)))
         shapefile = emptyList()
@@ -89,4 +89,6 @@ class DynamicsViewModel(
     }
     fun saveDynamicsFile(urls: DynamicsURLs) = scoped { repo.saveDynamicsFile(classDir(), urls).collect() }
     fun loadDynamicsFile(callback: (Result<DynamicsURLs>) -> Unit) = scoped { repo.loadDynamicsFile(classDir()).collect(callback) }
+
+    private fun dynamicsDir() = File(roiDir, dynamicsDir)
 }

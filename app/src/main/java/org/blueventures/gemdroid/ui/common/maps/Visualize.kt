@@ -21,19 +21,21 @@ object Visualize {
         fun saveVisualizeURLsFile(urls: VisualizeURLs): Job
     }
 
+    const val key = "false_composite_visualization"
+
     @Composable
     fun Screen(visualizer: Visualizer, title: String, appBar: AppBarFun, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
-        Tiles.LayerSetup(R.string.cont_high_tide, R.string.cont_low_tide, R.string.hist_high_tide, R.string.hist_low_tide)
+        Tiles.LayerSetup(key, R.string.cont_high_tide, R.string.cont_low_tide, R.string.hist_high_tide, R.string.hist_low_tide)
 
         GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
             Maps.Screen(floatingContent, false, object : Tiles.Model<VisualizeURLs>() {
                 override val title = title
                 override val appBar = appBar
+                override val layersKey = key
                 override val initUrls = urls
                 override val parentDir = visualizer.parentDir()
                 override val bounds = visualizer.bounds()
 
-                override fun url(i: Int, urls: VisualizeURLs) = urls.ordered(i)
                 override fun tileDir(i: Int) = visualizer.tileDir(i)
                 override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                 override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)

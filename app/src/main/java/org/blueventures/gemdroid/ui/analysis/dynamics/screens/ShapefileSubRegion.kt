@@ -14,7 +14,8 @@ object ShapefileSubRegion {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, snack: SnackFun, next: Click, back: Click) {
         Col.Col {
-            Shapefile.Screen(stringResource(R.string.select_a_sub_region_shapefile), {
+            Shapefile.Screen(stringResource(R.string.select_a_sub_region_shapefile), { bg ->
+                viewModel.background(bg)
             }, viewModel::validateShapefile, { err ->
                 snack(err)
             }) { points ->

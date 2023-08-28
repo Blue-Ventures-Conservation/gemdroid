@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.data.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.Stale
+import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
 // Returned by the backend after receiving an ROI and preparing imagery
@@ -13,8 +13,8 @@ data class VisualizeURLs(
     @Json(name = "hlot_url") val hlotURL: String,
     @Json(name = "created_at") override val createdAt: Int, // seconds
     @Json(name = "timeout") override val timeout: Int, // seconds
-): Stale {
-    fun ordered(i: Int): String {
+): URLs {
+    override fun ordered(i: Int): String {
         return when(i) {
             0 -> chotURL
             1 -> clotURL

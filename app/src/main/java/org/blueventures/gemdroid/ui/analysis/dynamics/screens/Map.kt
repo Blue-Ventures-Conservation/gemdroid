@@ -19,9 +19,10 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Tiles
 
 object Map {
+    const val key = "dynamics"
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click, back: Click) {
-        Tiles.LayerSetup(R.string.loss, R.string.persistence, R.string.gain)
+        Tiles.LayerSetup(key, R.string.loss, R.string.persistence, R.string.gain)
 
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
             viewModel.urls = urls
@@ -31,10 +32,11 @@ object Map {
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
                 override val title = viewModel.roi.name + " " + stringResource(R.string.dynamics)
                 override val appBar = appBar
+                override val layersKey = key
                 override val initUrls = urls
                 override val parentDir = viewModel.classDir()
                 override val bounds = viewModel.roi.bounds()
-                override fun url(i: Int, urls: DynamicsURLs) = urls.ordered(i)
+
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)

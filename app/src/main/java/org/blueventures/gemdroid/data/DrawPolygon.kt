@@ -87,7 +87,7 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
         }
 
         fun opts(points: List<List<LatLng>>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
-            val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill)
+            val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill).zIndex(Float.MAX_VALUE)
             for (ring in points) {
                 opts.addAll(ring)
             }

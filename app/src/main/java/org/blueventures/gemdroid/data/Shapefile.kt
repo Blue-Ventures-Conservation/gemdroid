@@ -96,7 +96,7 @@ object Shapefile {
         val paths = pathsResult.getOrNull()!!
 
         val badShape = NoStack(R.string.shp_missing_files)
-        if (paths.size < 4) {
+        if (paths.size < 3) {
             return Result.failure(badShape)
         }
 
@@ -126,9 +126,6 @@ object Shapefile {
                 "prj" -> {
                     prj = path
                     prjName = path.substringAfterLast(FileService.sep).substringBeforeLast(".")
-                }
-                else -> {
-                    return Result.failure(badShape)
                 }
             }
         }

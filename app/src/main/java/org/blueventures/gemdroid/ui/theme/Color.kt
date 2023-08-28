@@ -41,14 +41,14 @@ fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int): Int {
     }
 }
 
-fun blend(from: Color, to: Color, index: Int, size: Int): Int {
+fun blend(from: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {
     return when (size) {
         1 -> from.toArgb()
         else -> {
             val ratio = index.toFloat() * (1.0F / (size.toFloat() - 1.0F))
             val out = hsl()
             ColorUtils.blendHSL(colorToHSL(from), colorToHSL(to), ratio, out)
-            ColorUtils.HSLToColor(out)
+            ColorUtils.setAlphaComponent(ColorUtils.HSLToColor(out), alpha)
         }
     }
 }

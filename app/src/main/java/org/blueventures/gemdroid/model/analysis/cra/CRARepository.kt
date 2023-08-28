@@ -10,7 +10,6 @@ class CRARepository(
 ): ApiRepository(datasource) {
     fun getRemoteCRAs() = goFlow { datasource.getRemoteCRAs() }
     fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?) = goFlow { datasource.validateLocalCRA(roiDir, files, names, remoteCRAs, previous) }
-    fun backgroundJob(work: () -> Unit) = goFlow { work() }
     fun getCRAFields(cont: CRAFile, hist: CRAFile?) = goFlow { datasource.getCRAFields(cont, hist) }
     fun uploadCRA(cra: CRAFile) = goFlow { datasource.uploadCRA(cra) }
     fun uploadCRAs(c1: CRAFile, c2: CRAFile) = goFlow { datasource.uploadCRAs(c1, c2) }

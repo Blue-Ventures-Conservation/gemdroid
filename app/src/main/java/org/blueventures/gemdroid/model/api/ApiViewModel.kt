@@ -4,6 +4,7 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 
 open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): BaseViewModel() {
     fun <T> apiWithToken(jobserver: (Job) -> Unit, flow: Flow<ApiResult<T>>, callback: (ApiResult<T>) -> Unit) {
@@ -24,6 +25,8 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
             }
         })
     }
+
+    fun background(work: () -> Unit) = scoped { repo.background(work).collect() }
 
     companion object {
         fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(null, err.message)

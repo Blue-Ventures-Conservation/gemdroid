@@ -15,13 +15,13 @@ import java.io.InputStream
 class DynamicsDatasource(
     private val api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api) {
-    fun loadSubRegionsFile(classDir: File) = SubRegionsFile.fromFile(File(classDir, subRegionFile))
-    fun saveSubRegionsFile(classDir: File, regions: List<SubRegion>) = SubRegionsFile.toFile(File(classDir, subRegionFile), SubRegionsFile(regions))
+    fun loadSubRegionsFile(dynamicsDir: File) = SubRegionsFile.fromFile(File(dynamicsDir, subRegionFile))
+    fun saveSubRegionsFile(dynamicsDir: File, regions: List<SubRegion>) = SubRegionsFile.toFile(File(dynamicsDir, subRegionFile), SubRegionsFile(regions))
+    fun validateShapefile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = polygons(dynamicsDir, files, names)
     suspend fun getDynamics(dynamicsROI: DynamicsROI) = api.dynamics(dynamicsROI)
     fun saveDynamicsFile(classDir: File, urls: DynamicsURLs) = DynamicsURLs.toFile(File(classDir, dynamicsURLsFile), urls)
     fun loadDynamicsFile(classDir: File) = DynamicsURLs.fromFile(File(classDir, dynamicsURLsFile))
     fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = adder(point)
-    fun validateShapefile(classDir: File, files: List<InputStream?>, names: List<String?>) = polygons(classDir, files, names)
 
     fun gainTileDir(classDir: File) = File(classDir, gainTilesDir)
     fun lossTileDir(classDir: File) = File(classDir, lossTilesDir)

@@ -42,13 +42,13 @@ object Dynamics {
             }, yes = {
                 nav.navigate(Routes.dynamics_sub_region_name)
             }, no = {
-                var navRoute = Routes.dynamics_target_class
+                var navRoute = { nav.popClear(Routes.dynamics_target_class) }
                 if (viewModel.subRegions.isEmpty()) {
                     viewModel.saveSubRegionsFile()
                 } else if (!viewModel.subRegionsLoaded) {
-                    navRoute = Routes.dynamics_sub_regions_overview
+                    navRoute = { nav.navigate(Routes.dynamics_sub_regions_overview) }
                 }
-                nav.navigate(navRoute)
+                navRoute()
             }, back = {
                 nav.popClear(Analysis.Routes.dashboard)
             })
@@ -73,7 +73,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_drawn_sub_region) {
-            DrawSubRegion.Screen(viewModel, appBar, next = {
+            DrawSubRegion.Screen(viewModel, appBar, snack, next = {
                 nav.popClear(Routes.dynamics_sub_regions_option)
             }) {
                 viewModel.drawPoly.clearAll()
@@ -99,7 +99,7 @@ object Dynamics {
 
         b.composable(Routes.dynamics_sub_regions_overview) {
             SubRegionsOverview.Screen(viewModel, appBar, {
-                nav.navigate(Routes.dynamics_target_class)
+                nav.popClear(Routes.dynamics_target_class)
             }) {
                nav.popBackStack()
             }
@@ -109,7 +109,7 @@ object Dynamics {
             TargetClass.Screen(viewModel, appBar, {
                 nav.navigate(Routes.dynamics_map)
             }) {
-                nav.popBackStack()
+                nav.popClear(Analysis.Routes.dashboard)
             }
         }
 

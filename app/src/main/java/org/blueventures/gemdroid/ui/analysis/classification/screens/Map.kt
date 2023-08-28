@@ -29,9 +29,11 @@ object Map {
         }
     }
 
+    const val key = "classification"
+
     @Composable
     fun Classify(viewModel: ClassificationViewModel, appBar: AppBarFun, details: Click, back: Click) {
-        Tiles.LayerSetup(R.string.contemporary_classification, R.string.historical_classification)
+        Tiles.LayerSetup(key, R.string.contemporary_classification, R.string.historical_classification)
 
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
             viewModel.urls = urls
@@ -41,11 +43,11 @@ object Map {
             }, tiles = object : Tiles.Model<ClassificationURLs>() {
                 override val title = stringResource(R.string.classification)
                 override val appBar = appBar
+                override val layersKey = key
                 override val initUrls: ClassificationURLs = urls
                 override val parentDir = viewModel.roiDir
                 override val bounds = viewModel.roi.bounds()
 
-                override fun url(i: Int, urls: ClassificationURLs) = urls.ordered(i)
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
                 override fun save(urls: ClassificationURLs) = viewModel.saveClassificationFile(urls)

@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.Stale
+import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -35,14 +35,14 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import java.io.File
 
 object Tiles {
-    abstract class Model<T : Stale> {
+    abstract class Model<T : URLs> {
         abstract val title: String
         abstract val appBar: AppBarFun
+        abstract val layersKey: String
         abstract val initUrls: T
         abstract val parentDir: File
         abstract val bounds: List<LatLng>
 
-        abstract fun url(i: Int, urls: T): String
         abstract fun tileDir(i: Int): File
         abstract fun getRemote(callback: (ApiResult<T>) -> Unit)
         abstract fun save(urls: T): Job
@@ -52,7 +52,7 @@ object Tiles {
                 CachingUrlTileProvider(
                     parentDir,
                     tileDir(index),
-                    url(index, urls),
+                    urls.ordered(index),
                 )
             ).zIndex((layers.size - index).toFloat())
         }
@@ -80,7 +80,7 @@ object Tiles {
     }
 
     @Composable
-    fun <T : Stale> Setup(
+    fun <T : URLs> Setup(
         tileModel: Model<T>?,
         content: @Composable (UrlHandler<T>?) -> Unit
     ) {
@@ -99,7 +99,7 @@ object Tiles {
                 }
             }
 
-            layers.forEach { layer ->
+            layers[tiles.layersKey]?.forEach { layer ->
                 var checked by remember { mutableStateOf(true) }
                 layer.getChecked = { checked }
                 layer.setChecked = { checked = it }
@@ -107,7 +107,7 @@ object Tiles {
 
             tiles.appBar(AppBarUpdate(
                 title = tiles.title,
-                actions = { LayersDropdown() }
+                actions = { LayersDropdown(tiles) }
             ))
 
             content(object: UrlHandler<T> {
@@ -119,35 +119,39 @@ object Tiles {
         }
     }
 
-    class MapCallback<T : Stale>(private val model: Model<T>, private val urls: UrlHandler<T>): OnMapReadyCallback {
+    class MapCallback<T : URLs>(private val model: Model<T>, private val urls: UrlHandler<T>): OnMapReadyCallback {
         override fun onMapReady(map: GoogleMap) {
-            layers.forEachIndexed { i, layer ->
+            layers[model.layersKey]?.forEachIndexed { i, layer ->
                 layer.overlay = map.addTileOverlay(model.tileOpts(i, urls.getUrls()))
             }
         }
     }
 
-    val layers: MutableList<Layer> = mutableListOf()
+    val layers: MutableMap<String, List<Layer>?> = mutableMapOf()
 
     @Composable
-    fun LayerSetup(@StringRes vararg titles: Int) {
-        while (layers.isNotEmpty()) {
-            layers.removeFirst().overlay?.remove()
+    fun LayerSetup(key: String, @StringRes vararg titles: Int) {
+        layers[key]?.forEach { layer ->
+            layer.overlay?.remove()
         }
 
+        layers[key] = null
+
+        val newLayers = mutableListOf<Layer>()
         for (id in titles) {
-            layers.add(Layer(stringResource(id)))
+            newLayers.add(Layer(stringResource(id)))
         }
+        layers[key] = newLayers
     }
 
     @Composable
-    private fun LayersDropdown() {
+    private fun <T : URLs> LayersDropdown(model: Model<T>) {
         val (menu, setMenu) = remember { mutableStateOf(false) }
         IconButton(onClick = { setMenu(!menu) }) {
             Icon(Icons.Filled.MoreVert, "")
         }
         DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }) {
-            layers.forEach { layer ->
+            layers[model.layersKey]?.forEach { layer ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,7 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Stale
+import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
@@ -32,7 +34,7 @@ object Maps {
      */
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
-    fun <T : Stale> Screen(
+    fun <T : URLs> Screen(
         floatingContent: @Composable BoxScope.() -> Unit = {},
         attemptGps: Boolean = false,
         tiles: Tiles.Model<T>? = null,
@@ -54,7 +56,7 @@ object Maps {
     }
 
     @Composable
-    private fun <T : Stale> Layout(
+    private fun <T : URLs> Layout(
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         tiles: Tiles.Model<T>?,
@@ -70,7 +72,7 @@ object Maps {
 
     @SuppressLint("MissingPermission")
     @Composable
-    private fun <T : Stale> Map(
+    private fun <T : URLs> Map(
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         tiles: Tiles.Model<T>?,
@@ -79,12 +81,13 @@ object Maps {
         drawing: Draw.DrawingHandler?,
         poly: Poly.Model?
     ) {
+        val (zoomed, setZoomed) = remember { mutableStateOf(false) }
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             AndroidViewBinding(MapContainerBinding::inflate) {
-                val mapFragment = mapContainer.getFragment<SupportMapFragment>()
-                mapFragment.getMapAsync { map ->
+                // this call is indeed unsafe
+                mapContainer.getFragment<SupportMapFragment>()?.getMapAsync { map ->
                     // we clear everything here before adding saved data to the map
                     // because markers and polygons seem to stick around otherwise
                     map.clear()
@@ -110,12 +113,21 @@ object Maps {
                         }
                     }
 
-                    if (drawing != null && draw!!.points().isNotEmpty()) {
-                        draw.points()
-                    } else {
+                    if (drawing == null) {
                         tiles?.bounds
+                    } else {
+                        if (!zoomed) {
+                            if (draw!!.points().isNotEmpty()) {
+                                draw.points()
+                            } else {
+                                tiles?.bounds
+                            }
+                        } else {
+                            null
+                        }
                     }?.let {
                         zoomToBounds(map, it)
+                        setZoomed(true)
                     }
                 }
             }

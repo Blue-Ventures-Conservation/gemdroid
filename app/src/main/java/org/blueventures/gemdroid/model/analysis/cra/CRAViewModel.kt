@@ -32,8 +32,6 @@ class CRAViewModel(
         repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous).collect(callback)
     }
 
-    fun backgroundJob(work: () -> Unit) = scoped { repo.backgroundJob(work).collect() }
-
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
     fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }
 

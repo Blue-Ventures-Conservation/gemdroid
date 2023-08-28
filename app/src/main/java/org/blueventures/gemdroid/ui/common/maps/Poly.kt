@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.maps
 
+import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
@@ -19,7 +20,9 @@ object Poly {
             val polys = polygons()
             val size = polys.size
             val opts = mutableListOf<PolygonOptions>()
-            polys.forEachIndexed { index, poly -> DrawPolygon.opts(poly, fill = blend(MildRed, SkyBlue, index, size))?.let { opts.add(it) }}
+            polys.forEachIndexed { index, poly ->
+                DrawPolygon.opts(poly, fill = blend(MildRed, SkyBlue, index, size, 0x7F))?.let { opts.add(it) }
+            }
             return opts
         }
 

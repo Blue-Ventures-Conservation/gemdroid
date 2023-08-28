@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.flowOn
 open class IORepository(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    protected fun <T> goFlow(emitter: suspend () -> T) = flow {
+    fun background(work: () -> Unit) = goFlow { work() }
+    fun <T> goFlow(emitter: suspend () -> T) = flow {
         emit(emitter())
     }.flowOn(ioDispatcher)
 }
