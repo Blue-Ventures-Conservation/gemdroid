@@ -10,7 +10,7 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Model {
+class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
     var points = mutableListOf<LatLng>()
 
     override val markers = mutableListOf<Marker>()

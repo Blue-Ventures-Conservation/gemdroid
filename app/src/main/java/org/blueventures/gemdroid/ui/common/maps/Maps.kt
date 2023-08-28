@@ -22,10 +22,8 @@ import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Stale
 import org.blueventures.gemdroid.databinding.MapContainerBinding
-import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
-import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Draw.DrawingButton
 
 object Maps {
@@ -35,11 +33,6 @@ object Maps {
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun <T : Stale> Screen(
-        title: String = "",
-        appBar: AppBarFun = {},
-        snack: SnackFun = {},
-        back: Click = {},
-        next: Click = {},
         floatingContent: @Composable BoxScope.() -> Unit = {},
         attemptGps: Boolean = false,
         tiles: Tiles.Model<T>? = null,
@@ -53,37 +46,24 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Layout(title, appBar, snack, back, next, floatingContent, granted, tiles, draw, poly)
+                Layout(floatingContent, granted, tiles, draw, poly)
             }
         } else {
-            Layout(title, appBar, snack, back, next, floatingContent, false, tiles, draw, poly)
+            Layout(floatingContent, false, tiles, draw, poly)
         }
     }
 
     @Composable
     private fun <T : Stale> Layout(
-        title: String,
-        appBar: AppBarFun,
-        snack: SnackFun,
-        back: Click,
-        next: Click,
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         tiles: Tiles.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?
     ){
-        Tiles.Setup(title, appBar, tiles) { urls ->
-            var bounds = tiles?.bounds
-            Draw.Setup(draw, snack, next,{
-                poly?.clearMapObjects()
-                back()
-            }) { drawing ->
-                if (drawing != null && draw!!.points().isNotEmpty()) {
-                    bounds = draw.points()
-                }
-
-                Map(floatingContent, fineLocation, bounds, tiles, urls, draw, drawing, poly)
+        Tiles.Setup(tiles) { urls ->
+            Draw.Setup(draw) { drawing ->
+                Map(floatingContent, fineLocation, tiles, urls, draw, drawing, poly)
             }
         }
     }
@@ -93,7 +73,6 @@ object Maps {
     private fun <T : Stale> Map(
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
-        bounds: List<LatLng>?,
         tiles: Tiles.Model<T>?,
         urls: Tiles.UrlHandler<T>?,
         draw: Draw.Model?,
@@ -131,7 +110,11 @@ object Maps {
                         }
                     }
 
-                    bounds?.let {
+                    if (drawing != null && draw!!.points().isNotEmpty()) {
+                        draw.points()
+                    } else {
+                        tiles?.bounds
+                    }?.let {
                         zoomToBounds(map, it)
                     }
                 }

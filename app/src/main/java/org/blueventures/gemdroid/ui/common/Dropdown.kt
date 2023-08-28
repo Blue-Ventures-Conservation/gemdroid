@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.blueventures.gemdroid.ui.theme.OffWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,13 +38,14 @@ fun Dropdown(title: String, labels: Iterable<String>, onIndexSelected: (Int) -> 
             onExpandedChange = { setExpanded(!expanded) }
         ) {
             TextField(
-                selected,
+                "",
                 {},
+                label = { Text(selected, fontSize = 14.sp, color = OffWhite) },
+                enabled = false,
                 readOnly = true,
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(

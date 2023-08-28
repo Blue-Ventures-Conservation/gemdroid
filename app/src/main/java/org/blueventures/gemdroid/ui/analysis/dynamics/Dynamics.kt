@@ -8,6 +8,7 @@ import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
+import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Details
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawSubRegion
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Map
@@ -41,11 +42,13 @@ object Dynamics {
             }, yes = {
                 nav.navigate(Routes.dynamics_sub_region_name)
             }, no = {
-                if (viewModel.subRegionsLoaded || viewModel.subRegions.isEmpty()) {
-                    nav.navigate(Routes.dynamics_target_class)
-                } else {
-                    nav.navigate(Routes.dynamics_sub_regions_overview)
+                var navRoute = Routes.dynamics_target_class
+                if (viewModel.subRegions.isEmpty()) {
+                    viewModel.saveSubRegionsFile()
+                } else if (!viewModel.subRegionsLoaded) {
+                    navRoute = Routes.dynamics_sub_regions_overview
                 }
+                nav.navigate(navRoute)
             }, back = {
                 nav.popClear(Analysis.Routes.dashboard)
             })
@@ -74,6 +77,7 @@ object Dynamics {
             DrawSubRegion.Screen(viewModel, appBar, next = {
                 nav.popClear(Routes.dynamics_sub_regions_option)
             }) {
+                viewModel.drawPoly.clearAll()
                 nav.popBackStack()
             }
         }
@@ -117,7 +121,12 @@ object Dynamics {
                 nav.popBackStack()
             }
         }
-        // TODO: details
+
+        b.composable(Routes.dynamics_details) {
+            Details.Screen(viewModel, appBar) {
+                nav.popBackStack()
+            }
+        }
     }
 
     fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {

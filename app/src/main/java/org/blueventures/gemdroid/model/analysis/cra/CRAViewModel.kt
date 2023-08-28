@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.model.analysis.cra
 import com.github.zibnix.droidbones.NoStack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.cra.CRA
@@ -30,6 +31,8 @@ class CRAViewModel(
     fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, callback: (Result<CRAFile>) -> Unit) = scoped {
         repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous).collect(callback)
     }
+
+    fun backgroundJob(work: () -> Unit) = scoped { repo.backgroundJob(work).collect() }
 
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
     fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }

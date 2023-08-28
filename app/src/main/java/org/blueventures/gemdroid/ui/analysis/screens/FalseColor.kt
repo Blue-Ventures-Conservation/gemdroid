@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 object FalseColor {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
-        Visualize.Screen(stringResource(R.string.visualize_imagery_title), viewModel, appBar)
+        Visualize.Screen(viewModel, stringResource(R.string.visualize_imagery_title), appBar)
         BackHandler(onBack = back)
     }
 }

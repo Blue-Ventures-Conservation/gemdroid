@@ -72,7 +72,6 @@ object SubRegionsOption {
                 }
             }
             DashboardButton(stringResource(noButton)) {
-                viewModel.saveSubRegionsFile()
                 no()
             }
         }

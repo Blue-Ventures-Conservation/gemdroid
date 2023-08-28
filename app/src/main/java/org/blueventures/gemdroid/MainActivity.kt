@@ -89,7 +89,7 @@ fun GEMApp(activity: ComponentActivity) {
                          modifier = Modifier.fillMaxWidth(),
                          title = { Text(appBarState.update.title) },
                          actions = { appBarState.update.actions?.invoke(this) },
-                         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
+                         colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
                      )
             },
             snackbarHost = { SnackbarHost(snackHostState) }
@@ -109,6 +109,10 @@ fun GEMApp(activity: ComponentActivity) {
 }
 
 fun NavHostController.popClear(route: String) {
-    this.backQueue.clear()
-    this.navigate(route)
+    val controller = this
+    navigate(route) {
+        popUpTo(controller.graph.id) {
+            inclusive = true
+        }
+    }
 }

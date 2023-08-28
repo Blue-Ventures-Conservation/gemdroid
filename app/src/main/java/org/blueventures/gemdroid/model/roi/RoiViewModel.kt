@@ -19,7 +19,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var drawPoly = DrawPolygon(maxROIArea) { point, adder, callback ->
+    var drawPoly = DrawPolygon(maxRoiArea) { point, adder, callback ->
         scoped { repo.addPoint(point, adder).collect(callback) }
     }
 
@@ -71,7 +71,7 @@ class RoiViewModel(
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
     companion object {
-        const val maxROIArea = 40_000 // square kilometers
+        const val maxRoiArea = 40_000 // square kilometers
         const val maxYearGap = 5
         const val defaultContemporaryYearStart = 2019
         const val defaultContemporaryYearEnd = 2021

@@ -10,7 +10,6 @@ import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.File
 
 object Visualize {
@@ -24,11 +23,13 @@ object Visualize {
     }
 
     @Composable
-    fun Screen(title: String, visualizer: Visualizer, appBar: AppBarFun, snack: SnackFun = {}, back: Click = {}, next: Click = {}, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
+    fun Screen(visualizer: Visualizer, title: String, appBar: AppBarFun, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
         Tiles.LayerSetup(R.string.cont_high_tide, R.string.cont_low_tide, R.string.hist_high_tide, R.string.hist_low_tide)
 
         GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
-            Maps.Screen(title, appBar, snack, back, next, floatingContent, false, object : Tiles.Model<VisualizeURLs>() {
+            Maps.Screen(floatingContent, false, object : Tiles.Model<VisualizeURLs>() {
+                override val title = title
+                override val appBar = appBar
                 override val initUrls = urls
                 override val parentDir = visualizer.parentDir()
                 override val bounds = visualizer.bounds()

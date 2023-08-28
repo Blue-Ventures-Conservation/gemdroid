@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.common.maps
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -25,13 +24,19 @@ import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 
 object Draw {
-    interface Model {
+    interface UI {
+        val snack: SnackFun
+        val next: Click
+    }
+
+    interface Data {
         val markers: MutableList<Marker>
         var polygon: Polygon?
 
@@ -46,18 +51,22 @@ object Draw {
         fun maxSquareKms(): String
         fun polygonSquareKms(): String
 
+        fun clearAll() {
+            clearPoints()
+            clearMapObjects()
+        }
+
         fun clearMapObjects() {
             polygon?.remove()
             for (marker in markers) marker.remove()
         }
     }
 
+    data class Model(override val snack: SnackFun, override val next: Click, private val drawPoly: DrawPolygon): Data by drawPoly, UI
+
     @Composable
     fun Setup(
         model: Model?,
-        snack: SnackFun,
-        next: Click,
-        back: Click,
         content: @Composable (DrawingHandler?) -> Unit
     ) {
         Column(
@@ -73,18 +82,17 @@ object Draw {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Butt.Text(stringResource(R.string.clear)) {
-                        draw.clearMapObjects()
-                        draw.clearPoints()
+                        draw.clearAll()
                     }
                     val snackStr = stringResource(R.string.polygon_sizing)
                     Butt.Next {
                         if (draw.validatePolygon()) {
                             draw.clearMapObjects()
-                            next()
+                            draw.next()
                         } else {
                             val max = draw.maxSquareKms()
                             val current = draw.polygonSquareKms()
-                            snack(snackStr.format(max, current))
+                            draw.snack(snackStr.format(max, current))
                         }
                     }
                 }
@@ -95,11 +103,6 @@ object Draw {
                 })
             } ?: run {
                 content(null)
-            }
-
-            BackHandler {
-                model?.clearMapObjects()
-                back()
             }
         }
     }

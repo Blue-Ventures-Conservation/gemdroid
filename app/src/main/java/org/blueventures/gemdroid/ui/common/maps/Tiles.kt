@@ -32,11 +32,12 @@ import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
-import org.blueventures.gemdroid.ui.common.Effect
 import java.io.File
 
 object Tiles {
     abstract class Model<T : Stale> {
+        abstract val title: String
+        abstract val appBar: AppBarFun
         abstract val initUrls: T
         abstract val parentDir: File
         abstract val bounds: List<LatLng>
@@ -80,8 +81,6 @@ object Tiles {
 
     @Composable
     fun <T : Stale> Setup(
-        title: String,
-        appBar: AppBarFun,
         tileModel: Model<T>?,
         content: @Composable (UrlHandler<T>?) -> Unit
     ) {
@@ -106,24 +105,16 @@ object Tiles {
                 layer.setChecked = { checked = it }
             }
 
-            Effect.Once {
-                appBar(AppBarUpdate(
-                    title = title,
-                    actions = { LayersDropdown(*layers.toTypedArray()) }
-                ))
-            }
+            tiles.appBar(AppBarUpdate(
+                title = tiles.title,
+                actions = { LayersDropdown() }
+            ))
 
             content(object: UrlHandler<T> {
                 override fun getUrls() = urls!!
                 override fun setUrls(urls: T) = setUrls(urls)
             })
         } ?: run {
-            if (title.isNotEmpty()) {
-                Effect.Once {
-                    appBar(AppBarUpdate(title = title))
-                }
-            }
-
             content(null)
         }
     }
@@ -140,14 +131,17 @@ object Tiles {
 
     @Composable
     fun LayerSetup(@StringRes vararg titles: Int) {
-        layers.clear()
+        while (layers.isNotEmpty()) {
+            layers.removeFirst().overlay?.remove()
+        }
+
         for (id in titles) {
             layers.add(Layer(stringResource(id)))
         }
     }
 
     @Composable
-    private fun LayersDropdown(vararg layers: Layer) {
+    private fun LayersDropdown() {
         val (menu, setMenu) = remember { mutableStateOf(false) }
         IconButton(onClick = { setMenu(!menu) }) {
             Icon(Icons.Filled.MoreVert, "")

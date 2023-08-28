@@ -1,6 +1,9 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
@@ -13,6 +16,13 @@ object SubRegionsOverview {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
         appBar(AppBarUpdate(stringResource(R.string.sub_regions_overview)))
+        Text(text = "overview")
+        Button({
+            viewModel.saveSubRegionsFile()
+            next()
+        }) {
+            Text("next")
+        }
         BackHandler(onBack = back)
     }
 }

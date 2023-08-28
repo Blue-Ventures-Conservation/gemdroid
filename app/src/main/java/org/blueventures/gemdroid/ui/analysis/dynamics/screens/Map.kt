@@ -26,9 +26,11 @@ object Map {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(viewModel.roi.name + " " + stringResource(R.string.dynamics), appBar, floatingContent = {
+            Maps.Screen(floatingContent = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
+                override val title = viewModel.roi.name + " " + stringResource(R.string.dynamics)
+                override val appBar = appBar
                 override val initUrls = urls
                 override val parentDir = viewModel.classDir()
                 override val bounds = viewModel.roi.bounds()
@@ -38,7 +40,6 @@ object Map {
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
             })
         }
-
         BackHandler(onBack = back)
     }
 }

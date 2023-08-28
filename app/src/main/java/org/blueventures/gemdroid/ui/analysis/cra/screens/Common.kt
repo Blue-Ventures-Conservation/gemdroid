@@ -73,43 +73,36 @@ object Common {
     @Composable
     fun LocalRemoteSwitch(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         val checkedState = remember { mutableStateOf(true) }
-        // we add our own progress spinner here to cover the switch while validating
-        val (validating, setValidating) = remember { mutableStateOf(false) }
-
-        if (validating) {
-            Progress()
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (checkedState.value) {
-                    Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
-                } else {
-                    Text(text = stringResource(R.string.select_a_shapefile_from_local_files), fontSize = 16.sp)
-                }
-                Switch(
-                    checked = checkedState.value,
-                    onCheckedChange = { checkedState.value = it }
-                )
-            }
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (checkedState.value) {
-                RemoteCRA(temporal, remoteCRAs, next, setRemote)
+                Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
             } else {
-                LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal, setValidating)
+                Text(text = stringResource(R.string.select_a_shapefile_from_local_files), fontSize = 16.sp)
             }
+            Switch(
+                checked = checkedState.value,
+                onCheckedChange = { checkedState.value = it }
+            )
+        }
+
+        if (checkedState.value) {
+            RemoteCRA(temporal, remoteCRAs, next, setRemote)
+        } else {
+            LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal)
         }
     }
 
     @Composable
-    fun LocalCRA(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit, setValidating: (Boolean) -> Unit = {}) {
-        Shapefile.Screen(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { streams, callback ->
-            setValidating(true)
+    fun LocalCRA(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit) {
+        Shapefile.Screen(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { bg ->
+            viewModel.backgroundJob(bg)
+        }, { streams, callback ->
             viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, callback)
         }, { err ->
-            setValidating(false)
             snack(err)
         }, { cra ->
             setLocal(cra)

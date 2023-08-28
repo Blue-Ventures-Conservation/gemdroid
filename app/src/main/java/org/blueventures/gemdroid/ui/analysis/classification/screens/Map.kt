@@ -36,9 +36,11 @@ object Map {
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(stringResource(R.string.classification), appBar, floatingContent = {
+            Maps.Screen(floatingContent = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_classifications_details)) }
             }, tiles = object : Tiles.Model<ClassificationURLs>() {
+                override val title = stringResource(R.string.classification)
+                override val appBar = appBar
                 override val initUrls: ClassificationURLs = urls
                 override val parentDir = viewModel.roiDir
                 override val bounds = viewModel.roi.bounds()
@@ -49,7 +51,6 @@ object Map {
                 override fun save(urls: ClassificationURLs) = viewModel.saveClassificationFile(urls)
             })
         }
-
         BackHandler(onBack = back)
     }
 }

@@ -11,7 +11,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.Classification.Route
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_map
+import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_sub_regions_option
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
@@ -48,7 +48,7 @@ object Analysis {
             }, clazz = {
                 nav.popClear(classification_map)
             }, dyn = {
-                nav.popClear(dynamics_map)
+                nav.popClear(dynamics_sub_regions_option)
             })
         }
 

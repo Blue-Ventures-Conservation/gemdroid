@@ -30,38 +30,45 @@ object Shapefile {
     data class Streams(val streams: List<InputStream?>, val names: List<String?>)
 
     @Composable
-    fun <T> Screen(title: String, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
+    fun <T> Screen(title: String, uriHandler: (() -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
         val (streams, setStreams) = remember { mutableStateOf<Streams?>(null) }
-        val (validation, setValidation) = remember { mutableStateOf<Result<T>?>(null) }
 
         when (streams) {
-            null -> GetStreams(title, setStreams)
-            else -> {
-                Progress()
-                when {
-                    validation == null -> validator(streams, setValidation)
-                    validation.isFailure -> {
-                        failure(validation.exceptionOrNull()!!.localized(LocalContext.current))
-                        setStreams(null)
-                        setValidation(null)
-                    }
-                    validation.isSuccess -> success(validation.getOrNull()!!)
-                }
-            }
+            null -> GetStreams(title, uriHandler, setStreams)
+            else -> Validation(validator, streams, failure, success, setStreams)
         }
     }
 
     @Composable
-    fun GetStreams(title: String, setStreams: (Streams?) -> Unit) {
+    fun <T> Validation(validator: StreamValidator<T>, streams: Streams, failure: (String) -> Unit, success: (T) -> Unit, setStreams: (Streams?) -> Unit) {
+        val (validation, setValidation) = remember { mutableStateOf<Result<T>?>(null) }
+
+        when {
+            validation == null -> {
+                Progress()
+                validator(streams, setValidation)
+            }
+            validation.isFailure -> {
+                failure(validation.exceptionOrNull()!!.localized(LocalContext.current))
+                setStreams(null)
+            }
+            validation.isSuccess -> success(validation.getOrNull()!!)
+        }
+    }
+
+    @Composable
+    fun GetStreams(title: String, uriHandler: (() -> Unit) -> Unit, setStreams: (Streams?) -> Unit) {
         val context = LocalContext.current.applicationContext
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { files ->
-            val strms = mutableListOf<InputStream?>()
-            val names = mutableListOf<String?>()
-            files.forEach { uri ->
-                strms.add(context.contentResolver.openInputStream(uri))
-                names.add(contentDisplayName(context, uri))
+            uriHandler {
+                val strms = mutableListOf<InputStream?>()
+                val names = mutableListOf<String?>()
+                files.forEach { uri ->
+                    strms.add(context.contentResolver.openInputStream(uri))
+                    names.add(contentDisplayName(context, uri))
+                }
+                setStreams(Streams(strms, names))
             }
-            setStreams(Streams(strms, names))
         }
 
         Column(
@@ -74,8 +81,18 @@ object Shapefile {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.you_should_select_all_of), fontSize = 16.sp, textAlign = TextAlign.Center)
-            Text(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.shp_file_extensions), fontSize = 16.sp, textAlign = TextAlign.Center)
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.you_should_select_all_of),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.shp_file_extensions),
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
+            )
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.or_you_can_select_a_zip),
