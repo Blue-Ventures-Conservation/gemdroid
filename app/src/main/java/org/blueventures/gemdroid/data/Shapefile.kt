@@ -16,31 +16,47 @@ import java.io.InputStream
 import kotlin.math.abs
 
 object Shapefile {
-    fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>): Result<List<List<LatLng>>> {
+    fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxPoints: Int = 1000, errId: Int = R.string.please_use_smaller_shp): Result<List<List<LatLng>>> {
         val unzipDir = File(workDir, "shapes_unzip_polygons")
         val pathsResult = unzipOrCopy(unzipDir, files, names)
         
         val polys = mutableListOf<MutableList<LatLng>>()
 
+        var count = 0
         val zipResult = try {
             inspectAndZip(workDir, pathsResult, { null }) { shape, _ ->
                 if (shape.shapeType == ShapeType.POLYGON) {
                     val pShape = shape as PolygonShape
                     val pts = mutableListOf<LatLng>()
 
+                    var tooManyPts = false
                     for (i in 0 until pShape.numberOfParts) {
                         val shapePts = pShape.getPointsOfPart(i)
+                        count += shapePts.size
+
+                        if (count > maxPoints) {
+                            tooManyPts = true
+                            break
+                        }
+
                         for (pt in shapePts) {
                             pts.add(toLatLng(pt.x, pt.y))
                         }
                     }
 
-                    if (pts.isNotEmpty()) {
-                        if (pts.first() != pts.last()) {
-                            pts.add(pts.first())
+                    if (tooManyPts) {
+                        errId
+                    } else {
+                        if (pts.isNotEmpty()) {
+                            if (pts.first() != pts.last()) {
+                                pts.add(pts.first())
+                            }
+                            if (pts.size > 3) polys.add(pts)
                         }
-                        if (pts.size > 3) polys.add(pts)
+                        null
                     }
+                } else {
+                    null
                 }
             }
         } catch (e: Exception) {
@@ -72,7 +88,7 @@ object Shapefile {
         }
     }
 
-    fun inspectAndZip(workDir: File, pathsResult: Result<List<String>>, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Unit): Result<File> {
+    fun inspectAndZip(workDir: File, pathsResult: Result<List<String>>, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Int?): Result<File> {
         if (pathsResult.isFailure) {
             return Result.failure(pathsResult.exceptionOrNull()!!)
         }
@@ -130,6 +146,8 @@ object Shapefile {
             return Result.failure(check)
         }
 
+        var errId: Int? = null
+
         try {
             // these constructors will inspect the file header
             val shpStream = FileInputStream(shp)
@@ -142,13 +160,20 @@ object Shapefile {
                 count++
 
                 val rec = dr.read()
-                mapf(s, rec)
+                errId = mapf(s, rec)
+                if (errId != null) {
+                    break
+                }
                 s = sr.next()
             }
             shpStream.close()
             dr.close()
         } catch (e: Exception) {
             return Result.failure(e)
+        }
+
+        if (errId != null) {
+            return Result.failure(NoStack(errId))
         }
 
         val zipFile = File(workDir, "$shpName.zip")

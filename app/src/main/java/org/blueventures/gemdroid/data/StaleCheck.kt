@@ -1,4 +1,9 @@
 package org.blueventures.gemdroid.data
 
+interface Stale {
+    val createdAt: Int
+    val timeout: Int
+}
+
 // seconds
-fun StaleCheck(createdAt: Int, timeout: Int) = (System.currentTimeMillis() / 1000) - createdAt > timeout
+fun staleCheck(stale: Stale) = (System.currentTimeMillis() / 1000) - stale.createdAt > stale.timeout

@@ -1,16 +1,32 @@
 package org.blueventures.gemdroid.data
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
+import kotlinx.coroutines.Job
+import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class DrawPolygon {
+class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Model {
     var points = mutableListOf<LatLng>()
 
+    override val markers = mutableListOf<Marker>()
+    override var polygon: Polygon? = null
+
+    override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
-    fun addPoint(point: LatLng) {
+    override fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job  = adder(point, ::addPoint, callback)
+    override fun polygonIterate(mapf: (LatLng) -> Unit) = points.iterator().forEach(mapf)
+    override fun points() = points
+    override fun clearPoints() { points = mutableListOf() }
+    override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
+    override fun maxSquareKms() = squareKms(maxArea ?: 0)
+    override fun polygonSquareKms() = areaStr()
+
+    private fun addPoint(point: LatLng) {
         if (points.size > 2) {
             val distances = mutableListOf<Double>()
 
@@ -59,18 +75,21 @@ class DrawPolygon {
         return area > 0 && area <= max
     }
 
-    fun opts() = Companion.opts(points)
-
     companion object {
         fun squareKms(km: Int) = "${"%,d".format(km)} km²"
 
-        fun opts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
+        fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {
                 return null
             }
+
+            return opts(listOf(points), stroke, fill)
+        }
+
+        fun opts(points: List<List<LatLng>>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill)
-            for (latlng in points) {
-                opts.add(latlng)
+            for (ring in points) {
+                opts.addAll(ring)
             }
             return opts
         }

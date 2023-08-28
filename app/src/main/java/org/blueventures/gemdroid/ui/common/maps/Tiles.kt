@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import kotlinx.coroutines.Job
+import org.blueventures.gemdroid.data.Stale
+import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -34,14 +36,13 @@ import org.blueventures.gemdroid.ui.common.Effect
 import java.io.File
 
 object Tiles {
-    abstract class Model<T> {
+    abstract class Model<T : Stale> {
         abstract val initUrls: T
         abstract val parentDir: File
         abstract val bounds: List<LatLng>
 
         abstract fun url(i: Int, urls: T): String
         abstract fun tileDir(i: Int): File
-        abstract fun staleCheck(urls: T): Boolean
         abstract fun getRemote(callback: (ApiResult<T>) -> Unit)
         abstract fun save(urls: T): Job
 
@@ -78,7 +79,7 @@ object Tiles {
     }
 
     @Composable
-    fun <T> Setup(
+    fun <T : Stale> Setup(
         title: String,
         appBar: AppBarFun,
         tileModel: Model<T>?,
@@ -88,7 +89,7 @@ object Tiles {
         val (urls, setUrls) = remember { mutableStateOf(tileModel?.initUrls) }
 
         tileModel?.let { tiles ->
-            if (tiles.staleCheck(urls!!) && !refreshedURLs) {
+            if (staleCheck(urls!!) && !refreshedURLs) {
                 tiles.getRemote { result ->
                     if (result is ApiResult.Success) {
                         val data = result.data!!
@@ -127,7 +128,7 @@ object Tiles {
         }
     }
 
-    class MapCallback<T>(private val model: Model<T>, private val urls: UrlHandler<T>): OnMapReadyCallback {
+    class MapCallback<T : Stale>(private val model: Model<T>, private val urls: UrlHandler<T>): OnMapReadyCallback {
         override fun onMapReady(map: GoogleMap) {
             layers.forEachIndexed { i, layer ->
                 layer.overlay = map.addTileOverlay(model.tileOpts(i, urls.getUrls()))

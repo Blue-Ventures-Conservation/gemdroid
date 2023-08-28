@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.BaseViewModel
-import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.data.Regexp
 import java.io.File
@@ -20,7 +19,9 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var polygon = DrawPolygon()
+    var drawPoly = DrawPolygon(maxROIArea) { point, adder, callback ->
+        scoped { repo.addPoint(point, adder).collect(callback) }
+    }
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -36,7 +37,7 @@ class RoiViewModel(
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            polygon.points
+            drawPoly.points
         ).collect(callback)
     }
 
@@ -63,15 +64,9 @@ class RoiViewModel(
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
-    fun addPoint(point: LatLng, callback: () -> Unit) = scoped { repo.addPoint(polygon, point).collect { callback() }}
-    fun clearPoints() { polygon.points = mutableListOf() }
-    fun validatePolygon() = polygon.validate(maxROIArea)
-    fun polygonOpts() = polygon.opts()
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
-    fun polygonSquareKms() = polygon.areaStr()
-    fun squareKms(km: Int) = DrawPolygon.squareKms(km)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); clearPoints() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); drawPoly.clearPoints() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 

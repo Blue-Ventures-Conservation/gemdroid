@@ -1,15 +1,20 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics
 
+import android.content.Context
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.popClear
+import org.blueventures.gemdroid.ui.analysis.Analysis
+import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawSubRegion
+import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Map
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.NameRegion
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.ShapefileSubRegion
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
+import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOverview
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClass
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.VisualizeShapefile
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -24,28 +29,25 @@ object Dynamics {
         const val dynamics_drawn_sub_region = "analysis_dynamics_drawn_sub_region"
         const val dynamics_shapefile_region = "analysis_dynamics_shapefile_region"
         const val dynamics_visualize_shapefile_region = "analysis_dynamics_visualize_shapefile_region"
+        const val dynamics_sub_regions_overview = "analysis_dynamics_sub_regions_overview"
         const val dynamics_map = "analysis_dynamics_map"
         const val dynamics_details = "analysis_dynamics_details"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun) {
-        b.composable(Routes.dynamics_target_class) {
-            TargetClass.Screen(viewModel, appBar, snack, {
-                nav.navigate(Routes.dynamics_sub_regions_option)
-            }, {
-                nav.navigate(Routes.dynamics_map)
-            }) {
-                nav.popBackStack()
-            }
-        }
-
         b.composable(Routes.dynamics_sub_regions_option) {
-            SubRegionsOption.Screen(viewModel, yes = {
+            SubRegionsOption.Screen(viewModel, appBar, snack, skip = {
+                nav.popClear(Routes.dynamics_target_class)
+            }, yes = {
                 nav.navigate(Routes.dynamics_sub_region_name)
             }, no = {
-                nav.navigate(Routes.dynamics_map)
+                if (viewModel.subRegionsLoaded || viewModel.subRegions.isEmpty()) {
+                    nav.navigate(Routes.dynamics_target_class)
+                } else {
+                    nav.navigate(Routes.dynamics_sub_regions_overview)
+                }
             }, back = {
-                nav.popClear(Routes.dynamics_target_class)
+                nav.popClear(Analysis.Routes.dashboard)
             })
         }
 
@@ -69,7 +71,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_drawn_sub_region) {
-            DrawSubRegion.Screen(viewModel, snack, next = {
+            DrawSubRegion.Screen(viewModel, appBar, next = {
                 nav.popClear(Routes.dynamics_sub_regions_option)
             }) {
                 nav.popBackStack()
@@ -85,11 +87,40 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_visualize_shapefile_region) {
-            VisualizeShapefile.Screen(viewModel, snack, next = {
+            VisualizeShapefile.Screen(viewModel, appBar, next = {
                 nav.popClear(Routes.dynamics_sub_regions_option)
+            }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.dynamics_sub_regions_overview) {
+            SubRegionsOverview.Screen(viewModel, appBar, {
+                nav.navigate(Routes.dynamics_target_class)
             }) {
                nav.popBackStack()
             }
         }
+
+        b.composable(Routes.dynamics_target_class) {
+            TargetClass.Screen(viewModel, appBar, {
+                nav.navigate(Routes.dynamics_map)
+            }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.dynamics_map) {
+            Map.Screen(viewModel, appBar, {
+                nav.navigate(Routes.dynamics_details)
+            }) {
+                nav.popBackStack()
+            }
+        }
+        // TODO: details
+    }
+
+    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
+        return Classification.errHandler(ctx, code, message)
     }
 }

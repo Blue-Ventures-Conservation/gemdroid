@@ -3,8 +3,8 @@ package org.blueventures.gemdroid.data.roi
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.Polygon
-import org.blueventures.gemdroid.data.Polygon.Companion.ringFromState
+import org.blueventures.gemdroid.data.GeojsonPolygon
+import org.blueventures.gemdroid.data.GeojsonPolygon.Companion.ringFromState
 import java.io.File
 
 // Saved on device based on user input when creating an ROI
@@ -19,8 +19,10 @@ data class ROI(
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
-    @Json(name = "polygon") val polygon: Polygon = Polygon(emptyList()),
+    @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
 ) {
+    fun bounds() = polygon.coordinates[0].map { LatLng(it[1], it[0]) }
+
     companion object {
         private val adapter = FileService.adapter<ROI>()
 
@@ -48,7 +50,7 @@ data class ROI(
                 histYearEnd,
                 histMonthStart,
                 histMonthEnd,
-                Polygon(listOf(ringFromState(points)))
+                GeojsonPolygon(listOf(ringFromState(points)))
             )
         }
 

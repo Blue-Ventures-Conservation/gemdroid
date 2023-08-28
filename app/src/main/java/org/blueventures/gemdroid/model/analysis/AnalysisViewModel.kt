@@ -12,11 +12,12 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationVie
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
+import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 
 class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
-): Visualizer, ApiViewModel(repo) {
+): Visualize.Visualizer, ApiViewModel(repo) {
     lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
     lateinit var dynamicsViewModel: DynamicsViewModel
@@ -47,7 +48,7 @@ class AnalysisViewModel(
     var buffersJob: Job? = null
     var visualizeURLsJob: Job? = null
 
-    override fun tileDirs() = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
+    fun tileDirs() = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = scoped { repo.getROI(roiDir).collect(callback) }
@@ -67,6 +68,10 @@ class AnalysisViewModel(
         repo.saveBuffer(roiDir, roi, buffer).collect(callback)
     }
 
+    override fun parentDir() = roiDir
+    override fun bounds() = roi.bounds()
+    override fun tileDir(i: Int) = tileDirs()[i]
+
     override fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
     override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
     override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
@@ -76,11 +81,4 @@ class AnalysisViewModel(
             callback(result)
         }
     }
-}
-
-interface Visualizer {
-    fun tileDirs(): List<File>
-    fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit): Job
-    fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
-    fun saveVisualizeURLsFile(urls: VisualizeURLs): Job
 }

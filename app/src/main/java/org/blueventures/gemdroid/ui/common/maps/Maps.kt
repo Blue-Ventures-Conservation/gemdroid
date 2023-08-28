@@ -20,6 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Stale
 import org.blueventures.gemdroid.databinding.MapContainerBinding
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
@@ -33,7 +34,7 @@ object Maps {
      */
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
-    fun <T> Screen(
+    fun <T : Stale> Screen(
         title: String = "",
         appBar: AppBarFun = {},
         snack: SnackFun = {},
@@ -60,7 +61,7 @@ object Maps {
     }
 
     @Composable
-    private fun <T> Layout(
+    private fun <T : Stale> Layout(
         title: String,
         appBar: AppBarFun,
         snack: SnackFun,
@@ -89,7 +90,7 @@ object Maps {
 
     @SuppressLint("MissingPermission")
     @Composable
-    private fun <T> Map(
+    private fun <T : Stale> Map(
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         bounds: List<LatLng>?,

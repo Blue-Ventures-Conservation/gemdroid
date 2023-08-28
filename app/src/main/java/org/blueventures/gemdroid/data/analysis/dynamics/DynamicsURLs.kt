@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Stale
 import java.io.File
 
 data class DynamicsURLs(
@@ -10,10 +11,10 @@ data class DynamicsURLs(
     @Json(name = "loss_url") val lossURL: String,
     @Json(name = "persistence_url") val persistenceURL: String,
     @Json(name = "gain_url") val gainURL: String,
-    @Json(name = "created_at") val createdAt: Int, // seconds
-    @Json(name = "timeout") val timeout: Int, // seconds
+    @Json(name = "created_at") override val createdAt: Int, // seconds
+    @Json(name = "timeout") override val timeout: Int, // seconds
     @Json(name = "sub_region_stats") val subRegionStats: List<DynamicsStats>,
-) {
+): Stale {
     fun ordered(i: Int): String {
         return when(i) { 0 -> lossURL; 1 -> persistenceURL; else -> gainURL }
     }

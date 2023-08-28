@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.theme.blend
 object Poly {
     abstract class Model {
         private val drawnPolygon = mutableListOf<Polygon>()
-        abstract fun polygons(): List<List<LatLng>>
+        abstract fun polygons(): List<List<List<LatLng>>>
 
         fun polygonOptions(): List<PolygonOptions> {
             val polys = polygons()

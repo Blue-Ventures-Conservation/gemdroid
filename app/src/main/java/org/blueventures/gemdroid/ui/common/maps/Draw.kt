@@ -31,18 +31,21 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 
 object Draw {
-    abstract class Model {
-        val markers = mutableListOf<Marker>()
-        var polygon: Polygon? = null
+    interface Model {
+        val markers: MutableList<Marker>
+        var polygon: Polygon?
 
-        abstract fun polygonOptions(): PolygonOptions?
-        abstract fun addPoint(point: LatLng, callback: () -> Unit): Job
-        abstract fun validatePolygon(): Boolean
-        abstract fun polygonIterate(mapf: (LatLng) -> Unit)
-        abstract fun maxSquareKms(): String
-        abstract fun polygonSquareKms(): String
-        abstract fun points(): List<LatLng>
-        abstract fun clearPoints()
+        fun polygonOptions(): PolygonOptions?
+        fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job
+        fun polygonIterate(mapf: (LatLng) -> Unit)
+        fun points(): List<LatLng>
+        fun clearPoints()
+
+        /** validation funcs */
+        fun validatePolygon(): Boolean
+        fun maxSquareKms(): String
+        fun polygonSquareKms(): String
+
         fun clearMapObjects() {
             polygon?.remove()
             for (marker in markers) marker.remove()

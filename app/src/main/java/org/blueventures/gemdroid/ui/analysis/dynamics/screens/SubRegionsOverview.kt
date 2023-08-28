@@ -9,10 +9,10 @@ import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 
-object Details {
+object SubRegionsOverview {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click) {
-        appBar(AppBarUpdate(stringResource(R.string.dynamics)))
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
+        appBar(AppBarUpdate(stringResource(R.string.sub_regions_overview)))
         BackHandler(onBack = back)
     }
 }

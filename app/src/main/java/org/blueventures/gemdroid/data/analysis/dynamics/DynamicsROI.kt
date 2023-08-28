@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.Polygon
+import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.roi.ROI
 
 data class DynamicsROI(
@@ -20,5 +20,5 @@ data class DynamicsROI(
 
 data class SubRegion(
     @Json(name = "name") val name: String,
-    @Json(name = "geometry") val polygon: Polygon,
+    @Json(name = "geometry") val polygon: GeojsonPolygon,
 )

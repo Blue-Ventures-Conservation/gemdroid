@@ -62,7 +62,7 @@ object Overview {
                     Text(text = "${viewModel.contemporaryMonthStart} - ${viewModel.contemporaryMonthEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}", fontSize = 18.sp)
                     Text(text = "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}", fontSize = 18.sp)
-                    Text(text = "${viewModel.polygon.points.size} points, ${viewModel.polygonSquareKms()}", fontSize = 18.sp)
+                    Text(text = "${viewModel.drawPoly.points.size} points, ${viewModel.drawPoly.polygonSquareKms()}", fontSize = 18.sp)
                 }
             }
             val ctx = LocalContext.current

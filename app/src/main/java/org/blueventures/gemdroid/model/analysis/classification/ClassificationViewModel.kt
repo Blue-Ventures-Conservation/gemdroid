@@ -20,6 +20,7 @@ class ClassificationViewModel(
 ): ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
     lateinit var craAwaiter: CRAAwaiter
+    lateinit var cra: CRA
 
     var roiDir = File("")
         set(value) {
@@ -45,7 +46,7 @@ class ClassificationViewModel(
 
     fun tileDirs() = listOf(repo.contLCTileDir(roiDir), repo.histLCTileDir(roiDir))
 
-    fun getClassification(cra: CRA, callback: (ApiResult<ClassificationURLs>) -> Unit) {
+    fun getClassification(callback: (ApiResult<ClassificationURLs>) -> Unit) {
         if (classificationJob != null) return
         apiWithToken({ classificationJob = it }, repo.getClassification(ClassificationROI(
             cra.contemporaryCRA.shapefileStorageKey,

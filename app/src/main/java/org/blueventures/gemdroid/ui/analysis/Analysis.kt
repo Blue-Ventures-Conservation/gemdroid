@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_map
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
-import org.blueventures.gemdroid.ui.analysis.screens.Visualize
+import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
@@ -61,7 +61,7 @@ object Analysis {
 
         // Visualization
         b.composable(Routes.visualize) {
-            Visualize.Screen(viewModel, appBar) {
+            FalseColor.Screen(viewModel, appBar) {
                 nav.popClear(Routes.dashboard)
             }
         }

@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
+import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.MD5
 import org.blueventures.gemdroid.data.Shapefile.polygons
@@ -19,6 +20,7 @@ class DynamicsDatasource(
     suspend fun getDynamics(dynamicsROI: DynamicsROI) = api.dynamics(dynamicsROI)
     fun saveDynamicsFile(classDir: File, urls: DynamicsURLs) = DynamicsURLs.toFile(File(classDir, dynamicsURLsFile), urls)
     fun loadDynamicsFile(classDir: File) = DynamicsURLs.fromFile(File(classDir, dynamicsURLsFile))
+    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = adder(point)
     fun validateShapefile(classDir: File, files: List<InputStream?>, names: List<String?>) = polygons(classDir, files, names)
 
     fun gainTileDir(classDir: File) = File(classDir, gainTilesDir)
@@ -33,7 +35,7 @@ class DynamicsDatasource(
         const val persistenceTilesDir = "persistence_tiles"
         const val dynamicsUnzipDir = "unzip"
         const val dynamicsURLsFile = "urls.json"
-        const val maxSubRegions = 5
+        const val maxSubRegions = 10
 
         fun classDir(roiDir: File, targetClass: String) = File(File(roiDir, dynamicsDir), MD5.string(targetClass))
     }

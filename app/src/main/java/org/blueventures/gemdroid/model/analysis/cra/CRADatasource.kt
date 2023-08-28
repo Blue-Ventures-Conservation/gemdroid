@@ -93,6 +93,7 @@ class CRADatasource(
                     else -> {}
                 }
             }
+            null
         }
 
         if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)

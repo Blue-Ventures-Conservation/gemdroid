@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
+import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.data.analysis.dynamics.SubRegion
@@ -15,6 +16,7 @@ class DynamicsRepository(
     fun getDynamics(dynamicsROI: DynamicsROI) = goFlow { datasource.getDynamics(dynamicsROI) }
     fun saveDynamicsFile(classDir: File, urls: DynamicsURLs) = goFlow { datasource.saveDynamicsFile(classDir, urls) }
     fun loadDynamicsFile(classDir: File) = goFlow { datasource.loadDynamicsFile(classDir) }
+    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = goFlow { datasource.addPoint(point, adder) }
     fun validateShapefile(classDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validateShapefile(classDir, files, names) }
 
     fun gainTileDir(classDir: File) = datasource.gainTileDir(classDir)

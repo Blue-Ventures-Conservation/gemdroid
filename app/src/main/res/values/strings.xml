@@ -128,4 +128,15 @@
     <string name="please_enter_unique_non_special_name">Please enter a unique name without any special characters.</string>
     <string name="please_enter_without_special_chars">Please enter a name with any special characters.</string>
     <string name="name_your_sub_region">Name your Sub-Region</string>
+    <string name="visualize_sub_region_shp">Visualize Sub Region Shapefile</string>
+    <string name="shp_looks_good">shapefile looks good, continue</string>
+    <string name="dynamics">Dynamics</string>
+    <string name="draw_sub_region">Draw Sub Region</string>
+    <string name="loss">Loss</string>
+    <string name="persistence">Persistence</string>
+    <string name="gain">Gain</string>
+    <string name="view_dynamics_details">View dynamics details</string>
+    <string name="sub_regions_overview">Sub Regions Overview</string>
+    <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
+    <string name="please_hit_no">You can\'t have more than %s sub regions, please hit no!</string>
 </resources>
