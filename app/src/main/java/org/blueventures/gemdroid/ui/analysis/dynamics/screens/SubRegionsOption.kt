@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -21,6 +22,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object SubRegionsOption {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click, back: Click) {
+        viewModel.regionName = ""
         Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
             viewModel.cra = cra
             Choice(viewModel, appBar, snack, skip, yes, no, back)
@@ -47,16 +49,21 @@ object SubRegionsOption {
             }
         }
 
-        BackHandler(onBack = back)
+        BackHandler {
+            viewModel.subRegions.clear()
+            back()
+        }
     }
 
     @Composable
     fun Layout(viewModel: DynamicsViewModel, snack: SnackFun, yes: Click, no: Click) {
+        val notFirst by remember { mutableStateOf(viewModel.subRegions.isNotEmpty()) }
+
         var header = R.string.would_you_like_subregions
         var yesButton = R.string.yes_add_sub_regions
         var noButton = R.string.no_skip_sub_regions
 
-        if (viewModel.subRegions.isNotEmpty()) {
+        if (notFirst) {
             header = R.string.would_you_like_more_sub_regions
             yesButton = R.string.yes_add_another_sub_region
             noButton = R.string.no_skip_more_sub_regions

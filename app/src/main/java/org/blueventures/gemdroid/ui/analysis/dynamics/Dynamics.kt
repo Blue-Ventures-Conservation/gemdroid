@@ -58,7 +58,6 @@ object Dynamics {
             NameRegion.Screen(viewModel, snack, next = {
                 nav.navigate(Routes.dynamics_sub_regions_draw_or_shapefile)
             }) {
-                viewModel.regionName = ""
                 nav.popBackStack()
             }
         }

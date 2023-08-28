@@ -8,7 +8,6 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBarFun
-import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import java.io.File
 

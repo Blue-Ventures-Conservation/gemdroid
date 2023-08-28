@@ -17,6 +17,9 @@ object NameRegion {
             viewModel.regionName = name
             if (viewModel.validateRegionName()) null else err
         }, next)
-        BackHandler(onBack = back)
+        BackHandler {
+            viewModel.regionName = ""
+            back()
+        }
     }
 }
