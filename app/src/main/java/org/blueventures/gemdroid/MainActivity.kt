@@ -33,9 +33,11 @@ import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
+import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.BasicActions
+import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
@@ -64,22 +66,22 @@ fun GEMApp(activity: ComponentActivity) {
     val nav = rememberNavController()
     val snackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val snackbar: (String) -> Unit = { msg ->
+    val snack: SnackFun = { msg ->
         scope.launch {
             snackHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
         }
     }
 
     GEMDroidTheme {
-        val (appBarState, abs) = remember { mutableStateOf(AppBarState(
+        val (barState, setBarState) = remember { mutableStateOf(AppBarState(
             // add settings nav here
             signOut = { SignIn.signOut(activity, Firebase.auth) },
         )) }
 
-        val setAppBarState: (AppBarUpdate) -> Unit = {
-            if (it.title != appBarState.update.title || it.actions != null) {
-                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(appBarState.settings, appBarState.signOut) }
-                abs(appBarState.copy(update = AppBarUpdate(it.title, acts)))
+        val appBar: AppBarFun = {
+            if (it.title != barState.update.title || it.actions != null) {
+                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.settings, barState.signOut) }
+                setBarState(barState.copy(update = AppBarUpdate(it.title, acts)))
             }
         }
 
@@ -87,8 +89,8 @@ fun GEMApp(activity: ComponentActivity) {
             topBar = {
                      TopAppBar(
                          modifier = Modifier.fillMaxWidth(),
-                         title = { Text(appBarState.update.title) },
-                         actions = { appBarState.update.actions?.invoke(this) },
+                         title = { Text(barState.update.title) },
+                         actions = { barState.update.actions?.invoke(this) },
                          colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
                      )
             },
@@ -101,8 +103,8 @@ fun GEMApp(activity: ComponentActivity) {
                     .padding(padding)
                     .fillMaxSize()
             ) {
-                Roi.screens(this, nav, activity, roiModel, analysisModel, setAppBarState, snackbar)
-                Analysis.screens(this, nav, analysisModel, setAppBarState, snackbar)
+                Roi.screens(this, nav, activity, roiModel, analysisModel, appBar, snack)
+                Analysis.screens(this, nav, analysisModel, appBar, snack)
             }
         }
     }

@@ -1,26 +1,10 @@
 package org.blueventures.gemdroid.ui.analysis.cra
 
 import android.content.Context
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.model.analysis.cra.CRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
 import org.blueventures.gemdroid.popClear
@@ -30,13 +14,6 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.common.AppBarFun
-import org.blueventures.gemdroid.ui.common.Butt
-import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Dropdown
-import org.blueventures.gemdroid.ui.common.Effect
-import org.blueventures.gemdroid.ui.common.Progress
-import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.net.HttpURLConnection
 
@@ -53,7 +30,7 @@ object CRA {
             ContemporaryCRA.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.hist_choice)
             }) {
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.popBackStack()
             }
         }
         b.composable(Routes.hist_choice) {

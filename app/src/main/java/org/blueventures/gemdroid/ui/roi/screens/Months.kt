@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.roi.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +22,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
+import org.blueventures.gemdroid.ui.common.Nav
 
 object Months {
     private val resources = listOf(R.string.january, R.string.february, R.string.march, R.string.april, R.string.may, R.string.june, R.string.july, R.string.august, R.string.september, R.string.october, R.string.november, R.string.december)
@@ -37,27 +37,25 @@ object Months {
 
     @Composable
     fun Screen(selector: Selector, temporal: String, back: Click, next: Click) {
-        val months = mutableListOf<String>()
-        for (res in resources) {
-            months.add(stringResource(res))
-        }
-
-        Col.BigPad {
-            Text("Select range of months (inclusive) for $temporal imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SelectMonth(months, selector.initMonthStart, selector::setMonthStart)
-                SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
+        Nav.Wrap(back, next) { nav ->
+            val months = mutableListOf<String>()
+            for (res in resources) {
+                months.add(stringResource(res))
             }
-            Butt.Next {
-                next()
+
+            Col.BigPad {
+                Text("Select range of months (inclusive) for $temporal imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SelectMonth(months, selector.initMonthStart, selector::setMonthStart)
+                    SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
+                }
+                Butt.Next(click = nav::next)
             }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

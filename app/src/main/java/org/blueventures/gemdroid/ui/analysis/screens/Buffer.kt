@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -29,25 +28,26 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, back: Click) {
-        appBar(AppBarUpdate(title = "ROI Buffer"))
+        Nav.Wrap(back) {
+            appBar(AppBarUpdate(title = "ROI Buffer"))
 
-        val (saving, setSaving) = remember { mutableStateOf(false) }
+            val (saving, setSaving) = remember { mutableStateOf(false) }
 
-        if (saving) {
-            Progress()
-        } else {
-            GetRemote.Save(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
-                BufferChoice(viewModel, buffs, snack, back, setSaving)
+            if (saving) {
+                Progress()
+            } else {
+                GetRemote.Save(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
+                    BufferChoice(viewModel, buffs, snack, back, setSaving)
+                }
             }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

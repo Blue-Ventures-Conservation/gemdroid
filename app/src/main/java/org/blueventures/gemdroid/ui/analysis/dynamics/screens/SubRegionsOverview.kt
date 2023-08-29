@@ -14,12 +14,12 @@ import org.blueventures.gemdroid.ui.common.Click
 
 object SubRegionsOverview {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, ok: Click, startOver: Click, back: Click) {
         appBar(AppBarUpdate(stringResource(R.string.sub_regions_overview)))
         Text(text = "overview")
         Button({
             viewModel.saveSubRegionsFile()
-            next()
+            ok()
         }) {
             Text("next")
         }

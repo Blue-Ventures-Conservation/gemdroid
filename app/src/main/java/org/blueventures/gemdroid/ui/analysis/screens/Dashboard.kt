@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,13 +36,33 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: (Stage) -> Unit, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+        Nav.Wrap(back) { nav ->
+            Layout(viewModel, appBar, snack, {
+                nav.next()
+                next()
+            }, nav::back, {
+                nav.next()
+                vis()
+            }, {
+                nav.next()
+                clazz()
+            }) {
+                nav.next()
+                dyn()
+            }
+        }
+    }
+
+    @Composable
+    fun Layout(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
         appBar(AppBarUpdate(title = "${viewModel.roiDir.name} ${stringResource(R.string.analysis)}"))
         val (roi, setRoi) = remember { mutableStateOf<Result<ROI>?>(null) }
         val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
@@ -67,15 +86,14 @@ object Dashboard {
             }
             else -> {
                 viewModel.roi = roi.getOrNull()!!
+                viewModel.stage = stage
                 Dashboard(stage, snack, next, back, vis, clazz, dyn)
             }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable
-    fun Dashboard(stage: Stage, snack: SnackFun, nextClick: (Stage) -> Unit, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun Dashboard(stage: Stage, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
         Col.Col {
             when (stage) {
                 Stage.ERROR -> {
@@ -119,7 +137,7 @@ object Dashboard {
 
             if (stage != Stage.ALL) {
                 DashboardNextButton {
-                    nextClick(stage)
+                    next()
                 }
             }
         }
@@ -131,7 +149,7 @@ object Dashboard {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Butt.Next(onClick = next)
+            Butt.Next(click = next)
         }
     }
 

@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.classification.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,24 +25,25 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Details {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, separability: Click, back: Click) {
-        appBar(AppBarUpdate(title = stringResource(R.string.classification_details)))
+        Nav.Wrap(back, separability) { sep ->
+            appBar(AppBarUpdate(title = stringResource(R.string.classification_details)))
 
-        Col.MidPad(arrange = Arrangement.SpaceAround, fill = false, scroll = true) {
-            Info.Header(stringResource(R.string.legend))
-            Legend(viewModel.urls)
-            Info.Header(stringResource(R.string.accuracy))
-            Accuracy(viewModel.urls)
-            Info.Header(stringResource(R.string.separability))
-            Separability(separability)
+            Col.MidPad(arrange = Arrangement.SpaceAround, fill = false, scroll = true) {
+                Info.Header(stringResource(R.string.legend))
+                Legend(viewModel.urls)
+                Info.Header(stringResource(R.string.accuracy))
+                Accuracy(viewModel.urls)
+                Info.Header(stringResource(R.string.separability))
+                Separability(separability)
+            }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

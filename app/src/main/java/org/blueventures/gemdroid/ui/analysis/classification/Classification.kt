@@ -6,8 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
-import org.blueventures.gemdroid.popClear
-import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Details
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Map
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability
@@ -30,7 +28,7 @@ object Classification {
             Map.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.details)
             }) {
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.popBackStack()
             }
         }
 

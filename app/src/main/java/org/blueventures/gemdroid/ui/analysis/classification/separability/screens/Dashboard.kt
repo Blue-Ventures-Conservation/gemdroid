@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -15,17 +14,27 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 
 object Dashboard {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, separation: Click, scatter: Click, correlation: Click, back: Click) {
-        appBar(AppBarUpdate(title = viewModel.title))
+        Nav.Wrap(back) { nav ->
+            appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
-            Layout(viewModel, json, separation, scatter, correlation, back)
+            GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
+                Layout(viewModel, json, {
+                    nav.next()
+                    separation()
+                }, {
+                    nav.next()
+                    scatter()
+                }, {
+                    nav.next()
+                    correlation()
+                }, nav::back)
+            }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

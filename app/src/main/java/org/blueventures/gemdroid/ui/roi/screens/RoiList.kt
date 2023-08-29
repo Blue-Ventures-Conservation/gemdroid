@@ -33,14 +33,33 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
 object RoiList {
+    interface DirHolder {
+        var roiDir: File
+    }
+
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, appbar: AppBarFun, snack: SnackFun, roiClick: (File) -> Unit, floatingOnClick: () -> Unit) {
+    fun Screen(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appbar: AppBarFun, snack: SnackFun, next: Click, floating: Click) {
+        val (wentNext, setWentNext) = remember { mutableStateOf(false) }
+        if (!wentNext) {
+            Layout(viewModel, dirHolder, filesDir, appbar, snack, {
+                setWentNext(true)
+                next()
+            }) {
+                setWentNext(true)
+                floating()
+            }
+        }
+    }
+
+    @Composable
+    fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appbar: AppBarFun, snack: SnackFun, next: Click, floating: Click) {
         appbar(AppBarUpdate(title = "Regions of Interest"))
 
         val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
@@ -64,7 +83,7 @@ object RoiList {
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     FloatingActionButton(
-                        onClick = floatingOnClick,
+                        onClick = floating,
                         modifier = Modifier
                             .padding(24.dp)
                             .align(Alignment.BottomEnd)
@@ -72,7 +91,7 @@ object RoiList {
                         Icon(Icons.Filled.Add, "Add new ROI")
                     }
                     Column(modifier = Modifier.fillMaxSize()) {
-                        ListView(list, roiClick, setDeleteRoi)
+                        ListView(list, dirHolder, next, setDeleteRoi)
                     }
                 }
             }
@@ -80,7 +99,7 @@ object RoiList {
     }
 
     @Composable
-    fun DeleteDialog(viewModel: RoiViewModel, snackbar: (String) -> Unit, toDelete: File, onDismiss: () -> Unit) {
+    fun DeleteDialog(viewModel: RoiViewModel, snack: SnackFun, toDelete: File, onDismiss: Click) {
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(text = "Delete ROI") },
@@ -91,19 +110,19 @@ object RoiList {
                     viewModel.deleteRoi(toDelete) { result ->
                         onDismiss()
                         if (result.isFailure) {
-                            snackbar(result.exceptionOrNull()!!.localized(ctx))
+                            snack(result.exceptionOrNull()!!.localized(ctx))
                         }
                     }
                 }
             },
             dismissButton = {
-                Butt.Text("Cancel", onClick = onDismiss)
+                Butt.Text("Cancel", click = onDismiss)
             }
         )
     }
 
     @Composable
-    fun ListView(rois: List<File>, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
+    fun ListView(rois: List<File>, dirHolder: DirHolder, next: Click, setDeleteRoi: (File?) -> Unit) {
         if (rois.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -119,7 +138,7 @@ object RoiList {
         } else {
             LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                 items(rois) { dir ->
-                    RoiRow(dir, roiClick, setDeleteRoi)
+                    RoiRow(dir, dirHolder, next, setDeleteRoi)
                     Divider(color = SkyBlue, thickness = 1.dp)
                 }
             }
@@ -127,11 +146,14 @@ object RoiList {
     }
 
     @Composable
-    fun RoiRow(dir: File, roiClick: (File) -> Unit, setDeleteRoi: (File?) -> Unit) {
+    fun RoiRow(dir: File, dirHolder: DirHolder, next: Click, setDeleteRoi: (File?) -> Unit) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .clickable { roiClick(dir) },
+                .clickable {
+                    dirHolder.roiDir = dir
+                    next()
+                },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp))

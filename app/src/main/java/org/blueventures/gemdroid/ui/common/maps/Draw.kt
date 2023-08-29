@@ -50,6 +50,7 @@ object Draw {
         fun validatePolygon(): Boolean
         fun maxSquareKms(): String
         fun polygonSquareKms(): String
+        fun area(): Double
 
         fun clearAll() {
             clearPoints()
@@ -84,15 +85,22 @@ object Draw {
                     Butt.Text(stringResource(R.string.clear)) {
                         draw.clearAll()
                     }
-                    val snackStr = stringResource(R.string.polygon_sizing)
+                    val pleaseDraw = stringResource(R.string.please_create_polygon)
+                    val tooBig = stringResource(R.string.polygon_sizing)
                     Butt.Next {
                         if (draw.validatePolygon()) {
                             draw.clearMapObjects()
                             draw.next()
                         } else {
-                            val max = draw.maxSquareKms()
-                            val current = draw.polygonSquareKms()
-                            draw.snack(snackStr.format(max, current))
+                            val msg = if (draw.area() <= 0) {
+                                pleaseDraw
+                            } else {
+                                val max = draw.maxSquareKms()
+                                val current = draw.polygonSquareKms()
+                                tooBig.format(max, current)
+                            }
+
+                            draw.snack(msg)
                         }
                     }
                 }

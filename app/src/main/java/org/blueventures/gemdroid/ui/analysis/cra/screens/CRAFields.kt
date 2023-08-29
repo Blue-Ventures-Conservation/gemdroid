@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.cra.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +14,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -22,12 +22,14 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object CRAFields {
     @Composable
     fun Screen(viewModel: CRAViewModel, snack: SnackFun, done: Click, back: Click) {
-        val (saving, setSaving) = remember{ mutableStateOf(false) }
+        Nav.Wrap(back, done) { nav ->
+            val (saving, setSaving) = remember{ mutableStateOf(false) }
 
-        if (saving) {
-            PleaseWait()
-        } else {
-            CRAFields(viewModel, snack, setSaving, done, back)
+            if (saving) {
+                PleaseWait()
+            } else {
+                CRAFields(viewModel, snack, setSaving, nav::next, nav::back)
+            }
         }
     }
 
@@ -70,8 +72,6 @@ object CRAFields {
                 SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, done, back)
             }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

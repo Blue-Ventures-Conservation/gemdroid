@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
@@ -14,14 +13,23 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Tiles
 
 object Map {
-    const val key = "dynamics"
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click, back: Click) {
+        Nav.Wrap(back, details) { nav ->
+            Dynamics(viewModel, appBar, nav::next)
+        }
+    }
+
+    const val key = "dynamics"
+
+    @Composable
+    fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click) {
         Tiles.LayerSetup(key, R.string.loss, R.string.persistence, R.string.gain)
 
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
@@ -42,6 +50,5 @@ object Map {
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
             })
         }
-        BackHandler(onBack = back)
     }
 }

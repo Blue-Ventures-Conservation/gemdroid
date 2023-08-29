@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
@@ -17,23 +16,24 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SelectTimePeriod {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
-        appBar(AppBarUpdate(title = stringResource(R.string.spectral_separability)))
+        Nav.Wrap(back, next) { nav ->
+            appBar(AppBarUpdate(title = stringResource(R.string.spectral_separability)))
 
-        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
-            val cont = cra.contemporaryCRA
-            val hist = cra.historicalShp()
-            val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
-            val setCont = { setShp(cont) }
-            val setHist = { setShp(hist) }
-            Dashboard(viewModel, { setCont(); next() }, { setCont(); next() }, { setHist(); next() }) { setHist(); next() }
+            Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
+                val cont = cra.contemporaryCRA
+                val hist = cra.historicalShp()
+                val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
+                val setCont = { setShp(cont) }
+                val setHist = { setShp(hist) }
+                Dashboard(viewModel, { setCont(); nav.next() }, { setCont(); nav.next() }, { setHist(); nav.next() }) { setHist(); nav.next() }
+            }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

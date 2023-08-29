@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,21 +15,36 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SubRegionsOption {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click, back: Click) {
-        viewModel.regionName = ""
-        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
-            viewModel.cra = cra
-            Choice(viewModel, appBar, snack, skip, yes, no, back)
+        Nav.Wrap({
+            viewModel.subRegions.clear()
+            back()
+        }) { nav ->
+            viewModel.regionName = ""
+            Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
+                viewModel.cra = cra
+                Choice(viewModel, appBar, snack, {
+                    nav.next()
+                    skip()
+                }, {
+                    nav.next()
+                    yes()
+                }, {
+                    nav.next()
+                    no()
+                })
+            }
         }
     }
 
     @Composable
-    fun Choice(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click, back: Click) {
+    fun Choice(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click) {
         appBar(AppBarUpdate(stringResource(R.string.dynamics)))
 
         val (subRegions, setSubRegions) = remember { mutableStateOf<Result<SubRegionsFile>?>(null) }
@@ -47,11 +61,6 @@ object SubRegionsOption {
                 viewModel.subRegionsLoaded = true
                 skip()
             }
-        }
-
-        BackHandler {
-            viewModel.subRegions.clear()
-            back()
         }
     }
 

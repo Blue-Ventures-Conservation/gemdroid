@@ -139,4 +139,5 @@
     <string name="sub_regions_overview">Sub Regions Overview</string>
     <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
     <string name="please_hit_no">You can\'t have more than %s sub regions, please hit no!</string>
+    <string name="please_create_polygon">Please create a polygon.</string>
 </resources>

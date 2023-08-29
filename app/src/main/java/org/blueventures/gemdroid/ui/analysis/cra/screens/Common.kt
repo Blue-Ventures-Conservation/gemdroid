@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.cra.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,8 +54,6 @@ object Common {
                 Selection(viewModel, temporal, remotes, snack, next, previous, setLocal, setRemote)
             }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

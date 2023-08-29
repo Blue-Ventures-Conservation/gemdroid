@@ -37,6 +37,8 @@ class AnalysisViewModel(
             dynamicsViewModel.roi = value
         }
 
+    var stage: Stage = Stage.BUFFER
+
     fun init(activity: ComponentActivity) {
         craViewModel = activity.viewModels<CRAViewModel>().value
         classViewModel = activity.viewModels<ClassificationViewModel>().value

@@ -1,10 +1,11 @@
 package org.blueventures.gemdroid.ui.analysis.classification.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
@@ -13,6 +14,7 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationVie
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Await
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -23,16 +25,20 @@ import org.blueventures.gemdroid.ui.common.maps.Tiles
 object Map {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun, details: Click, back: Click) {
-        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
-            viewModel.cra = cra
-            Classify(viewModel, appBar, details, back)
+        Nav.Wrap(back, details) { nav ->
+            Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
+                viewModel.cra = cra
+                Classify(viewModel, appBar) {
+                    nav.next()
+                }
+            }
         }
     }
 
     const val key = "classification"
 
     @Composable
-    fun Classify(viewModel: ClassificationViewModel, appBar: AppBarFun, details: Click, back: Click) {
+    fun Classify(viewModel: ClassificationViewModel, appBar: AppBarFun, details: Click) {
         Tiles.LayerSetup(key, R.string.contemporary_classification, R.string.historical_classification)
 
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
@@ -53,6 +59,5 @@ object Map {
                 override fun save(urls: ClassificationURLs) = viewModel.saveClassificationFile(urls)
             })
         }
-        BackHandler(onBack = back)
     }
 }

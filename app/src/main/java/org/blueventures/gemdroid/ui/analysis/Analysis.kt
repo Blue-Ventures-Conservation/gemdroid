@@ -37,32 +37,32 @@ object Analysis {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
         // Dashboard
         b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, appBar, snack, next = { stage ->
-                Routes.dashboardNext(stage)?.let { route ->
-                    nav.popClear(route)
+            Dashboard.Screen(viewModel, appBar, snack, next = {
+                Routes.dashboardNext(viewModel.stage)?.let { route ->
+                    nav.navigate(route)
                 }
             }, back = {
                 nav.popClear(Roi.Routes.list)
             }, vis = {
-                nav.popClear(Routes.visualize)
+                nav.navigate(Routes.visualize)
             }, clazz = {
-                nav.popClear(classification_map)
+                nav.navigate(classification_map)
             }, dyn = {
-                nav.popClear(dynamics_sub_regions_option)
+                nav.navigate(dynamics_sub_regions_option)
             })
         }
 
         // Buffer selection
         b.composable(Routes.buffer) {
             Buffer.Screen(viewModel, appBar, snack) {
-                nav.popClear(Routes.dashboard)
+                nav.popBackStack()
             }
         }
 
         // Visualization
         b.composable(Routes.visualize) {
             FalseColor.Screen(viewModel, appBar) {
-                nav.popClear(Routes.dashboard)
+                nav.popBackStack()
             }
         }
 

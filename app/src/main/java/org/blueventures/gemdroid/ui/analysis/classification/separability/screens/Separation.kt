@@ -29,18 +29,19 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.theme.g2R2BHex
 
 object Separation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
-        appBar(AppBarUpdate(title = viewModel.title))
+        Nav.Wrap(back) { nav ->
+            appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
-            Layout(json, back)
+            GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
+                Layout(json, nav::back)
+            }
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

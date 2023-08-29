@@ -8,16 +8,19 @@ import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object ContemporaryCRA {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
-        appBar(AppBarUpdate(title = stringResource(R.string.classification_reference_areas)))
-        Common.Screen(viewModel, stringResource(R.string.contemporary), snack, next, back, null, { cra ->
-            viewModel.contemporaryCRA = cra
-        }) { key ->
-            viewModel.contemporaryCRA = CRAFile(storageKey = key)
+        Nav.Wrap(back, next) { nav ->
+            appBar(AppBarUpdate(title = stringResource(R.string.classification_reference_areas)))
+            Common.Screen(viewModel, stringResource(R.string.contemporary), snack, nav::next, nav::back, null, { cra ->
+                viewModel.contemporaryCRA = cra
+            }) { key ->
+                viewModel.contemporaryCRA = CRAFile(storageKey = key)
+            }
         }
     }
 }

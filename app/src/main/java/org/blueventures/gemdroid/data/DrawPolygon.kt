@@ -25,6 +25,7 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
     override fun polygonSquareKms() = areaStr()
+    override fun area() = SphericalUtil.computeArea(points)/1_000_000
 
     private fun addPoint(point: LatLng) {
         if (points.size > 2) {
@@ -67,7 +68,6 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
         points.add(point)
     }
 
-    fun area() = SphericalUtil.computeArea(points)/1_000_000
     fun areaStr() = squareKms(area().toInt())
 
     fun validate(max: Int): Boolean {

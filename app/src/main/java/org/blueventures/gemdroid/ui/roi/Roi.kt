@@ -18,6 +18,7 @@ import org.blueventures.gemdroid.ui.roi.screens.HistoricalYears
 import org.blueventures.gemdroid.ui.roi.screens.Name
 import org.blueventures.gemdroid.ui.roi.screens.Overview
 import org.blueventures.gemdroid.ui.roi.screens.RoiList
+import java.io.File
 
 object Roi {
     object Routes {
@@ -34,11 +35,13 @@ object Roi {
     fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
         // ROI list
         b.composable(Routes.list) {
-            RoiList.Screen(roiModel, activity.filesDir, appBar, snack, roiClick = { dir ->
-                analysisModel.roiDir = dir
-                nav.popClear(Analysis.Routes.dashboard)
+            RoiList.Screen(roiModel, object : RoiList.DirHolder {
+                override var roiDir = File("")
+                    set(value) { field = value; analysisModel.roiDir = value }
+            }, activity.filesDir, appBar, snack, next = {
+                nav.navigate(Analysis.Routes.dashboard)
             }) {
-                nav.popClear(Routes.name)
+                nav.navigate(Routes.name)
             }
         }
 
@@ -46,7 +49,7 @@ object Roi {
         b.composable(Routes.name) {
             Name.Screen(roiModel, appBar, snack, back = {
                 roiModel.clearName()
-                nav.popClear(Routes.list)
+                nav.popBackStack()
             }) {
                 nav.navigate(Routes.contemporaryYears)
             }
@@ -104,7 +107,9 @@ object Roi {
 
         // ROI overview
         b.composable(Routes.overview) {
-            Overview.Screen(roiModel, activity.filesDir, snack) {
+            Overview.Screen(roiModel, activity.filesDir, snack, {
+                nav.popBackStack()
+            }) {
                 roiModel.clear()
                 nav.popClear(Routes.list)
             }

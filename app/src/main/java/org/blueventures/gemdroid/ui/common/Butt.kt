@@ -9,18 +9,18 @@ import org.blueventures.gemdroid.R
 
 object Butt {
     @Composable
-    fun Next(enabled: Boolean = true, onClick: () -> Unit) {
-        Text(stringResource(R.string.next_button), enabled, onClick)
+    fun Next(enabled: Boolean = true, click: Click) {
+        Text(stringResource(R.string.next_button), enabled, click)
     }
 
     @Composable
-    fun Done(enabled: Boolean = true, onClick: () -> Unit) {
-        Text(stringResource(R.string.done_button), enabled, onClick)
+    fun Done(enabled: Boolean = true, click: Click) {
+        Text(stringResource(R.string.done_button), enabled, click)
     }
 
     @Composable
-    fun Text(text: String, enabled: Boolean = true, onClick: () -> Unit) {
-        Button(onClick, enabled = enabled) {
+    fun Text(text: String, enabled: Boolean = true, click: Click) {
+        Button(click, enabled = enabled) {
             Text(text, fontSize = 20.sp)
         }
     }

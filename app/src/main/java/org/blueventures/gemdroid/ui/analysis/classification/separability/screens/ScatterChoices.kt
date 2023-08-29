@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,24 +16,25 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 
 object ScatterChoices {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, next: Click) {
-        appBar(AppBarUpdate(title = viewModel.title))
+        Nav.Wrap(back, next) { nav ->
+            appBar(AppBarUpdate(title = viewModel.title))
 
-        GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, CRA::errHandler) { json ->
-            val bands = JSONMap.bands(json)
+            GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, CRA::errHandler) { json ->
+                val bands = JSONMap.bands(json)
 
-            if (bands == null) {
-                Effect.Once { back() }
-                return@AwaitSave
+                if (bands == null) {
+                    Effect.Once { nav.back() }
+                    return@AwaitSave
+                }
+
+                Choices(viewModel, bands, nav::next)
             }
-
-            Choices(viewModel, bands, next)
         }
-
-        BackHandler(onBack = back)
     }
 
     @Composable

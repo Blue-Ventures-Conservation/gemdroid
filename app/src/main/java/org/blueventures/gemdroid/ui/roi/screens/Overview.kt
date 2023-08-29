@@ -18,19 +18,22 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.io.File
 
 object Overview {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click) {
-        val (saving, setSaving) = remember { mutableStateOf(false) }
+    fun Screen(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, back: Click, done: Click) {
+        Nav.Wrap(back, done) { nav ->
+            val (saving, setSaving) = remember { mutableStateOf(false) }
 
-        if (saving) {
-            Progress()
-        } else {
-            OverviewDetails(viewModel, filesDir, snack, done, setSaving)
+            if (saving) {
+                Progress()
+            } else {
+                OverviewDetails(viewModel, filesDir, snack, nav::next, setSaving)
+            }
         }
     }
 

@@ -46,7 +46,7 @@ object Dynamics {
                 if (viewModel.subRegions.isEmpty()) {
                     viewModel.saveSubRegionsFile()
                 } else if (!viewModel.subRegionsLoaded) {
-                    navRoute = { nav.navigate(Routes.dynamics_sub_regions_overview) }
+                    navRoute = { nav.popClear(Routes.dynamics_sub_regions_overview) }
                 }
                 navRoute()
             }, back = {
@@ -100,8 +100,12 @@ object Dynamics {
         b.composable(Routes.dynamics_sub_regions_overview) {
             SubRegionsOverview.Screen(viewModel, appBar, {
                 nav.popClear(Routes.dynamics_target_class)
+            }, {
+                viewModel.subRegions.clear()
+                nav.popClear(Routes.dynamics_sub_regions_option)
             }) {
-               nav.popBackStack()
+                viewModel.subRegions.clear()
+                nav.popClear(Analysis.Routes.dashboard)
             }
         }
 
