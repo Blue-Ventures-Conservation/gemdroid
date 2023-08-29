@@ -4,8 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
@@ -14,9 +13,9 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationVie
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.Await
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
@@ -35,12 +34,8 @@ object Map {
         }
     }
 
-    const val key = "classification"
-
     @Composable
     fun Classify(viewModel: ClassificationViewModel, appBar: AppBarFun, details: Click) {
-        Tiles.LayerSetup(key, R.string.contemporary_classification, R.string.historical_classification)
-
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
             viewModel.urls = urls
 
@@ -49,8 +44,8 @@ object Map {
             }, tiles = object : Tiles.Model<ClassificationURLs>() {
                 override val title = stringResource(R.string.classification)
                 override val appBar = appBar
-                override val layersKey = key
-                override val initUrls: ClassificationURLs = urls
+                override val initUrls = urls
+                override val layerNames = stringArrayResource(R.array.classification_layers).toList()
                 override val parentDir = viewModel.roiDir
                 override val bounds = viewModel.roi.bounds()
 

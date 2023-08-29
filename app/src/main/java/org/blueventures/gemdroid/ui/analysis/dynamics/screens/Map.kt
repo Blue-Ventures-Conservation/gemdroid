@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
@@ -26,12 +27,8 @@ object Map {
         }
     }
 
-    const val key = "dynamics"
-
     @Composable
     fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click) {
-        Tiles.LayerSetup(key, R.string.loss, R.string.persistence, R.string.gain)
-
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
@@ -40,8 +37,8 @@ object Map {
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
                 override val title = viewModel.roi.name + " " + stringResource(R.string.dynamics)
                 override val appBar = appBar
-                override val layersKey = key
                 override val initUrls = urls
+                override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()
                 override val parentDir = viewModel.classDir()
                 override val bounds = viewModel.roi.bounds()
 

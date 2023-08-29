@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="false_color_layers">
+        <item>@string/cont_high_tide</item>
+        <item>@string/cont_low_tide</item>
+        <item>@string/hist_high_tide</item>
+        <item>@string/hist_low_tide</item>
+    </string-array>
+    <string-array name="classification_layers">
+        <item>@string/contemporary_classification</item>
+        <item>@string/historical_classification</item>
+    </string-array>
+    <string-array name="dynamics_layers">
+        <item>@string/loss</item>
+        <item>@string/persistence</item>
+        <item>@string/gain</item>
+    </string-array>
+</resources>

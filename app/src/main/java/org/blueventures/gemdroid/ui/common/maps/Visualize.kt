@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringArrayResource
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
@@ -21,18 +22,14 @@ object Visualize {
         fun saveVisualizeURLsFile(urls: VisualizeURLs): Job
     }
 
-    const val key = "false_composite_visualization"
-
     @Composable
     fun Screen(visualizer: Visualizer, title: String, appBar: AppBarFun, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
-        Tiles.LayerSetup(key, R.string.cont_high_tide, R.string.cont_low_tide, R.string.hist_high_tide, R.string.hist_low_tide)
-
         GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
             Maps.Screen(floatingContent, false, object : Tiles.Model<VisualizeURLs>() {
                 override val title = title
                 override val appBar = appBar
-                override val layersKey = key
                 override val initUrls = urls
+                override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                 override val parentDir = visualizer.parentDir()
                 override val bounds = visualizer.bounds()
 

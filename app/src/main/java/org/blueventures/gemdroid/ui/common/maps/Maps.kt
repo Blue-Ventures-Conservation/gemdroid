@@ -63,9 +63,9 @@ object Maps {
         draw: Draw.Model?,
         poly: Poly.Model?
     ){
-        Tiles.Setup(tiles) { urls ->
+        Tiles.Setup(tiles) { tilesHandler ->
             Draw.Setup(draw) { drawing ->
-                Map(floatingContent, fineLocation, tiles, urls, draw, drawing, poly)
+                Map(floatingContent, fineLocation, tiles, tilesHandler, draw, drawing, poly)
             }
         }
     }
@@ -76,7 +76,7 @@ object Maps {
         floatingContent: @Composable BoxScope.() -> Unit,
         fineLocation: Boolean,
         tiles: Tiles.Model<T>?,
-        urls: Tiles.UrlHandler<T>?,
+        tilesHandler: Tiles.Handler<T>?,
         draw: Draw.Model?,
         drawing: Draw.DrawingHandler?,
         poly: Poly.Model?
@@ -98,8 +98,8 @@ object Maps {
                     }
 
                     tiles?.let {
-                        urls?.let {
-                            Tiles.MapCallback(tiles, urls).onMapReady(map)
+                        tilesHandler?.let {
+                            Tiles.MapCallback(tiles, tilesHandler).onMapReady(map)
                         }
                     }
 
