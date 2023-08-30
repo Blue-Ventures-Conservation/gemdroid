@@ -45,7 +45,7 @@ object SubRegionsOption {
 
     @Composable
     fun Choice(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click) {
-        appBar(AppBarUpdate(stringResource(R.string.dynamics)))
+        appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
 
         val (subRegions, setSubRegions) = remember { mutableStateOf<Result<SubRegionsFile>?>(null) }
 

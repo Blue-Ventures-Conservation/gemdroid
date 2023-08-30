@@ -63,7 +63,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_sub_regions_draw_or_shapefile) {
-            DrawOrShapefile.Screen(draw = {
+            DrawOrShapefile.Screen(viewModel, appBar, draw = {
                 nav.navigate(Routes.dynamics_drawn_sub_region)
             }, shapefile = {
                 nav.navigate(Routes.dynamics_shapefile_region)
@@ -82,7 +82,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_shapefile_region) {
-            ShapefileSubRegion.Screen(viewModel, snack, next = {
+            ShapefileSubRegion.Screen(viewModel, appBar, snack, next = {
                 nav.navigate(Routes.dynamics_visualize_shapefile_region)
             }) {
                 nav.popBackStack()
@@ -127,7 +127,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_details) {
-            Details.Screen(viewModel, appBar) {
+            Details.Screen(viewModel) {
                 nav.popBackStack()
             }
         }

@@ -18,7 +18,7 @@
     <string name="sign_in_label">Sign In</string>
     <string name="sign_out_label">Sign Out</string>
     <string name="sign_in_failed">Sign In Failed!</string>
-    <string name="visualize_imagery_title">Visualize Imagery</string>
+    <string name="visualize_imagery_title">False Color</string>
     <string name="unrecoverable_error">Unrecoverable error, please press Back.</string>
     <string name="access_email_subject">Requesting Access to GEM app</string>
     <string name="access_email_rationale">Apologies! We need to verify that you are not using this app for profit in order to comply with the policies of Google Earth Engine. Please tap on this message to send us an email at bv.gemapp@gmail.com and fill out the information requested, thank you!</string>
@@ -83,7 +83,6 @@
     <string name="place_polygon_corner">Place polygon corner</string>
     <string name="view_classifications_details">View classification details</string>
     <string name="classifier_training_failed">Make sure your CRAs have multiple classes, and your polygon contains all CRA plots!</string>
-    <string name="classification_details">Classification Details</string>
     <string name="legend">Legend</string>
     <string name="accuracy">Accuracy</string>
     <string name="resubstitution">Resubstitution:</string>

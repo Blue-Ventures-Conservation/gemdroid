@@ -14,21 +14,23 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
+import org.blueventures.gemdroid.ui.common.Nav
 
 object Details {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click) {
-        appBar(AppBarUpdate(stringResource(R.string.dynamics)))
-        Col.MidPad(arrange = Arrangement.Top, scroll = true) {
-            Info.Block {
-                Info.Header(viewModel.roi.name)
-                StatsBlock(viewModel.targetClass, viewModel.urls.stats)
-            }
-            Info.Block {
-                Info.Header(stringResource(R.string.sub_regions))
-                viewModel.urls.subRegionStats.forEach { stats ->
-                    Info.SubHeader(stats.name ?: stringResource(R.string.unnamed))
-                    StatsBlock(viewModel.targetClass, stats)
+    fun Screen(viewModel: DynamicsViewModel, back: Click) {
+        Nav.Wrap(back) {
+            Col.MidPad(arrange = Arrangement.Top, scroll = true) {
+                Info.Block {
+                    Info.Header(viewModel.roi.name)
+                    StatsBlock(viewModel.targetClass, viewModel.urls.stats)
+                }
+                Info.Block {
+                    Info.Header(stringResource(R.string.sub_regions))
+                    viewModel.urls.subRegionStats.forEach { stats ->
+                        Info.SubHeader(stats.name ?: stringResource(R.string.unnamed))
+                        StatsBlock(viewModel.targetClass, stats)
+                    }
                 }
             }
         }

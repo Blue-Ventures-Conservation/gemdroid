@@ -14,8 +14,8 @@ import org.blueventures.gemdroid.ui.common.Nav
 object TargetClass {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
-        appBar(AppBarUpdate(stringResource(R.string.dynamics)))
         Nav.Wrap(back, next) { nav ->
+            appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
             Col.Dash(stringResource(R.string.choose_class_dynamics), true) {
                 viewModel.cra.contemporaryCRA.stringClassValues.forEach { classname ->
                     DashboardButton(classname) {

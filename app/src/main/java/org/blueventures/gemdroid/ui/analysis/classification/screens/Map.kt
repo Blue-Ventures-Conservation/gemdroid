@@ -42,7 +42,7 @@ object Map {
             Maps.Screen(floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_classifications_details)) }
             }, tiles = object : Tiles.Model<ClassificationURLs>() {
-                override val title = stringResource(R.string.classification)
+                override val title = viewModel.roi.name + " " + stringResource(R.string.classification)
                 override val appBar = appBar
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.classification_layers).toList()
