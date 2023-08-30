@@ -33,9 +33,8 @@ class DynamicsDatasource(
         const val gainTilesDir = "gain_tiles"
         const val lossTilesDir = "loss_tiles"
         const val persistenceTilesDir = "persistence_tiles"
-        const val dynamicsUnzipDir = "unzip"
         const val dynamicsURLsFile = "urls.json"
-        const val maxSubRegions = 10
+        const val maxSubRegions = 5
 
         fun classDir(roiDir: File, targetClass: String) = File(File(roiDir, dynamicsDir), MD5.string(targetClass))
     }

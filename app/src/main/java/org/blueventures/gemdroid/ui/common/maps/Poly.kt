@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.common.maps
 
-import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,17 +30,35 @@ import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.maps.Draw.DrawingButton
 
 object Maps {
+    interface MapImpl<T : URLs> {
+        @Composable fun Map(gps: Boolean, tiles: Tiles.Model<T>?, tilesHandler: Tiles.Handler<T>?, draw: Draw.Model?, drawHandler: Draw.Handler?, poly: Poly.Model?, bounds: LatLngBounds?)
+    }
+
     /**
      * The layers argument to Screen should be Layers that outlive composition, such as static fields on an object for example.
      */
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun <T : URLs> Screen(
-        floatingContent: @Composable BoxScope.() -> Unit = {},
+        floating: @Composable BoxScope.() -> Unit = {},
         attemptGps: Boolean = false,
         tiles: Tiles.Model<T>? = null,
         draw: Draw.Model? = null,
-        poly: Poly.Model? = null
+        poly: Poly.Model? = null,
+        impl: MapImpl<T> = object : MapImpl<T> {
+            @Composable
+            override fun Map(
+                gps: Boolean,
+                tiles: Tiles.Model<T>?,
+                tilesHandler: Tiles.Handler<T>?,
+                draw: Draw.Model?,
+                drawHandler: Draw.Handler?,
+                poly: Poly.Model?,
+                bounds: LatLngBounds?,
+            ) {
+                FragmentMap(gps, tiles, tilesHandler, draw, drawHandler, poly, bounds)
+            }
+        },
     ) {
         if (attemptGps) {
             RequestPermission(
@@ -48,105 +67,115 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Layout(floatingContent, granted, tiles, draw, poly)
+                Setup(floating, granted, tiles, draw, poly, impl)
             }
         } else {
-            Layout(floatingContent, false, tiles, draw, poly)
+            Setup(floating, false, tiles, draw, poly, impl)
         }
     }
 
     @Composable
-    private fun <T : URLs> Layout(
-        floatingContent: @Composable BoxScope.() -> Unit,
-        fineLocation: Boolean,
-        tiles: Tiles.Model<T>?,
-        draw: Draw.Model?,
-        poly: Poly.Model?
-    ){
+    private fun <T : URLs> Setup(floating: @Composable BoxScope.() -> Unit = {}, attemptGps: Boolean = false, tiles: Tiles.Model<T>? = null, draw: Draw.Model? = null, poly: Poly.Model? = null, impl: MapImpl<T>) {
         Tiles.Setup(tiles) { tilesHandler ->
-            Draw.Setup(draw) { drawing ->
-                Map(floatingContent, fineLocation, tiles, tilesHandler, draw, drawing, poly)
+            Draw.Setup(draw) { drawHandler ->
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val (zoomed, setZoomed) = remember { mutableStateOf(false) }
+                    val bounds by remember { mutableStateOf(shouldZoom(zoomed, tiles, draw, drawHandler)) }
+                    if (!zoomed && bounds != null) {
+                        setZoomed(true)
+                    }
+
+                    impl.Map(attemptGps, tiles, tilesHandler, draw, drawHandler, poly, bounds)
+                    FloatingButton(this, drawHandler, floating)
+                }
             }
         }
     }
 
     @SuppressLint("MissingPermission")
     @Composable
-    private fun <T : URLs> Map(
-        floatingContent: @Composable BoxScope.() -> Unit,
-        fineLocation: Boolean,
+    private fun <T : URLs> FragmentMap(
+        gps: Boolean,
         tiles: Tiles.Model<T>?,
         tilesHandler: Tiles.Handler<T>?,
         draw: Draw.Model?,
-        drawing: Draw.DrawingHandler?,
-        poly: Poly.Model?
+        drawHandler: Draw.Handler?,
+        poly: Poly.Model?,
+        bounds: LatLngBounds?
     ) {
-        val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            AndroidViewBinding(MapContainerBinding::inflate) {
-                // this call is indeed unsafe
-                mapContainer.getFragment<SupportMapFragment>()?.getMapAsync { map ->
-                    // we clear everything here before adding saved data to the map
-                    // because markers and polygons seem to stick around otherwise
-                    map.clear()
+        AndroidViewBinding(MapContainerBinding::inflate) {
+            // this call is indeed unsafe
+            mapContainer.getFragment<SupportMapFragment>()?.getMapAsync { map ->
+                // we clear everything here before adding saved data to the map
+                // because markers and polygons seem to stick around otherwise
+                map.clear()
 
-                    if (fineLocation) {
-                        map.isMyLocationEnabled = true
-                        map.uiSettings.isMyLocationButtonEnabled = true
-                    }
+                if (gps) {
+                    map.isMyLocationEnabled = true
+                    map.uiSettings.isMyLocationButtonEnabled = true
+                }
 
-                    tiles?.let {
-                        tilesHandler?.let {
-                            Tiles.MapCallback(tiles, tilesHandler).onMapReady(map)
-                        }
-                    }
-
-                    poly?.let {
-                        Poly.MapCallback(poly).onMapReady(map)
-                    }
-
-                    draw?.let {
-                        drawing?.let {
-                            Draw.MapCallback(draw, drawing).onMapReady(map)
-                        }
-                    }
-
-                    if (drawing == null) {
-                        tiles?.bounds
-                    } else {
-                        if (!zoomed) {
-                            if (draw!!.points().isNotEmpty()) {
-                                draw.points()
-                            } else {
-                                tiles?.bounds
-                            }
-                        } else {
-                            null
-                        }
-                    }?.let {
-                        zoomToBounds(map, it)
-                        setZoomed(true)
+                tiles?.let {
+                    tilesHandler?.let {
+                        Tiles.MapCallback(tiles, tilesHandler).onMapReady(map)
                     }
                 }
-            }
 
-            drawing?.let {
-                DrawingButton(it)
-            } ?: run {
-                this.floatingContent()
+                poly?.let {
+                    Poly.MapCallback(poly).onMapReady(map)
+                }
+
+                draw?.let {
+                    drawHandler?.let {
+                        Draw.MapCallback(draw, drawHandler).onMapReady(map)
+                    }
+                }
+
+                bounds?.let {
+                    zoomToBounds(map, bounds)
+                }
             }
         }
     }
 
-    fun zoomToBounds(map: GoogleMap, bounds: List<LatLng>) {
+    private fun <T : URLs> shouldZoom(zoomed: Boolean, tiles: Tiles.Model<T>?, draw: Draw.Model?, drawHandler: Draw.Handler?): LatLngBounds? {
+        return if (drawHandler == null) {
+            tiles?.bounds
+        } else {
+            if (!zoomed) {
+                if (draw!!.points().isNotEmpty()) {
+                    draw.points()
+                } else {
+                    tiles?.bounds
+                }
+            } else {
+                null
+            }
+        }?.let { bounds ->
+            boundsFromList(bounds)
+        }
+    }
+
+    @Composable
+    fun FloatingButton(scope: BoxScope, drawHandler: Draw.Handler?, content: @Composable BoxScope.() -> Unit) {
+        drawHandler?.let {
+            scope.DrawingButton(it)
+        } ?: run {
+            scope.content()
+        }
+    }
+
+    fun boundsFromList(list: List<LatLng>): LatLngBounds {
         val builder = LatLngBounds.builder()
-        for (pt in bounds) {
+        for (pt in list) {
             builder.include(pt)
         }
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200))
+        return builder.build()
     }
+
+    fun zoomToBounds(map: GoogleMap, bounds: LatLngBounds) = map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200))
 
     @Composable
     fun BoxScope.MapActionButton(click: Click, content: @Composable () -> Unit) {

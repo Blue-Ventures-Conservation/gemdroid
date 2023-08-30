@@ -65,10 +65,15 @@ object Draw {
 
     data class Model(override val snack: SnackFun, override val next: Click, private val drawPoly: DrawPolygon): Data by drawPoly, UI
 
+    interface Handler {
+        fun drawing(): Boolean
+        fun setDrawing(drawing: Boolean)
+    }
+
     @Composable
     fun Setup(
         model: Model?,
-        content: @Composable (DrawingHandler?) -> Unit
+        content: @Composable (Handler?) -> Unit
     ) {
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
@@ -105,7 +110,7 @@ object Draw {
                     }
                 }
 
-                content(object: DrawingHandler {
+                content(object: Handler {
                     override fun drawing() = drawing
                     override fun setDrawing(drawing: Boolean) = setDrawing(drawing)
                 })
@@ -115,7 +120,7 @@ object Draw {
         }
     }
 
-    class MapCallback(private val model: Model, private val drawing: DrawingHandler): OnMapReadyCallback {
+    class MapCallback(private val model: Model, private val drawing: Handler): OnMapReadyCallback {
         override fun onMapReady(map: GoogleMap) {
             model.polygonIterate {
                 map.addMarker(MarkerOptions().position(it))?.let { marker ->
@@ -140,19 +145,14 @@ object Draw {
                 model.polygon?.remove()
                 model.polygon = map.addPolygon(opts)
                 if (zoom) {
-                    Maps.zoomToBounds(map, opts.points)
+                    Maps.zoomToBounds(map, Maps.boundsFromList(opts.points))
                 }
             }
         }
     }
 
-    interface DrawingHandler {
-        fun drawing(): Boolean
-        fun setDrawing(drawing: Boolean)
-    }
-
     @Composable
-    fun BoxScope.DrawingButton(drawing: DrawingHandler) {
+    fun BoxScope.DrawingButton(drawing: Handler) {
         MapActionButton({ drawing.setDrawing(!drawing.drawing()) }) {
             if (drawing.drawing()) {
                 Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))

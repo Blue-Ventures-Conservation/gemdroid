@@ -32,7 +32,7 @@ object Map {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(floatingContent = {
+            Maps.Screen(floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
                 override val title = viewModel.roi.name + " " + stringResource(R.string.dynamics)
