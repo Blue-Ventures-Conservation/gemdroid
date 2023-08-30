@@ -25,7 +25,7 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
     override fun polygonSquareKms() = areaStr()
-    override fun area() = SphericalUtil.computeArea(points)/1_000_000
+    override fun area() = SphericalUtil.computeArea(points)/squareKmInMeters
 
     private fun addPoint(point: LatLng) {
         if (points.size > 2) {
@@ -76,6 +76,8 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
     }
 
     companion object {
+        const val squareKmInMeters = 1_000_000
+
         fun squareKms(km: Int) = "${"%,d".format(km)} km²"
 
         fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {

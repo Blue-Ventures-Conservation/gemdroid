@@ -8,6 +8,19 @@ data class GeojsonPolygon(
     @Json(name = "type") val type: String = "Polygon",
 ) {
     companion object {
+        fun toState(geo: GeojsonPolygon): List<List<LatLng>> {
+            val poly = mutableListOf<List<LatLng>>()
+            for (ring in geo.coordinates) {
+                val newRing = mutableListOf<LatLng>()
+                for (pt in ring) {
+                    newRing.add(LatLng(pt[1], pt[0]))
+                }
+                poly.add(newRing)
+            }
+
+            return poly
+        }
+
         fun fromState(points: List<List<LatLng>>): GeojsonPolygon {
             val poly = mutableListOf<List<List<Double>>>()
             for (ring in points) {

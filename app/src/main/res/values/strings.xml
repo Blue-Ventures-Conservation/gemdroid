@@ -121,7 +121,7 @@
     <string name="select_a_sub_region_shapefile">Select a Sub-Region Shapefile</string>
     <string name="would_you_like_more_sub_regions">Would you like to add more Sub-Regions?</string>
     <string name="yes_add_another_sub_region">Yes: Add another Sub-Regions</string>
-    <string name="no_skip_more_sub_regions">No: I don\'t need more Sub-Regions</string>
+    <string name="no_skip_more_sub_regions">No: Review and Submit</string>
     <string name="create_coarse_roi">Create Coarse ROI</string>
     <string name="name_your_roi">Name your ROI</string>
     <string name="please_enter_name">Please enter a name</string>
@@ -140,4 +140,15 @@
     <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
     <string name="please_hit_no">You can\'t have more than %s sub regions, please hit no!</string>
     <string name="please_create_polygon">Please create a polygon.</string>
+    <string name="sub_regions">Sub Regions</string>
+    <string name="start_over">Start Over</string>
+    <string name="looks_good">Looks Good</string>
+    <string name="review_sub_regions">Review Sub Regions</string>
+    <string name="total_cont_area">Contemporary %s</string>
+    <string name="total_hist_area">Historical %s</string>
+    <string name="name">Name:</string>
+    <string name="loss_fmt">%s Loss</string>
+    <string name="persistence_fmt">%s Persistence</string>
+    <string name="gain_fmt">%s Gain</string>
+    <string name="unnamed">Unnamed</string>
 </resources>

@@ -21,7 +21,6 @@ object ShapefileSubRegion {
                     snack(err)
                 }) { points ->
                     viewModel.shapefile = points
-                    viewModel.regionName = ""
                     nav.next()
                 }
             }

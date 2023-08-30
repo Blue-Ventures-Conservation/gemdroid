@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -82,9 +81,11 @@ object Maps {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-                    val bounds by remember { mutableStateOf(shouldZoom(zoomed, tiles, draw, drawHandler)) }
+                    var bounds = shouldZoom(zoomed, tiles, draw, drawHandler)
                     if (!zoomed && bounds != null) {
                         setZoomed(true)
+                    } else if (zoomed) {
+                        bounds = null
                     }
 
                     impl.Map(attemptGps, tiles, tilesHandler, draw, drawHandler, poly, bounds)
@@ -175,7 +176,7 @@ object Maps {
         return builder.build()
     }
 
-    fun zoomToBounds(map: GoogleMap, bounds: LatLngBounds) = map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200))
+    fun zoomToBounds(map: GoogleMap, bounds: LatLngBounds) = map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
 
     @Composable
     fun BoxScope.MapActionButton(click: Click, content: @Composable () -> Unit) {

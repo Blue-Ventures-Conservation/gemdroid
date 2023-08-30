@@ -60,7 +60,7 @@ object Api {
         fun setToken(token: String) { tokenHolder.token = token }
 
         companion object {
-            private var timeout: Long = 600
+            private var timeout: Long = 1200
 
             private val service: Service by lazy {
                 backend(timeout)

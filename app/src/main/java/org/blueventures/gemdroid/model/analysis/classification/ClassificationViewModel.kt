@@ -47,7 +47,7 @@ class ClassificationViewModel(
     fun tileDirs() = listOf(repo.contLCTileDir(roiDir), repo.histLCTileDir(roiDir))
 
     fun getClassification(callback: (ApiResult<ClassificationURLs>) -> Unit) {
-        if (classificationJob != null) return
+        classificationJob?.cancel()
         apiWithToken({ classificationJob = it }, repo.getClassification(ClassificationROI(
             cra.contemporaryCRA.shapefileStorageKey,
             cra.historicalShp().shapefileStorageKey,

@@ -51,6 +51,14 @@ class DynamicsViewModel(
 
     private var dynamicsJob: Job? = null
 
+    fun displayRegions(): List<List<List<LatLng>>> {
+        val polygons = mutableListOf<List<List<LatLng>>>()
+        for (region in subRegions) {
+            polygons.add(GeojsonPolygon.toState(region.polygon))
+        }
+        return polygons
+    }
+
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)
     fun tileDirs() = listOf(repo.lossTileDir(classDir()), repo.persistenceTileDir(classDir()), repo.gainTileDir(classDir()))
 
@@ -62,14 +70,16 @@ class DynamicsViewModel(
     fun polygonDrawn() {
         subRegions.add(SubRegion(regionName, GeojsonPolygon.fromState(listOf(drawPoly.points))))
         drawPoly.clearPoints()
+        regionName = ""
     }
     fun shapefileLooksGood() {
         subRegions.add(SubRegion(regionName, GeojsonPolygon.fromState(shapefile)))
         shapefile = emptyList()
+        regionName = ""
     }
 
     fun getDynamics(callback: (ApiResult<DynamicsURLs>) -> Unit) {
-        if (dynamicsJob != null) return
+        dynamicsJob?.cancel()
         apiWithToken({ dynamicsJob = it }, repo.getDynamics(DynamicsROI(
             targetClass,
             subRegions,

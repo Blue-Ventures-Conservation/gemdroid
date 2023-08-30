@@ -101,8 +101,7 @@ class CRAViewModel(
     }
 
     private fun uploadIngestFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, upload: Flow<Result<Unit>>, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
-        if (uploadJob != null) return
-
+        uploadJob?.cancel()
         resultWithToken<Unit>({ uploadJob = it }, flow {
             upload.collect { result ->
                 when {
@@ -137,7 +136,7 @@ class CRAViewModel(
     override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
 
     override fun awaitCRAs(cra: CRA, callback: (Result<Throwable?>) -> Unit) {
-        if (awaitCRAsJob != null) return
+        awaitCRAsJob?.cancel()
         resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
             awaitCRAsJob = null
             callback(result)

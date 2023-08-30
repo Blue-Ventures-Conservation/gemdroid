@@ -31,7 +31,7 @@ class SeparabilityViewModel(
     private var chartJob: Job? = null
 
     fun getSeparation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        if (chartJob != null) return
+        chartJob?.cancel()
         apiWithToken({ chartJob = it }, repo.getSeparation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)
@@ -41,7 +41,7 @@ class SeparabilityViewModel(
     fun loadSeparationFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadSeparationFile(roiDir, timePeriod).collect(callback) }
 
     fun getScatter(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        if (chartJob != null) return
+        chartJob?.cancel()
         apiWithToken({ chartJob = it }, repo.getScatter(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)
@@ -51,7 +51,7 @@ class SeparabilityViewModel(
     fun loadScatterFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadScatterFile(roiDir, timePeriod).collect(callback) }
 
     fun getCorrelation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        if (chartJob != null) return
+        chartJob?.cancel()
         apiWithToken({ chartJob = it }, repo.getCorrelation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
             chartJob = null
             callback(result)

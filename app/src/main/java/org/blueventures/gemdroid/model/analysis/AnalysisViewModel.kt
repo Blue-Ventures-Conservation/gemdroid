@@ -58,7 +58,7 @@ class AnalysisViewModel(
     fun saveBuffersFile(buffers: Buffers) = scoped { repo.saveBuffersFile(roiDir, buffers).collect() }
     fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = scoped { repo.loadBuffersFile(roiDir).collect(callback) }
     fun getBuffers(callback: (ApiResult<Buffers>) -> Unit) {
-        if (buffersJob != null) return
+        buffersJob?.cancel()
         apiWithToken({ buffersJob = it }, repo.getBuffers(roi)) { result ->
             buffersJob = null
             callback(result)
@@ -77,7 +77,7 @@ class AnalysisViewModel(
     override fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
     override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
     override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
-        if (visualizeURLsJob != null) return
+        visualizeURLsJob?.cancel()
         apiWithToken({ visualizeURLsJob = it }, repo.getVisualizeURLs(roi)) { result ->
             visualizeURLsJob = null
             callback(result)

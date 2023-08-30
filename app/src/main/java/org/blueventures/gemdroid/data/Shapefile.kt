@@ -24,7 +24,7 @@ object Shapefile {
 
         var count = 0
         val zipResult = try {
-            inspectAndZip(workDir, pathsResult, { null }) { shape, _ ->
+            inspectAndZip(unzipDir, pathsResult, { null }) { shape, _ ->
                 if (shape.shapeType == ShapeType.POLYGON) {
                     val pShape = shape as PolygonShape
                     val pts = mutableListOf<LatLng>()

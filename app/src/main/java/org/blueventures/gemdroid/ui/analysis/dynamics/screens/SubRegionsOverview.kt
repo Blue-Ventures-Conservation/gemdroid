@@ -1,28 +1,38 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
+import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Info
+import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object SubRegionsOverview {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, ok: Click, startOver: Click, back: Click) {
-        appBar(AppBarUpdate(stringResource(R.string.sub_regions_overview)))
-        Text(text = "overview")
-        Button({
-            viewModel.saveSubRegionsFile()
-            ok()
-        }) {
-            Text("next")
+        Nav.Wrap(back) { nav ->
+            Info.Block {
+                Info.Row {
+                    Butt.Text(stringResource(R.string.start_over)) {
+                        nav.next()
+                        startOver()
+                    }
+
+                    Butt.Text(stringResource(R.string.looks_good)) {
+                        nav.next()
+                        ok()
+                    }
+                }
+
+                Visualize.Screen(viewModel.visualizer, stringResource(R.string.review_sub_regions), appBar, poly = object : Poly.Model() {
+                    override fun polygons() = if (viewModel.subRegions.isEmpty()) emptyList() else viewModel.displayRegions()
+                })
+            }
         }
-        BackHandler(onBack = back)
     }
 }
