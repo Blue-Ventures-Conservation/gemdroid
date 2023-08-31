@@ -24,7 +24,7 @@ object Details {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, separability: Click, back: Click) {
         Nav.Wrap(back, separability) {
-            appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.classification)))
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.classification))))
 
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Legend(viewModel.urls)

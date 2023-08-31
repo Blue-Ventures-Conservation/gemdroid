@@ -150,4 +150,26 @@
     <string name="persistence_fmt">%s Persistence</string>
     <string name="gain_fmt">%s Gain</string>
     <string name="unnamed">Unnamed</string>
+    <string name="roi_buffer_title">ROI Buffer</string>
+    <string name="select_buffer_distance">Select buffer distance:</string>
+    <string name="select_months_range">Select range of months (inclusive) for %s imagery:</string>
+    <string name="select_bounding_years">Select bounding years (inclusive) for %s imagery:</string>
+    <string name="please_select_years_within">Please select years less than %s years apart</string>
+    <string name="year_compare_fail">Year on the left must be equal to or less than the one on right</string>
+    <string name="regions_of_interest">Regions of Interest</string>
+    <string name="add_new_region">Add a new region of interest</string>
+    <string name="delete_roi">Delete ROI</string>
+    <string name="really_delete">Really delete \'%s\'?</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">DELETE</string>
+    <string name="no_rois_yet">No Regions of Interest (ROIs) yet, create one by tapping the plus button!</string>
+    <string name="delete_region">Delete region of interest</string>
+    <string name="overview">Overview</string>
+    <string name="overview_name">\"Name: \"</string>
+    <string name="overview_contemporary_years">\"Contemporary Years: \"</string>
+    <string name="overview_contemporary_months">\"Contemporary Months: \"</string>
+    <string name="overview_historical_years">\"Historical Years: \"</string>
+    <string name="overview_historical_months">\"Historical Months: \"</string>
+    <string name="overview_polygon_roi">\"Polygon ROI: \"</string>
+    <string name="overview_points">%s points, %s</string>
 </resources>

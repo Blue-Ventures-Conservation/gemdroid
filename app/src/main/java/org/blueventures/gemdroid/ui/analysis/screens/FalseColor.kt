@@ -13,7 +13,7 @@ object FalseColor {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         Nav.Wrap(back) {
-            Visualize.Screen(viewModel, viewModel.roi.name + " " + stringResource(R.string.visualize_imagery_title), appBar)
+            Visualize.Screen(viewModel, viewModel.roi.appBar(stringResource(R.string.visualize_imagery_title)), appBar)
         }
     }
 }

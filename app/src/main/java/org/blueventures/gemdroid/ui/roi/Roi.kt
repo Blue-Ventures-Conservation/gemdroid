@@ -57,7 +57,7 @@ object Roi {
 
         // ROI contemporary years selection
         b.composable(Routes.contemporaryYears) {
-            ContemporaryYears.Screen(roiModel, snack, back = {
+            ContemporaryYears.Screen(roiModel, appBar, snack, back = {
                 roiModel.clearContemporaryYears()
                 nav.popBackStack()
             }) {
@@ -67,7 +67,7 @@ object Roi {
 
         // ROI contemporary months selection
         b.composable(Routes.contemporaryMonths) {
-            ContemporaryMonths.Screen(roiModel, back = {
+            ContemporaryMonths.Screen(roiModel, appBar, back = {
                 roiModel.clearContemporaryMonths()
                 nav.popBackStack()
             }) {
@@ -77,7 +77,7 @@ object Roi {
 
         // ROI historical years selection
         b.composable(Routes.historicalYears) {
-            HistoricalYears.Screen(roiModel, snack, back = {
+            HistoricalYears.Screen(roiModel, appBar, snack, back = {
                 roiModel.clearHistoricalYears()
                 nav.popBackStack()
             }) {
@@ -87,7 +87,7 @@ object Roi {
 
         // ROI months range selection
         b.composable(Routes.historicalMonths) {
-            HistoricalMonths.Screen(roiModel, back = {
+            HistoricalMonths.Screen(roiModel, appBar, back = {
                 roiModel.clearHistoricalMonths()
                 nav.popBackStack()
             }) {
@@ -97,7 +97,7 @@ object Roi {
 
         // ROI polygon creation
         b.composable(Routes.polygon) {
-            CoarseRoi.Screen(roiModel, snack, back = {
+            CoarseRoi.Screen(roiModel, appBar, snack, back = {
                 roiModel.drawPoly.clearAll()
                 nav.popBackStack()
             }) {
@@ -107,7 +107,7 @@ object Roi {
 
         // ROI overview
         b.composable(Routes.overview) {
-            Overview.Screen(roiModel, activity.filesDir, snack, {
+            Overview.Screen(roiModel, activity.filesDir, appBar, snack, {
                 nav.popBackStack()
             }) {
                 roiModel.clear()

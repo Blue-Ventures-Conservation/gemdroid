@@ -14,10 +14,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -36,10 +40,11 @@ object Years {
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, currentYear: Int, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
+            appBar(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             Col.BigPad {
-                Text("Select bounding years (inclusive) for $temporal imagery:", textAlign = TextAlign.Center, fontSize = 24.sp)
+                Text(stringResource(R.string.select_bounding_years).format(temporal), textAlign = TextAlign.Center, fontSize = 24.sp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -48,15 +53,17 @@ object Years {
                     SelectYear(selector.initYearStart, currentYear, selector::setYearStart)
                     SelectYear(selector.initYearEnd, currentYear, selector::setYearEnd)
                 }
+                val gapMsg = stringResource(R.string.please_select_years_within).format(RoiViewModel.maxYearGap.toString())
+                val orderMsg = stringResource(R.string.year_compare_fail)
                 Butt.Next {
                     if (selector.validateOrder()) {
                         if (selector.validateGap()) {
                             nav.next()
                         } else {
-                            snack("Please select years less than ${RoiViewModel.maxYearGap} years apart")
+                            snack(gapMsg)
                         }
                     } else {
-                        snack("Year on the left must be equal to or less than the one on right")
+                        snack(orderMsg)
                     }
                 }
             }

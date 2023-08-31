@@ -25,10 +25,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -60,7 +62,7 @@ object RoiList {
 
     @Composable
     fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appbar: AppBarFun, snack: SnackFun, next: Click, floating: Click) {
-        appbar(AppBarUpdate(title = "Regions of Interest"))
+        appbar(AppBarUpdate(title = stringResource(R.string.regions_of_interest)))
 
         val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
         val (toDelete, setDeleteRoi) = remember { mutableStateOf<File?>(null) }
@@ -88,7 +90,7 @@ object RoiList {
                             .padding(24.dp)
                             .align(Alignment.BottomEnd)
                     ) {
-                        Icon(Icons.Filled.Add, "Add new ROI")
+                        Icon(Icons.Filled.Add, stringResource(R.string.add_new_region))
                     }
                     Column(modifier = Modifier.fillMaxSize()) {
                         ListView(list, dirHolder, next, setDeleteRoi)
@@ -102,11 +104,11 @@ object RoiList {
     fun DeleteDialog(viewModel: RoiViewModel, snack: SnackFun, toDelete: File, onDismiss: Click) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = "Delete ROI") },
-            text = { Text(text = "Really delete '${toDelete.name}'?") },
+            title = { Text(text = stringResource(R.string.delete_roi)) },
+            text = { Text(text = stringResource(R.string.really_delete).format(toDelete.name)) },
             confirmButton = {
                 val ctx = LocalContext.current
-                Butt.Text("DELETE") {
+                Butt.Text(stringResource(R.string.delete)) {
                     viewModel.deleteRoi(toDelete) { result ->
                         onDismiss()
                         if (result.isFailure) {
@@ -116,7 +118,7 @@ object RoiList {
                 }
             },
             dismissButton = {
-                Butt.Text("Cancel", click = onDismiss)
+                Butt.Text(stringResource(R.string.cancel), click = onDismiss)
             }
         )
     }
@@ -129,7 +131,7 @@ object RoiList {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No Regions of Interest (ROIs) yet, create one by tapping the plus button!",
+                    text = stringResource(R.string.no_rois_yet),
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(24.dp)
@@ -158,7 +160,7 @@ object RoiList {
         ) {
             Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp))
             Icon(
-                Icons.Filled.Delete, "Delete ROI", modifier = Modifier
+                Icons.Filled.Delete, stringResource(R.string.delete_region), modifier = Modifier
                     .padding(20.dp)
                     .size(32.dp)
                     .clickable { setDeleteRoi(dir) }

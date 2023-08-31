@@ -15,7 +15,7 @@ object TargetClass {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
         Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Dash(stringResource(R.string.choose_class_dynamics), true) {
                 viewModel.cra.contemporaryCRA.stringClassValues.forEach { classname ->
                     DashboardButton(classname) {

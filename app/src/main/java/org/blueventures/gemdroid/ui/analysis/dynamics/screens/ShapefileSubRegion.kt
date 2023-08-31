@@ -16,7 +16,7 @@ object ShapefileSubRegion {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
         Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Col {
                 Shapefile.Screen(stringResource(R.string.select_a_sub_region_shapefile), { bg ->
                     viewModel.background(bg)

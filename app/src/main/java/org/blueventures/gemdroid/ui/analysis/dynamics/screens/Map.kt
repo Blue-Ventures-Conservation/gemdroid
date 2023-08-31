@@ -35,7 +35,7 @@ object Map {
             Maps.Screen(floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
-                override val title = viewModel.roi.name + " " + stringResource(R.string.dynamics)
+                override val title = viewModel.roi.appBar(stringResource(R.string.dynamics))
                 override val appBar = appBar
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()

@@ -55,7 +55,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_sub_region_name) {
-            NameRegion.Screen(viewModel, snack, next = {
+            NameRegion.Screen(viewModel, appBar, snack, next = {
                 nav.navigate(Routes.dynamics_sub_regions_draw_or_shapefile)
             }) {
                 nav.popBackStack()
@@ -127,7 +127,7 @@ object Dynamics {
         }
 
         b.composable(Routes.dynamics_details) {
-            Details.Screen(viewModel) {
+            Details.Screen(viewModel, appBar) {
                 nav.popBackStack()
             }
         }

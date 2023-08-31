@@ -38,7 +38,7 @@ object Correlation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         Nav.Wrap(back) {
-            appBar(AppBarUpdate(title = viewModel.title))
+            appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, CRA::errHandler) { json ->
                 val corrs = JSONMap.correlationChartInfo(json)

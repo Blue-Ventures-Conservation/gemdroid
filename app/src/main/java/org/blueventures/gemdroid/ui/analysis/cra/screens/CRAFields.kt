@@ -9,6 +9,8 @@ import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.Fields
+import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -21,8 +23,9 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: CRAViewModel, snack: SnackFun, done: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, done: Click, back: Click) {
         Nav.Wrap(back, done) { nav ->
+            appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             val (saving, setSaving) = remember{ mutableStateOf(false) }
 
             if (saving) {

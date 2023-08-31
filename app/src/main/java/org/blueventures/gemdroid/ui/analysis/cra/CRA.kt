@@ -34,7 +34,7 @@ object CRA {
             }
         }
         b.composable(Routes.hist_choice) {
-            ChooseHistorical.Screen(viewModel, {
+            ChooseHistorical.Screen(viewModel, appBar, {
                 when (viewModel.historicalChoice) {
                     HistoricalChoice.SEPARATE -> {
                         nav.navigate(Routes.hist_cra)
@@ -49,14 +49,14 @@ object CRA {
             }
         }
         b.composable(Routes.hist_cra) {
-            HistoricalCRA.Screen(viewModel, snack, {
+            HistoricalCRA.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.cra_fields)
             }) {
                 nav.popBackStack()
             }
         }
         b.composable(Routes.cra_fields) {
-            CRAFields.Screen(viewModel, snack, {
+            CRAFields.Screen(viewModel, appBar, snack, {
                 viewModel.clear()
                 nav.popClear(Analysis.Routes.dashboard)
             }) {

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
@@ -18,6 +19,7 @@ import com.anychart.enums.HoverMode
 import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.localized
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBarFun
@@ -36,7 +38,7 @@ object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, back: Click) {
         Nav.Wrap(back) {
-            appBar(AppBarUpdate(title = "ROI Buffer"))
+            appBar(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
 
             val (saving, setSaving) = remember { mutableStateOf(false) }
 
@@ -56,7 +58,7 @@ object Buffer {
 
         Col.Col {
             Chart(buffers)
-            Dropdown(title = "Select buffer distance:", labels = buffers.buffers.keys) { i ->
+            Dropdown(title = stringResource(R.string.select_buffer_distance), labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
             }
             val ctx = LocalContext.current

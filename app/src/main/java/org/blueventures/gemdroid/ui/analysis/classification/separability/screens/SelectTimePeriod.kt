@@ -23,7 +23,7 @@ object SelectTimePeriod {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
         Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(title = stringResource(R.string.spectral_separability)))
+            appBar(AppBarUpdate(stringResource(R.string.spectral_separability)))
 
             Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
                 val cont = cra.contemporaryCRA

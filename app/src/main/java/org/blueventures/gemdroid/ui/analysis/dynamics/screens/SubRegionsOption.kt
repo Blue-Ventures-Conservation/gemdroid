@@ -26,10 +26,11 @@ object SubRegionsOption {
             viewModel.subRegions.clear()
             back()
         }) { nav ->
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             viewModel.regionName = ""
             Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
                 viewModel.cra = cra
-                Choice(viewModel, appBar, snack, {
+                Choice(viewModel, snack, {
                     nav.next()
                     skip()
                 }, {
@@ -44,9 +45,7 @@ object SubRegionsOption {
     }
 
     @Composable
-    fun Choice(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click) {
-        appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
-
+    fun Choice(viewModel: DynamicsViewModel, snack: SnackFun, skip: Click, yes: Click, no: Click) {
         val (subRegions, setSubRegions) = remember { mutableStateOf<Result<SubRegionsFile>?>(null) }
 
         when {

@@ -29,7 +29,7 @@ object ScatterPlot {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(title = viewModel.title))
+            appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, CRA::errHandler) { json ->
                 val classes = JSONMap.classes(json)

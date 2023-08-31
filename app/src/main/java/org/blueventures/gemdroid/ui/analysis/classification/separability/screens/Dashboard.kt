@@ -20,7 +20,7 @@ object Dashboard {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, separation: Click, scatter: Click, correlation: Click, back: Click) {
         Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(title = viewModel.title))
+            appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
                 Layout(viewModel, json, {

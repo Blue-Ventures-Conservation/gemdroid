@@ -18,8 +18,9 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Details {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click) {
         Nav.Wrap(back) {
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Info.Block {
                     Info.Header(viewModel.roi.name)

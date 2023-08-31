@@ -15,7 +15,7 @@ object DrawOrShapefile {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun,  draw: Click, shapefile: Click, back: Click) {
         Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(viewModel.roi.name + " " + stringResource(R.string.dynamics)))
+            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Dash(stringResource(R.string.draw_sub_region_or_shapefile)) {
                 DashboardButton(stringResource(R.string.draw_a_sub_region)) {
                     nav.next()

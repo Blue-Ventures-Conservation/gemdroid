@@ -36,7 +36,7 @@ object Separation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
         Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(title = viewModel.title))
+            appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
                 Layout(json, nav::back)

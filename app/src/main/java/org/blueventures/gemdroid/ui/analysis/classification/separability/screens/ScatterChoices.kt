@@ -22,7 +22,7 @@ object ScatterChoices {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(title = viewModel.title))
+            appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, CRA::errHandler) { json ->
                 val bands = JSONMap.bands(json)

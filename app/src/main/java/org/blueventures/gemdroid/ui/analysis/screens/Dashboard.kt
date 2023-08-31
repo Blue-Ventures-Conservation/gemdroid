@@ -63,7 +63,7 @@ object Dashboard {
 
     @Composable
     fun Layout(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
-        appBar(AppBarUpdate(title = "${viewModel.roiDir.name} ${stringResource(R.string.analysis)}"))
+        appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.analysis))))
         val (roi, setRoi) = remember { mutableStateOf<Result<ROI>?>(null) }
         val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
 

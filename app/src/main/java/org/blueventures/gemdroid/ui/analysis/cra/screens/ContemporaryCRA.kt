@@ -15,7 +15,7 @@ object ContemporaryCRA {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
         Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(title = stringResource(R.string.classification_reference_areas)))
+            appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             Common.Screen(viewModel, stringResource(R.string.contemporary), snack, nav::next, nav::back, null, { cra ->
                 viewModel.contemporaryCRA = cra
             }) { key ->
