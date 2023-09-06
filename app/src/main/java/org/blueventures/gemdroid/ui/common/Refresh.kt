@@ -13,6 +13,13 @@ import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import org.blueventures.gemdroid.R
 
+@Composable
+fun RefreshableError(message: String? = null, doRefresh: (stop: () -> Unit) -> Unit) {
+    Refresh(doRefresh) {
+        BasicMessage(message ?: stringResource(R.string.unexpected_error))
+    }
+}
+
 /**
  * accompanist.SwipeRefresh is deprecated, but material3 doesn't have a working, equivalent library.
  *
@@ -22,14 +29,14 @@ import org.blueventures.gemdroid.R
  * https://issuetracker.google.com/issues/261760718
  */
 @Composable
-fun RefreshableError(message: String? = null, fetchFunc: (() -> Unit) -> Unit) {
+fun Refresh(doRefresh: (stop: () -> Unit) -> Unit, content: @Composable () -> Unit) {
     var refreshing by remember { mutableStateOf(false) }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = refreshing),
         onRefresh = {
             refreshing = true
-            fetchFunc {
+            doRefresh {
                 refreshing = false
             }
         },
@@ -38,6 +45,6 @@ fun RefreshableError(message: String? = null, fetchFunc: (() -> Unit) -> Unit) {
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        BasicMessage(message ?: stringResource(R.string.unexpected_error))
+        content()
     }
 }

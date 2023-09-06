@@ -1,10 +1,13 @@
 package org.blueventures.gemdroid.data
 
-interface URLs {
-    val createdAt: Int
-    val timeout: Int
+interface URLs: Expires {
     fun ordered(i: Int): String
 }
 
+interface Expires {
+    val createdAt: Int
+    val timeout: Int
+}
+
 // seconds
-fun staleCheck(urls: URLs) = (System.currentTimeMillis() / 1000) - urls.createdAt > urls.timeout
+fun staleCheck(expires: Expires) = (System.currentTimeMillis() / 1000) - expires.createdAt > expires.timeout

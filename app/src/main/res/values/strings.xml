@@ -172,4 +172,14 @@
     <string name="overview_historical_months">\"Historical Months: \"</string>
     <string name="overview_polygon_roi">\"Polygon ROI: \"</string>
     <string name="overview_points">%s points, %s</string>
+    <string name="expired">expired</string>
+    <string name="download_imagery">download imagery</string>
+    <string name="imagery_downloads">Imagery Downloads</string>
+    <string name="prepare_files">Prepare Files</string>
+    <string name="include_all_bands">Include All Bands?</string>
+    <string name="download_all_bands">Download All Bands</string>
+    <string name="large_file_warning">This will be a large file, potentially larger than 100 MB. Is that ok?</string>
+    <string name="download_this_file">download this file</string>
+    <string name="download_has_failed">this download has failed</string>
+    <string name="download_started">download started</string>
 </resources>

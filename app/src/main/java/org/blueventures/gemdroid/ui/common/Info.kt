@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -52,10 +53,10 @@ object Info {
     fun Txt(text: String, fontSize: TextUnit = 20.sp) = Text(text, fontSize = fontSize)
 
     @Composable
-    fun Row(content: @Composable RowScope.() -> Unit) {
+    fun Row(enabled: Boolean = true, click: Click = {}, content: @Composable RowScope.() -> Unit) {
         Row(modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth().clickable(enabled = enabled, onClick = click),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically)
         {

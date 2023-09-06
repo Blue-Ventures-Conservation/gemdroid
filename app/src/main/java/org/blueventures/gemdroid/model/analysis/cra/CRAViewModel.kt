@@ -135,7 +135,7 @@ class CRAViewModel(
 
     override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
 
-    override fun awaitCRAs(cra: CRA, callback: (Result<Throwable?>) -> Unit) {
+    override fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit) {
         awaitCRAsJob?.cancel()
         resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
             awaitCRAsJob = null
@@ -147,7 +147,7 @@ class CRAViewModel(
 interface CRAAwaiter {
     fun loadCRAs(callback: (Result<CRA>) -> Unit): Job
     fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
-    fun awaitCRAs(cra: CRA, callback: (Result<Throwable?>) -> Unit)
+    fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit)
 }
 
 /**

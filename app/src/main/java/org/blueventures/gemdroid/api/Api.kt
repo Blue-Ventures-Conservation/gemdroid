@@ -5,7 +5,11 @@ import com.github.zibnix.droidbones.api.BaseApi
 import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
 import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.ImageryExports
+import org.blueventures.gemdroid.data.analysis.Tasks
+import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.cra.CRAIngestRequested
@@ -13,6 +17,7 @@ import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.data.roi.ROI
@@ -34,6 +39,9 @@ object Api {
         @POST("/ls_imagery")
         suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
+        @POST("export_ls_imagery")
+        suspend fun exportLandsat(@Body roi:ROI): ApiResult<ImageryExports>
+
         @POST("/upload_cra")
         suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAIngestRequested>
 
@@ -42,6 +50,9 @@ object Api {
 
         @POST("/classification")
         suspend fun classification(@Body classificationROI: ClassificationROI): ApiResult<ClassificationURLs>
+
+        @POST("export_classification")
+        suspend fun exportClassification(@Body classificationROI: ClassificationROI): ApiResult<ClassificationExports>
 
         @POST("/box_chart")
         suspend fun boxChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
@@ -54,6 +65,12 @@ object Api {
 
         @POST("/dynamics")
         suspend fun dynamics(@Body dynamicsROI: DynamicsROI): ApiResult<DynamicsURLs>
+
+        @POST("/export_dynamics")
+        suspend fun exportDynamics(@Body dynamicsROI: DynamicsROI): ApiResult<DynamicsExports>
+
+        @POST("task_status")
+        suspend fun tasksResults(@Body tasks: Tasks): ApiResult<TasksResults>
     }
 
     class Service(private val backend: Backend, private val tokenHolder: TokenInterceptor): Backend by backend {

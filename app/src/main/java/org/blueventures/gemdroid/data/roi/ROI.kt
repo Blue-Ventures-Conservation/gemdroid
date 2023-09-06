@@ -20,6 +20,7 @@ data class ROI(
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
     @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
+    @Json(name = "visualize") val visualize: Boolean = true,
 ) {
     fun bounds() = polygon.coordinates[0].map { LatLng(it[1], it[0]) }
 

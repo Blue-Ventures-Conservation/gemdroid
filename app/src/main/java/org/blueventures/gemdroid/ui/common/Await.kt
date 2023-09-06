@@ -19,7 +19,7 @@ object Await {
     ) {
         val (cras, setCRAs) = remember { mutableStateOf<Result<CRA>?>(null) }
         val (should, setShould) = remember { mutableStateOf<Result<Boolean>?>(null) }
-        val (awaited, setAwaited) = remember { mutableStateOf<Result<Throwable?>?>(null) }
+        val (awaited, setAwaited) = remember { mutableStateOf<Result<Unit>?>(null) }
 
         when {
             cras == null -> {

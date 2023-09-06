@@ -33,10 +33,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class CRADatasource(
-    private val storage: FirebaseStorage = Firebase.storage,
     private val api: Api.Service = Api.Service.instance(),
     private val auth: FirebaseAuth = Firebase.auth,
-): ApiDatasource(api, auth) {
+    private val storage: FirebaseStorage = Firebase.storage,
+): ApiDatasource(api, auth, storage) {
     suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { cont ->
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()
@@ -356,7 +356,7 @@ class CRADatasource(
         }
     }
 
-    suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Throwable?> {
+    suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Unit> {
         val cont = cra.contemporaryCRA
         val hist = cra.historicalCRA
 
@@ -373,16 +373,16 @@ class CRADatasource(
 
         val err = apiResultCheck(contResult, histResult)
         if (err != null) {
-            return Result.success(err)
+            return Result.failure(err)
         }
 
         if (!contResult!!.data!!.success || !histResult!!.data!!.success) {
-            return Result.success(Throwable())
+            return Result.failure(Throwable())
         }
 
         Success.toFile(crasIngestedFile(roiDir), contResult!!.data!!)
 
-        return Result.success(null)
+        return Result.success(Unit)
     }
 
     private fun crasIngestedFile(roiDir: File) = File(File(roiDir, crasDir), crasIngestedFile)

@@ -15,6 +15,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_s
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
+import org.blueventures.gemdroid.ui.analysis.screens.ImageryDownloads
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
@@ -24,6 +25,7 @@ object Analysis {
         const val dashboard = "analysis_dashboard"
         const val buffer = "analysis_buffer"
         const val visualize = "analysis_visualize"
+        const val imagery_downloads = "analysis_imagery_downloads"
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
@@ -61,7 +63,15 @@ object Analysis {
 
         // Visualization
         b.composable(Routes.visualize) {
-            FalseColor.Screen(viewModel, appBar) {
+            FalseColor.Screen(viewModel, appBar, {
+                nav.navigate(Routes.imagery_downloads)
+            }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.imagery_downloads) {
+            ImageryDownloads.Screen(viewModel, appBar) {
                 nav.popBackStack()
             }
         }

@@ -7,8 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Expires
+import org.blueventures.gemdroid.data.staleCheck
 import java.net.HttpURLConnection
 
 object GetRemote {
@@ -74,7 +77,12 @@ object GetRemote {
                 getLocal(setLocal)
             }
             local.isSuccess -> {
-                screen(local.getOrNull()!!)
+                val data = local.getOrNull()!!
+                if (data is Expires && staleCheck(data)) {
+                    setLocal(Result.failure(NoStack(R.string.expired)))
+                } else {
+                    screen(local.getOrNull()!!)
+                }
             }
             remote == null -> {
                 PleaseWait()
@@ -100,9 +108,9 @@ object GetRemote {
                     val p = errorHandler(LocalContext.current, remote.code, remote.message)
 
                     if (p.second) {
-                        RefreshableError(p.first) { stopRefresh ->
+                        RefreshableError(p.first) { stop ->
                             getRemote { result ->
-                                stopRefresh()
+                                stop()
                                 setRemote(result)
                             }
                         }
