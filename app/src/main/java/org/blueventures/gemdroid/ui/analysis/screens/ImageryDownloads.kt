@@ -39,17 +39,17 @@ object ImageryDownloads {
                             object : Downloads.NamedExport {
                                 override val title: String = "$clotTitle:"
                                 override val filename: String = "${viewModel.roi.name}_contemporary_low_tide.tif"
-                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getChotUri(exports.clot.storagePath, callback)
+                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getClotUri(exports.clot.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
                                 override val title: String = "$hhotTitle:"
                                 override val filename: String = "${viewModel.roi.name}_historical_high_tide.tif"
-                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getChotUri(exports.hhot.storagePath, callback)
+                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getHhotUri(exports.hhot.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
                                 override val title: String = "$hlotTitle:"
                                 override val filename: String = "${viewModel.roi.name}_historical_low_tide.tif"
-                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getChotUri(exports.hlot.storagePath, callback)
+                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getHlotUri(exports.hlot.storagePath, callback)
                             },
                         )
                     }

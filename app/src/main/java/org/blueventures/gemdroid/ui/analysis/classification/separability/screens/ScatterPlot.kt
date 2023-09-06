@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 
 import android.widget.FrameLayout
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -12,7 +11,6 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Scatter
 import com.anychart.enums.MarkerType
-import org.blueventures.gemdroid.data.PointD
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
@@ -52,7 +50,7 @@ object ScatterPlot {
     }
 
     @Composable
-    fun Chart(data: Map<String, List<PointD>>, classes: List<String>, bandX: String, bandY: String) {
+    fun Chart(data: Map<String, List<JSONMap.ScatterPoint>>, classes: List<String>, bandX: String, bandY: String) {
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,7 +62,7 @@ object ScatterPlot {
                 for ((cls, pts) in data) {
                     val color = g2R2BHex(idx, size)
                     for (pt in pts) {
-                        entries.add(ScatterDataEntry(cls, color, pt.x, pt.y))
+                        entries.add(ScatterDataEntry(cls, color, pt.id, pt.x, pt.y))
                     }
                     idx++
                 }
@@ -74,7 +72,7 @@ object ScatterPlot {
                 scatter.xAxis(0).title(bandX)
                 scatter.yAxis(0).title(bandY)
                 val marker = scatter.marker(entries)
-                marker.type(MarkerType.CIRCLE).size(14)
+                marker.type(MarkerType.CIRCLE).size(6)
                 marker.tooltip().titleFormat("{%title}")
                 marker.tooltip().format("$bandX: {%x}\\n$bandY: {%value}")
 
@@ -87,11 +85,15 @@ object ScatterPlot {
         )
     }
 
-    class ScatterDataEntry(cls: String, color: String, x: Number, y: Number) : DataEntry() {
+    class ScatterDataEntry(cls: String, color: String, id: Number?, x: Number, y: Number) : DataEntry() {
         init {
-            setValue("title", cls)
+            var title = cls
+            if (id != null) {
+                title += " (${id.toInt()})"
+            }
+            setValue("title", title)
             setValue("fill", color)
-            setValue("stroke", color)
+            setValue("stroke", "#000000")
             setValue("x", x)
             setValue("value", y)
         }

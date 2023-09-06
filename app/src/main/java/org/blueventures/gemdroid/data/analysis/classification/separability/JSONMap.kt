@@ -149,8 +149,10 @@ object JSONMap {
         return builder.toString()
     }
 
-    fun scatterChartInfo(m: Map<String, Any>, classes: List<String>, bandX: String, bandY: String): Map<String, List<PointD>>? {
-        val out = mutableMapOf<String, MutableList<PointD>>()
+    data class ScatterPoint(val id: Double?, val x: Double, val y: Double)
+
+    fun scatterChartInfo(m: Map<String, Any>, classes: List<String>, bandX: String, bandY: String): Map<String, List<ScatterPoint>>? {
+        val out = mutableMapOf<String, MutableList<ScatterPoint>>()
 
         for (cls in classes) {
             val cmap = (m[cls] as? List<*>)?.checkItemsAre<Map<String, Double>>() ?: return null
@@ -158,7 +160,8 @@ object JSONMap {
             for (pt in cmap) {
                 val x = pt[bandX] ?: return null
                 val y = pt[bandY] ?: return null
-                out[cls]!!.add(PointD(x, y))
+                val id = pt["ID"]
+                out[cls]!!.add(ScatterPoint(id, x, y))
             }
         }
 

@@ -154,9 +154,11 @@ object Downloads {
                 }
             }) {
                 Col.MidPad(arrange = Arrangement.SpaceEvenly, scroll = true) {
+                    Info.BlueLine()
                     exports.list().forEachIndexed { i, export ->
                         val status = results.results[i]
                         DownloadRow(export, status.success, status.error != null)
+                        Info.BlueLine()
                     }
                 }
             }
