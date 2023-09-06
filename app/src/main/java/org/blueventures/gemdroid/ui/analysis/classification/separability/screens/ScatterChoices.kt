@@ -24,7 +24,7 @@ object ScatterChoices {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(viewModel.title))
 
-            GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, CRA::errHandler) { json ->
+            GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
                 val bands = JSONMap.bands(json)
 
                 if (bands == null) {

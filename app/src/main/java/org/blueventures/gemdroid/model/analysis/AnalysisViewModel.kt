@@ -101,7 +101,12 @@ class AnalysisViewModel(
         exportsJobs?.cancel()
         apiWithToken({ exportsJobs = it }, repo.getExports(roi.copy(visualize = visualize))) { result ->
             exportsJobs = null
-            callback(result)
+
+            if (result is ApiResult.Success) {
+                scoped { repo.deleteResults(roiDir).collect { callback(result) } }
+            } else {
+                callback(result)
+            }
         }
     }
 
@@ -109,18 +114,9 @@ class AnalysisViewModel(
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = scoped { repo.loadResults(roiDir).collect(callback) }
     fun getResults(exports: ImageryExports, callback: (ApiResult<TasksResults>) -> Unit) {
         statusJob?.cancel()
-        getTasksResults({ statusJob = it }, listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)) { apiResult ->
+        getTasksResults({ statusJob = it }, listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)) { result ->
             statusJob = null
-
-            if (apiResult is ApiResult.Success) {
-                scoped {
-                    repo.deleteResults(roiDir).collect {
-                        callback(apiResult)
-                    }
-                }
-            } else {
-                callback(apiResult)
-            }
+            callback(result)
         }
     }
 

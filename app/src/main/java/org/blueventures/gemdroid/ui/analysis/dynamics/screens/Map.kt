@@ -29,7 +29,7 @@ object Map {
 
     @Composable
     fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click) {
-        GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, Dynamics::errHandler) { urls ->
+        GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
             Maps.Screen(floating = {

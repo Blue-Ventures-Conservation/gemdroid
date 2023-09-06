@@ -22,7 +22,7 @@ object Dashboard {
         Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.title))
 
-            GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, CRA::errHandler) { json ->
+            GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, errorHandler = CRA::errHandler) { json ->
                 Layout(viewModel, json, {
                     nav.next()
                     separation()

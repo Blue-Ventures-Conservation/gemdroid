@@ -20,10 +20,11 @@ object GetRemote {
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T) -> Unit,
+        checkExpires: Boolean = false,
         // returns a message to display and whether or not the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit) {
-        Display(getLocal, getRemote, errorHandler) { dat ->
+        Display(getLocal, getRemote, checkExpires, errorHandler) { dat ->
             save(dat)
             screen(dat)
         }
@@ -34,6 +35,7 @@ object GetRemote {
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T, (Result<Unit>) -> Unit) -> Unit,
+        checkExpires: Boolean = false,
         // returns a message to display and whether or not the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         saveFail: ((T) -> Unit)? = null,
@@ -43,7 +45,7 @@ object GetRemote {
 
         when (saved) {
             null -> {
-                Display(getLocal, getRemote, errorHandler) { dat ->
+                Display(getLocal, getRemote, checkExpires, errorHandler) { dat ->
                     save(dat) { result ->
                         when {
                             result.isSuccess -> setSaved(dat)
@@ -64,6 +66,7 @@ object GetRemote {
     fun <T> Display(
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
+        checkExpires: Boolean = false,
         // returns a message to display and whether or not the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit,
@@ -78,7 +81,7 @@ object GetRemote {
             }
             local.isSuccess -> {
                 val data = local.getOrNull()!!
-                if (data is Expires && staleCheck(data)) {
+                if (checkExpires && data is Expires && staleCheck(data)) {
                     setLocal(Result.failure(NoStack(R.string.expired)))
                 } else {
                     screen(local.getOrNull()!!)

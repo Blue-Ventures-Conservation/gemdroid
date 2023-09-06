@@ -31,7 +31,7 @@ object ScatterPlot {
         Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.title))
 
-            GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, CRA::errHandler) { json ->
+            GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler) { json ->
                 val classes = JSONMap.classes(json)
 
                 if (classes == null) {

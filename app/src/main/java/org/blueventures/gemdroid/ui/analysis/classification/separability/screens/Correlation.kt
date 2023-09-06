@@ -40,7 +40,7 @@ object Correlation {
         Nav.Wrap(back) {
             appBar(AppBarUpdate(viewModel.title))
 
-            GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, CRA::errHandler) { json ->
+            GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, errorHandler = CRA::errHandler) { json ->
                 val corrs = JSONMap.correlationChartInfo(json)
 
                 if (corrs == null) {

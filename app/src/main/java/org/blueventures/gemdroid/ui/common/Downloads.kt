@@ -82,7 +82,7 @@ object Downloads {
                     }
                 }, getRemote = { callback ->
                     getRemote(holder.visualize, callback)
-                }, save = save) { exports ->
+                }, save = save, checkExpires = true) { exports ->
                     List(convert(exports))
                 }
             }

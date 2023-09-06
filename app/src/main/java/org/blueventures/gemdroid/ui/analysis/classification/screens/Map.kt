@@ -36,7 +36,7 @@ object Map {
 
     @Composable
     fun Classify(viewModel: ClassificationViewModel, appBar: AppBarFun, details: Click) {
-        GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, Classification::errHandler) { urls ->
+        GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, errorHandler = Classification::errHandler) { urls ->
             viewModel.urls = urls
 
             Maps.Screen(floating = {
