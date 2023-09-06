@@ -146,7 +146,9 @@ object Downloads {
                     exports.getResults { result ->
                         stop()
                         if (result is ApiResult.Success) {
-                            setResults(result.data!!)
+                            val data = result.data!!
+                            exports.saveResults(data)
+                            setResults(data)
                         }
                     }
                 }
