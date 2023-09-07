@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource
 import java.io.File
 
 class AnalysisDatasource(
-    private val api: Api.Service = Api.Service.instance(),
+    api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api = api) {
     fun getStage(roiDir: File): Stage {
         return try {
@@ -28,16 +28,7 @@ class AnalysisDatasource(
         }
     }
 
-    fun getROI(roiDir: File) = ROI.fromFile(roiFile(roiDir))
-    fun saveROI(roiDir: File, roi: ROI) = ROI.toFile(roiFile(roiDir), roi)
-    private fun roiFile(roiDir: File) = File(roiDir, roiFilename)
-    fun saveBuffersFile(roiDir: File, buffers: Buffers) = Buffers.toFile(buffersFile(roiDir), buffers)
-    fun loadBuffersFile(roiDir: File) = Buffers.fromFile(buffersFile(roiDir))
-    suspend fun getBuffers(roi: ROI) = api.getBuffers(roi)
-    private fun buffersFile(roiDir: File) = File(roiDir, buffersChartFile)
-    fun saveBuffer(roiDir: File, buffer: Int) = Buffer.toFile(File(roiDir, bufferFile), Buffer(buffer))
-
-    fun saveVisualizeURLs(roiDir: File, urls: VisualizeURLs): Result<Unit> {
+    fun makeVisualizeTileDirs(roiDir: File): Result<Unit> {
         visualizeTileDirs.forEach { subdir ->
             val subdirRes = FileService.createDir(visDir(roiDir), subdir)
             if (subdirRes.isFailure) {
@@ -45,49 +36,41 @@ class AnalysisDatasource(
             }
         }
 
-        return VisualizeURLs.toFile(urlsFile(roiDir), urls)
+        return Result.success(Unit)
     }
-    fun loadVisualizeURLs(roiDir: File) = VisualizeURLs.fromFile(urlsFile(roiDir))
-    suspend fun getVisualizeURLs(roi: ROI) = api.getVisualizeURLs(roi)
-    private fun urlsFile(roiDir: File) = File(visDir(roiDir), visualizeURLsFile)
-
-    fun saveExports(roiDir: File, exports: ImageryExports) = ImageryExports.toFile(exportsFile(roiDir), exports)
-    fun loadExports(roiDir: File) = ImageryExports.fromFile(exportsFile(roiDir))
-    suspend fun getExports(roi: ROI) = api.exportLandsat(roi)
-    private fun exportsFile(roiDir: File) = File(visDir(roiDir), exportsFilename)
-
-    fun loadResults(roiDir: File) = loadTasksResults(resultsFile(roiDir))
-    fun saveResults(roiDir: File, results: TasksResults) = saveTasksResults(resultsFile(roiDir), results)
-    fun deleteResults(roiDir: File) = FileService.deleteFile(resultsFile(roiDir))
-    private fun resultsFile(roiDir: File) = File(visDir(roiDir), resultsFile)
-
-    private fun visDir(roiDir: File) = File(roiDir, visualizeDir)
-
-    fun chotTileDir(roiDir: File) = File(visDir(roiDir), chotTilesDir)
-    fun clotTileDir(roiDir: File) = File(visDir(roiDir), clotTilesDir)
-    fun hhotTileDir(roiDir: File) = File(visDir(roiDir), hhotTilesDir)
-    fun hlotTileDir(roiDir: File) = File(visDir(roiDir), hlotTilesDir)
 
     companion object {
         // Buffer
-        const val bufferFile = "buffer_dist.json"
-        const val buffersChartFile = "buffers_chart.json"
+        private const val bufferFile = "buffer_dist.json"
+        private const val buffersChartFile = "buffers_chart.json"
 
         // Visualize
-        const val visualizeURLsFile = "urls.json"
-        const val visualizeDir = "visualize"
-        const val chotTilesDir = "chot_tiles"
-        const val clotTilesDir = "clot_tiles"
-        const val hhotTilesDir = "hhot_tiles"
-        const val hlotTilesDir = "hlot_tiles"
-        val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
+        private const val visualizeURLsFile = "urls.json"
+        private const val visualizeDir = "visualize"
+        private const val chotTilesDir = "chot_tiles"
+        private const val clotTilesDir = "clot_tiles"
+        private const val hhotTilesDir = "hhot_tiles"
+        private const val hlotTilesDir = "hlot_tiles"
+        private val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
         // Downloads
-        const val exportsFilename = "landsat_exports.json"
-        const val resultsFile = "results.json"
+        private const val exportsFilename = "landsat_exports.json"
+        private const val resultsFile = "results.json"
 
         // roi file details
-        const val roiFilename = RoiDatasource.filename
+        private const val roiFilename = RoiDatasource.filename
+
+        fun roiFile(roiDir: File) = File(roiDir, roiFilename)
+        fun buffersFile(roiDir: File) = File(roiDir, buffersChartFile)
+        fun buffDistFile(roiDir: File) = File(roiDir, bufferFile)
+        fun urlsFile(roiDir: File) = File(visDir(roiDir), visualizeURLsFile)
+        fun exportsFile(roiDir: File) = File(visDir(roiDir), exportsFilename)
+        fun resultsFile(roiDir: File) = File(visDir(roiDir), resultsFile)
+        fun visDir(roiDir: File) = File(roiDir, visualizeDir)
+        fun chotTileDir(roiDir: File) = File(visDir(roiDir), chotTilesDir)
+        fun clotTileDir(roiDir: File) = File(visDir(roiDir), clotTilesDir)
+        fun hhotTileDir(roiDir: File) = File(visDir(roiDir), hhotTilesDir)
+        fun hlotTileDir(roiDir: File) = File(visDir(roiDir), hlotTilesDir)
     }
 }
 

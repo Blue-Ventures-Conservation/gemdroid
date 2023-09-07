@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
@@ -24,9 +24,9 @@ data class VisualizeURLs(
         }
     }
 
-    companion object {
-        private val adapter = FileService.adapter<VisualizeURLs>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, urls: VisualizeURLs) = FileService.toFile(file, urls, adapter)
+    companion object : Serializer<VisualizeURLs>() {
+        private val adapter = make<VisualizeURLs>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: VisualizeURLs) = toFile(adapter, file, data)
     }
 }

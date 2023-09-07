@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis.classification
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
@@ -17,10 +17,10 @@ data class ClassificationURLs(
         return when(i) { 0 -> contemporaryClassification.url; 1 -> historicalClassification.url; else -> contemporaryClassification.url }
     }
 
-    companion object {
-        private val adapter = FileService.adapter<ClassificationURLs>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, urls: ClassificationURLs) = FileService.toFile(file, urls, adapter)
+    companion object : Serializer<ClassificationURLs>() {
+        private val adapter = make<ClassificationURLs>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: ClassificationURLs) = toFile(adapter, file, data)
     }
 }
 

@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 // this is only used to indicate by the presence of a file
@@ -9,9 +9,9 @@ import java.io.File
 data class Buffer(
     @Json(name = "buffer_dist") val buffer: Int
 ){
-    companion object {
-        private val adapter = FileService.adapter<Buffer>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, buffer: Buffer) = FileService.toFile(file, buffer, adapter)
+    companion object : Serializer<Buffer>() {
+        private val adapter = make<Buffer>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: Buffer) = toFile(adapter, file, data)
     }
 }

@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.cra.Shapefile
-import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryHighTide
-import org.blueventures.gemdroid.model.analysis.classification.separability.ContemporaryLowTide
-import org.blueventures.gemdroid.model.analysis.classification.separability.HistoricalHighTide
-import org.blueventures.gemdroid.model.analysis.classification.separability.HistoricalLowTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryHighTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryLowTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.HistoricalHighTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.HistoricalLowTide
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.TimePeriod
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.model.analysis.classification.separability.TimePeriod
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Await

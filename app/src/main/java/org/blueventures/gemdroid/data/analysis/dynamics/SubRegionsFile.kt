@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 /**
@@ -11,9 +11,9 @@ import java.io.File
 data class SubRegionsFile(
     @Json(name = "sub_regions") val subRegions: List<SubRegion>
 ) {
-    companion object {
-        private val adapter = FileService.adapter<SubRegionsFile>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, regions: SubRegionsFile) = FileService.toFile(file, regions, adapter)
+    companion object : Serializer<SubRegionsFile>() {
+        private val adapter = make<SubRegionsFile>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: SubRegionsFile) = toFile(adapter, file, data)
     }
 }

@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
@@ -19,10 +19,10 @@ data class DynamicsURLs(
         return when(i) { 0 -> lossURL; 1 -> persistenceURL; else -> gainURL }
     }
 
-    companion object {
-        private val adapter = FileService.adapter<DynamicsURLs>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, urls: DynamicsURLs) = FileService.toFile(file, urls, adapter)
+    companion object : Serializer<DynamicsURLs>() {
+        private val adapter = make<DynamicsURLs>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: DynamicsURLs) = toFile(adapter, file, data)
     }
 }
 

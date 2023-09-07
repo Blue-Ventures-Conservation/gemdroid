@@ -49,25 +49,25 @@ object Api {
         suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
 
         @POST("/classification")
-        suspend fun classification(@Body classificationROI: ClassificationROI): ApiResult<ClassificationURLs>
+        suspend fun classification(@Body roi: ClassificationROI): ApiResult<ClassificationURLs>
 
         @POST("export_classification")
-        suspend fun exportClassification(@Body classificationROI: ClassificationROI): ApiResult<ClassificationExports>
+        suspend fun exportClassification(@Body roi: ClassificationROI): ApiResult<ClassificationExports>
 
         @POST("/box_chart")
-        suspend fun boxChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
+        suspend fun boxChart(@Body roi: CraROI): ApiResult<Map<String, Any>>
 
         @POST("/scatter_chart")
-        suspend fun scatterChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
+        suspend fun scatterChart(@Body roi: CraROI): ApiResult<Map<String, Any>>
 
         @POST("/correlation_chart")
-        suspend fun correlationChart(@Body craROI: CraROI): ApiResult<Map<String, Any>>
+        suspend fun correlationChart(@Body roi: CraROI): ApiResult<Map<String, Any>>
 
         @POST("/dynamics")
-        suspend fun dynamics(@Body dynamicsROI: DynamicsROI): ApiResult<DynamicsURLs>
+        suspend fun dynamics(@Body roi: DynamicsROI): ApiResult<DynamicsURLs>
 
         @POST("/export_dynamics")
-        suspend fun exportDynamics(@Body dynamicsROI: DynamicsROI): ApiResult<DynamicsExports>
+        suspend fun exportDynamics(@Body roi: DynamicsROI): ApiResult<DynamicsExports>
 
         @POST("task_status")
         suspend fun tasksResults(@Body tasks: Tasks): ApiResult<TasksResults>

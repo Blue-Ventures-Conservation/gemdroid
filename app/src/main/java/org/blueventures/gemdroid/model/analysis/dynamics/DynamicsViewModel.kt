@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.model.analysis.dynamics
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.Regexp
@@ -14,7 +13,12 @@ import org.blueventures.gemdroid.data.analysis.dynamics.SubRegion
 import org.blueventures.gemdroid.data.analysis.dynamics.SubRegionsFile
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
-import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.dynamicsDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.dynamicDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.gainTileDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.lossTileDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.persistenceTileDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.subRegionsFile
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.urlsFile
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.maps.Visualize
@@ -60,11 +64,11 @@ class DynamicsViewModel(
     }
 
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)
-    fun tileDirs() = listOf(repo.lossTileDir(classDir()), repo.persistenceTileDir(classDir()), repo.gainTileDir(classDir()))
+    fun tileDirs() = listOf(lossTileDir(roiDir, targetClass), persistenceTileDir(roiDir, targetClass), gainTileDir(roiDir, targetClass))
 
-    fun loadSubRegionsFile(callback: (Result<SubRegionsFile>) -> Unit) = scoped { repo.loadSubRegionsFile(dynamicsDir()).collect(callback) }
-    fun saveSubRegionsFile() = scoped { repo.saveSubRegionsFile(dynamicsDir(), subRegions).collect() }
-    fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(dynamicsDir(), streams.streams, streams.names).collect(callback) }
+    fun loadSubRegionsFile(callback: (Result<SubRegionsFile>) -> Unit) = loadFile(subRegionsFile(roiDir), SubRegionsFile.Companion, callback)
+    fun saveSubRegionsFile() = saveFile(subRegionsFile(roiDir), SubRegionsFile(subRegions), SubRegionsFile.Companion)
+    fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
 
     fun validateRegionName() = Regexp.subRegionName.matches(regionName)
     fun polygonDrawn() {
@@ -79,26 +83,24 @@ class DynamicsViewModel(
     }
 
     fun getDynamics(callback: (ApiResult<DynamicsURLs>) -> Unit) {
-        dynamicsJob?.cancel()
-        apiWithToken({ dynamicsJob = it }, repo.getDynamics(DynamicsROI(
-            targetClass,
-            subRegions,
-            MildRed.toHexString(),
-            LightGreen.toHexString(),
-            SkyBlue.toHexString(),
-            cra.contemporaryCRA.shapefileStorageKey,
-            cra.historicalShp().shapefileStorageKey,
-            cra.useContSpec(),
-            cra.contemporaryCRA.numericClassField,
-            cra.contemporaryCRA.stringClassField,
-            roi,
-        ))) { result ->
-            dynamicsJob = null
-            callback(result)
+        dynamicsJob = getRemote(dynamicsJob, makeDynamicsROI(), callback) { api, roi ->
+            api.dynamics(roi)
         }
     }
-    fun saveDynamicsFile(urls: DynamicsURLs) = scoped { repo.saveDynamicsFile(classDir(), urls).collect() }
-    fun loadDynamicsFile(callback: (Result<DynamicsURLs>) -> Unit) = scoped { repo.loadDynamicsFile(classDir()).collect(callback) }
+    fun saveDynamicsFile(urls: DynamicsURLs) = saveFile(urlsFile(roiDir, targetClass), urls, DynamicsURLs.Companion)
+    fun loadDynamicsFile(callback: (Result<DynamicsURLs>) -> Unit) = loadFile(urlsFile(roiDir, targetClass), DynamicsURLs.Companion, callback)
 
-    private fun dynamicsDir() = File(roiDir, dynamicsDir)
+    private fun makeDynamicsROI() = DynamicsROI(
+        targetClass,
+        subRegions,
+        MildRed.toHexString(),
+        LightGreen.toHexString(),
+        SkyBlue.toHexString(),
+        cra.contemporaryCRA.shapefileStorageKey,
+        cra.historicalShp().shapefileStorageKey,
+        cra.useContSpec(),
+        cra.contemporaryCRA.numericClassField,
+        cra.contemporaryCRA.stringClassField,
+        roi,
+    )
 }

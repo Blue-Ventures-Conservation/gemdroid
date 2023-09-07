@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.model.analysis.cra
 import com.github.zibnix.droidbones.NoStack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.cra.CRA
@@ -101,8 +100,7 @@ class CRAViewModel(
     }
 
     private fun uploadIngestFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, upload: Flow<Result<Unit>>, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
-        uploadJob?.cancel()
-        resultWithToken<Unit>({ uploadJob = it }, flow {
+        uploadJob = resultWithToken<Unit>(uploadJob, flow {
             upload.collect { result ->
                 when {
                     result.isSuccess -> ingest.collect { res ->
@@ -136,11 +134,7 @@ class CRAViewModel(
     override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
 
     override fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit) {
-        awaitCRAsJob?.cancel()
-        resultWithToken({ awaitCRAsJob = it }, repo.awaitCRAs(roiDir, cra)) { result ->
-            awaitCRAsJob = null
-            callback(result)
-        }
+        awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cra), callback)
     }
 }
 

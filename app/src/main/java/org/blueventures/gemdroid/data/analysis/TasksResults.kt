@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data.analysis
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class TasksResults(
@@ -19,20 +19,14 @@ data class TasksResults(
         return res
     }
 
-    companion object {
-        private val adapter = FileService.adapter<TasksResults>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, status: TasksResults) = FileService.toFile(file, status, adapter)
+    companion object : Serializer<TasksResults>() {
+        private val adapter = make<TasksResults>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: TasksResults) = toFile(adapter, file, data)
     }
 }
 
 data class TaskStatus(
     @Json(name = "success") val success: Boolean,
     @Json(name = "error") val error: String?,
-) {
-    companion object {
-        private val adapter = FileService.adapter<TaskStatus>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, status: TaskStatus) = FileService.toFile(file, status, adapter)
-    }
-}
+)

@@ -1,20 +1,19 @@
 package org.blueventures.gemdroid.data.analysis.classification.separability
 
 import android.content.Context
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PointD
+import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.checkItemsAre
-import org.blueventures.gemdroid.model.analysis.classification.separability.TimePeriod
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.TimePeriod
 import java.io.File
 import kotlin.math.abs
 
 // A collection of functions related to unpacking (semi-)unstructured JSON
-object JSONMap {
+object JSONMap : Serializer<Map<String, Any>>() {
     fun bandsAndClasses(m: Map<String, Any>): Pair<List<String>, List<String>>? {
         val b = bands(m) ?: return null
         val c = classes(m) ?: return null
@@ -209,8 +208,8 @@ object JSONMap {
     }
 
     private val adapter = adapter()
-    fun fromFile(file: File) = FileService.fromFile(file, adapter)
-    fun toFile(file: File, m: Map<String, Any>) = FileService.toFile(file, m, adapter)
+    override fun fromFile(file: File) = fromFile(adapter, file)
+    override fun toFile(file: File, data: Map<String, Any>) = toFile(adapter, file, data)
 
     private fun adapter(): JsonAdapter<Map<String, Any>> {
         val type = Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)

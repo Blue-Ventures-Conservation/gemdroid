@@ -1,10 +1,10 @@
 package org.blueventures.gemdroid.data.roi
 
-import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon.Companion.ringFromState
+import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 // Saved on device based on user input when creating an ROI
@@ -26,8 +26,8 @@ data class ROI(
 
     fun appBar(title: String) = "$name $title"
 
-    companion object {
-        private val adapter = FileService.adapter<ROI>()
+    companion object : Serializer<ROI>() {
+        private val adapter = make<ROI>()
 
         fun fromState(
             name: String,
@@ -57,7 +57,7 @@ data class ROI(
             )
         }
 
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, roi: ROI) = FileService.toFile(file, roi, adapter)
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: ROI) = toFile(adapter, file, data)
     }
 }

@@ -6,11 +6,23 @@ import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.ImageryExports
+import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buffDistFile
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buffersFile
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.chotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.clotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.exportsFile
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hhotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hlotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.resultsFile
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.roiFile
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.urlsFile
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
@@ -54,98 +66,84 @@ class AnalysisViewModel(
 
     private var buffersJob: Job? = null
     private var visualizeURLsJob: Job? = null
-    private var exportsJobs: Job? = null
+    private var exportsJob: Job? = null
     private var statusJob: Job? = null
     private var chotUriJob: Job? = null
     private var clotUriJob: Job? = null
     private var hhotUriJob: Job? = null
     private var hlotUriJob: Job? = null
 
-    private fun tileDirs() = listOf(repo.chotTileDir(roiDir), repo.clotTileDir(roiDir), repo.hhotTileDir(roiDir), repo.hlotTileDir(roiDir))
+    private fun tileDirs() = listOf(chotTileDir(roiDir), clotTileDir(roiDir), hhotTileDir(roiDir), hlotTileDir(roiDir))
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
-    fun getROI(callback: (Result<ROI>) -> Unit) = scoped { repo.getROI(roiDir).collect(callback) }
+    fun getROI(callback: (Result<ROI>) -> Unit) = loadFile(roiFile(roiDir), ROI.Companion, callback)
 
-    fun saveBuffersFile(buffers: Buffers) = scoped { repo.saveBuffersFile(roiDir, buffers).collect() }
-    fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = scoped { repo.loadBuffersFile(roiDir).collect(callback) }
+    fun saveBuffersFile(buffers: Buffers) = saveFile(buffersFile(roiDir), buffers, Buffers.Companion)
+    fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = loadFile(buffersFile(roiDir), Buffers.Companion, callback)
     fun getBuffers(callback: (ApiResult<Buffers>) -> Unit) {
-        buffersJob?.cancel()
-        apiWithToken({ buffersJob = it }, repo.getBuffers(roi)) { result ->
-            buffersJob = null
-            callback(result)
+        buffersJob = getRemote(buffersJob, roi, callback) { api, roi ->
+            api.getBuffers(roi)
         }
     }
 
-    fun saveBuffer(buffer: Int, callback: (Result<Unit>) -> Unit) = scoped {
+    fun saveBuffer(buffer: Int, callback: (Result<Unit>) -> Unit) {
         roi = roi.copy(buffDist = buffer)
-        repo.saveBuffer(roiDir, roi, buffer).collect(callback)
+        saveFile(roiFile(roiDir), roi, ROI.Companion) { result ->
+            if (result.isFailure) {
+                callback(result)
+            } else {
+                saveFile(buffDistFile(roiDir), Buffer(buffer), Buffer.Companion, callback)
+            }
+        }
     }
 
     override fun parentDir() = roiDir
     override fun bounds() = roi.bounds()
     override fun tileDir(i: Int) = tileDirs()[i]
 
-    override fun saveVisualizeURLsFile(urls: VisualizeURLs) = scoped { repo.saveVisualizeURLs(roiDir, urls).collect() }
-    override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = scoped { repo.loadVisualizeURLs(roiDir).collect(callback) }
+    override fun saveVisualizeURLsFile(urls: VisualizeURLs): Job {
+        scoped { repo.makeVisualizeTileDirs(roiDir).collect() }
+        return saveFile(urlsFile(roiDir), urls, VisualizeURLs.Companion)
+    }
+    override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = loadFile(urlsFile(roiDir), VisualizeURLs.Companion, callback)
     override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
-        visualizeURLsJob?.cancel()
-        apiWithToken({ visualizeURLsJob = it }, repo.getVisualizeURLs(roi)) { result ->
-            visualizeURLsJob = null
-            callback(result)
+        visualizeURLsJob = getRemote(visualizeURLsJob, roi, callback) { api, roi ->
+            api.getVisualizeURLs(roi)
         }
     }
 
-    fun saveExports(exports: ImageryExports) = scoped { repo.saveExports(roiDir, exports).collect() }
-    fun loadExports(callback: (Result<ImageryExports>) -> Unit) = scoped { repo.loadExports(roiDir).collect(callback) }
+    fun saveExports(exports: ImageryExports) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion)
+    fun loadExports(callback: (Result<ImageryExports>) -> Unit) = loadFile(exportsFile(roiDir), ImageryExports.Companion, callback)
     fun getExports(visualize: Boolean, callback: (ApiResult<ImageryExports>) -> Unit) {
-        exportsJobs?.cancel()
-        apiWithToken({ exportsJobs = it }, repo.getExports(roi.copy(visualize = visualize))) { result ->
-            exportsJobs = null
-
+        exportsJob = getRemote(exportsJob, roi.copy(visualize = visualize), { result ->
             if (result is ApiResult.Success) {
-                scoped { repo.deleteResults(roiDir).collect { callback(result) } }
+                scoped { deleteFile(resultsFile(roiDir)) { callback(result) } }
             } else {
                 callback(result)
             }
+        }) { api, roi ->
+            api.exportLandsat(roi)
         }
     }
 
-    fun saveResults(results: TasksResults) = scoped { repo.saveResults(roiDir, results).collect() }
-    fun loadResults(callback: (Result<TasksResults>) -> Unit) = scoped { repo.loadResults(roiDir).collect(callback) }
+    fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir), results)
+    fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
     fun getResults(exports: ImageryExports, callback: (ApiResult<TasksResults>) -> Unit) {
-        statusJob?.cancel()
-        getTasksResults({ statusJob = it }, listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)) { result ->
-            statusJob = null
-            callback(result)
+        statusJob = getRemote(statusJob, Tasks(listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)), callback) { api, tasks ->
+            api.tasksResults(tasks)
         }
     }
 
     fun getChotUri(path: String, callback: (Result<Uri>) -> Unit) {
-        chotUriJob?.cancel()
-        uriFromStorage({ chotUriJob = it }, path) { result ->
-            chotUriJob = null
-            callback(result)
-        }
+        chotUriJob = uriFromStorage(chotUriJob, path, callback)
     }
     fun getClotUri(path: String, callback: (Result<Uri>) -> Unit) {
-        clotUriJob?.cancel()
-        uriFromStorage({ clotUriJob = it }, path) { result ->
-            clotUriJob = null
-            callback(result)
-        }
+        clotUriJob = uriFromStorage(clotUriJob, path, callback)
     }
     fun getHhotUri(path: String, callback: (Result<Uri>) -> Unit) {
-        hhotUriJob?.cancel()
-        uriFromStorage({ hhotUriJob = it }, path) { result ->
-            hhotUriJob = null
-            callback(result)
-        }
+        hhotUriJob = uriFromStorage(hhotUriJob, path, callback)
     }
     fun getHlotUri(path: String, callback: (Result<Uri>) -> Unit) {
-        hlotUriJob?.cancel()
-        uriFromStorage({ hlotUriJob = it }, path) { result ->
-            hlotUriJob = null
-            callback(result)
-        }
+        hlotUriJob = uriFromStorage(hlotUriJob, path, callback)
     }
 }

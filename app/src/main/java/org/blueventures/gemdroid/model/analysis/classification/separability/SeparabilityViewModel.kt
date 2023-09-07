@@ -2,20 +2,23 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
+import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
-import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.analysis.cra.Shapefile
+import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.correlationFile
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.scatterFile
+import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.separationFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 
 class SeparabilityViewModel(
-    private val repo: SeparabilityRepository = SeparabilityRepository()
+    repo: SeparabilityRepository = SeparabilityRepository()
 ): ApiViewModel(repo) {
     lateinit var craAwaiter: CRAAwaiter
 
-    lateinit var timePeriod: TimePeriod
+    lateinit var timePeriod: SeparabilityDatasource.TimePeriod
     lateinit var toAnalyze: Shapefile
     lateinit var title: String
     lateinit var bandX: String
@@ -31,36 +34,30 @@ class SeparabilityViewModel(
     private var chartJob: Job? = null
 
     fun getSeparation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        chartJob?.cancel()
-        apiWithToken({ chartJob = it }, repo.getSeparation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
-            chartJob = null
-            callback(result)
+        chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
+            timePeriod.separation(api, roi)
         }
     }
-    fun saveSeparationFile(data: Map<String, Any>) = scoped { repo.saveSeparationFile(roiDir, timePeriod, data).collect() }
-    fun loadSeparationFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadSeparationFile(roiDir, timePeriod).collect(callback) }
+    fun saveSeparationFile(data: Map<String, Any>) = saveFile(separationFile(roiDir, timePeriod), data, JSONMap)
+    fun loadSeparationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(separationFile(roiDir, timePeriod), JSONMap, callback)
 
     fun getScatter(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        chartJob?.cancel()
-        apiWithToken({ chartJob = it }, repo.getScatter(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
-            chartJob = null
-            callback(result)
+        chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
+            timePeriod.scatter(api, roi)
         }
     }
-    fun saveScatterFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = scoped { repo.saveScatterFile(roiDir, timePeriod, data).collect(callback) }
-    fun loadScatterFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadScatterFile(roiDir, timePeriod).collect(callback) }
+    fun saveScatterFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = saveFile(scatterFile(roiDir, timePeriod), data, JSONMap, callback)
+    fun loadScatterFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(scatterFile(roiDir, timePeriod), JSONMap, callback)
 
     fun getCorrelation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
-        chartJob?.cancel()
-        apiWithToken({ chartJob = it }, repo.getCorrelation(timePeriod, getCraROI(timePeriod.apiVal))) { result ->
-            chartJob = null
-            callback(result)
+        chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
+            timePeriod.correlation(api, roi)
         }
     }
-    fun saveCorrelationFile(data: Map<String, Any>) = scoped { repo.saveCorrelationFile(roiDir, timePeriod, data).collect() }
-    fun loadCorrelationFile(callback: (Result<Map<String, Any>>) -> Unit) = scoped { repo.loadCorrelationFile(roiDir, timePeriod).collect(callback) }
+    fun saveCorrelationFile(data: Map<String, Any>) = saveFile(correlationFile(roiDir, timePeriod), data, JSONMap)
+    fun loadCorrelationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(correlationFile(roiDir, timePeriod), JSONMap, callback)
 
-    private fun getCraROI(timePeriod: Int): CraROI {
+    private fun makeCraROI(timePeriod: Int): CraROI {
         return CraROI(timePeriod, toAnalyze.shapefileStorageKey, toAnalyze.numericClassField, toAnalyze.stringClassField, roi)
     }
 }
