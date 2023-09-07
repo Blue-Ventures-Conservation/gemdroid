@@ -22,14 +22,15 @@ import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Details {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, separability: Click, back: Click) {
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, separability: Click, downloads: Click, back: Click) {
         Nav.Wrap(back, separability) {
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.classification))))
 
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Legend(viewModel.urls)
-                Accuracy(viewModel.urls)
                 Separability(separability)
+                Accuracy(viewModel.urls)
+                Downloads(downloads)
             }
         }
     }
@@ -52,6 +53,15 @@ object Details {
             Box(modifier = Modifier
                 .background(color)
                 .size(24.dp))
+        }
+    }
+
+    @Composable
+    private fun Separability(separability: Click) {
+        Info.Block {
+            Info.BlueLine()
+            Info.Space()
+            Col.DashboardButton(stringResource(R.string.explore_separability), separability)
         }
     }
 
@@ -80,11 +90,11 @@ object Details {
     }
 
     @Composable
-    private fun Separability(separability: Click) {
+    private fun Downloads(downloads: Click) {
         Info.Block {
-            Info.Header(stringResource(R.string.separability))
+            Info.BlueLine()
             Info.Space()
-            Col.DashboardButton(stringResource(R.string.explore), separability)
+            Col.DashboardButton(stringResource(R.string.downloads), downloads)
         }
     }
 }

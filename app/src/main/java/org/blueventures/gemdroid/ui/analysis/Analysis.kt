@@ -7,15 +7,15 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
-import org.blueventures.gemdroid.ui.analysis.classification.Classification.Routes.classification_map
+import org.blueventures.gemdroid.ui.analysis.classification.Classification.Routes.map
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.dynamics_sub_regions_option
+import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.sub_regions_option
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
-import org.blueventures.gemdroid.ui.analysis.screens.ImageryDownloads
+import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.common.AppBarFun
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
@@ -48,9 +48,9 @@ object Analysis {
             }, vis = {
                 nav.navigate(Routes.visualize)
             }, clazz = {
-                nav.navigate(classification_map)
+                nav.navigate(map)
             }, dyn = {
-                nav.navigate(dynamics_sub_regions_option)
+                nav.navigate(sub_regions_option)
             })
         }
 
@@ -71,7 +71,7 @@ object Analysis {
         }
 
         b.composable(Routes.imagery_downloads) {
-            ImageryDownloads.Screen(viewModel, appBar) {
+            Downloads.Screen(viewModel, appBar) {
                 nav.popBackStack()
             }
         }

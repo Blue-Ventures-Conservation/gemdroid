@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Details {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, downloads: Click, back: Click) {
         Nav.Wrap(back) {
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
@@ -27,12 +27,15 @@ object Details {
                     StatsBlock(viewModel.targetClass, viewModel.urls.stats)
                 }
                 Info.Block {
-                    Info.Header(stringResource(R.string.sub_regions))
-                    viewModel.urls.subRegionStats.forEach { stats ->
-                        Info.SubHeader(stats.name ?: stringResource(R.string.unnamed))
-                        StatsBlock(viewModel.targetClass, stats)
+                    if (viewModel.urls.subRegionStats.isNotEmpty()) {
+                        Info.Header(stringResource(R.string.sub_regions))
+                        viewModel.urls.subRegionStats.forEach { stats ->
+                            Info.SubHeader(stats.name ?: stringResource(R.string.unnamed))
+                            StatsBlock(viewModel.targetClass, stats)
+                        }
                     }
                 }
+                Downloads(downloads)
             }
         }
     }
@@ -56,6 +59,15 @@ object Details {
         Info.Row {
             Info.Txt(label)
             Info.Txt(value)
+        }
+    }
+
+    @Composable
+    private fun Downloads(downloads: Click) {
+        Info.Block {
+            Info.BlueLine()
+            Info.Space()
+            Col.DashboardButton(stringResource(R.string.downloads), downloads)
         }
     }
 

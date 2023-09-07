@@ -30,7 +30,7 @@ open class ApiDatasource(
         }
     }
 
-    suspend fun <I, O> getRemote(req: I, call: suspend (Api.Service, I) -> ApiResult<O>) = call(api, req)
+    suspend fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> ApiResult<O>) = call(api, body)
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S) = serializer.fromFile(file)
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S): Result<Unit> {
         return serializer.toFile(file, data)

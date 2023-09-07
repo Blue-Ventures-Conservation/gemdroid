@@ -9,6 +9,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Details
+import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DrawSubRegion
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Map
@@ -23,30 +24,31 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Dynamics {
     object Routes {
-        const val dynamics_target_class = "analysis_dynamics_target_class"
-        const val dynamics_sub_regions_option = "analysis_dynamics_sub_regions_option"
-        const val dynamics_sub_region_name = "analysis_dynamics_sub_region_name"
-        const val dynamics_sub_regions_draw_or_shapefile = "analysis_dynamics_sub_regions_draw_or_shapefile"
-        const val dynamics_drawn_sub_region = "analysis_dynamics_drawn_sub_region"
-        const val dynamics_shapefile_region = "analysis_dynamics_shapefile_region"
-        const val dynamics_visualize_shapefile_region = "analysis_dynamics_visualize_shapefile_region"
-        const val dynamics_sub_regions_overview = "analysis_dynamics_sub_regions_overview"
-        const val dynamics_map = "analysis_dynamics_map"
-        const val dynamics_details = "analysis_dynamics_details"
+        const val target_class = "analysis_dynamics_target_class"
+        const val sub_regions_option = "analysis_dynamics_sub_regions_option"
+        const val sub_region_name = "analysis_dynamics_sub_region_name"
+        const val sub_regions_draw_or_shapefile = "analysis_dynamics_sub_regions_draw_or_shapefile"
+        const val drawn_sub_region = "analysis_dynamics_drawn_sub_region"
+        const val shapefile_region = "analysis_dynamics_shapefile_region"
+        const val visualize_shapefile_region = "analysis_dynamics_visualize_shapefile_region"
+        const val sub_regions_overview = "analysis_dynamics_sub_regions_overview"
+        const val map = "analysis_dynamics_map"
+        const val details = "analysis_dynamics_details"
+        const val downloads = "analysis_dynamics_downloads"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun) {
-        b.composable(Routes.dynamics_sub_regions_option) {
+        b.composable(Routes.sub_regions_option) {
             SubRegionsOption.Screen(viewModel, appBar, snack, skip = {
-                nav.popClear(Routes.dynamics_target_class)
+                nav.popClear(Routes.target_class)
             }, yes = {
-                nav.navigate(Routes.dynamics_sub_region_name)
+                nav.navigate(Routes.sub_region_name)
             }, no = {
-                var navRoute = { nav.popClear(Routes.dynamics_target_class) }
+                var navRoute = { nav.popClear(Routes.target_class) }
                 if (viewModel.subRegions.isEmpty()) {
                     viewModel.saveSubRegionsFile()
                 } else if (!viewModel.subRegionsLoaded && viewModel.subRegions.size > 1) {
-                    navRoute = { nav.popClear(Routes.dynamics_sub_regions_overview) }
+                    navRoute = { nav.popClear(Routes.sub_regions_overview) }
                 }
                 navRoute()
             }, back = {
@@ -54,80 +56,88 @@ object Dynamics {
             })
         }
 
-        b.composable(Routes.dynamics_sub_region_name) {
+        b.composable(Routes.sub_region_name) {
             NameRegion.Screen(viewModel, appBar, snack, next = {
-                nav.navigate(Routes.dynamics_sub_regions_draw_or_shapefile)
+                nav.navigate(Routes.sub_regions_draw_or_shapefile)
             }) {
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_sub_regions_draw_or_shapefile) {
+        b.composable(Routes.sub_regions_draw_or_shapefile) {
             DrawOrShapefile.Screen(viewModel, appBar, draw = {
-                nav.navigate(Routes.dynamics_drawn_sub_region)
+                nav.navigate(Routes.drawn_sub_region)
             }, shapefile = {
-                nav.navigate(Routes.dynamics_shapefile_region)
+                nav.navigate(Routes.shapefile_region)
             }) {
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_drawn_sub_region) {
+        b.composable(Routes.drawn_sub_region) {
             DrawSubRegion.Screen(viewModel, appBar, snack, next = {
-                nav.popClear(Routes.dynamics_sub_regions_option)
+                nav.popClear(Routes.sub_regions_option)
             }) {
                 viewModel.drawPoly.clearAll()
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_shapefile_region) {
+        b.composable(Routes.shapefile_region) {
             ShapefileSubRegion.Screen(viewModel, appBar, snack, next = {
-                nav.navigate(Routes.dynamics_visualize_shapefile_region)
+                nav.navigate(Routes.visualize_shapefile_region)
             }) {
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_visualize_shapefile_region) {
+        b.composable(Routes.visualize_shapefile_region) {
             VisualizeShapefile.Screen(viewModel, appBar, next = {
-                nav.popClear(Routes.dynamics_sub_regions_option)
+                nav.popClear(Routes.sub_regions_option)
             }) {
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_sub_regions_overview) {
+        b.composable(Routes.sub_regions_overview) {
             SubRegionsOverview.Screen(viewModel, appBar, {
                 viewModel.saveSubRegionsFile()
-                nav.popClear(Routes.dynamics_target_class)
+                nav.popClear(Routes.target_class)
             }, {
                 viewModel.subRegions.clear()
-                nav.popClear(Routes.dynamics_sub_regions_option)
+                nav.popClear(Routes.sub_regions_option)
             }) {
                 viewModel.subRegions.clear()
                 nav.popClear(Analysis.Routes.dashboard)
             }
         }
 
-        b.composable(Routes.dynamics_target_class) {
+        b.composable(Routes.target_class) {
             TargetClass.Screen(viewModel, appBar, {
-                nav.navigate(Routes.dynamics_map)
+                nav.navigate(Routes.map)
             }) {
                 nav.popClear(Analysis.Routes.dashboard)
             }
         }
 
-        b.composable(Routes.dynamics_map) {
+        b.composable(Routes.map) {
             Map.Screen(viewModel, appBar, {
-                nav.navigate(Routes.dynamics_details)
+                nav.navigate(Routes.details)
             }) {
                 nav.popBackStack()
             }
         }
 
-        b.composable(Routes.dynamics_details) {
-            Details.Screen(viewModel, appBar) {
+        b.composable(Routes.details) {
+            Details.Screen(viewModel, appBar, {
+                nav.navigate(Routes.downloads)
+            }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.downloads) {
+            Downloads.Screen(viewModel, appBar) {
                 nav.popBackStack()
             }
         }

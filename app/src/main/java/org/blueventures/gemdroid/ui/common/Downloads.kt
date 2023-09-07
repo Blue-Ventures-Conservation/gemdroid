@@ -180,7 +180,7 @@ object Downloads {
                 }
             }
         }) {
-            Info.Txt(export.title)
+            Info.Txt("${export.title}:")
             val iconMod = Modifier.size(36.dp)
             when {
                 downloadStarted -> Icon(Icons.Rounded.Downloading, stringResource(R.string.download_started), iconMod.background(LightGreen))

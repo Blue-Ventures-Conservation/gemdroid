@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.analysis.ImageryExports
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
@@ -26,7 +25,7 @@ import org.blueventures.gemdroid.ui.theme.g2R2BHex
 import java.io.File
 
 class ClassificationViewModel(
-    private val repo: ClassificationRepository = ClassificationRepository()
+    repo: ClassificationRepository = ClassificationRepository()
 ): Downloads.VisualizeHolder, ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
     lateinit var craAwaiter: CRAAwaiter
@@ -95,8 +94,8 @@ class ClassificationViewModel(
 
     fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir), results)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
-    fun getResults(exports: ImageryExports, callback: (ApiResult<TasksResults>) -> Unit) {
-        statusJob = getRemote(statusJob, Tasks(listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)), callback) { api, tasks ->
+    fun getResults(exports: ClassificationExports, callback: (ApiResult<TasksResults>) -> Unit) {
+        statusJob = getRemote(statusJob, Tasks(listOf(exports.contemporary.name, exports.historical.name)), callback) { api, tasks ->
             api.tasksResults(tasks)
         }
     }

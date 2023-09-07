@@ -13,10 +13,10 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.common.Nav
 
-object ImageryDownloads {
+object Downloads {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
-        viewModel.visualize = false
+        viewModel.visualize = true
         Nav.Wrap(back) {
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.imagery_downloads))))
             Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports) { exports ->
@@ -32,23 +32,23 @@ object ImageryDownloads {
                     override fun list(): List<Downloads.NamedExport> {
                         return listOf(
                             object : Downloads.NamedExport {
-                                override val title: String = "$chotTitle:"
-                                override val filename: String = "${viewModel.roi.name}_contemporary_high_tide.tif"
+                                override val title = chotTitle
+                                override val filename = "${viewModel.roi.name}_contemporary_high_tide.tif"
                                 override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getChotUri(exports.chot.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
-                                override val title: String = "$clotTitle:"
-                                override val filename: String = "${viewModel.roi.name}_contemporary_low_tide.tif"
+                                override val title = clotTitle
+                                override val filename = "${viewModel.roi.name}_contemporary_low_tide.tif"
                                 override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getClotUri(exports.clot.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
-                                override val title: String = "$hhotTitle:"
-                                override val filename: String = "${viewModel.roi.name}_historical_high_tide.tif"
+                                override val title = hhotTitle
+                                override val filename = "${viewModel.roi.name}_historical_high_tide.tif"
                                 override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getHhotUri(exports.hhot.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
-                                override val title: String = "$hlotTitle:"
-                                override val filename: String = "${viewModel.roi.name}_historical_low_tide.tif"
+                                override val title = hlotTitle
+                                override val filename = "${viewModel.roi.name}_historical_low_tide.tif"
                                 override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getHlotUri(exports.hlot.storagePath, callback)
                             },
                         )

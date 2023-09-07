@@ -16,7 +16,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
 
     fun <T> resultWithToken(prev: Job?, flow: Flow<Result<T>>, callback: (Result<T>) -> Unit) = withToken(prev, ::resErr, flow, callback)
 
-    fun <T> withToken(prev: Job?, errFun: (Throwable) -> T,  flow: Flow<T>, callback: (T) -> Unit): Job {
+    private fun <T> withToken(prev: Job?, errFun: (Throwable) -> T, flow: Flow<T>, callback: (T) -> Unit): Job {
         prev?.cancel()
         return scoped {
             repo.getIdToken().collect { result ->
@@ -32,7 +32,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
 
     fun uriFromStorage(prev: Job?, path: String, callback: (Result<Uri>) -> Unit) = resultWithToken(prev, repo.uriFromStorage(path), callback)
 
-    fun <I, O> getRemote(prev: Job?, req: I, callback: (ApiResult<O>) -> Unit, call: suspend (Api.Service, I) -> ApiResult<O>) = apiWithToken(prev, repo.getRemote(req, call), callback)
+    fun <I, O> getRemote(prev: Job?, body: I, callback: (ApiResult<O>) -> Unit, call: suspend (Api.Service, I) -> ApiResult<O>) = apiWithToken(prev, repo.getRemote(body, call), callback)
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S, callback: (Result<T>) -> Unit) = scoped { repo.loadFile(file, serializer).collect(callback) }
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.saveFile(file, data, serializer).collect(callback) }
     fun deleteFile(file: File, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.deleteFile(file).collect(callback) }

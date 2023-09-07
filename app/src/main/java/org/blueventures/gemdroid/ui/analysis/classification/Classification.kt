@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
+import org.blueventures.gemdroid.ui.analysis.classification.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Details
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Map
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability
@@ -17,14 +18,15 @@ import java.net.HttpURLConnection
 
 object Classification {
     object Routes {
-        const val classification_map = "analysis_classification_map"
+        const val map = "analysis_classification_map"
         const val details = "analysis_classification_details"
+        const val downloads = "analysis_classification_downloads"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun) {
         Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
 
-        b.composable(Routes.classification_map) {
+        b.composable(Routes.map) {
             Map.Screen(viewModel, appBar, snack, {
                 nav.navigate(Routes.details)
             }) {
@@ -35,7 +37,15 @@ object Classification {
         b.composable(Routes.details) {
             Details.Screen(viewModel, appBar, {
                 nav.navigate(timePeriod)
+            }, {
+                nav.navigate(Routes.downloads)
             }) {
+                nav.popBackStack()
+            }
+        }
+
+        b.composable(Routes.downloads) {
+            Downloads.Screen(viewModel, appBar) {
                 nav.popBackStack()
             }
         }

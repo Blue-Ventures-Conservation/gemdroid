@@ -21,12 +21,16 @@ class DynamicsDatasource(
         private const val lossTilesDir = "loss_tiles"
         private const val persistenceTilesDir = "persistence_tiles"
         private const val dynamicsURLsFile = "urls.json"
+        private const val exportsFilename = "dynamics_exports.json"
+        private const val resultsFile = "results.json"
         const val maxSubRegions = 5
 
         fun dynamicDir(roiDir: File) = File(roiDir, dynamicsDir)
         fun subRegionsFile(roiDir: File) = File(dynamicDir(roiDir), subRegionFile)
         fun classDir(roiDir: File, targetClass: String) = File(dynamicDir(roiDir), MD5.string(targetClass))
         fun urlsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), dynamicsURLsFile)
+        fun exportsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), exportsFilename)
+        fun resultsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), resultsFile)
         fun gainTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), gainTilesDir)
         fun lossTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), lossTilesDir)
         fun persistenceTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), persistenceTilesDir)
