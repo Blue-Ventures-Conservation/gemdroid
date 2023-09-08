@@ -40,7 +40,7 @@ object Await {
                 awaiter.awaitCRAs(cras.getOrNull()!!, setAwaited)
             }
             else -> {
-                if (awaited != null && (awaited.isFailure || awaited.getOrNull() != null)) {
+                if (awaited != null && awaited.isFailure) {
                     Effect.Once {
                         snack(notVerified)
                     }

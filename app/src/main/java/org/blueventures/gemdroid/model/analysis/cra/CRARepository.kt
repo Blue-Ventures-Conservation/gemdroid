@@ -14,7 +14,7 @@ class CRARepository(
     fun uploadCRA(cra: CRAFile) = goFlow { datasource.uploadCRA(cra) }
     fun uploadCRAs(c1: CRAFile, c2: CRAFile) = goFlow { datasource.uploadCRAs(c1, c2) }
     fun ingestCRA(cra: CRAFile) = goFlow { datasource.ingestCRA(cra) }
-    fun ingestCRAs(c1: CRAFile, c2: CRAFile) = goFlow { datasource.ingestCRAs(c1, c2) }
+    fun ingestCRAs(roiDir: File, c1: CRAFile, c2: CRAFile) = goFlow { datasource.ingestCRAs(roiDir, c1, c2) }
     fun uploadFields(cra: CRAFile) = goFlow { datasource.uploadFields(cra) }
     fun uploadFields(c1: CRAFile, c2: CRAFile) = goFlow { datasource.uploadFields(c1, c2) }
     fun saveCRAs(roiDir: File, cra: CRA) = goFlow { datasource.saveCRAs(roiDir, cra) }

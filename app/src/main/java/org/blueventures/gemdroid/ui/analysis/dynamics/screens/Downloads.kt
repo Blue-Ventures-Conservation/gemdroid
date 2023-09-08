@@ -38,12 +38,12 @@ object Downloads {
                             object : Downloads.NamedExport {
                                 override val title = persistenceTitle
                                 override val filename = "${viewModel.roi.name}_persistence_dynamics.tif"
-                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getLossUri(exports.persistence.storagePath, callback)
+                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getPersistenceUri(exports.persistence.storagePath, callback)
                             },
                             object : Downloads.NamedExport {
                                 override val title = gainTitle
                                 override val filename = "${viewModel.roi.name}_gain_dynamics.tif"
-                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getLossUri(exports.gain.storagePath, callback)
+                                override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getGainUri(exports.gain.storagePath, callback)
                             }
                         )
                     }

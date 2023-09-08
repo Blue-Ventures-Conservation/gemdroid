@@ -46,7 +46,7 @@ object Api {
         suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAIngestRequested>
 
         @POST("/await_cra_upload")
-        suspend fun awaitCRAUpload(@Body name: UploadName): ApiResult<Success>
+        suspend fun awaitCRAIngestion(@Body name: UploadName): ApiResult<Success>
 
         @POST("/classification")
         suspend fun classification(@Body roi: ClassificationROI): ApiResult<ClassificationURLs>

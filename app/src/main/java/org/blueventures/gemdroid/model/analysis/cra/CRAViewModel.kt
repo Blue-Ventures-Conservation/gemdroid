@@ -80,7 +80,7 @@ class CRAViewModel(
 
     // we ingest both here, because ingestion can fail somewhat silently
     private fun uploadEither(upload: CRAFile, cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
-        uploadIngest(upload, cont, hist, callback, repo.ingestCRAs(cont, hist))
+        uploadIngest(upload, cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist))
     }
 
     private fun uploadIngest(upload: CRAFile, cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>) {
@@ -88,11 +88,11 @@ class CRAViewModel(
     }
 
     private fun uploadBoth(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
-        uploadIngestFields(cont, hist, callback, repo.uploadCRAs(cont, hist), repo.ingestCRAs(cont, hist), repo.uploadFields(cont, hist))
+        uploadIngestFields(cont, hist, callback, repo.uploadCRAs(cont, hist), repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
     }
 
     private fun ingestBoth(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
-        skipUpload(cont, hist, callback, repo.ingestCRAs(cont, hist), repo.uploadFields(cont, hist))
+        skipUpload(cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
     }
 
     private fun skipUpload(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {

@@ -274,11 +274,12 @@ class CRADatasource(
             }
     }
 
-    suspend fun ingestCRAs(c1: CRAFile, c2: CRAFile): Result<Unit> {
+    suspend fun ingestCRAs(roiDir: File, c1: CRAFile, c2: CRAFile): Result<Unit> {
         val r1 = ingestCRA(c1)
         val r2 = ingestCRA(c2)
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
+        writeCRAsIngestedSuccess(roiDir)
         return Result.success(Unit)
     }
 
@@ -299,7 +300,7 @@ class CRADatasource(
 
     private suspend fun ingestNeeded(name: String?, key: String): Result<Boolean> {
         if (name == null || name == "") return Result.success(true)
-        val result = api.awaitCRAUpload(UploadName(name, key))
+        val result = awaitCRAIngestion(name, key)
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         return Result.success(result.data!!.ingestNeeded())
@@ -380,13 +381,15 @@ class CRADatasource(
             return Result.failure(Throwable())
         }
 
-        Success.toFile(crasIngestedFile(roiDir), contResult!!.data!!)
+        writeCRAsIngestedSuccess(roiDir)
 
         return Result.success(Unit)
     }
 
+    private fun writeCRAsIngestedSuccess(roiDir: File) = Success.toFile(crasIngestedFile(roiDir), Success(true))
+
     private fun crasIngestedFile(roiDir: File) = File(File(roiDir, crasDir), crasIngestedFile)
-    private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAUpload(UploadName(name, key))
+    private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAIngestion(UploadName(name, key))
 
     companion object {
         const val crasDir = "cras"
