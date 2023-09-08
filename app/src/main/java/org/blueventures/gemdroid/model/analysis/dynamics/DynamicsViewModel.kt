@@ -148,4 +148,9 @@ class DynamicsViewModel(
     fun getGainUri(path: String, callback: (Result<Uri>) -> Unit) {
         gainUriJob = uriFromStorage(gainUriJob, path, callback)
     }
+
+    fun clearExports() {
+        deleteFile(resultsFile(roiDir, targetClass))
+        deleteFile(exportsFile(roiDir, targetClass))
+    }
 }

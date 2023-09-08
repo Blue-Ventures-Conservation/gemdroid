@@ -54,6 +54,7 @@ object Downloads {
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: (Boolean, (ApiResult<T>) -> Unit) -> Unit,
         save: (T) -> Unit,
+        clear: Click,
         convert: @Composable (T) -> ExportList,
     ) {
         val (shouldChoose, setShouldChoose) = remember { mutableStateOf(false) }
@@ -83,7 +84,7 @@ object Downloads {
                 }, getRemote = { callback ->
                     getRemote(holder.visualize, callback)
                 }, save = save, checkExpires = true) { exports ->
-                    List(convert(exports))
+                    List(convert(exports), clear)
                 }
             }
         }
@@ -136,7 +137,7 @@ object Downloads {
     }
 
     @Composable
-    fun List(exports: ExportList) {
+    fun List(exports: ExportList, clear: Click) {
         GetRemote.Save(getLocal = exports::loadResults, getRemote = exports::getResults, save = exports::saveResults) { res ->
             val (results, setResults) = remember { mutableStateOf(res) }
             Refresh({ stop ->
@@ -155,10 +156,17 @@ object Downloads {
             }) {
                 Col.MidPad(arrange = Arrangement.SpaceEvenly, scroll = true) {
                     Info.BlueLine()
+                    var failure = false
                     exports.list().forEachIndexed { i, export ->
-                        val status = results.results[i]
-                        DownloadRow(export, status.success, status.error != null)
+                        val result = results.results[i]
+                        val failed = result.error != null
+                        if (failed && !failure) failure = true
+                        DownloadRow(export, result.success, failed)
                         Info.BlueLine()
+                    }
+
+                    if (failure) {
+                        Col.DashboardButton(stringResource(R.string.clear), clear)
                     }
                 }
             }

@@ -17,9 +17,12 @@ object Downloads {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, back: Click) {
         viewModel.visualize = true
-        Nav.Wrap(back) {
+        Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.classification_downloads))))
-            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports) { exports ->
+            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
+                viewModel.clearExports()
+                nav.back()
+            }) { exports ->
                 val contemporaryTitle = stringResource(R.string.contemporary_classification)
                 val historicalTitle = stringResource(R.string.historical_classification)
 

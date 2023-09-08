@@ -17,9 +17,12 @@ object Downloads {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
         viewModel.visualize = true
-        Nav.Wrap(back) {
+        Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.imagery_downloads))))
-            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports) { exports ->
+            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
+                viewModel.clearExports()
+                nav.back()
+            }) { exports ->
                 val chotTitle = stringResource(R.string.cont_high_tide)
                 val clotTitle = stringResource(R.string.cont_low_tide)
                 val hhotTitle = stringResource(R.string.hist_high_tide)

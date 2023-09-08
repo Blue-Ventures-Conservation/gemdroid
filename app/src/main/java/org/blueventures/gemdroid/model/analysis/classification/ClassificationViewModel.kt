@@ -107,6 +107,11 @@ class ClassificationViewModel(
         historicalUriJob = uriFromStorage(historicalUriJob, path, callback)
     }
 
+    fun clearExports() {
+        deleteFile(resultsFile(roiDir))
+        deleteFile(exportsFile(roiDir))
+    }
+
     private fun makePalette(cra: CRA): List<String> {
         val pal = mutableListOf<String>()
         val size = cra.contemporaryCRA.stringClassValues.size

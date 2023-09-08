@@ -146,4 +146,9 @@ class AnalysisViewModel(
     fun getHlotUri(path: String, callback: (Result<Uri>) -> Unit) {
         hlotUriJob = uriFromStorage(hlotUriJob, path, callback)
     }
+
+    fun clearExports() {
+        deleteFile(resultsFile(roiDir))
+        deleteFile(exportsFile(roiDir))
+    }
 }

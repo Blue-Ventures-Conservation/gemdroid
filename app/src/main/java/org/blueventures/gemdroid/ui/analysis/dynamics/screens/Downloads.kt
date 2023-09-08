@@ -17,9 +17,12 @@ object Downloads {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click) {
         viewModel.visualize = true
-        Nav.Wrap(back) {
+        Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics_downloads))))
-            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports) { exports ->
+            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
+                viewModel.clearExports()
+                nav.back()
+            }) { exports ->
                 val lossTitle = stringResource(R.string.loss)
                 val persistenceTitle = stringResource(R.string.persistence)
                 val gainTitle = stringResource(R.string.gain)
