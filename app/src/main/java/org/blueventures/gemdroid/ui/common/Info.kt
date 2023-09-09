@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,9 +54,9 @@ object Info {
     fun Txt(text: String, fontSize: TextUnit = 20.sp) = Text(text, fontSize = fontSize)
 
     @Composable
-    fun Row(enabled: Boolean = true, click: Click = {}, content: @Composable RowScope.() -> Unit) {
+    fun Row(verticalPadding: Dp = 4.dp, enabled: Boolean = false, click: Click = {}, content: @Composable RowScope.() -> Unit) {
         Row(modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp)
+            .padding(start = 16.dp, end = 16.dp, top = verticalPadding, bottom = verticalPadding)
             .fillMaxWidth().clickable(enabled = enabled, onClick = click),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically)

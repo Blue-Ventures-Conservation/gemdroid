@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -154,15 +153,17 @@ object Downloads {
                     }
                 }
             }) {
-                Col.MidPad(arrange = Arrangement.SpaceEvenly, scroll = true) {
-                    Info.BlueLine()
+                Col.MidPad(scroll = true) {
                     var failure = false
-                    exports.list().forEachIndexed { i, export ->
-                        val result = results.results[i]
-                        val failed = result.error != null
-                        if (failed && !failure) failure = true
-                        DownloadRow(export, result.success, failed)
+                    Info.Block {
                         Info.BlueLine()
+                        exports.list().forEachIndexed { i, export ->
+                            val result = results.results[i]
+                            val failed = result.error != null
+                            if (failed && !failure) failure = true
+                            DownloadRow(export, result.success, failed)
+                            Info.BlueLine()
+                        }
                     }
 
                     if (failure) {
@@ -178,7 +179,7 @@ object Downloads {
         val (downloadStarted, setDownloadStarted) = remember { mutableStateOf(false) }
 
         val ctx = LocalContext.current
-        Info.Row(enabled = succeeded && !downloadStarted, click = {
+        Info.Row(verticalPadding = 16.dp, enabled = succeeded && !downloadStarted, click = {
             setDownloadStarted(true)
             export.getDownloadUri { result ->
                 when {
