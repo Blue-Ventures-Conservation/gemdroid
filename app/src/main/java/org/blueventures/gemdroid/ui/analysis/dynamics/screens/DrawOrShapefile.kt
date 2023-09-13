@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object DrawOrShapefile {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun,  draw: Click, shapefile: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, draw: Click, shapefile: Click) {
         Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Dash(stringResource(R.string.draw_sub_region_or_shapefile)) {

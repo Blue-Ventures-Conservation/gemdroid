@@ -16,7 +16,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object VisualizeShapefile {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             Visualize.Screen(viewModel.visualizer, stringResource(R.string.visualize_sub_region_shp), appBar, floatingContent = {
                 MapActionButton({

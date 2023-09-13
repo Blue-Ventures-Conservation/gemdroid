@@ -21,7 +21,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SelectTimePeriod {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(stringResource(R.string.spectral_separability)))
 

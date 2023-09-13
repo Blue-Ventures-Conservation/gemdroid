@@ -56,24 +56,18 @@ object Analysis {
 
         // Buffer selection
         b.composable(Routes.buffer) {
-            Buffer.Screen(viewModel, appBar, snack) {
-                nav.popBackStack()
-            }
+            Buffer.Screen(viewModel, appBar, snack, nav::popBackStack)
         }
 
         // Visualization
         b.composable(Routes.visualize) {
-            FalseColor.Screen(viewModel, appBar, {
+            FalseColor.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.imagery_downloads)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.imagery_downloads) {
-            Downloads.Screen(viewModel, appBar) {
-                nav.popBackStack()
-            }
+            Downloads.Screen(viewModel, appBar, nav::popBackStack)
         }
 
         // CRAs

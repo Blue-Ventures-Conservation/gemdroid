@@ -23,7 +23,7 @@ import org.blueventures.gemdroid.ui.common.maps.Tiles
 
 object Map {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun, details: Click, back: Click) {
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, details: Click) {
         Nav.Wrap(back, details) { nav ->
             Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
                 viewModel.cra = cra

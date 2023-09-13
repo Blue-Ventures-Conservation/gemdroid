@@ -15,7 +15,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object FalseColor {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, downloads: Click, back: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click, downloads: Click) {
         Nav.Wrap(back, downloads) { nav ->
             Visualize.Screen(viewModel, viewModel.roi.appBar(stringResource(R.string.visualize_imagery_title)), appBar, floatingContent = {
                 MapActionButton(nav::next) { Icon(Icons.Filled.Download, stringResource(R.string.download_imagery)) }

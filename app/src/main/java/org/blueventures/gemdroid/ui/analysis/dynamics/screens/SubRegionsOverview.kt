@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object SubRegionsOverview {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, ok: Click, startOver: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, ok: Click, startOver: Click) {
         Nav.Wrap(back) { nav ->
             Info.Block {
                 Info.Row {

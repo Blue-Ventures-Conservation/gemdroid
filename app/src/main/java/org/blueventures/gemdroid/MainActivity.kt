@@ -80,7 +80,7 @@ fun GEMApp(activity: ComponentActivity) {
 
         val appBar: AppBarFun = {
             if (it.title != barState.update.title || it.actions != null) {
-                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.settings, barState.signOut) }
+                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.signOut) }
                 setBarState(barState.copy(update = AppBarUpdate(it.title, acts)))
             }
         }

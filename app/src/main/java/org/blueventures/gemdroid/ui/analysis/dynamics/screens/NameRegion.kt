@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object NameRegion {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap({
             viewModel.regionName = ""
             back()

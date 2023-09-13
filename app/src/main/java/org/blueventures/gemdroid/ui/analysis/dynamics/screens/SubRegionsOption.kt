@@ -21,7 +21,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SubRegionsOption {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, skip: Click, yes: Click, no: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
         Nav.Wrap({
             viewModel.subRegions.clear()
             back()

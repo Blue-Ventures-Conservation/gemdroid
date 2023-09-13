@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object TargetClass {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, next: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Dash(stringResource(R.string.choose_class_dynamics), true) {

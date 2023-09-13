@@ -107,9 +107,7 @@ object Roi {
 
         // ROI overview
         b.composable(Routes.overview) {
-            Overview.Screen(roiModel, activity.filesDir, appBar, snack, {
-                nav.popBackStack()
-            }) {
+            Overview.Screen(roiModel, activity.filesDir, appBar, snack, nav::popBackStack) {
                 roiModel.clear()
                 nav.popClear(Routes.list)
             }

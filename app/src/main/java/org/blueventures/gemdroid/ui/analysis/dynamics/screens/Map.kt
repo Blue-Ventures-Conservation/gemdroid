@@ -21,7 +21,7 @@ import org.blueventures.gemdroid.ui.common.maps.Tiles
 
 object Map {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, details: Click) {
         Nav.Wrap(back, details) { nav ->
             Dynamics(viewModel, appBar, nav::next)
         }

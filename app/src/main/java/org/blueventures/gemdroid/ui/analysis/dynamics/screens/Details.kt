@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Details {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, downloads: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, downloads: Click) {
         Nav.Wrap(back) {
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {

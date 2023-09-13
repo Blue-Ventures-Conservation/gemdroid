@@ -18,27 +18,27 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, separation: Click, scatter: Click, correlation: Click, back: Click) {
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, separation: Click, scatter: Click, correlation: Click) {
         Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, errorHandler = CRA::errHandler) { json ->
-                Layout(viewModel, json, {
+                Layout(viewModel, json, nav::back, {
                     nav.next()
                     separation()
                 }, {
                     nav.next()
                     scatter()
-                }, {
+                }) {
                     nav.next()
                     correlation()
-                }, nav::back)
+                }
             }
         }
     }
 
     @Composable
-    fun Layout(viewModel: SeparabilityViewModel, json: Map<String, Any>, separation: Click, scatter: Click, correlation: Click, back: Click) {
+    fun Layout(viewModel: SeparabilityViewModel, json: Map<String, Any>, back: Click, separation: Click, scatter: Click, correlation: Click) {
         val msg = JSONMap.separabilityMessage(LocalContext.current, viewModel.timePeriod, json)
 
         if (msg == null) {

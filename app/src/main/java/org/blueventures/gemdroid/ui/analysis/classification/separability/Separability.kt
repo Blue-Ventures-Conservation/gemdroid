@@ -7,6 +7,7 @@ import org.blueventures.gemdroid.model.analysis.classification.separability.Sepa
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Correlation
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterChoices
+import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterClasses
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterPlot
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.SelectTimePeriod
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Separation
@@ -18,29 +19,26 @@ object Separability {
         const val timePeriod = "analysis_classification_separability_time_period"
         const val dashboard = "analysis_classification_separability_dash"
         const val separation = "analysis_classification_separability_separation"
-        const val scatterChoices = "analysis_classification_separability_scatter_choices"
+        const val scatterClasses = "analysis_classification_separability_scatter_classes"
+        const val scatterBands = "analysis_classification_separability_scatter_bands"
         const val scatterPlot = "analysis_classification_separability_scatter_plot"
         const val correlation = "analysis_classification_separability_correlation"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun) {
         b.composable(Routes.timePeriod) {
-            SelectTimePeriod.Screen(viewModel, appBar, snack, {
+            SelectTimePeriod.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.dashboard)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, appBar, separation = {
+            Dashboard.Screen(viewModel, appBar, nav::popBackStack, separation = {
                 nav.navigate(Routes.separation)
             }, scatter = {
-                nav.navigate(Routes.scatterChoices)
-            }, correlation = {
-                nav.navigate(Routes.correlation)
+                nav.navigate(Routes.scatterClasses)
             }) {
-                nav.popBackStack()
+                nav.navigate(Routes.correlation)
             }
         }
 
@@ -48,7 +46,13 @@ object Separability {
             Separation.Screen(viewModel, appBar, nav::popBackStack)
         }
 
-        b.composable(Routes.scatterChoices) {
+        b.composable(Routes.scatterClasses) {
+            ScatterClasses.Screen(viewModel, appBar, nav::popBackStack) {
+                nav.navigate(Routes.scatterBands)
+            }
+        }
+
+        b.composable(Routes.scatterBands) {
             ScatterChoices.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.scatterPlot)
             }

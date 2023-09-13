@@ -30,21 +30,14 @@ object ScatterPlot {
             appBar(AppBarUpdate(viewModel.title))
 
             GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler) { json ->
-                val classes = JSONMap.classes(json)
-
-                if (classes == null) {
-                    Effect.Once { nav.back() }
-                    return@Display
-                }
-
-                val data = JSONMap.scatterChartInfo(json, classes, viewModel.bandX, viewModel.bandY)
+                val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
 
                 if (data == null) {
                     Effect.Once { nav.back() }
                     return@Display
                 }
 
-                Chart(data, classes, viewModel.bandX, viewModel.bandY)
+                Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
             }
         }
     }

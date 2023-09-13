@@ -39,7 +39,9 @@ object Dynamics {
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun) {
         b.composable(Routes.sub_regions_option) {
-            SubRegionsOption.Screen(viewModel, appBar, snack, skip = {
+            SubRegionsOption.Screen(viewModel, appBar, snack, back = {
+                nav.popClear(Analysis.Routes.dashboard)
+            }, skip = {
                 nav.popClear(Routes.target_class)
             }, yes = {
                 nav.navigate(Routes.sub_region_name)
@@ -51,95 +53,79 @@ object Dynamics {
                     navRoute = { nav.popClear(Routes.sub_regions_overview) }
                 }
                 navRoute()
-            }, back = {
-                nav.popClear(Analysis.Routes.dashboard)
             })
         }
 
         b.composable(Routes.sub_region_name) {
-            NameRegion.Screen(viewModel, appBar, snack, next = {
+            NameRegion.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.sub_regions_draw_or_shapefile)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.sub_regions_draw_or_shapefile) {
-            DrawOrShapefile.Screen(viewModel, appBar, draw = {
+            DrawOrShapefile.Screen(viewModel, appBar, nav::popBackStack, draw = {
                 nav.navigate(Routes.drawn_sub_region)
-            }, shapefile = {
-                nav.navigate(Routes.shapefile_region)
             }) {
-                nav.popBackStack()
+                nav.navigate(Routes.shapefile_region)
             }
         }
 
         b.composable(Routes.drawn_sub_region) {
-            DrawSubRegion.Screen(viewModel, appBar, snack, next = {
-                nav.popClear(Routes.sub_regions_option)
-            }) {
+            DrawSubRegion.Screen(viewModel, appBar, snack, {
                 viewModel.drawPoly.clearAll()
                 nav.popBackStack()
+            }) {
+                nav.popClear(Routes.sub_regions_option)
             }
         }
 
         b.composable(Routes.shapefile_region) {
-            ShapefileSubRegion.Screen(viewModel, appBar, snack, next = {
+            ShapefileSubRegion.Screen(viewModel, appBar, snack, nav::popBackStack){
                 nav.navigate(Routes.visualize_shapefile_region)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.visualize_shapefile_region) {
-            VisualizeShapefile.Screen(viewModel, appBar, next = {
+            VisualizeShapefile.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.popClear(Routes.sub_regions_option)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.sub_regions_overview) {
             SubRegionsOverview.Screen(viewModel, appBar, {
-                viewModel.saveSubRegionsFile()
-                nav.popClear(Routes.target_class)
+                viewModel.subRegions.clear()
+                nav.popClear(Analysis.Routes.dashboard)
             }, {
                 viewModel.subRegions.clear()
                 nav.popClear(Routes.sub_regions_option)
             }) {
-                viewModel.subRegions.clear()
-                nav.popClear(Analysis.Routes.dashboard)
+                viewModel.saveSubRegionsFile()
+                nav.popClear(Routes.target_class)
             }
         }
 
         b.composable(Routes.target_class) {
             TargetClass.Screen(viewModel, appBar, {
-                nav.navigate(Routes.map)
-            }) {
                 nav.popClear(Analysis.Routes.dashboard)
+            }) {
+                nav.navigate(Routes.map)
             }
         }
 
         b.composable(Routes.map) {
-            Map.Screen(viewModel, appBar, {
+            Map.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.details)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.details) {
-            Details.Screen(viewModel, appBar, {
+            Details.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.downloads)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.downloads) {
-            Downloads.Screen(viewModel, appBar) {
-                nav.popBackStack()
-            }
+            Downloads.Screen(viewModel, appBar, nav::popBackStack)
         }
     }
 

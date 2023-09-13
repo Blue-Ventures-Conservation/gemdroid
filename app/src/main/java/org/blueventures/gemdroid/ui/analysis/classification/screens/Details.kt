@@ -22,7 +22,7 @@ import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Details {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, separability: Click, downloads: Click, back: Click) {
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, back: Click, separability: Click, downloads: Click) {
         Nav.Wrap(back, separability) {
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.classification))))
 

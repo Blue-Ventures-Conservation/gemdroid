@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.common.Rad
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, next: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             val choices = viewModel.getHistoricalChoices()

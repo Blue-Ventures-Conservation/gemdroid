@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
-import org.blueventures.gemdroid.ui.analysis.classification.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Details
+import org.blueventures.gemdroid.ui.analysis.classification.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Map
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability.Routes.timePeriod
@@ -27,27 +27,21 @@ object Classification {
         Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
 
         b.composable(Routes.map) {
-            Map.Screen(viewModel, appBar, snack, {
+            Map.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.details)
-            }) {
-                nav.popBackStack()
             }
         }
 
         b.composable(Routes.details) {
-            Details.Screen(viewModel, appBar, {
+            Details.Screen(viewModel, appBar, nav::popBackStack, {
                 nav.navigate(timePeriod)
-            }, {
-                nav.navigate(Routes.downloads)
             }) {
-                nav.popBackStack()
+                nav.navigate(Routes.downloads)
             }
         }
 
         b.composable(Routes.downloads) {
-            Downloads.Screen(viewModel, appBar) {
-                nav.popBackStack()
-            }
+            Downloads.Screen(viewModel, appBar, nav::popBackStack)
         }
     }
 

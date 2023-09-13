@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object ContemporaryCRA {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             Common.Screen(viewModel, stringResource(R.string.contemporary), snack, nav::next, nav::back, null, { cra ->

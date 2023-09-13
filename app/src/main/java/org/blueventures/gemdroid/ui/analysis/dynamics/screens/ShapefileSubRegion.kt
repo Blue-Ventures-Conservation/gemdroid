@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object ShapefileSubRegion {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back, next) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             Col.Col {

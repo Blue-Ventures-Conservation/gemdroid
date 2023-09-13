@@ -21,6 +21,7 @@ class SeparabilityViewModel(
     lateinit var timePeriod: SeparabilityDatasource.TimePeriod
     lateinit var toAnalyze: Shapefile
     lateinit var title: String
+    lateinit var classes: List<String>
     lateinit var bandX: String
     lateinit var bandY: String
 

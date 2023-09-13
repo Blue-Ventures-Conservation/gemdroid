@@ -23,7 +23,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, done: Click, back: Click) {
+    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, done: Click) {
         Nav.Wrap(back, done) { nav ->
             appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             val (saving, setSaving) = remember{ mutableStateOf(false) }
@@ -31,13 +31,13 @@ object CRAFields {
             if (saving) {
                 PleaseWait()
             } else {
-                CRAFields(viewModel, snack, setSaving, nav::next, nav::back)
+                CRAFields(viewModel, snack, setSaving, nav::back, nav::next)
             }
         }
     }
 
     @Composable
-    fun CRAFields(viewModel: CRAViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, done: Click, back: Click) {
+    fun CRAFields(viewModel: CRAViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, back: Click, done: Click) {
         val (fields, setFields) = remember { mutableStateOf<Result<Fields>?>(null) }
 
         when {
@@ -72,13 +72,13 @@ object CRAFields {
                 }
             }
             else -> {
-                SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, done, back)
+                SelectFields(viewModel, fields.getOrNull()!!, setSaving, snack, back, done)
             }
         }
     }
 
     @Composable
-    fun SelectFields(viewModel: CRAViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, done: Click, back: Click) {
+    fun SelectFields(viewModel: CRAViewModel, lists: Fields, setSaving: (Boolean) -> Unit, snack: SnackFun, back: Click, done: Click) {
         Col.Col {
             val strings = lists.strings!!
             val numerics = lists.numerics!!
