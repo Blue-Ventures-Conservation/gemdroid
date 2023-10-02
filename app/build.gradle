@@ -37,6 +37,7 @@ android {
         jvmTarget = '1.8'
     }
     buildFeatures {
+        buildConfig true
         compose true
         viewBinding true
     }
@@ -61,29 +62,29 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
 
-    def nav_version = "2.7.1"
+    def nav_version = "2.7.3"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
     implementation 'androidx.activity:activity-ktx:1.7.2'
     implementation 'androidx.activity:activity-compose:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.compose.foundation:foundation-layout:1.5.0'
+    implementation "androidx.compose.foundation:foundation-layout:$compose_version"
     implementation "androidx.compose.runtime:runtime:$compose_version"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.ui:ui-viewbinding:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.1.1'
+    implementation 'androidx.compose.material3:material3:1.1.2'
     implementation 'com.google.accompanist:accompanist-swiperefresh:0.28.0'
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 
-    def lifecycle_version = "2.6.1"
+    def lifecycle_version = "2.6.2"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -95,7 +96,7 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.3.0'
     implementation 'com.google.maps.android:maps-utils-ktx:3.4.0'
     implementation 'com.google.android.material:material:1.9.0'
-    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.12.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'

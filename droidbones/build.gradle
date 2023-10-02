@@ -30,6 +30,7 @@ android {
         jvmTarget = '1.8'
     }
     buildFeatures {
+        buildConfig true
         viewBinding true
         compose true
     }
@@ -39,16 +40,16 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
     implementation 'androidx.activity:activity-ktx:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.compose.foundation:foundation-layout:1.5.0'
-    implementation "androidx.compose.runtime:runtime:1.5.0"
-    implementation 'androidx.compose.material3:material3:1.1.1'
+    implementation 'androidx.compose.foundation:foundation-layout:1.5.2'
+    implementation "androidx.compose.runtime:runtime:1.5.2"
+    implementation 'androidx.compose.material3:material3:1.1.2'
 
-    def lifecycle_version = "2.6.1"
+    def lifecycle_version = "2.6.2"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
