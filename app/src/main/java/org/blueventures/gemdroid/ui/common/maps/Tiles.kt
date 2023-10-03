@@ -11,8 +11,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -73,10 +75,16 @@ object Tiles {
     ) {
         model?.let { tiles ->
             val layers = remember { mutableStateOf(tiles.layerNames.map { Layer(it) }) }
+            val pairs = mutableListOf<Pair<String, Boolean>>()
+            for (layer in layers.value) {
+                pairs.add(Pair(layer.title, true))
+            }
+
+            val checkMap = remember { mutableStateMapOf(*pairs.toTypedArray()) }
 
             tiles.appBar(AppBarUpdate(
                 title = tiles.title,
-                actions = { LayersDropdown(layers.value) }
+                actions = { LayersDropdown(layers.value, checkMap) }
             ))
 
             val (urls, setUrls) = remember { mutableStateOf(model.initUrls) }
@@ -111,21 +119,20 @@ object Tiles {
     }
 
     @Composable
-    private fun LayersDropdown(layers: List<Layer>) {
+    private fun LayersDropdown(layers: List<Layer>, checkMap: SnapshotStateMap<String, Boolean>) {
         val (menu, setMenu) = remember { mutableStateOf(false) }
         IconButton(onClick = { setMenu(!menu) }) {
             Icon(Icons.Filled.MoreVert, "")
         }
         DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }) {
             layers.forEach { layer ->
-                val (checked, setChecked) = remember { mutableStateOf(true) }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Checkbox(checked = checked, onCheckedChange = {
+                    Checkbox(checkMap[layer.title]!!, onCheckedChange = {
                         layer.overlay?.isVisible = it
-                        setChecked(it)
+                        checkMap[layer.title] = it
                     })
                     Text(layer.title, modifier = Modifier.padding(end = 8.dp))
                 }
