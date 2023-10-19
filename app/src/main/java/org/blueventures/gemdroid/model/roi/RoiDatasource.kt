@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.data.MD5
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn

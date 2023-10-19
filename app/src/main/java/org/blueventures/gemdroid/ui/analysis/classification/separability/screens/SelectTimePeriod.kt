@@ -10,7 +10,7 @@ import org.blueventures.gemdroid.model.analysis.classification.separability.Sepa
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.HistoricalLowTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.TimePeriod
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
@@ -21,17 +21,17 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SelectTimePeriod {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.spectral_separability)))
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.spectral_separability)))
 
-            Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
+            Await.CRA(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
                 val cont = cra.contemporaryCRA
                 val hist = cra.historicalShp()
                 val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
                 val setCont = { setShp(cont) }
                 val setHist = { setShp(hist) }
-                Dashboard(viewModel, { setCont(); nav.next() }, { setCont(); nav.next() }, { setHist(); nav.next() }) { setHist(); nav.next() }
+                Dashboard(viewModel, { setCont(); next() }, { setCont(); next() }, { setHist(); next() }) { setHist(); next() }
             }
         }
     }

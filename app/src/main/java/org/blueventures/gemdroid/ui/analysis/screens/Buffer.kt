@@ -22,7 +22,7 @@ import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Charts
@@ -36,9 +36,9 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, back: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click) {
         Nav.Wrap(back) {
-            appBar(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
+            appBar.Update(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
 
             val (saving, setSaving) = remember { mutableStateOf(false) }
 

@@ -24,7 +24,7 @@ data class ROI(
 ) {
     fun bounds() = polygon.coordinates[0].map { LatLng(it[1], it[0]) }
 
-    fun appBar(title: String) = "$name $title"
+    fun appBarTitle(title: String) = "$name $title"
 
     companion object : Serializer<ROI>() {
         private val adapter = make<ROI>()

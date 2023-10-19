@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 
 import android.widget.FrameLayout
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,7 +20,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
@@ -36,9 +35,9 @@ import org.blueventures.gemdroid.ui.theme.toHexString
 
 object Correlation {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click) {
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click) {
         Nav.Wrap(back) {
-            appBar(AppBarUpdate(viewModel.title))
+            appBar.Update(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, errorHandler = CRA::errHandler) { json ->
                 val corrs = JSONMap.correlationChartInfo(json)

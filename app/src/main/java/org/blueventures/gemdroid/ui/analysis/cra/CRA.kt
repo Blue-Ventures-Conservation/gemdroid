@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.CRAFields
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.net.HttpURLConnection
 
@@ -25,7 +25,7 @@ object CRA {
         const val cra_fields = "analysis_cra_fields"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
         b.composable(Routes.cont_cra) {
             ContemporaryCRA.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.hist_choice)

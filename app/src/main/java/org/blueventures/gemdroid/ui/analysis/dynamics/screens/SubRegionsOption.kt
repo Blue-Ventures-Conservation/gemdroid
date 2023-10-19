@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.dynamics.SubRegionsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.maxSubRegions
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
@@ -21,22 +21,13 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SubRegionsOption {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
-        Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             viewModel.regionName = ""
             Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
                 viewModel.cra = cra
-                Choice(viewModel, snack, {
-                    nav.next()
-                    skip()
-                }, {
-                    nav.next()
-                    yes()
-                }, {
-                    nav.next()
-                    no()
-                })
+                Choice(viewModel, snack, skip, yes, no)
             }
         }
     }

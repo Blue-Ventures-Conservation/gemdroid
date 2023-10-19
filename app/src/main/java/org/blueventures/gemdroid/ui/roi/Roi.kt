@@ -8,7 +8,7 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.screens.CoarseRoi
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
@@ -32,7 +32,7 @@ object Roi {
         const val overview = "roi_overview"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
         // ROI list
         b.composable(Routes.list) {
             RoiList.Screen(roiModel, object : RoiList.DirHolder {

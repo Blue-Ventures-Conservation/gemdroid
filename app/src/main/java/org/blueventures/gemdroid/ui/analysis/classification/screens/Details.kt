@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -22,9 +22,9 @@ import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Details {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBarFun, back: Click, separability: Click, downloads: Click) {
-        Nav.Wrap(back, separability) {
-            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.classification))))
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, back: Click, separability: Click, downloads: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.classification))))
 
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Legend(viewModel.urls)

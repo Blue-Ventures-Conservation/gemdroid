@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,7 +34,7 @@ import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.BasicActions
@@ -78,10 +79,12 @@ fun GEMApp(activity: ComponentActivity) {
             signOut = { SignIn.signOut(activity, Firebase.auth) },
         )) }
 
-        val appBar: AppBarFun = {
-            if (it.title != barState.update.title || it.actions != null) {
-                val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.signOut) }
-                setBarState(barState.copy(update = AppBarUpdate(it.title, acts)))
+        val appBar = AppBar {
+            LaunchedEffect(true) {
+                if (it.title != barState.update.title || it.actions != null) {
+                    val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.signOut) }
+                    setBarState(barState.copy(update = AppBarUpdate(it.title, acts)))
+                }
             }
         }
 

@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -17,9 +17,9 @@ import org.blueventures.gemdroid.ui.common.Rad
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+    fun Screen(viewModel: CRAViewModel, appBar: AppBar, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
             val choices = viewModel.getHistoricalChoices()
 
             Col.Col(bottom = 24.dp) {
@@ -27,7 +27,7 @@ object ChooseHistorical {
                 Text("(Fields must match contemporary shapefile)", fontSize = 16.sp, textAlign = TextAlign.Center)
                 Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->
                     viewModel.historicalChoice = choice
-                    nav.next()
+                    next()
                 })
             }
         }

@@ -5,7 +5,7 @@ import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Nav
@@ -13,10 +13,10 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object HistoricalCRA {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
-            Common.Screen(viewModel, stringResource(R.string.historical), snack, nav::next, nav::back, viewModel.contemporaryCRA.key(), { cra ->
+    fun Screen(viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+            Common.Screen(viewModel, stringResource(R.string.historical), snack, next, next, viewModel.contemporaryCRA.key(), { cra ->
                 viewModel.historicalCRA = cra
             }) { key ->
                 viewModel.historicalCRA = CRAFile(storageKey = key)

@@ -7,7 +7,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -18,19 +18,16 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, separation: Click, scatter: Click, correlation: Click) {
-        Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(viewModel.title))
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click, separation: Click, scatter: Click, correlation: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(viewModel.title))
 
             GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, errorHandler = CRA::errHandler) { json ->
-                Layout(viewModel, json, nav::back, {
-                    nav.next()
+                Layout(viewModel, json, back, {
                     separation()
                 }, {
-                    nav.next()
                     scatter()
                 }) {
-                    nav.next()
                     correlation()
                 }
             }

@@ -30,7 +30,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -43,27 +43,27 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
-        Nav.Wrap(back) { nav ->
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+        Nav.Wrap(back) {
             Layout(viewModel, appBar, snack, {
-                nav.next()
                 next()
-            }, nav::back, {
-                nav.next()
+                next()
+            }, next, {
+                next()
                 vis()
             }, {
-                nav.next()
+                next()
                 clazz()
             }) {
-                nav.next()
+                next()
                 dyn()
             }
         }
     }
 
     @Composable
-    fun Layout(viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
-        appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.analysis))))
+    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.analysis))))
         val (roi, setRoi) = remember { mutableStateOf<Result<ROI>?>(null) }
         val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
 

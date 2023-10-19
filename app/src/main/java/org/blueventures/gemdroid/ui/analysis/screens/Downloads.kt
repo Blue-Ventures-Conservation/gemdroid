@@ -7,7 +7,7 @@ import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Downloads
@@ -15,13 +15,13 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Downloads {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBarFun, back: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click) {
         viewModel.visualize = true
-        Nav.Wrap(back) { nav ->
-            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.imagery_downloads))))
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.imagery_downloads))))
             Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
                 viewModel.clearExports()
-                nav.back()
+                back()
             }) { exports ->
                 val chotTitle = stringResource(R.string.cont_high_tide)
                 val clotTitle = stringResource(R.string.cont_low_tide)

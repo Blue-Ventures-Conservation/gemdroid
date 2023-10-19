@@ -28,14 +28,14 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import java.io.File
 
 object Tiles {
     abstract class Model<T : URLs> {
         abstract val title: String
-        abstract val appBar: AppBarFun
+        abstract val appBar: AppBar
         abstract val initUrls: T
         abstract val layerNames: List<String>
         abstract val parentDir: File
@@ -82,7 +82,7 @@ object Tiles {
 
             val checkMap = remember { mutableStateMapOf(*pairs.toTypedArray()) }
 
-            tiles.appBar(AppBarUpdate(
+            tiles.appBar.Update(AppBarUpdate(
                 title = tiles.title,
                 actions = { LayersDropdown(layers.value, checkMap) }
             ))

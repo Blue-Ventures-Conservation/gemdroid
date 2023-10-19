@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -22,15 +22,15 @@ import java.io.File
 
 object Overview {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, appBar: AppBarFun, snack: SnackFun, back: Click, done: Click) {
-        Nav.Wrap(back, done) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+    fun Screen(viewModel: RoiViewModel, filesDir: File, appBar: AppBar, snack: SnackFun, back: Click, done: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             val (saving, setSaving) = remember { mutableStateOf(false) }
 
             if (saving) {
                 Progress()
             } else {
-                OverviewDetails(viewModel, filesDir, snack, nav::next, setSaving)
+                OverviewDetails(viewModel, filesDir, snack, done, setSaving)
             }
         }
     }

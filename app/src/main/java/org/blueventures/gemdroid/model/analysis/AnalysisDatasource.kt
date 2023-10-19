@@ -2,12 +2,6 @@ package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.analysis.Buffer
-import org.blueventures.gemdroid.data.analysis.Buffers
-import org.blueventures.gemdroid.data.analysis.ImageryExports
-import org.blueventures.gemdroid.data.analysis.TasksResults
-import org.blueventures.gemdroid.data.analysis.VisualizeURLs
-import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource

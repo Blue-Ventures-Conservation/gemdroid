@@ -14,9 +14,9 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.sub_regions_option
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
-import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
 
@@ -36,7 +36,7 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
         // Dashboard
         b.composable(Routes.dashboard) {
             Dashboard.Screen(viewModel, appBar, snack, next = {

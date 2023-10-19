@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -40,9 +40,9 @@ object Years {
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBarFun, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+    fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             Col.BigPad {
                 Text(stringResource(R.string.select_bounding_years).format(temporal), textAlign = TextAlign.Center, fontSize = 24.sp)
                 Row(
@@ -58,7 +58,7 @@ object Years {
                 Butt.Next {
                     if (selector.validateOrder()) {
                         if (selector.validateGap()) {
-                            nav.next()
+                            next()
                         } else {
                             snack(gapMsg)
                         }

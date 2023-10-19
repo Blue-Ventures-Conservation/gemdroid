@@ -11,7 +11,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.Nav
@@ -21,21 +21,21 @@ import org.blueventures.gemdroid.ui.common.maps.Tiles
 
 object Map {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, details: Click) {
-        Nav.Wrap(back, details) { nav ->
-            Dynamics(viewModel, appBar, nav::next)
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, details: Click) {
+        Nav.Wrap(back) {
+            Dynamics(viewModel, appBar, details)
         }
     }
 
     @Composable
-    fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBarFun, details: Click) {
+    fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBar, details: Click) {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
             Maps.Screen(floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, tiles = object : Tiles.Model<DynamicsURLs>() {
-                override val title = viewModel.roi.appBar(stringResource(R.string.dynamics))
+                override val title = viewModel.roi.appBarTitle(stringResource(R.string.dynamics))
                 override val appBar = appBar
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.ListItemPicker
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -38,9 +38,9 @@ object Months {
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, appBar: AppBarFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+    fun Screen(selector: Selector, temporal: String, appBar: AppBar, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             val months = mutableListOf<String>()
             for (res in resources) {
                 months.add(stringResource(res))
@@ -56,7 +56,7 @@ object Months {
                     SelectMonth(months, selector.initMonthStart, selector::setMonthStart)
                     SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
                 }
-                Butt.Next(click = nav::next)
+                Butt.Next(click = next)
             }
         }
     }

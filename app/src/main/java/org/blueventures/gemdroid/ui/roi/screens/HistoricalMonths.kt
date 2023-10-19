@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 
 object HistoricalMonths {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBarFun, back: Click, next: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBar, back: Click, next: Click) {
         Months.Screen(
             object : Months.Selector {
                 override val initMonthStart: Int = viewModel.historicalMonthStart

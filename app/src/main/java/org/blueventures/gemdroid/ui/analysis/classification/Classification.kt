@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.screens.Map
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability
 import org.blueventures.gemdroid.ui.analysis.classification.separability.Separability.Routes.timePeriod
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import java.net.HttpURLConnection
 
@@ -23,7 +23,7 @@ object Classification {
         const val downloads = "analysis_classification_downloads"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun) {
         Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
 
         b.composable(Routes.map) {

@@ -8,7 +8,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -20,19 +20,19 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object ScatterChoices {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBarFun, back: Click, next: Click) {
-        Nav.Wrap(back, next) { nav ->
-            appBar(AppBarUpdate(viewModel.title))
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click, next: Click) {
+        Nav.Wrap(back) {
+            appBar.Update(AppBarUpdate(viewModel.title))
 
             GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
                 val bands = JSONMap.bands(json)
 
                 if (bands == null) {
-                    Effect.Once { nav.back() }
+                    Effect.Once { back() }
                     return@AwaitSave
                 }
 
-                Choices(viewModel, bands, nav::next)
+                Choices(viewModel, bands, next)
             }
         }
     }

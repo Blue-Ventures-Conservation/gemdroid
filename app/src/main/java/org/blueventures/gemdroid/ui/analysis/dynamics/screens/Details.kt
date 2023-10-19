@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.data.DrawPolygon.Companion.squareKmInMeters
 import org.blueventures.gemdroid.data.DrawPolygon.Companion.squareKms
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsStats
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -18,9 +18,9 @@ import org.blueventures.gemdroid.ui.common.Nav
 
 object Details {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, back: Click, downloads: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, downloads: Click) {
         Nav.Wrap(back) {
-            appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
+            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Info.Block {
                     Info.Header(viewModel.roi.name)

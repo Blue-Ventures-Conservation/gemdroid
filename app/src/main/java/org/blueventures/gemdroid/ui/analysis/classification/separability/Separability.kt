@@ -11,7 +11,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.ScatterPlot
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.SelectTimePeriod
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Separation
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
@@ -25,7 +25,7 @@ object Separability {
         const val correlation = "analysis_classification_separability_correlation"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun) {
         b.composable(Routes.timePeriod) {
             SelectTimePeriod.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.dashboard)

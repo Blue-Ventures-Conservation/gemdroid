@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.mvvm.IORepository
 import com.google.android.gms.maps.model.LatLng
-import org.blueventures.gemdroid.data.DrawPolygon
 import java.io.File
 
 class RoiRepository(

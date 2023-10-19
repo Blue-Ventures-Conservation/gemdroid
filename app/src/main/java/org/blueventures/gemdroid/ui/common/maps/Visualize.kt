@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.GetRemote
 import java.io.File
 
@@ -23,7 +23,7 @@ object Visualize {
     }
 
     @Composable
-    fun Screen(visualizer: Visualizer, title: String, appBar: AppBarFun, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
+    fun Screen(visualizer: Visualizer, title: String, appBar: AppBar, floatingContent: @Composable BoxScope.() -> Unit = {}, draw: Draw.Model? = null, poly: Poly.Model? = null) {
         GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
             Maps.Screen(floatingContent, false, object : Tiles.Model<VisualizeURLs>() {
                 override val title = title

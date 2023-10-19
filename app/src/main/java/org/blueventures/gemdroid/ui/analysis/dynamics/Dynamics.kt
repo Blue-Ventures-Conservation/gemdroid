@@ -19,7 +19,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOverview
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClass
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.VisualizeShapefile
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Dynamics {
@@ -37,7 +37,7 @@ object Dynamics {
         const val downloads = "analysis_dynamics_downloads"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
         b.composable(Routes.sub_regions_option) {
             SubRegionsOption.Screen(viewModel, appBar, snack, back = {
                 viewModel.subRegions.clear()
@@ -81,13 +81,13 @@ object Dynamics {
         }
 
         b.composable(Routes.shapefile_region) {
-            ShapefileSubRegion.Screen(viewModel, appBar, snack, nav::popBackStack){
+            ShapefileSubRegion.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.visualize_shapefile_region)
             }
         }
 
         b.composable(Routes.visualize_shapefile_region) {
-            VisualizeShapefile.Screen(viewModel, appBar, nav::popBackStack) {
+            VisualizeShapefile.Screen(viewModel, appBar, { nav.popClear(Routes.sub_regions_draw_or_shapefile) }) {
                 nav.popClear(Routes.sub_regions_option)
             }
         }

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.ui.common.AppBarFun
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -47,10 +47,10 @@ object RoiList {
     }
 
     @Composable
-    fun Screen(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appbar: AppBarFun, snack: SnackFun, next: Click, floating: Click) {
+    fun Screen(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
         val (wentNext, setWentNext) = remember { mutableStateOf(false) }
         if (!wentNext) {
-            Layout(viewModel, dirHolder, filesDir, appbar, snack, {
+            Layout(viewModel, dirHolder, filesDir, appBar, snack, {
                 setWentNext(true)
                 next()
             }) {
@@ -61,8 +61,8 @@ object RoiList {
     }
 
     @Composable
-    fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appbar: AppBarFun, snack: SnackFun, next: Click, floating: Click) {
-        appbar(AppBarUpdate(title = stringResource(R.string.regions_of_interest)))
+    fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
+        appBar.Update(AppBarUpdate(title = stringResource(R.string.regions_of_interest)))
 
         val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
         val (toDelete, setDeleteRoi) = remember { mutableStateOf<File?>(null) }
