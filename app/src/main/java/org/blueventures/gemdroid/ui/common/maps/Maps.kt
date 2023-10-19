@@ -112,6 +112,8 @@ object Maps {
                 // because markers and polygons seem to stick around otherwise
                 map.clear()
 
+                map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+
                 if (gps) {
                     map.isMyLocationEnabled = true
                     map.uiSettings.isMyLocationButtonEnabled = true
