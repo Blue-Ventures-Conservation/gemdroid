@@ -25,16 +25,9 @@ object SubRegionsOverview {
                 }
 
                 Visualize.Screen(viewModel.visualizer, stringResource(R.string.review_sub_regions), appBar, poly = object : Poly.Model() {
+                    override val menuTitle = stringResource(R.string.sub_regions)
                     override val labels = viewModel.subRegions.map { it.name }
-
-                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {
-                        if (viewModel.subRegions.isEmpty()) {
-                            callback(emptyList())
-                        } else {
-                            viewModel.displayRegions(callback)
-                        }
-                    }
-
+                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = viewModel.displayRegions(callback)
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
                 })
             }

@@ -75,22 +75,21 @@ object Maps {
 
     @Composable
     private fun <T : URLs> Setup(floating: @Composable BoxScope.() -> Unit = {}, attemptGps: Boolean = false, tiles: Tiles.Model<T>? = null, draw: Draw.Model? = null, poly: Poly.Model? = null, impl: MapImpl<T>) {
-        Tiles.Setup(tiles) { tilesHandler ->
-            Draw.Setup(draw) { drawHandler ->
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-                    var bounds = shouldZoom(zoomed, tiles, draw, drawHandler)
-                    if (!zoomed && bounds != null) {
-                        setZoomed(true)
-                    } else if (zoomed) {
-                        bounds = null
-                    }
-
-                    impl.Map(attemptGps, tiles, tilesHandler, draw, drawHandler, poly, bounds)
-                    FloatingButton(this, drawHandler, floating)
+        val tilesHandler = tiles?.setup(if (poly == null) null else Poly.Layer(poly.menuTitle))
+        Draw.Setup(draw) { drawHandler ->
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val (zoomed, setZoomed) = remember { mutableStateOf(false) }
+                var bounds = shouldZoom(zoomed, tiles, draw, drawHandler)
+                if (!zoomed && bounds != null) {
+                    setZoomed(true)
+                } else if (zoomed) {
+                    bounds = null
                 }
+
+                impl.Map(attemptGps, tiles, tilesHandler, draw, drawHandler, poly, bounds)
+                FloatingButton(this, drawHandler, floating)
             }
         }
     }
@@ -118,14 +117,19 @@ object Maps {
                     map.uiSettings.isMyLocationButtonEnabled = true
                 }
 
+                var polyLayer: Poly.Layer? = null
+
                 tiles?.let {
                     tilesHandler?.let {
                         Tiles.MapCallback(tiles, tilesHandler).onMapReady(map)
+                        if (tilesHandler.layers.size > 0) {
+                            polyLayer = tilesHandler.layers.last() as? Poly.Layer
+                        }
                     }
                 }
 
                 poly?.let {
-                    Poly.MapCallback(poly).onMapReady(map)
+                    Poly.MapCallback(poly, polyLayer).onMapReady(map)
                 }
 
                 draw?.let {

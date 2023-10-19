@@ -186,4 +186,5 @@
     <string name="classification_downloads">Classification Downloads</string>
     <string name="dynamics_downloads">Dynamics Downloads</string>
     <string name="choose_classes">Choose classes:</string>
+    <string name="shapefile">Shapefile</string>
 </resources>

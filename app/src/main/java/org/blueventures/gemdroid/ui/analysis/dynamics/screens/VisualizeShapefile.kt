@@ -25,6 +25,7 @@ object VisualizeShapefile {
                     viewModel.shapefileLooksGood()
                     next()
                 }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }}, poly = object : Poly.Model() {
+                override val menuTitle = stringResource(R.string.shapefile)
                 override val labels = listOf(viewModel.regionName)
 
                 override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {

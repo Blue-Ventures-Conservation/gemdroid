@@ -54,27 +54,21 @@ object Tiles {
                 )
             ).zIndex((layerNames.size - index).toFloat())
         }
-    }
 
-    /**
-     * A Layer represents a TileOverlay that is meant to be toggleable in a dropdown.
-     */
-    class Layer(val title: String) {
-        var overlay: TileOverlay? = null
-    }
+        @Composable
+        fun setup(
+            polygons: Layer? = null,
+        ): Handler<T> {
+            val layerState = mutableListOf<Layer>()
+            for (name in layerNames) {
+                layerState.add(TileLayer(name))
+            }
 
-    interface Handler<T> {
-        val urls: T
-        val layers: List<Layer>
-    }
+            if (polygons != null) {
+                layerState.add(polygons)
+            }
 
-    @Composable
-    fun <T : URLs> Setup(
-        model: Model<T>?,
-        content: @Composable (Handler<T>?) -> Unit
-    ) {
-        model?.let { tiles ->
-            val layers = remember { mutableStateOf(tiles.layerNames.map { Layer(it) }) }
+            val layers = remember { mutableStateOf(layerState.toList()) }
             val pairs = mutableListOf<Pair<String, Boolean>>()
             for (layer in layers.value) {
                 pairs.add(Pair(layer.title, true))
@@ -82,38 +76,57 @@ object Tiles {
 
             val checkMap = remember { mutableStateMapOf(*pairs.toTypedArray()) }
 
-            tiles.appBar.Update(AppBarUpdate(
-                title = tiles.title,
+            appBar.Update(AppBarUpdate(
+                title = title,
                 actions = { LayersDropdown(layers.value, checkMap) }
             ))
 
-            val (urls, setUrls) = remember { mutableStateOf(model.initUrls) }
+            val (urls, setUrls) = remember { mutableStateOf(initUrls) }
 
             if (staleCheck(urls)) {
-                tiles.getRemote { result ->
+                getRemote { result ->
                     if (result is ApiResult.Success) {
                         val data = result.data!!
-                        tiles.save(data)
+                        save(data)
                         setUrls(data)
                     }
                 }
             }
 
-            content(object: Handler<T> {
+            return object : Handler<T> {
                 override val urls: T = urls
-                override val layers: List<Layer> = layers.value
-            })
-        } ?: run {
-            content(null)
+                override val layers: MutableList<Layer> = layers.value.toMutableList()
+            }
         }
+    }
+
+    /**
+     * A Layer represents a TileOverlay that is meant to be toggleable in a dropdown.
+     */
+    abstract class Layer(val title: String) {
+        abstract fun toggle(checked: Boolean)
+    }
+
+    class TileLayer(title: String): Layer(title) {
+        var overlay: TileOverlay? = null
+        override fun toggle(checked: Boolean) {
+            overlay?.isVisible = checked
+        }
+    }
+
+    interface Handler<T> {
+        val urls: T
+        val layers: MutableList<Layer>
     }
 
     class MapCallback<T : URLs>(private val model: Model<T>, private val handler: Handler<T>): OnMapReadyCallback {
         override fun onMapReady(map: GoogleMap) {
             handler.layers.forEachIndexed { i, layer ->
-                val old = layer.overlay
-                layer.overlay = map.addTileOverlay(model.tileOpts(i, handler.urls))
-                old?.remove()
+                (layer as? TileLayer)?.let {
+                    val old = layer.overlay
+                    layer.overlay = map.addTileOverlay(model.tileOpts(i, handler.urls))
+                    old?.remove()
+                }
             }
         }
     }
@@ -131,7 +144,7 @@ object Tiles {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Checkbox(checkMap[layer.title]!!, onCheckedChange = {
-                        layer.overlay?.isVisible = it
+                        layer.toggle(it)
                         checkMap[layer.title] = it
                     })
                     Text(layer.title, modifier = Modifier.padding(end = 8.dp))

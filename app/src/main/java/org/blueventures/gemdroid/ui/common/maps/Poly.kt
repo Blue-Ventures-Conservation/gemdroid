@@ -15,10 +15,29 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.blend
 
 object Poly {
-    abstract class Model {
-        private val drawnPolygons = mutableListOf<Polygon>()
-        private var marker: Marker? = null
+    class Layer(title: String): Tiles.Layer(title) {
+        var polygons: MutableList<Polygon>? = null
+        var marker: Marker? = null
+        override fun toggle(checked: Boolean) {
+            clearMarker()
+            polygons?.forEach { poly ->
+                poly.isVisible = checked
+            }
+        }
 
+        fun clearMarker() = marker?.remove()
+
+        fun clearPolygons() {
+            while(polygons?.isNotEmpty() == true) {
+                polygons?.removeFirst()?.remove()
+            }
+            polygons = mutableListOf()
+        }
+    }
+
+    abstract class Model {
+        private var local: Layer? = null
+        abstract val menuTitle: String
         abstract val labels: List<String>
         abstract fun polygons(callback: (List<List<List<LatLng>>>) -> Unit)
         abstract fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job
@@ -35,17 +54,27 @@ object Poly {
             }
         }
 
-        fun addPolygons(map: GoogleMap) {
+        fun addPolygons(map: GoogleMap, external: Layer?) {
             polygonOptions { optsList ->
-                for (opts in optsList) {
-                    drawnPolygons.add(map.addPolygon(opts))
+                if (local == null) {
+                    local = Layer(menuTitle)
                 }
+
+                local?.clearPolygons()
+                for (opts in optsList) {
+                    local?.polygons?.add(map.addPolygon(opts))
+                }
+
+                external?.clearPolygons()
+                external?.polygons = local?.polygons
 
                 map.setOnMapClickListener { pt ->
                     // Polygon.getPoints must be called on UI thread before we do work
                     val drawnPoints = mutableListOf<List<LatLng>>()
-                    for (drawn in drawnPolygons) {
-                        drawnPoints.add(drawn.points)
+                    local?.polygons?.forEach { poly ->
+                        if (poly.isVisible) {
+                            drawnPoints.add(poly.points)
+                        }
                     }
 
                     markerWork({
@@ -62,22 +91,17 @@ object Poly {
 
                         opt
                     }) { opt ->
-                        marker?.remove()
-                        opt?.let { marker = map.addMarker(it); marker?.showInfoWindow() }
+                        local?.clearMarker()
+                        opt?.let { local?.marker = map.addMarker(it); local?.marker?.showInfoWindow() }
+                        external?.clearMarker()
+                        external?.marker = local?.marker
                     }
                 }
             }
         }
-
-        fun clearMapObjects() {
-            marker?.remove()
-            while(drawnPolygons.isNotEmpty()) {
-                drawnPolygons.removeFirst().remove()
-            }
-        }
     }
 
-    class MapCallback(private val model: Model): OnMapReadyCallback {
-        override fun onMapReady(map: GoogleMap) = model.addPolygons(map)
+    class MapCallback(private val model: Model, private val layer: Layer?): OnMapReadyCallback {
+        override fun onMapReady(map: GoogleMap) = model.addPolygons(map, layer)
     }
 }
