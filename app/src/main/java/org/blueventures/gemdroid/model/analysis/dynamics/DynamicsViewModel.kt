@@ -53,7 +53,7 @@ class DynamicsViewModel(
     var shapefile: List<List<LatLng>> = emptyList()
 
     val subRegions = mutableListOf<SubRegion>()
-    var subRegionsLoaded = false
+    var skipped = false
     override var visualize = true
 
     fun init(awaiter: CRAAwaiter, vis: Visualize.Visualizer) {

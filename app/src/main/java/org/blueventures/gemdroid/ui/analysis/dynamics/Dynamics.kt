@@ -40,18 +40,19 @@ object Dynamics {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun) {
         b.composable(Routes.sub_regions_option) {
             SubRegionsOption.Screen(viewModel, appBar, snack, back = {
+                viewModel.subRegions.clear()
                 nav.popClear(Analysis.Routes.dashboard)
             }, skip = {
+                viewModel.skipped = true
                 nav.popClear(Routes.target_class)
             }, yes = {
                 nav.navigate(Routes.sub_region_name)
             }, no = {
-                var navRoute = { nav.popClear(Routes.target_class) }
-                if (viewModel.subRegions.isEmpty()) {
-                    viewModel.saveSubRegionsFile()
-                } else if (!viewModel.subRegionsLoaded && viewModel.subRegions.size > 1) {
-                    navRoute = { nav.popClear(Routes.sub_regions_overview) }
+                var navRoute = { nav.navigate(Routes.target_class) }
+                if (viewModel.subRegions.size > 1) {
+                    navRoute = { nav.navigate(Routes.sub_regions_overview) }
                 }
+
                 navRoute()
             })
         }
@@ -92,22 +93,25 @@ object Dynamics {
         }
 
         b.composable(Routes.sub_regions_overview) {
-            SubRegionsOverview.Screen(viewModel, appBar, {
-                viewModel.subRegions.clear()
-                nav.popClear(Analysis.Routes.dashboard)
-            }, {
+            SubRegionsOverview.Screen(viewModel, appBar, nav::popBackStack, {
+                nav.navigate(Routes.target_class)
+            }) {
                 viewModel.subRegions.clear()
                 nav.popClear(Routes.sub_regions_option)
-            }) {
-                viewModel.saveSubRegionsFile()
-                nav.popClear(Routes.target_class)
             }
         }
 
         b.composable(Routes.target_class) {
             TargetClass.Screen(viewModel, appBar, {
-                nav.popClear(Analysis.Routes.dashboard)
+                if (viewModel.skipped) {
+                    viewModel.skipped = false
+                    viewModel.subRegions.clear()
+                    nav.popClear(Analysis.Routes.dashboard)
+                } else {
+                    nav.popBackStack()
+                }
             }) {
+                viewModel.saveSubRegionsFile()
                 nav.navigate(Routes.map)
             }
         }

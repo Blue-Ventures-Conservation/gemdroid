@@ -108,7 +108,7 @@ object Maps {
     ) {
         AndroidViewBinding(MapContainerBinding::inflate) {
             // this call is indeed unsafe
-            mapContainer.getFragment<SupportMapFragment>()?.getMapAsync { map ->
+            mapContainer.getFragment<SupportMapFragment>().getMapAsync { map ->
                 // we clear everything here before adding saved data to the map
                 // because markers and polygons seem to stick around otherwise
                 map.clear()

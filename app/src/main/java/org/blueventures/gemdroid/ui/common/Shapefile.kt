@@ -31,45 +31,43 @@ object Shapefile {
 
     @Composable
     fun <T> Screen(title: String, uriHandler: (() -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
-        val (streams, setStreams) = remember { mutableStateOf<Streams?>(null) }
+        val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
-        when (streams) {
-            null -> GetStreams(title, uriHandler, setStreams)
-            else -> Validation(validator, streams, failure, success, setStreams)
+        when (uris) {
+            null -> GetUris(title, setUris)
+            else -> Validation(uriHandler, validator, uris, failure, success, setUris)
         }
     }
 
     @Composable
-    fun <T> Validation(validator: StreamValidator<T>, streams: Streams, failure: (String) -> Unit, success: (T) -> Unit, setStreams: (Streams?) -> Unit) {
+    fun <T> Validation(uriHandler: (() -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, failure: (String) -> Unit, success: (T) -> Unit, setUris: (List<Uri>?) -> Unit) {
         val (validation, setValidation) = remember { mutableStateOf<Result<T>?>(null) }
 
         when {
             validation == null -> {
                 Progress()
-                validator(streams, setValidation)
+                val context = LocalContext.current
+                uriHandler {
+                    val strms = mutableListOf<InputStream?>()
+                    val names = mutableListOf<String?>()
+                    uris.forEach { uri ->
+                        strms.add(context.contentResolver.openInputStream(uri))
+                        names.add(contentDisplayName(context, uri))
+                    }
+                    validator(Streams(strms, names), setValidation)
+                }
             }
             validation.isFailure -> {
                 failure(validation.exceptionOrNull()!!.localized(LocalContext.current))
-                setStreams(null)
+                setUris(null)
             }
             validation.isSuccess -> success(validation.getOrNull()!!)
         }
     }
 
     @Composable
-    fun GetStreams(title: String, uriHandler: (() -> Unit) -> Unit, setStreams: (Streams?) -> Unit) {
-        val context = LocalContext.current.applicationContext
-        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { files ->
-            uriHandler {
-                val strms = mutableListOf<InputStream?>()
-                val names = mutableListOf<String?>()
-                files.forEach { uri ->
-                    strms.add(context.contentResolver.openInputStream(uri))
-                    names.add(contentDisplayName(context, uri))
-                }
-                setStreams(Streams(strms, names))
-            }
-        }
+    fun GetUris(title: String, setUris: (List<Uri>?) -> Unit) {
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments(), setUris)
 
         Column(
             modifier = Modifier.fillMaxWidth()

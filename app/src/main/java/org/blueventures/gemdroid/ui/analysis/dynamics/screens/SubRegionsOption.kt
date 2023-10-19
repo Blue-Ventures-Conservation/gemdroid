@@ -22,10 +22,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object SubRegionsOption {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBarFun, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
-        Nav.Wrap({
-            viewModel.subRegions.clear()
-            back()
-        }) { nav ->
+        Nav.Wrap(back) { nav ->
             appBar(AppBarUpdate(viewModel.roi.appBar(stringResource(R.string.dynamics))))
             viewModel.regionName = ""
             Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_dynamics), viewModel.craAwaiter) { cra ->
@@ -57,7 +54,6 @@ object SubRegionsOption {
             else -> {
                 viewModel.subRegions.clear()
                 viewModel.subRegions.addAll(subRegions.getOrNull()!!.subRegions)
-                viewModel.subRegionsLoaded = true
                 skip()
             }
         }
