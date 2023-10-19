@@ -68,12 +68,14 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    fun displayRegions(): List<List<List<LatLng>>> {
-        val polygons = mutableListOf<List<List<LatLng>>>()
-        for (region in subRegions) {
-            polygons.add(GeojsonPolygon.toState(region.polygon))
-        }
-        return polygons
+    fun displayRegions(callback: (List<List<List<LatLng>>>) -> Unit) {
+        background({
+            val polygons = mutableListOf<List<List<LatLng>>>()
+            for (region in subRegions) {
+                polygons.add(GeojsonPolygon.toState(region.polygon))
+            }
+            polygons
+        }, callback)
     }
 
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)

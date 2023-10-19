@@ -30,24 +30,24 @@ object Shapefile {
     data class Streams(val streams: List<InputStream?>, val names: List<String?>)
 
     @Composable
-    fun <T> Screen(title: String, uriHandler: (() -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
+    fun <T> Screen(title: String, background: (() -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
         when (uris) {
             null -> GetUris(title, setUris)
-            else -> Validation(uriHandler, validator, uris, failure, success, setUris)
+            else -> Validation(background, validator, uris, failure, success, setUris)
         }
     }
 
     @Composable
-    fun <T> Validation(uriHandler: (() -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, failure: (String) -> Unit, success: (T) -> Unit, setUris: (List<Uri>?) -> Unit) {
+    fun <T> Validation(background: (() -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, failure: (String) -> Unit, success: (T) -> Unit, setUris: (List<Uri>?) -> Unit) {
         val (validation, setValidation) = remember { mutableStateOf<Result<T>?>(null) }
 
         when {
             validation == null -> {
                 Progress()
                 val context = LocalContext.current
-                uriHandler {
+                background {
                     val strms = mutableListOf<InputStream?>()
                     val names = mutableListOf<String?>()
                     uris.forEach { uri ->

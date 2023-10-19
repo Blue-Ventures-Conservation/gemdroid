@@ -2,6 +2,8 @@ package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -23,7 +25,17 @@ object SubRegionsOverview {
                 }
 
                 Visualize.Screen(viewModel.visualizer, stringResource(R.string.review_sub_regions), appBar, poly = object : Poly.Model() {
-                    override fun polygons() = if (viewModel.subRegions.isEmpty()) emptyList() else viewModel.displayRegions()
+                    override val labels = viewModel.subRegions.map { it.name }
+
+                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {
+                        if (viewModel.subRegions.isEmpty()) {
+                            callback(emptyList())
+                        } else {
+                            viewModel.displayRegions(callback)
+                        }
+                    }
+
+                    override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
                 })
             }
         }

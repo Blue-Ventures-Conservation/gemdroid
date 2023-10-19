@@ -28,7 +28,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
         }
     }
 
-    fun background(work: () -> Unit) = scoped { repo.background(work).collect() }
+    fun <T> background(work: () -> T, callback: (T) -> Unit = {}) = scoped { repo.background(work).collect(callback) }
 
     fun uriFromStorage(prev: Job?, path: String, callback: (Result<Uri>) -> Unit) = resultWithToken(prev, repo.uriFromStorage(path), callback)
 

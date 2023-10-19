@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -23,7 +25,17 @@ object VisualizeShapefile {
                     viewModel.shapefileLooksGood()
                     next()
                 }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }}, poly = object : Poly.Model() {
-                override fun polygons() = if (viewModel.shapefile.isEmpty()) emptyList() else listOf(viewModel.shapefile)
+                override val labels = listOf(viewModel.regionName)
+
+                override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {
+                    if (viewModel.shapefile.isEmpty()) {
+                        callback(emptyList())
+                    } else {
+                        callback(listOf(viewModel.shapefile))
+                    }
+                }
+
+                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             })
         }
     }
