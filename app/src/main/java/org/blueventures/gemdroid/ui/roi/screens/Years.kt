@@ -43,7 +43,7 @@ object Years {
     fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
-            Col.BigPad {
+            Col.Col {
                 Text(stringResource(R.string.select_bounding_years).format(temporal), textAlign = TextAlign.Center, fontSize = 24.sp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -37,7 +37,7 @@ object Overview {
 
     @Composable
     fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click, saving: (Boolean) -> Unit) {
-        Col.MidPad {
+        Col.Col(scroll = true) {
             Info.Block {
                 Info.Header(title = stringResource(id = R.string.overview))
                 Info.BlueLine()

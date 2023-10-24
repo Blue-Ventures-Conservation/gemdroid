@@ -46,7 +46,7 @@ object Months {
                 months.add(stringResource(res))
             }
 
-            Col.BigPad {
+            Col.Col {
                 Text(stringResource(R.string.select_months_range).format(temporal), textAlign = TextAlign.Center, fontSize = 24.sp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),

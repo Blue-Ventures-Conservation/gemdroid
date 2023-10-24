@@ -31,13 +31,14 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.Orient
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click) {
-        Nav.Wrap(back) {
+        Nav.Wrap(back, true) {
             appBar.Update(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
 
             val (saving, setSaving) = remember { mutableStateOf(false) }
@@ -57,11 +58,11 @@ object Buffer {
         val (bufferDist, setBufferDist) = remember { mutableStateOf(Pair(-1, false)) }
 
         Col.Col {
+            val ctx = LocalContext.current
             Chart(buffers)
             Dropdown(title = stringResource(R.string.select_buffer_distance), labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
             }
-            val ctx = LocalContext.current
             Butt.Done(bufferDist.second) {
                 saving(true)
                 viewModel.saveBuffer(bufferDist.first) { result ->

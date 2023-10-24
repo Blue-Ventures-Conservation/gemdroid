@@ -18,10 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 object Collect {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Text(header: String, label: String, initial: String, snack: SnackFun, validator: (String) -> String?, next: Click) {
-        Col.BigPad {
+        Col.Col {
             Text(text = header, fontSize = 24.sp, textAlign = TextAlign.Center)
             val focus = LocalFocusManager.current
             var text by remember { mutableStateOf(initial) }

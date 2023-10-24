@@ -84,6 +84,9 @@ object RoiList {
                 viewModel.rois = list
 
                 Box(modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        ListView(list, dirHolder, next, setDeleteRoi)
+                    }
                     FloatingActionButton(
                         onClick = floating,
                         modifier = Modifier
@@ -91,9 +94,6 @@ object RoiList {
                             .align(Alignment.BottomEnd)
                     ) {
                         Icon(Icons.Filled.Add, stringResource(R.string.add_new_region))
-                    }
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        ListView(list, dirHolder, next, setDeleteRoi)
                     }
                 }
             }

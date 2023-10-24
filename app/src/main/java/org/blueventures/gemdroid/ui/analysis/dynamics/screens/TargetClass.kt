@@ -16,7 +16,7 @@ object TargetClass {
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, next: Click) {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
-            Col.Dash(stringResource(R.string.choose_class_dynamics), true) {
+            Col.Dash(stringResource(R.string.choose_class_dynamics)) {
                 viewModel.cra.contemporaryCRA.stringClassValues.forEach { classname ->
                     DashboardButton(classname) {
                         viewModel.targetClass = classname
