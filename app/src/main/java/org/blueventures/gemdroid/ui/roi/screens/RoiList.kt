@@ -1,11 +1,11 @@
 package org.blueventures.gemdroid.ui.roi.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -180,36 +181,27 @@ object RoiList {
             Text(dir.name, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp, textAlign = TextAlign.Center)
             SheetRow({
                 setDupeRoi(dir)
-            }) {
-                Icon(
-                    Icons.Filled.ContentCopy, stringResource(R.string.copy_region), modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp)
-                )
-                Info.Txt(stringResource(R.string.copy_roi))
-            }
+            }, Icons.Filled.ContentCopy, R.string.copy_region, R.string.copy_roi)
             SheetRow({
                 setDeleteRoi(dir)
-            }) {
-                Icon(
-                    Icons.Filled.Delete, stringResource(R.string.delete_region), modifier = Modifier
-                        .padding(12.dp)
-                        .size(24.dp)
-                )
-                Info.Txt(stringResource(R.string.delete_roi))
-            }
+            }, Icons.Filled.Delete, R.string.delete_region, R.string.delete_roi)
             Spacer(modifier = Modifier.padding(64.dp))
         }
     }
 
     @Composable
-    fun SheetRow(click: Click, content: @Composable RowScope.() -> Unit) {
+    fun SheetRow(click: Click, icon: ImageVector, @StringRes descrip: Int, @StringRes label: Int) {
         Row(modifier = Modifier
             .padding(start = 4.dp, top = 4.dp)
             .clickable(onClick = click),
             verticalAlignment = Alignment.CenterVertically)
         {
-            content()
+            Icon(
+                icon, stringResource(descrip), modifier = Modifier
+                    .padding(12.dp)
+                    .size(24.dp)
+            )
+            Info.Txt(stringResource(label))
         }
     }
 
