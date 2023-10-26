@@ -1,12 +1,12 @@
 package org.blueventures.gemdroid.model.roi
 
-import com.github.zibnix.droidbones.mvvm.IORepository
 import com.google.android.gms.maps.model.LatLng
+import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 
 class RoiRepository(
     private val datasource: RoiDatasource = RoiDatasource(),
-): IORepository() {
+): ApiRepository() {
     fun getRois(filesDir: File) = goFlow { datasource.getRois(filesDir) }
     fun saveRoi(
         filesDir: File,

@@ -2,16 +2,15 @@ package org.blueventures.gemdroid.model.api
 
 import android.net.Uri
 import com.github.zibnix.droidbones.api.ApiResult
-import com.github.zibnix.droidbones.mvvm.BaseViewModel
+import com.github.zibnix.droidbones.mvvm.IOViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import java.io.File
 
-open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): BaseViewModel() {
+open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOViewModel(repo) {
     fun <T> apiWithToken(prev: Job?, flow: Flow<ApiResult<T>>, callback: (ApiResult<T>) -> Unit) = withToken(prev, ::apiErr, flow, callback)
 
     fun <T> resultWithToken(prev: Job?, flow: Flow<Result<T>>, callback: (Result<T>) -> Unit) = withToken(prev, ::resErr, flow, callback)
@@ -27,8 +26,6 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): Base
             }
         }
     }
-
-    fun <T> background(work: () -> T, callback: (T) -> Unit = {}) = scoped { repo.background(work).collect(callback) }
 
     fun uriFromStorage(prev: Job?, path: String, callback: (Result<Uri>) -> Unit) = resultWithToken(prev, repo.uriFromStorage(path), callback)
 

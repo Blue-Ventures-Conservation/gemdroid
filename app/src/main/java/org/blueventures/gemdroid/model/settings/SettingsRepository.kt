@@ -1,10 +1,8 @@
 package org.blueventures.gemdroid.model.settings
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import com.github.zibnix.droidbones.mvvm.IORepository
 
 class SettingsRepository(
     private val datasource: SettingsDatasource = SettingsDatasource(),
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-) {
+): IORepository() {
 }

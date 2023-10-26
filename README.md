@@ -13,7 +13,7 @@ A Google Maps API key and our AnyChart license are entered in `local.properties`
 
 `ANYCHART_LICENSE=xyz`
 
-These secrets are also in our Secret Manager in Goole Cloud. They are referenced in the
+These secrets are also in our Secret Manager in Google Cloud. They are referenced in the
 `AndroidManifest.xml` as `meta-data` tags on the `application`. Pulling the values out of
 `local.properties` and filling them into the manifest is done by the secrets gradle plugin that
 is part of the maps SDK:

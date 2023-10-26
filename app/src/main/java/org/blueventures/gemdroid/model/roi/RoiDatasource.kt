@@ -133,5 +133,7 @@ class RoiDatasource(
     companion object {
         const val filename = "roi.json"
         const val dirname = "rois"
+
+        fun roiFile(roiDir: File) = File(roiDir, filename)
     }
 }

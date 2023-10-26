@@ -187,4 +187,8 @@
     <string name="dynamics_downloads">Dynamics Downloads</string>
     <string name="choose_classes">Choose classes:</string>
     <string name="shapefile">Shapefile</string>
+    <string name="copy_region">copy region of interest</string>
+    <string name="copy_roi">Copy ROI</string>
+    <string name="roi_options_menu">ROI options menu</string>
+    <string name="copy_of">"Copy of "</string>
 </resources>

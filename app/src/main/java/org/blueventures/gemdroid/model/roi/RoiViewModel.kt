@@ -1,14 +1,17 @@
 package org.blueventures.gemdroid.model.roi
 
-import com.github.zibnix.droidbones.mvvm.BaseViewModel
+import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.Regexp
+import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.model.api.ApiViewModel
 import java.io.File
 import java.util.Calendar
 
 class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
-): BaseViewModel() {
+): ApiViewModel(repo) {
     var rois: List<File> = emptyList()
     var name: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
@@ -19,9 +22,9 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var drawPoly = DrawPolygon(maxRoiArea) { point, adder, callback ->
-        scoped { repo.addPoint(point, adder).collect(callback) }
-    }
+    var drawPoly = DrawPolygon(maxRoiArea, this::polyAdder)
+
+    private fun polyAdder(point: LatLng, adder: (LatLng) -> Unit, callback: (Unit) -> Unit) = scoped { repo.addPoint(point, adder).collect(callback) }
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -42,6 +45,30 @@ class RoiViewModel(
     }
 
     fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
+    fun getROI(roiDir: File, callback: (Result<ROI>) -> Unit) = loadFile(RoiDatasource.roiFile(roiDir), ROI.Companion, callback)
+
+    fun importROI(prefix: String, roi: ROI, callback: () -> Unit) {
+        name = prefix + roi.name
+        contemporaryYearStart = roi.contYearStart
+        contemporaryYearEnd = roi.contYearEnd
+        contemporaryMonthStart = roi.contMonthStart
+        contemporaryMonthEnd = roi.contMonthEnd
+        historicalYearStart = roi.histYearStart
+        historicalYearEnd = roi.histYearEnd
+        historicalMonthStart = roi.histMonthStart
+        historicalMonthEnd = roi.histMonthEnd
+
+        background({
+            if (roi.polygon.coordinates.isNotEmpty()) {
+                GeojsonPolygon.toState(roi.polygon).first().toMutableList()
+            } else {
+                mutableListOf()
+            }
+        }) {
+            drawPoly.points = it
+            callback()
+        }
+    }
 
     fun isUnique(): Boolean {
         for (dir in rois) {

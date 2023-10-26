@@ -48,7 +48,7 @@ object Roi {
         // ROI name creation
         b.composable(Routes.name) {
             Name.Screen(roiModel, appBar, snack, back = {
-                roiModel.clearName()
+                roiModel.clear()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.contemporaryYears)
