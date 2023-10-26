@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Downloading
@@ -156,6 +157,11 @@ object Downloads {
                 Col.MidPad(scroll = true) {
                     var failure = false
                     Info.Block {
+                        Info.Row(verticalPadding = 16.dp) {
+                            Icon(Icons.Filled.ArrowDownward, stringResource(R.string.pull_down_to_refresh))
+                            Info.Txt(stringResource(R.string.pull_down_to_refresh))
+                            Icon(Icons.Filled.ArrowDownward, stringResource(R.string.pull_down_to_refresh))
+                        }
                         Info.BlueLine()
                         exports.list().forEachIndexed { i, export ->
                             val result = results.results[i]
