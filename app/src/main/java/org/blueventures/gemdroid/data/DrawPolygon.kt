@@ -86,11 +86,12 @@ class DrawPolygon(override val points: MutableList<LatLng> = mutableListOf(), pr
             return opts
         }
 
-        private fun signedArea(points: MutableList<LatLng>, nearestIdx: Int, point: LatLng): Double {
+        private fun signedArea(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
             // toMutableList makes a copy so we aren't modifying the original list
-            rotate(points.toMutableList(), nearestIdx)
-            points.add(point)
-            return SphericalUtil.computeSignedArea(points)
+            val mut = points.toMutableList()
+            rotate(mut, nearestIdx)
+            mut.add(point)
+            return SphericalUtil.computeSignedArea(mut)
         }
 
         private fun <T> rotate(points: MutableList<T>, nearestIdx: Int) {
