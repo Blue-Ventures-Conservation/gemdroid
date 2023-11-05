@@ -22,5 +22,5 @@ class RoiRepository(
         points: List<LatLng>
     ) = goFlow{ datasource.saveRoi(filesDir, name, contYearStart, contYearEnd, contMonthStart, contMonthEnd, histYearStart, histYearEnd, histMonthStart, histMonthEnd, points) }
     fun deleteRoi(dir: File) = goFlow { datasource.deleteRoi(dir) }
-    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = goFlow { datasource.addPoint(point, adder) }
+    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = goFlow { adder(point) }
 }

@@ -128,8 +128,6 @@ class RoiDatasource(
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)
 
-    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = adder(point)
-
     companion object {
         const val filename = "roi.json"
         const val dirname = "rois"

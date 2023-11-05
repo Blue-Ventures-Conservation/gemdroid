@@ -19,7 +19,7 @@ object NameRegion {
             back()
         }) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
-            val err = stringResource(R.string.please_enter_without_special_chars)
+            val err = stringResource(R.string.please_enter_unique_non_special_name)
             Collect.Text(header = stringResource(R.string.name_your_sub_region), label = stringResource(R.string.please_enter_name), initial = viewModel.regionName, snack, { name ->
                 viewModel.regionName = name
                 if (viewModel.validateRegionName()) null else err

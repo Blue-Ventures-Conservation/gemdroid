@@ -29,16 +29,17 @@ object ScatterPlot {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.title))
 
-            GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler) { json ->
+            val screen: @Composable (Map<String, Any>) -> Unit = { json ->
                 val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
 
                 if (data == null) {
                     Effect.Once { back() }
-                    return@Display
+                } else {
+                    Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
                 }
-
-                Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
             }
+
+            GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler, setLocal = screen, setRemote = screen)
         }
     }
 

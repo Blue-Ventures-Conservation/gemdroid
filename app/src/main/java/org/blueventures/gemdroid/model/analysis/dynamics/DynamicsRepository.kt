@@ -9,5 +9,5 @@ class DynamicsRepository(
     private val datasource: DynamicsDatasource = DynamicsDatasource(),
 ): ApiRepository(datasource) {
     fun validateShapefile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validateShapefile(dynamicsDir, files, names) }
-    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = goFlow { datasource.addPoint(point, adder) }
+    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = goFlow { adder(point) }
 }

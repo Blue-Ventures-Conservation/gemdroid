@@ -73,7 +73,7 @@ object Dynamics {
 
         b.composable(Routes.drawn_sub_region) {
             DrawSubRegion.Screen(viewModel, appBar, snack, {
-                viewModel.drawPoly.clearAll()
+                viewModel.drawPoly.points.clear()
                 nav.popBackStack()
             }) {
                 nav.popClear(Routes.sub_regions_option)

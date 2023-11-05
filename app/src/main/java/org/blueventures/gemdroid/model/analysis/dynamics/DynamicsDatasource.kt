@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
-import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.MD5
 import org.blueventures.gemdroid.data.Shapefile.polygons
@@ -12,7 +11,6 @@ class DynamicsDatasource(
     api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api) {
     fun validateShapefile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = polygons(dynamicsDir, files, names)
-    fun addPoint(point: LatLng, adder: (LatLng) -> Unit) = adder(point)
 
     companion object {
         private const val dynamicsDir = "dynamics"

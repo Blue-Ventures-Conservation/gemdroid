@@ -98,7 +98,7 @@ object Roi {
         // ROI polygon creation
         b.composable(Routes.polygon) {
             CoarseRoi.Screen(roiModel, appBar, snack, back = {
-                roiModel.drawPoly.clearAll()
+                roiModel.drawPoly.points.clear()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.overview)

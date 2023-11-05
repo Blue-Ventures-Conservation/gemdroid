@@ -15,10 +15,10 @@ object DrawSubRegion {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
-            Visualize.Screen(viewModel.visualizer, stringResource(R.string.draw_sub_region), appBar, draw = Draw.Model(snack, next = {
+            Visualize.Screen(viewModel.visualizer, stringResource(R.string.draw_sub_region), appBar, draw = Draw.Model(viewModel.drawPoly, snack) {
                 viewModel.polygonDrawn()
                 next()
-            }, viewModel.drawPoly))
+            })
         }
     }
 }

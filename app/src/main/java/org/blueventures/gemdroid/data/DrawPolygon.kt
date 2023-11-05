@@ -1,8 +1,6 @@
 package org.blueventures.gemdroid.data
 
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
@@ -10,18 +8,10 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
-    var points = mutableListOf<LatLng>()
-
-    override val markers = mutableListOf<Marker>()
-    override var polygon: Polygon? = null
-
+class DrawPolygon(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
     override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
     override fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job  = adder(point, ::addPoint, callback)
-    override fun polygonIterate(mapf: (LatLng) -> Unit) = points.iterator().forEach(mapf)
-    override fun points() = points
-    override fun clearPoints() { points = mutableListOf() }
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
     override fun polygonSquareKms() = areaStr()
@@ -61,7 +51,7 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
             }
 
             // 4. move the nearest coordinate at the end by shifting array right
-            points = rotate(points, position)
+            rotate(points, position)
         }
 
         // 5. Now add coordinate to be drawn
@@ -96,18 +86,18 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
             return opts
         }
 
-        private fun signedArea(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
+        private fun signedArea(points: MutableList<LatLng>, nearestIdx: Int, point: LatLng): Double {
             // toMutableList makes a copy so we aren't modifying the original list
-            val poly = rotate(points.toMutableList(), nearestIdx)
-            poly.add(point)
-            return SphericalUtil.computeSignedArea(poly)
+            rotate(points.toMutableList(), nearestIdx)
+            points.add(point)
+            return SphericalUtil.computeSignedArea(points)
         }
 
-        private fun <T> rotate(points: MutableList<T>, nearestIdx: Int): MutableList<T> {
+        private fun <T> rotate(points: MutableList<T>, nearestIdx: Int) {
             val shift = points.size - (nearestIdx + 1)
 
             if (shift <= 0 || shift == points.size) {
-                return points
+                return
             }
 
             var element: T?
@@ -116,7 +106,6 @@ class DrawPolygon(private val maxArea: Int?, private val adder: (LatLng, (LatLng
                 element = points.removeAt(points.size - 1)
                 points.add(0, element)
             }
-            return points
         }
     }
 }

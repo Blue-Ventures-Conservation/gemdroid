@@ -24,7 +24,7 @@ object GetRemote {
         // returns a message to display and whether or not the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit) {
-        Display(getLocal, getRemote, checkExpires, errorHandler) { dat ->
+        Display(getLocal, getRemote, checkExpires, errorHandler, screen) { dat ->
             save(dat)
             screen(dat)
         }
@@ -45,7 +45,9 @@ object GetRemote {
 
         when (saved) {
             null -> {
-                Display(getLocal, getRemote, checkExpires, errorHandler) { dat ->
+                Display(getLocal, getRemote, checkExpires, errorHandler, { dat ->
+                    screen(dat)
+                }) { dat ->
                     save(dat) { result ->
                         when {
                             result.isSuccess -> setSaved(dat)
@@ -69,32 +71,33 @@ object GetRemote {
         checkExpires: Boolean = false,
         // returns a message to display and whether or not the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
-        screen: @Composable (T) -> Unit,
+        setLocal: @Composable (T) -> Unit,
+        setRemote: @Composable (T) -> Unit,
     ) {
-        val (local, setLocal) = remember { mutableStateOf<Result<T>?>(null) }
-        val (remote, setRemote) = remember { mutableStateOf<ApiResult<T>?>(null) }
+        val (localResult, setLocalResult) = remember { mutableStateOf<Result<T>?>(null) }
+        val (remoteResult, setRemoteResult) = remember { mutableStateOf<ApiResult<T>?>(null) }
 
         when {
-            local == null -> {
+            localResult == null -> {
                 Progress()
-                getLocal(setLocal)
+                getLocal(setLocalResult)
             }
-            local.isSuccess -> {
-                val data = local.getOrNull()!!
+            localResult.isSuccess -> {
+                val data = localResult.getOrNull()!!
                 if (checkExpires && data is Expires && staleCheck(data)) {
-                    setLocal(Result.failure(NoStack(R.string.expired)))
+                    setLocalResult(Result.failure(NoStack(R.string.expired)))
                 } else {
-                    screen(local.getOrNull()!!)
+                    setLocal(localResult.getOrNull()!!)
                 }
             }
-            remote == null -> {
+            remoteResult == null -> {
                 PleaseWait()
                 Effect.Once {
-                    getRemote(setRemote)
+                    getRemote(setRemoteResult)
                 }
             }
-            remote is ApiResult.Error -> {
-                if (remote.code == HttpURLConnection.HTTP_FORBIDDEN) {
+            remoteResult is ApiResult.Error -> {
+                if (remoteResult.code == HttpURLConnection.HTTP_FORBIDDEN) {
                     BasicMessage(message = stringResource(R.string.access_email_rationale)) { context ->
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:") // Only email apps handle this.
@@ -108,13 +111,13 @@ object GetRemote {
                         }
                     }
                 } else {
-                    val p = errorHandler(LocalContext.current, remote.code, remote.message)
+                    val p = errorHandler(LocalContext.current, remoteResult.code, remoteResult.message)
 
                     if (p.second) {
                         RefreshableError(p.first) { stop ->
                             getRemote { result ->
                                 stop()
-                                setRemote(result)
+                                setRemoteResult(result)
                             }
                         }
                     } else {
@@ -123,7 +126,7 @@ object GetRemote {
                 }
             }
             else -> {
-                screen(remote.data!!)
+                setRemote(remoteResult.data!!)
             }
         }
     }

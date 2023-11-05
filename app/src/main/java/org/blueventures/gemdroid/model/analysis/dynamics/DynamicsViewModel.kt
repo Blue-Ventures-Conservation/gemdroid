@@ -47,7 +47,7 @@ class DynamicsViewModel(
     lateinit var urls: DynamicsURLs
 
     var regionName = ""
-    var drawPoly = DrawPolygon(null) { point, adder, callback ->
+    var drawPoly = DrawPolygon { point, adder, callback ->
         scoped { repo.addPoint(point, adder).collect(callback) }
     }
     var shapefile: List<List<LatLng>> = emptyList()
@@ -85,10 +85,19 @@ class DynamicsViewModel(
     fun saveSubRegionsFile() = saveFile(subRegionsFile(roiDir), SubRegionsFile(subRegions), SubRegionsFile.Companion)
     fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
 
-    fun validateRegionName() = Regexp.subRegionName.matches(regionName)
+    fun validateRegionName(): Boolean {
+        for (region in subRegions) {
+            if (region.name == regionName) {
+                return false
+            }
+        }
+
+        return Regexp.subRegionName.matches(regionName)
+    }
+
     fun polygonDrawn() {
         subRegions.add(SubRegion(regionName, GeojsonPolygon.fromState(listOf(drawPoly.points))))
-        drawPoly.clearPoints()
+        drawPoly.points.clear()
         regionName = ""
     }
     fun shapefileLooksGood() {
