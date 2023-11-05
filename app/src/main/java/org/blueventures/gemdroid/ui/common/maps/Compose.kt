@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,7 +55,10 @@ import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 
 object Compose {
-    data class Checker(val name: String, val state: Boolean, val setState: (Boolean) -> Unit)
+    data class Checker(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
+    data class Toucher(override val name: String, val state: LatLng?, val setState: (LatLng?) -> Unit): Named
+    data class Clearer(override val name: String, val state: Boolean?, val setState: (Boolean?) -> Unit): Named
+    data class Drawer(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
 
     @Composable
     fun <T : URLs> Screen(
@@ -79,9 +83,11 @@ object Compose {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val (clear, setClear) = remember { mutableStateOf<Boolean?>(null) }
+            val clearers = remember { mutableStaeListOf<Clearer>() }
             draw?.let { draw ->
                 Info.Row {
+                    val (clear, setClear) = remember { mutableStateOf<Boolean?>(null) }
+                    updateList(Clearer("clear", clear, setClear), clearers)
                     Butt.Text(stringResource(R.string.clear)) {
                         setClear(true)
                     }
@@ -106,13 +112,13 @@ object Compose {
             }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                val db = drawButton()
-                Zoom(gps, tiles, poly, draw, db.getState, setClear) { clear }
+                val drawers = remember { mutableStateListOf<Drawer>() }
+                Zoom(gps, tiles, poly, draw, drawers, clearers)
 
                 if (draw == null) {
                     floating()
                 } else {
-                    db.content()
+                    DrawButton(drawers)
                 }
             }
         }
@@ -124,9 +130,8 @@ object Compose {
         tiles: Tiles.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        drawing: () -> Boolean,
-        setClear: (Boolean?) -> Unit,
-        getClear: () -> Boolean?,
+        drawers: List<Drawer>,
+        clearers: List<Clearer>
     ) {
         val (zoomed, setZoomed) = remember { mutableStateOf(false) }
         var center = shouldZoom(zoomed, tiles, draw)
@@ -137,7 +142,7 @@ object Compose {
         }
 
         val position = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
-        Map(gps, tiles, poly, draw, drawing, setClear, getClear, position)
+        Map(gps, tiles, poly, draw, drawers, clearers, position)
     }
 
     @Composable
@@ -146,18 +151,18 @@ object Compose {
         tiles: Tiles.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        drawing: () -> Boolean,
-        setClear: (Boolean?) -> Unit,
-        getClear: () -> Boolean?,
+        drawers: List<Drawer>,
+        clearers: List<Clearer>,
         position: CameraPosition
     ) {
         val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
         val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
         val properties by remember { mutableStateOf(MapProperties(mapType = MapType.SATELLITE)) }
-        val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
-
-        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { point ->
-            setTouch(point)
+        val touchers = remember { mutableStateListOf<Toucher>() }
+        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
+            for (toucher in touchers) {
+                toucher.setState(pt)
+            }
         }) {
             val checkers = mutableListOf<Checker>()
             tiles?.let {
@@ -165,7 +170,7 @@ object Compose {
             }
 
             poly?.let {
-                Polygons(poly, checkers, setTouch) { touch }
+                Polygons(poly, checkers, touchers)
             }
 
             tiles?.let {
@@ -176,7 +181,7 @@ object Compose {
             }
 
             draw?.let {
-                HandleTouch(draw, drawing, setClear, getClear, setTouch) { touch }
+                HandleTouch(draw, drawers, clearers, touchers)
             }
         }
     }
@@ -208,22 +213,21 @@ object Compose {
     data class DrawButton(val getState: () -> Boolean, val content: @Composable () -> Unit)
 
     @Composable
-    private fun BoxScope.drawButton(): DrawButton  {
-        val (drawing, setDrawing) = remember { mutableStateOf(false) }
-        return DrawButton({ drawing }) {
-            MapActionButton({ setDrawing(!drawing) }) {
-                if (drawing) {
-                    Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
-                } else {
-                    Icon(Icons.Filled.Place, stringResource(R.string.place_polygon_corner))
-                }
+    private fun BoxScope.DrawButton(drawers: MutableList<Drawer>) {
+        val (buttonState, setButtonState) = remember { mutableStateOf(false) }
+        updateList(Drawer("draw", buttonState, setButtonState), drawers)
+        MapActionButton({ setButtonState(!buttonState) }) {
+            if (buttonState) {
+                Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
+            } else {
+                Icon(Icons.Filled.Place, stringResource(R.string.place_polygon_corner))
             }
         }
     }
 
     @Composable
     @GoogleMapComposable
-    private fun HandleTouch(draw: Draw.Model, drawing: () -> Boolean, setClear: (Boolean?) -> Unit, getClear: () -> Boolean?, setTouch: (LatLng?) -> Unit, touch: () -> LatLng?) {
+    private fun HandleTouch(draw: Draw.Model, drawers: List<Drawer>, clearers: List<Clearer>, touchers: MutableList<Toucher>) {
         var pointCount by remember { mutableIntStateOf(draw.points.size) }
         if (pointCount > 0) {
             for (point in draw.points) {
@@ -233,18 +237,22 @@ object Compose {
 
         val (polyOpts, setPolyOpts) = remember { mutableStateOf(draw.polygonOptions()) }
         polyOpts?.let { opt ->
-            Polygon(points = opt.points, fillColor = Color(opt.fillColor))
+            Polygon(points = opt.points, fillColor = Color(opt.fillColor), zIndex = 100f)
         }
 
-        getClear()?.let {
+        val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
+        updateList(Toucher("drawing", touch, setTouch), touchers)
+        val clearer = clearers.first()
+        clearer.state?.let {
             draw.points.clear()
             pointCount = draw.points.size
             setPolyOpts(draw.polygonOptions())
-            setClear(null)
+            clearer.setState(null)
             setTouch(null)
         } ?: run {
-            if (drawing()) {
-                touch()?.let { pt ->
+            val drawer = drawers.first()
+            if (drawer.state) {
+                touch?.let { pt ->
                     if (draw.points.isEmpty() || draw.points.last() != pt) {
                         draw.addPoint(pt) {
                             pointCount = draw.points.size
@@ -284,13 +292,13 @@ object Compose {
     @GoogleMapComposable
     private fun TileOverlay(name: String, provider: TileProvider, zIndex: Float, checkers: MutableList<Checker>) {
         val (checked, setChecked) = remember { mutableStateOf(true) }
-        updateCheckers(Checker(name, checked, setChecked), checkers)
+        updateList(Checker(name, checked, setChecked), checkers)
         TileOverlay(tileProvider = provider, visible = checked, zIndex = zIndex)
     }
 
     @Composable
     @GoogleMapComposable
-    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, setTouch: (LatLng?) -> Unit, touch: () -> LatLng?) {
+    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, touchers: MutableList<Toucher>) {
         val (polyOpts, setPolyOpts) = remember { mutableStateOf<List<PolygonOptions>?>(null) }
         when (polyOpts) {
             null -> {
@@ -298,19 +306,19 @@ object Compose {
             }
             else -> {
                 val (checked, setChecked) = remember { mutableStateOf(true) }
-                updateCheckers(Checker(poly.menuTitle, checked, setChecked), checkers)
+                updateList(Checker(poly.menuTitle, checked, setChecked), checkers)
                 for (opt in polyOpts) {
                     Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked)
                 }
 
-                PolygonTouch(poly, polyOpts, setTouch, touch)
+                PolygonTouch(poly, polyOpts, touchers)
             }
         }
     }
 
     @Composable
     @GoogleMapComposable
-    private fun PolygonTouch(poly: Poly.Model, opts: List<PolygonOptions>, setTouch: (LatLng?) -> Unit, touch: () -> LatLng?) {
+    private fun PolygonTouch(poly: Poly.Model, opts: List<PolygonOptions>, touchers: MutableList<Toucher>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
             val state = MarkerState(it.position)
@@ -318,7 +326,9 @@ object Compose {
             Marker(state = state, title = it.title)
         }
 
-        touch()?.let { pt ->
+        val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
+        updateList(Toucher("polygons", touch, setTouch), touchers)
+        touch?.let { pt ->
             if (markerOpts?.position == pt) {
                 setTouch(null)
             } else {
@@ -344,11 +354,15 @@ object Compose {
         }
     }
 
-    private fun updateCheckers(checker: Checker, checkers: MutableList<Checker>) {
+    interface Named {
+        val name: String
+    }
+
+    private fun <T : Named> updateList(named: T, nameds: MutableList<T>) {
         var removeIndex = -1
         var i = 0
-        checkers.removeIf {
-            val ret = checker.name == it.name
+        nameds.removeIf {
+            val ret = named.name == it.name
             if (ret) {
                 removeIndex = i
             }
@@ -357,9 +371,9 @@ object Compose {
         }
 
         if (removeIndex > -1) {
-            checkers.add(removeIndex, checker)
+            nameds.add(removeIndex, named)
         } else {
-            checkers.add(checker)
+            nameds.add(named)
         }
     }
 
