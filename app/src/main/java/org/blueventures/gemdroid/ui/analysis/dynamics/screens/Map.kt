@@ -50,6 +50,7 @@ object Map {
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
             }, poly = object : Poly.Model() {
                 override val menuTitle = stringResource(R.string.sub_regions)
+                override val touchEnabled = true
                 override val labels = viewModel.subRegions.map { it.name }
                 override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = viewModel.displayRegions(callback)
                 override fun <T> markerWork(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)

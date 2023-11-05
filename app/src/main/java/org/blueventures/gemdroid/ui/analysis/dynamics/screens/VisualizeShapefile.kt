@@ -26,6 +26,7 @@ object VisualizeShapefile {
                     next()
                 }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }}, poly = object : Poly.Model() {
                 override val menuTitle = stringResource(R.string.shapefile)
+                override val touchEnabled = true
                 override val labels = listOf(viewModel.regionName)
                 override fun <T> markerWork(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
 

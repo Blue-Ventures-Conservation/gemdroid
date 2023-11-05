@@ -311,7 +311,9 @@ object Compose {
                     Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked)
                 }
 
-                PolygonTouch(poly, polyOpts, touchers)
+                if (poly.touchEnabled) {
+                    PolygonTouch(poly, polyOpts, touchers)
+                }
             }
         }
     }

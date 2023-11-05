@@ -11,6 +11,7 @@ import org.blueventures.gemdroid.ui.theme.blend
 object Poly {
     abstract class Model {
         abstract val menuTitle: String
+        abstract val touchEnabled: Boolean
         abstract val labels: List<String>
         abstract fun polygons(callback: (List<List<List<LatLng>>>) -> Unit)
         abstract fun <T> markerWork(work: () -> T, callback: (T) -> Unit): Job
