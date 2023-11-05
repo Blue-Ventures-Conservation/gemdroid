@@ -31,8 +31,10 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.gms.maps.model.TileProvider
+import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
@@ -163,7 +165,7 @@ object Compose {
             }
 
             poly?.let {
-                Polygons(poly, checkers)
+                Polygons(poly, checkers, setTouch) { touch }
             }
 
             tiles?.let {
@@ -288,7 +290,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>) {
+    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, setTouch: (LatLng?) -> Unit, touch: () -> LatLng?) {
         val (polyOpts, setPolyOpts) = remember { mutableStateOf<List<PolygonOptions>?>(null) }
         when (polyOpts) {
             null -> {
@@ -299,6 +301,44 @@ object Compose {
                 updateCheckers(Checker(poly.menuTitle, checked, setChecked), checkers)
                 for (opt in polyOpts) {
                     Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked)
+                }
+
+                PolygonTouch(poly, polyOpts, setTouch, touch)
+            }
+        }
+    }
+
+    @Composable
+    @GoogleMapComposable
+    private fun PolygonTouch(poly: Poly.Model, opts: List<PolygonOptions>, setTouch: (LatLng?) -> Unit, touch: () -> LatLng?) {
+        var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
+        markerOpts?.let {
+            val state = MarkerState(it.position)
+            state.showInfoWindow()
+            Marker(state = state, title = it.title)
+        }
+
+        touch()?.let { pt ->
+            if (markerOpts?.position == pt) {
+                setTouch(null)
+            } else {
+                poly.markerWork({
+                    var mopts: MarkerOptions? = null
+                    for (i in opts.indices) {
+                        val opt = opts[i]
+                        val label = poly.labels[i]
+                        if (PolyUtil.containsLocation(pt, opt.points, true)) {
+                            mopts = MarkerOptions().position(pt).title(label)
+                            break
+                        }
+                    }
+
+                    mopts
+                }) { opts ->
+                    if (opts == null) {
+                        setTouch(null)
+                    }
+                    markerOpts = opts
                 }
             }
         }

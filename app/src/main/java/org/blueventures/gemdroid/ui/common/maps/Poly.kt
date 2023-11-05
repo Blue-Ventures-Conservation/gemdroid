@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
+import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.DrawPolygon
 import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -12,6 +13,7 @@ object Poly {
         abstract val menuTitle: String
         abstract val labels: List<String>
         abstract fun polygons(callback: (List<List<List<LatLng>>>) -> Unit)
+        abstract fun <T> markerWork(work: () -> T, callback: (T) -> Unit): Job
 
         fun polygonOptions(callback: (List<PolygonOptions>) -> Unit) {
             polygons { polys ->
