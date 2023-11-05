@@ -105,7 +105,7 @@ object Compose {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 val db = drawButton()
-                Map(gps, tiles, poly, draw, db.getState, setClear) { clear }
+                Zoom(gps, tiles, poly, draw, db.getState, setClear) { clear }
 
                 if (draw == null) {
                     floating()
@@ -117,7 +117,7 @@ object Compose {
     }
 
     @Composable
-    private fun <T: URLs> Map(
+    private fun <T: URLs> Zoom(
         gps: Boolean,
         tiles: Tiles.Model<T>?,
         poly: Poly.Model?,
@@ -134,15 +134,26 @@ object Compose {
             center = null
         }
 
-        var position = CameraPosition.fromLatLngZoom(LatLng(0.0, 0.0), 0f)
-        center?.let {
-            position = CameraPosition.fromLatLngZoom(center, 9f)
-        }
-        val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
+        val position = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
+        Map(gps, tiles, poly, draw, drawing, setClear, getClear, position)
+    }
 
+    @Composable
+    private fun <T : URLs> Map(
+        gps: Boolean,
+        tiles: Tiles.Model<T>?,
+        poly: Poly.Model?,
+        draw: Draw.Model?,
+        drawing: () -> Boolean,
+        setClear: (Boolean?) -> Unit,
+        getClear: () -> Boolean?,
+        position: CameraPosition
+    ) {
+        val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
         val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
         val properties by remember { mutableStateOf(MapProperties(mapType = MapType.SATELLITE)) }
         val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
+
         GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { point ->
             setTouch(point)
         }) {
