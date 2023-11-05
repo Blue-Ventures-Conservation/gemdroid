@@ -83,7 +83,7 @@ object Compose {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val clearers = remember { mutableStaeListOf<Clearer>() }
+            val clearers = remember { mutableStateListOf<Clearer>() }
             draw?.let { draw ->
                 Info.Row {
                     val (clear, setClear) = remember { mutableStateOf<Boolean?>(null) }
