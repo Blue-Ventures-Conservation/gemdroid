@@ -157,7 +157,7 @@ object Compose {
     ) {
         val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
         val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
-        val properties by remember { mutableStateOf(MapProperties(mapType = MapType.SATELLITE)) }
+        val properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = MapType.SATELLITE)) }
         val touchers = remember { mutableStateListOf<Toucher>() }
         GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
             for (toucher in touchers) {
