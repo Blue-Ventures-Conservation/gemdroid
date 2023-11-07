@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object DrawPolygon {
     interface Model {
-        var visualizer: Visualize.Visualizer
+        var visualizer: Visualize.Visualizer?
 
         val polygonType: Int
         val drawer: PolygonDrawer
@@ -23,7 +23,8 @@ object DrawPolygon {
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
-            Visualize.Screen(model.visualizer, stringResource(R.string.draw_polygon).format(stringResource(model.polygonType)), appBar, draw = Draw.Model(model.drawer, snack) {
+            val title = stringResource(R.string.draw_polygon).format(stringResource(model.polygonType))
+            Visualize.Screen(model.visualizer, title, appBar, draw = Draw.Model(model.drawer, snack) {
                 model.polygonDrawn()
                 next()
             })

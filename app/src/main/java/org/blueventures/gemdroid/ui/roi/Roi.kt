@@ -22,20 +22,21 @@ import java.io.File
 
 object Roi {
     object Routes {
-        const val list = "roi"
-        const val name = "roi_name"
-        const val contemporaryYears = "roi_cont_dates"
-        const val contemporaryMonths = "roi_cont_months"
-        const val historicalYears = "roi_hist_dates"
-        const val historicalMonths = "roi_hist_months"
-        const val polygon = "roi_polygon"
-        const val overview = "roi_overview"
+        const val prefix = "roi_"
+        const val list = prefix + "roi"
+        const val name = prefix + "name"
+        const val contemporaryYears = prefix + "cont_dates"
+        const val contemporaryMonths = prefix + "cont_months"
+        const val historicalYears = prefix + "hist_dates"
+        const val historicalMonths = prefix + "hist_months"
+        const val polygon = prefix + "polygon"
+        const val overview = prefix + "overview"
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, roiModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, viewModel: RoiViewModel, analysisModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
         // ROI list
         b.composable(Routes.list) {
-            RoiList.Screen(roiModel, object : RoiList.DirHolder {
+            RoiList.Screen(viewModel, object : RoiList.DirHolder {
                 override var roiDir = File("")
                     set(value) { field = value; analysisModel.roiDir = value }
             }, activity.filesDir, appBar, snack, next = {
@@ -47,8 +48,8 @@ object Roi {
 
         // ROI name creation
         b.composable(Routes.name) {
-            Name.Screen(roiModel, appBar, snack, back = {
-                roiModel.clear()
+            Name.Screen(viewModel, appBar, snack, back = {
+                viewModel.clear()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.contemporaryYears)
@@ -57,8 +58,8 @@ object Roi {
 
         // ROI contemporary years selection
         b.composable(Routes.contemporaryYears) {
-            ContemporaryYears.Screen(roiModel, appBar, snack, back = {
-                roiModel.clearContemporaryYears()
+            ContemporaryYears.Screen(viewModel, appBar, snack, back = {
+                viewModel.clearContemporaryYears()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.contemporaryMonths)
@@ -67,8 +68,8 @@ object Roi {
 
         // ROI contemporary months selection
         b.composable(Routes.contemporaryMonths) {
-            ContemporaryMonths.Screen(roiModel, appBar, back = {
-                roiModel.clearContemporaryMonths()
+            ContemporaryMonths.Screen(viewModel, appBar, back = {
+                viewModel.clearContemporaryMonths()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.historicalYears)
@@ -77,8 +78,8 @@ object Roi {
 
         // ROI historical years selection
         b.composable(Routes.historicalYears) {
-            HistoricalYears.Screen(roiModel, appBar, snack, back = {
-                roiModel.clearHistoricalYears()
+            HistoricalYears.Screen(viewModel, appBar, snack, back = {
+                viewModel.clearHistoricalYears()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.historicalMonths)
@@ -87,8 +88,8 @@ object Roi {
 
         // ROI months range selection
         b.composable(Routes.historicalMonths) {
-            HistoricalMonths.Screen(roiModel, appBar, back = {
-                roiModel.clearHistoricalMonths()
+            HistoricalMonths.Screen(viewModel, appBar, back = {
+                viewModel.clearHistoricalMonths()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.polygon)
@@ -97,8 +98,8 @@ object Roi {
 
         // ROI polygon creation
         b.composable(Routes.polygon) {
-            CoarseRoi.Screen(roiModel, appBar, snack, back = {
-                roiModel.drawer.points.clear()
+            CoarseRoi.Screen(viewModel, appBar, snack, back = {
+                viewModel.roiDrawer.points.clear()
                 nav.popBackStack()
             }) {
                 nav.navigate(Routes.overview)
@@ -107,8 +108,8 @@ object Roi {
 
         // ROI overview
         b.composable(Routes.overview) {
-            Overview.Screen(roiModel, activity.filesDir, appBar, snack, nav::popBackStack) {
-                roiModel.clear()
+            Overview.Screen(viewModel, activity.filesDir, appBar, snack, nav::popBackStack) {
+                viewModel.clear()
                 nav.popClear(Routes.list)
             }
         }

@@ -22,10 +22,11 @@ import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
     object Routes {
-        const val dashboard = "analysis_dashboard"
-        const val buffer = "analysis_buffer"
-        const val visualize = "analysis_visualize"
-        const val imagery_downloads = "analysis_imagery_downloads"
+        const val prefix = "analysis_"
+        const val dashboard = prefix + "dashboard"
+        const val buffer = prefix + "buffer"
+        const val visualize = prefix + "visualize"
+        const val imagery_downloads = prefix + "imagery_downloads"
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
@@ -50,7 +51,7 @@ object Analysis {
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
-                nav.navigate(Dynamics.Routes.polygonsPrefix + Polygons.Routes.polygons_option)
+                nav.navigate(Dynamics.Routes.prefix + Polygons.Routes.polygons_option)
             })
         }
 

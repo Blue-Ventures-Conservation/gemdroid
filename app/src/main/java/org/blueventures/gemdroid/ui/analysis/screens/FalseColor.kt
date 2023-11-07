@@ -17,7 +17,7 @@ object FalseColor {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click, downloads: Click) {
         Nav.Wrap(back) {
-            Visualize.Screen(viewModel, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)), appBar, floatingContent = {
+            Visualize.Screen(viewModel, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)), appBar, floating = {
                 MapActionButton(downloads) { Icon(Icons.Filled.Download, stringResource(R.string.download_imagery)) }
             })
         }

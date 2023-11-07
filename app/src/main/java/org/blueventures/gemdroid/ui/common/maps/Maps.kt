@@ -12,21 +12,36 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.URLs
+import org.blueventures.gemdroid.ui.common.AppBar
+import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
 
 object Maps {
+    @Composable
+    fun NoLayers(
+        appBar: AppBar,
+        title: String,
+        attemptGps: Boolean = false,
+        draw: Draw.Model? = null,
+        poly: Poly.Model? = null,
+        floating: @Composable BoxScope.() -> Unit = {},
+    ) {
+        appBar.Update(AppBarUpdate(title))
+        Screen<URLs>(attemptGps, null, draw, poly, floating)
+    }
+
     /**
      * The layers argument to Screen should be Layers that outlive composition, such as static fields on an object for example.
      */
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun <T : URLs> Screen(
-        floating: @Composable BoxScope.() -> Unit = {},
         attemptGps: Boolean = false,
-        tiles: Tiles.Model<T>? = null,
+        layers: Layers.Model<T>? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
+        floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (attemptGps) {
             RequestPermission(
@@ -35,10 +50,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Compose.Screen(granted, tiles, draw, poly, floating)
+                Compose.Screen(granted, layers, draw, poly, floating)
             }
         } else {
-            Compose.Screen(false, tiles, draw, poly, floating)
+            Compose.Screen(false, layers, draw, poly, floating)
         }
     }
 

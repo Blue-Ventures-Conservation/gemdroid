@@ -16,7 +16,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object PolygonsOverview {
     interface Model {
-        var visualizer: Visualize.Visualizer
+        var visualizer: Visualize.Visualizer?
 
         val polygonTypePlural: Int
         val polygons: MutableList<PolygonDrawer.NamedPolygon>
@@ -35,7 +35,9 @@ object PolygonsOverview {
                 }
 
                 val plural = stringResource(model.polygonTypePlural)
-                Visualize.Screen(model.visualizer, stringResource(R.string.review_polygons).format(plural), appBar, poly = object : Poly.Model() {
+                val title = stringResource(R.string.review_polygons).format(plural)
+
+                Visualize.Screen(model.visualizer, title, appBar, poly = object : Poly.Model() {
                     override val menuTitle = plural
                     override val touchEnabled = true
                     override val labels = model.polygons.map { it.name }

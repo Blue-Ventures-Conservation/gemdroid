@@ -41,9 +41,9 @@ object Polygons {
         routePrefix: String,
         prevRoute: String,
         nextRoute: String,
-        model: Model,
         appBar: AppBar,
-        snack: SnackFun
+        snack: SnackFun,
+        model: Model,
     ): Click {
         val addPrefix: (String) -> String = { routePrefix + it }
 

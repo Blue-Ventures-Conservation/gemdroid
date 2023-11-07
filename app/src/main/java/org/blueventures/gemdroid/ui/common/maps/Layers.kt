@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
 import org.blueventures.gemdroid.ui.common.AppBar
 import java.io.File
 
-object Tiles {
+object Layers {
     abstract class Model<T : URLs> {
         abstract val title: String
         abstract val appBar: AppBar

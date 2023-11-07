@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 object VisualizeShapefile {
     interface Model {
         var name: String
-        var visualizer: Visualize.Visualizer
+        var visualizer: Visualize.Visualizer?
         var shapefile: List<List<LatLng>>
 
         fun shapefileLooksGood()
@@ -28,11 +28,8 @@ object VisualizeShapefile {
     @Composable
     fun Screen(model: Model, appBar: AppBar, back: Click, next: Click) {
         Nav.Wrap(back) {
-            Visualize.Screen(model.visualizer, stringResource(R.string.visualize_shp), appBar, floatingContent = {
-                MapActionButton({
-                    model.shapefileLooksGood()
-                    next()
-                }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }}, poly = object : Poly.Model() {
+            val title = stringResource(R.string.visualize_shp)
+            Visualize.Screen(model.visualizer, title, appBar, poly = object : Poly.Model() {
                 override val menuTitle = stringResource(R.string.shapefile)
                 override val touchEnabled = true
                 override val labels = listOf(model.name)
@@ -45,6 +42,11 @@ object VisualizeShapefile {
                         callback(listOf(model.shapefile))
                     }
                 }
+            }, floating = {
+                MapActionButton({
+                    model.shapefileLooksGood()
+                    next()
+                }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }
             })
         }
     }

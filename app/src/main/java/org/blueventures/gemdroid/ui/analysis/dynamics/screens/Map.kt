@@ -19,7 +19,7 @@ import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
-import org.blueventures.gemdroid.ui.common.maps.Tiles
+import org.blueventures.gemdroid.ui.common.maps.Layers
 
 object Map {
     @Composable
@@ -36,7 +36,7 @@ object Map {
 
             Maps.Screen(floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
-            }, tiles = object : Tiles.Model<DynamicsURLs>() {
+            }, layers = object : Layers.Model<DynamicsURLs>() {
                 override val title = viewModel.roi.appBarTitle(stringResource(R.string.dynamics))
                 override val appBar = appBar
                 override val initUrls = urls

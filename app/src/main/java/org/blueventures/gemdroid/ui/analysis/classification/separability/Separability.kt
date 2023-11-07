@@ -16,13 +16,14 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Separability {
     object Routes {
-        const val timePeriod = "analysis_classification_separability_time_period"
-        const val dashboard = "analysis_classification_separability_dash"
-        const val separation = "analysis_classification_separability_separation"
-        const val scatterClasses = "analysis_classification_separability_scatter_classes"
-        const val scatterBands = "analysis_classification_separability_scatter_bands"
-        const val scatterPlot = "analysis_classification_separability_scatter_plot"
-        const val correlation = "analysis_classification_separability_correlation"
+        const val prefix = "analysis_classification_separability_"
+        const val timePeriod = prefix + "time_period"
+        const val dashboard = prefix + "dash"
+        const val separation = prefix + "separation"
+        const val scatterClasses = prefix + "scatter_classes"
+        const val scatterBands = prefix + "scatter_bands"
+        const val scatterPlot = prefix + "scatter_plot"
+        const val correlation = prefix + "correlation"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun) {

@@ -41,13 +41,13 @@ object Overview {
             Info.Block {
                 Info.Header(title = stringResource(id = R.string.overview))
                 Info.BlueLine()
-                OverviewRow(stringResource(R.string.overview_name), viewModel.name)
+                OverviewRow(stringResource(R.string.overview_name), viewModel.roiName)
                 OverviewRow(stringResource(R.string.overview_contemporary_years), "${viewModel.contemporaryYearStart} - ${viewModel.contemporaryYearEnd}")
                 OverviewRow(stringResource(R.string.overview_contemporary_months), "${viewModel.contemporaryMonthStart} - ${viewModel.contemporaryMonthEnd}")
                 OverviewRow(stringResource(R.string.overview_historical_years), "${viewModel.historicalYearStart} - ${viewModel.historicalYearEnd}")
                 OverviewRow(stringResource(R.string.overview_historical_months), "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}")
-                OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(viewModel.drawer.points.size.toString()))
-                OverviewRow(stringResource(R.string.overview_polygon_area), viewModel.drawer.polygonSquareKms())
+                OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(viewModel.roiDrawer.points.size.toString()))
+                OverviewRow(stringResource(R.string.overview_polygon_area), viewModel.roiDrawer.polygonSquareKms())
             }
             val ctx = LocalContext.current
             Butt.Done {

@@ -41,7 +41,7 @@ import java.io.File
 class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
 ): Downloads.VisualizeHolder, ApiViewModel(repo), Polygons.Model {
-    override lateinit var visualizer: Visualize.Visualizer
+    override var visualizer: Visualize.Visualizer? = null
     lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cra: CRA
     lateinit var targetClass: String

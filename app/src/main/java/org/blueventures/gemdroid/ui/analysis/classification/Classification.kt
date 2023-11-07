@@ -18,9 +18,10 @@ import java.net.HttpURLConnection
 
 object Classification {
     object Routes {
-        const val map = "analysis_classification_map"
-        const val details = "analysis_classification_details"
-        const val downloads = "analysis_classification_downloads"
+        const val prefix = "analysis_classification_"
+        const val map = prefix + "map"
+        const val details = prefix + "details"
+        const val downloads = prefix + "downloads"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun) {

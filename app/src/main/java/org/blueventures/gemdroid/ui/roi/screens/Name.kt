@@ -17,8 +17,8 @@ object Name {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             val err = stringResource(R.string.please_enter_unique_non_special_name)
-            Collect.Text(header = stringResource(R.string.name_your_roi), label = stringResource(R.string.please_enter_name), initial = viewModel.name, snack, { name ->
-                viewModel.name = name
+            Collect.Text(header = stringResource(R.string.name_your_roi), label = stringResource(R.string.please_enter_name), initial = viewModel.roiName, snack, { name ->
+                viewModel.roiName = name
                 if (viewModel.notSpecial() && viewModel.isUnique()) null else err
             }, next)
         }

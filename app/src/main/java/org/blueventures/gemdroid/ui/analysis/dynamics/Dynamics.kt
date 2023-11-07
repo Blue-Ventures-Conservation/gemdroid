@@ -17,15 +17,15 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
 object Dynamics {
     object Routes {
-        const val target_class = "analysis_dynamics_target_class"
-        const val map = "analysis_dynamics_map"
-        const val details = "analysis_dynamics_details"
-        const val downloads = "analysis_dynamics_downloads"
-        const val polygonsPrefix = "analysis_dynamics_"
+        const val prefix = "analysis_dynamics_"
+        const val target_class = prefix + "target_class"
+        const val map = prefix + "map"
+        const val details = prefix + "details"
+        const val downloads = prefix + "downloads"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
-        val polysBack = Polygons.screens(b, nav, Routes.polygonsPrefix, Analysis.Routes.dashboard, Routes.target_class, viewModel, appBar, snack)
+        val polysBack = Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_class, appBar, snack, viewModel)
 
         b.composable(Routes.target_class) {
             TargetClass.Screen(viewModel, appBar, polysBack) {

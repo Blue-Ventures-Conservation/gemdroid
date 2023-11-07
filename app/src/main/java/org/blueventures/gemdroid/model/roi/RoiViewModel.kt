@@ -13,7 +13,7 @@ class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
 ): ApiViewModel(repo) {
     var rois: List<File> = emptyList()
-    var name: String = ""
+    var roiName: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
     var contemporaryYearEnd: Int = defaultContemporaryYearEnd
     var contemporaryMonthStart: Int = defaultMonthStart
@@ -22,7 +22,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var drawer = PolygonDrawer(maxArea = maxRoiArea, adder = this::polyAdder)
+    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, adder = this::polyAdder)
 
     private fun polyAdder(point: LatLng, adder: (LatLng) -> Unit, callback: (Unit) -> Unit) = scoped { repo.addPoint(point, adder).collect(callback) }
 
@@ -31,7 +31,7 @@ class RoiViewModel(
     fun saveRoi(filesDir: File, callback: (Result<Unit>) -> Unit) = scoped {
         repo.saveRoi(
             filesDir,
-            name,
+            roiName,
             contemporaryYearStart,
             contemporaryYearEnd,
             contemporaryMonthStart,
@@ -40,7 +40,7 @@ class RoiViewModel(
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            drawer.points
+            roiDrawer.points
         ).collect(callback)
     }
 
@@ -48,7 +48,7 @@ class RoiViewModel(
     fun getROI(roiDir: File, callback: (Result<ROI>) -> Unit) = loadFile(RoiDatasource.roiFile(roiDir), ROI.Companion, callback)
 
     fun importROI(prefix: String, roi: ROI, callback: () -> Unit) {
-        name = prefix + roi.name
+        roiName = prefix + roi.name
         contemporaryYearStart = roi.contYearStart
         contemporaryYearEnd = roi.contYearEnd
         contemporaryMonthStart = roi.contMonthStart
@@ -65,14 +65,14 @@ class RoiViewModel(
                 mutableListOf()
             }
         }) {
-            drawer = PolygonDrawer(it, maxArea = maxRoiArea, adder = this::polyAdder)
+            roiDrawer = PolygonDrawer(it, maxArea = maxRoiArea, adder = this::polyAdder)
             callback()
         }
     }
 
     fun isUnique(): Boolean {
         for (dir in rois) {
-            if (dir.name == name) {
+            if (dir.name == roiName) {
                 return false
             }
         }
@@ -80,9 +80,9 @@ class RoiViewModel(
         return true
     }
 
-    fun notSpecial() = Regexp.roiName.matches(name)
+    fun notSpecial() = Regexp.roiName.matches(roiName)
 
-    fun clearName() { name = "" }
+    fun clearName() { roiName = "" }
     fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
     fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
     fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
@@ -93,7 +93,7 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); drawer.points.clear() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.points.clear() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 

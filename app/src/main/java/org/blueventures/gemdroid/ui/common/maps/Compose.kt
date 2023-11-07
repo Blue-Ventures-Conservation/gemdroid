@@ -63,18 +63,18 @@ object Compose {
     @Composable
     fun <T : URLs> Screen(
         gps: Boolean,
-        tiles: Tiles.Model<T>?,
+        layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        DrawingControls(gps, tiles, draw, poly, floating)
+        DrawingControls(gps, layers, draw, poly, floating)
     }
 
     @Composable
     private fun <T : URLs> DrawingControls(
         gps: Boolean,
-        tiles: Tiles.Model<T>?,
+        layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
@@ -113,7 +113,7 @@ object Compose {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 val drawers = remember { mutableStateListOf<Drawer>() }
-                Zoom(gps, tiles, poly, draw, drawers, clearers)
+                Zoom(gps, layers, poly, draw, drawers, clearers)
 
                 if (draw == null) {
                     floating()
@@ -127,14 +127,14 @@ object Compose {
     @Composable
     private fun <T: URLs> Zoom(
         gps: Boolean,
-        tiles: Tiles.Model<T>?,
+        layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
         drawers: List<Drawer>,
         clearers: List<Clearer>
     ) {
         val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-        var center = shouldZoom(zoomed, tiles, draw)
+        var center = shouldZoom(zoomed, layers, draw)
         if (!zoomed && center != null) {
             setZoomed(true)
         } else if (zoomed) {
@@ -142,13 +142,13 @@ object Compose {
         }
 
         val position = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
-        Map(gps, tiles, poly, draw, drawers, clearers, position)
+        Map(gps, layers, poly, draw, drawers, clearers, position)
     }
 
     @Composable
     private fun <T : URLs> Map(
         gps: Boolean,
-        tiles: Tiles.Model<T>?,
+        layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
         drawers: List<Drawer>,
@@ -165,17 +165,17 @@ object Compose {
             }
         }) {
             val checkers = mutableListOf<Checker>()
-            tiles?.let {
-                Tiles(tiles, checkers)
+            layers?.let {
+                Tiles(layers, checkers)
             }
 
             poly?.let {
                 Polygons(poly, checkers, touchers)
             }
 
-            tiles?.let {
-                tiles.appBar.Update(AppBarUpdate(
-                    title = tiles.title,
+            layers?.let {
+                layers.appBar.Update(AppBarUpdate(
+                    title = layers.title,
                     actions = { LayersDropdown(checkers) }
                 ))
             }
@@ -186,7 +186,7 @@ object Compose {
         }
     }
 
-    private fun <T : URLs> shouldZoom(zoomed: Boolean, tiles: Tiles.Model<T>?, draw: Draw.Model?): LatLng? {
+    private fun <T : URLs> shouldZoom(zoomed: Boolean, tiles: Layers.Model<T>?, draw: Draw.Model?): LatLng? {
         return if (draw == null) {
             tiles?.bounds
         } else {
@@ -268,7 +268,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun <T : URLs> Tiles(tiles: Tiles.Model<T>, checkers: MutableList<Checker>) {
+    private fun <T : URLs> Tiles(tiles: Layers.Model<T>, checkers: MutableList<Checker>) {
         val (urls, setUrls) = remember { mutableStateOf(tiles.initUrls) }
         if (staleCheck(urls)) {
             tiles.getRemote { result ->

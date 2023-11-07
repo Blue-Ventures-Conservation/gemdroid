@@ -19,10 +19,11 @@ import java.net.HttpURLConnection
 
 object CRA {
     object Routes {
-        const val cont_cra = "analysis_cra_cont"
-        const val hist_choice = "analysis_cra_hist_choice"
-        const val hist_cra = "analysis_cra_hist"
-        const val cra_fields = "analysis_cra_fields"
+        const val prefix = "analysis_cra_"
+        const val cont_cra = prefix + "cont"
+        const val hist_choice = prefix + "hist_choice"
+        const val hist_cra = prefix + "hist"
+        const val cra_fields = prefix + "fields"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
