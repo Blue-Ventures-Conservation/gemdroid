@@ -3,7 +3,7 @@ package org.blueventures.gemdroid.ui.common.maps
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -25,5 +25,5 @@ object Draw {
         fun area(): Double
     }
 
-    data class Model(private val drawPoly: DrawPolygon, override val snack: SnackFun, override val next: Click): Data by drawPoly, UI
+    data class Model(private val drawPoly: PolygonDrawer, override val snack: SnackFun, override val next: Click): Data by drawPoly, UI
 }

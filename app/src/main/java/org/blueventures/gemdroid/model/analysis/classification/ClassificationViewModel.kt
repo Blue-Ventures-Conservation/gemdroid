@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
-import org.blueventures.gemdroid.data.analysis.cra.CRA
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.contLCTileDir
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.exportsFile
@@ -18,8 +18,8 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationDat
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.resultsFile
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.urlsFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
-import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
 import org.blueventures.gemdroid.model.api.ApiViewModel
+import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.theme.g2R2BHex
 import java.io.File
@@ -28,7 +28,7 @@ class ClassificationViewModel(
     repo: ClassificationRepository = ClassificationRepository()
 ): Downloads.VisualizeHolder, ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
-    lateinit var craAwaiter: CRAAwaiter
+    lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cra: CRA
 
     var roiDir = File("")
@@ -46,7 +46,7 @@ class ClassificationViewModel(
     lateinit var urls: ClassificationURLs
     override var visualize = true
 
-    fun init(activity: ComponentActivity, awaiter: CRAAwaiter) {
+    fun init(activity: ComponentActivity, awaiter: Await.CRAAwaiter) {
         sepViewModel = activity.viewModels<SeparabilityViewModel>().value
         sepViewModel.init(awaiter)
         craAwaiter = awaiter

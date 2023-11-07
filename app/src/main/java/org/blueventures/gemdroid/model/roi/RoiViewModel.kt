@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.model.roi
 
 import com.google.android.gms.maps.model.LatLng
-import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.roi.ROI
@@ -22,7 +22,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var drawPoly = DrawPolygon(maxArea = maxRoiArea, adder = this::polyAdder)
+    var drawer = PolygonDrawer(maxArea = maxRoiArea, adder = this::polyAdder)
 
     private fun polyAdder(point: LatLng, adder: (LatLng) -> Unit, callback: (Unit) -> Unit) = scoped { repo.addPoint(point, adder).collect(callback) }
 
@@ -40,7 +40,7 @@ class RoiViewModel(
             historicalYearEnd,
             historicalMonthStart,
             historicalMonthEnd,
-            drawPoly.points
+            drawer.points
         ).collect(callback)
     }
 
@@ -65,7 +65,7 @@ class RoiViewModel(
                 mutableListOf()
             }
         }) {
-            drawPoly = DrawPolygon(it, maxArea = maxRoiArea, adder = this::polyAdder)
+            drawer = PolygonDrawer(it, maxArea = maxRoiArea, adder = this::polyAdder)
             callback()
         }
     }
@@ -93,7 +93,7 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); drawPoly.points.clear() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); drawer.points.clear() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 

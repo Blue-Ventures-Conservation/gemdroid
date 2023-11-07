@@ -3,7 +3,7 @@ package org.blueventures.gemdroid.ui.common.maps
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.DrawPolygon
+import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.blend
@@ -21,7 +21,7 @@ object Poly {
                 val size = polys.size
                 val opts = mutableListOf<PolygonOptions>()
                 polys.forEachIndexed { index, poly ->
-                    DrawPolygon.opts(poly, fill = blend(MildRed, SkyBlue, index, size, 0x7F))?.let { opts.add(it) }
+                    PolygonDrawer.opts(poly, fill = blend(MildRed, SkyBlue, index, size, 0x7F))?.let { opts.add(it) }
                 }
 
                 callback(opts)

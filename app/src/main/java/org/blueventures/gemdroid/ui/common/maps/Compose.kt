@@ -308,7 +308,7 @@ object Compose {
                 val (checked, setChecked) = remember { mutableStateOf(true) }
                 updateList(Checker(poly.menuTitle, checked, setChecked), checkers)
                 for (opt in polyOpts) {
-                    Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked)
+                    Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked, zIndex = 99f)
                 }
 
                 if (poly.touchEnabled) {

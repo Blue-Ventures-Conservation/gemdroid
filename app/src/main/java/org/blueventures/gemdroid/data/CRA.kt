@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.data.analysis.cra
+package org.blueventures.gemdroid.data
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
@@ -24,20 +24,4 @@ data class CRA(
 
     fun historicalShp() = historicalCRA ?: contemporaryCRA
     fun useContSpec() = historicalCRA == null
-}
-
-// Saved in Cloud Storage alongside the zip to keep track of
-// the parsed/selected fields used for analysis
-data class Shapefile(
-    @Json(name = "shp_storage_key") val shapefileStorageKey: String,
-    @Json(name = "table_upload_operation_name") val tableUploadOperationName: String,
-    @Json(name = "numeric_class_field") val numericClassField: String,
-    @Json(name = "string_class_field") val stringClassField: String,
-    @Json(name = "string_class_field_values") val stringClassValues: List<String>,
-) {
-    companion object {
-        private val adapter = FileService.adapter<Shapefile>()
-        fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, shp: Shapefile) = FileService.toFile(file, shp, adapter)
-    }
 }

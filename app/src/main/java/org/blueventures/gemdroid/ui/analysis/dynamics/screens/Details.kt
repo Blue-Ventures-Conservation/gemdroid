@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.DrawPolygon.Companion.squareKmInMeters
-import org.blueventures.gemdroid.data.DrawPolygon.Companion.squareKms
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.squareKmInMeters
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.squareKms
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsStats
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar

@@ -15,12 +15,12 @@ import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Regexp
-import org.blueventures.gemdroid.data.Shapefile.inspectAndZip
-import org.blueventures.gemdroid.data.Shapefile.unzipOrCopy
-import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.Shapefile.Companion.inspectAndZip
+import org.blueventures.gemdroid.data.Shapefile.Companion.unzipOrCopy
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
-import org.blueventures.gemdroid.data.analysis.cra.Shapefile
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.model.SignIn
@@ -329,7 +329,15 @@ class CRADatasource(
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
-        val shpRes = Shapefile.toFile(tmp, Shapefile(key, cra.eeUploadName!!, cra.fields.chosenNumeric!!, cra.fields.chosenString!!, cra.fields.chosenStringValues!!))
+        val shpRes = Shapefile.toFile(tmp,
+            org.blueventures.gemdroid.data.Shapefile(
+                key,
+                cra.eeUploadName!!,
+                cra.fields.chosenNumeric!!,
+                cra.fields.chosenString!!,
+                cra.fields.chosenStringValues!!
+            )
+        )
 
         if (shpRes.isFailure) {
             cont.resume(shpRes)

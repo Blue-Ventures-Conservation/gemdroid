@@ -1,8 +1,8 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
-import org.blueventures.gemdroid.data.analysis.cra.CRA
-import org.blueventures.gemdroid.data.analysis.cra.Shapefile
+import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.Shapefile
 import java.io.File
 
 data class CRAFile(
@@ -25,8 +25,20 @@ data class CRAFile(
 
     companion object {
         fun toCRA(cont: CRAFile, hist: CRAFile?): CRA {
-            val contShp = Shapefile(cont.key(), cont.eeUploadName!!, cont.fields.chosenNumeric!!, cont.fields.chosenString!!, cont.fields.chosenStringValues!!)
-            val histShp = if (hist == null) null else Shapefile(hist.key(), hist.eeUploadName!!, hist.fields.chosenNumeric!!, hist.fields.chosenString!!, hist.fields.chosenStringValues!!)
+            val contShp = Shapefile(
+                cont.key(),
+                cont.eeUploadName!!,
+                cont.fields.chosenNumeric!!,
+                cont.fields.chosenString!!,
+                cont.fields.chosenStringValues!!
+            )
+            val histShp = if (hist == null) null else Shapefile(
+                hist.key(),
+                hist.eeUploadName!!,
+                hist.fields.chosenNumeric!!,
+                hist.fields.chosenString!!,
+                hist.fields.chosenStringValues!!
+            )
             return CRA(contShp, histShp)
         }
     }

@@ -5,14 +5,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.api.ApiViewModel
+import org.blueventures.gemdroid.ui.common.Await
 import java.io.File
 import java.io.InputStream
 
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
-): CRAAwaiter, ApiViewModel(repo) {
+): Await.CRAAwaiter, ApiViewModel(repo) {
     var roiDir = File("")
     var contemporaryCRA: CRAFile = CRAFile()
     var historicalCRA: CRAFile? = null
@@ -136,12 +137,6 @@ class CRAViewModel(
     override fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit) {
         awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cra), callback)
     }
-}
-
-interface CRAAwaiter {
-    fun loadCRAs(callback: (Result<CRA>) -> Unit): Job
-    fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
-    fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit)
 }
 
 /**

@@ -1,6 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
-import org.blueventures.gemdroid.data.analysis.cra.CRA
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 import java.io.InputStream

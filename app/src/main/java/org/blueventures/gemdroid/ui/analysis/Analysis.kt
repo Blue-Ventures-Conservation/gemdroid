@@ -11,13 +11,13 @@ import org.blueventures.gemdroid.ui.analysis.classification.Classification.Route
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics.Routes.sub_regions_option
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
@@ -50,7 +50,7 @@ object Analysis {
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
-                nav.navigate(sub_regions_option)
+                nav.navigate(Dynamics.Routes.polygonsPrefix + Polygons.Routes.polygons_option)
             })
         }
 

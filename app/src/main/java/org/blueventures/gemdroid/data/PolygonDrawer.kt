@@ -4,11 +4,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
+import com.squareup.moshi.Json
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class DrawPolygon(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
+class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
     override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
     override fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job  = adder(point, ::addPoint, callback)
@@ -109,4 +110,9 @@ class DrawPolygon(override val points: MutableList<LatLng> = mutableListOf(), pr
             }
         }
     }
+
+    data class NamedPolygon(
+        @Json(name = "name") val name: String,
+        @Json(name = "geometry") val polygon: GeojsonPolygon,
+    )
 }

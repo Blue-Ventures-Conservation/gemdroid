@@ -20,7 +20,7 @@ object CoarseRoi {
             appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             Maps.Screen<URLs>(
                 attemptGps = true,
-                draw = Draw.Model(viewModel.drawPoly, snack, next)
+                draw = Draw.Model(viewModel.drawer, snack, next)
             )
         }
     }

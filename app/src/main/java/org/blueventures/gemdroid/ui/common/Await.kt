@@ -5,10 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.github.zibnix.droidbones.localized
-import org.blueventures.gemdroid.data.analysis.cra.CRA
-import org.blueventures.gemdroid.model.analysis.cra.CRAAwaiter
+import kotlinx.coroutines.Job
+import org.blueventures.gemdroid.data.CRA
 
 object Await {
+    interface CRAAwaiter {
+        fun loadCRAs(callback: (Result<CRA>) -> Unit): Job
+        fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
+        fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit)
+    }
+
     @Composable
     fun CRA(
         snack: SnackFun,
