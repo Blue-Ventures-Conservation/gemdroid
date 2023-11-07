@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon.Companion.ringFromState
+import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
@@ -20,6 +21,7 @@ data class ROI(
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
     @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
+    @Json(name = "excludes") val excludedRegions: List<GeojsonPolygon>? = null,
     @Json(name = "visualize") val visualize: Boolean = true,
 ) {
     fun bounds() = polygon.coordinates[0].map { LatLng(it[1], it[0]) }
@@ -40,6 +42,7 @@ data class ROI(
             histMonthStart: Int,
             histMonthEnd: Int,
             points: List<LatLng>,
+            excludes: List<PolygonDrawer.NamedPolygon>,
             buffDist: Int = -1
         ): ROI {
             return ROI(
@@ -53,7 +56,8 @@ data class ROI(
                 histYearEnd,
                 histMonthStart,
                 histMonthEnd,
-                GeojsonPolygon(listOf(ringFromState(points)))
+                GeojsonPolygon(listOf(ringFromState(points))),
+                excludes.map { it.polygon },
             )
         }
 

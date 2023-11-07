@@ -13,6 +13,7 @@ object Poly {
         abstract val menuTitle: String
         abstract val touchEnabled: Boolean
         abstract val labels: List<String>
+        abstract val bounds: List<LatLng>?
         abstract fun polygons(callback: (List<List<List<LatLng>>>) -> Unit)
         abstract fun <T> markerWork(work: () -> T, callback: (T) -> Unit): Job
 

@@ -33,6 +33,7 @@ object VisualizeShapefile {
                 override val menuTitle = stringResource(R.string.shapefile)
                 override val touchEnabled = true
                 override val labels = listOf(model.name)
+                override val bounds = if (model.shapefile.isNotEmpty()) model.shapefile.first() else null
                 override fun <T> markerWork(work: () -> T, callback: (T) -> Unit) = model.background(work, callback)
 
                 override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {

@@ -134,7 +134,7 @@ object Compose {
         clearers: List<Clearer>
     ) {
         val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-        var center = shouldZoom(zoomed, layers, draw)
+        var center = shouldZoom(zoomed, layers, draw, poly)
         if (!zoomed && center != null) {
             setZoomed(true)
         } else if (zoomed) {
@@ -186,17 +186,17 @@ object Compose {
         }
     }
 
-    private fun <T : URLs> shouldZoom(zoomed: Boolean, tiles: Layers.Model<T>?, draw: Draw.Model?): LatLng? {
-        return if (draw == null) {
-            tiles?.bounds
-        } else {
+    private fun <T : URLs> shouldZoom(zoomed: Boolean, layers: Layers.Model<T>?, draw: Draw.Model?, poly: Poly.Model?): LatLng? {
+        return if (draw != null) {
             if (!zoomed) {
                 draw.points.ifEmpty {
-                    tiles?.bounds
+                    layers?.bounds ?: poly?.bounds
                 }
             } else {
                 null
             }
+        } else {
+            layers?.bounds ?: poly?.bounds
         }?.let { bounds ->
             centerFromList(bounds)
         }
@@ -209,8 +209,6 @@ object Compose {
         }
         return builder.build().center
     }
-
-    data class DrawButton(val getState: () -> Boolean, val content: @Composable () -> Unit)
 
     @Composable
     private fun BoxScope.DrawButton(drawers: MutableList<Drawer>) {

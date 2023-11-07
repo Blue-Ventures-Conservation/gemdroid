@@ -10,6 +10,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.roi.screens.CoarseRoi
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
@@ -102,9 +103,11 @@ object Roi {
                 viewModel.roiDrawer.points.clear()
                 nav.popBackStack()
             }) {
-                nav.navigate(Routes.overview)
+                nav.navigate(Routes.prefix + Polygons.Routes.polygons_option)
             }
         }
+
+        Polygons.screens(b, nav, Routes.prefix, Routes.polygon, Routes.overview, appBar, snack, viewModel)
 
         // ROI overview
         b.composable(Routes.overview) {

@@ -8,9 +8,12 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MD5
+import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
+import java.io.InputStream
 
 class RoiDatasource(
     private val auth: FirebaseAuth = Firebase.auth
@@ -90,7 +93,8 @@ class RoiDatasource(
         histYearEnd: Int,
         histMonthStart: Int,
         histMonthEnd: Int,
-        points: List<LatLng>
+        points: List<LatLng>,
+        excludes: List<PolygonDrawer.NamedPolygon>
     ): Result<Unit> {
         return try {
             val roisDirRes = roisDir(filesDir)
@@ -110,7 +114,8 @@ class RoiDatasource(
                         histYearEnd,
                         histMonthStart,
                         histMonthEnd,
-                        points
+                        points,
+                        excludes
                     ))
                 } else {
                     Result.failure(NoStack(R.string.could_not_read_fs))
@@ -128,9 +133,13 @@ class RoiDatasource(
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)
 
+    fun validateShapefile(roiDir: File, files: List<InputStream?>, names: List<String?>) = Shapefile.polygons(roiDir, files, names)
+
     companion object {
         const val filename = "roi.json"
         const val dirname = "rois"
+
+        const val maxExcludedRegions = 5
 
         fun roiFile(roiDir: File) = File(roiDir, filename)
     }

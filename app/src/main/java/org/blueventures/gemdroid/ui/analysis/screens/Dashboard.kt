@@ -45,7 +45,7 @@ object Dashboard {
         Nav.Wrap(back) {
             Layout(viewModel, appBar, snack, {
                 next()
-            }, next, {
+            }, back, {
                 vis()
             }, {
                 clazz()

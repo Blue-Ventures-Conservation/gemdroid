@@ -56,7 +56,6 @@ class DynamicsViewModel(
     override var shapefile: List<List<LatLng>> = emptyList()
 
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
-    override var skipped = false
     override var visualize = true
 
     fun init(awaiter: Await.CRAAwaiter, vis: Visualize.Visualizer) {
@@ -98,9 +97,11 @@ class DynamicsViewModel(
         return Regexp.subRegionName.matches(name)
     }
 
+    override val named = true
+
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(listOf(this.drawer.points))))
-        this.drawer.points.clear()
+        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(listOf(drawer.points))))
+        drawer.points.clear()
         name = ""
     }
 
@@ -109,6 +110,8 @@ class DynamicsViewModel(
         shapefile = emptyList()
         name = ""
     }
+
+    override fun bounds() = null
 
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val title = R.string.dynamics

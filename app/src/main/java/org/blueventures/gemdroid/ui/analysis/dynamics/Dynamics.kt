@@ -25,10 +25,10 @@ object Dynamics {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
-        val polysBack = Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_class, appBar, snack, viewModel)
+        Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_class, appBar, snack, viewModel)
 
         b.composable(Routes.target_class) {
-            TargetClass.Screen(viewModel, appBar, polysBack) {
+            TargetClass.Screen(viewModel, appBar, nav::popBackStack) {
                 viewModel.saveSubRegionsFile()
                 nav.navigate(Routes.map)
             }

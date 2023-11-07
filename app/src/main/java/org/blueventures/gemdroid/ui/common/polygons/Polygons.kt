@@ -3,9 +3,7 @@ package org.blueventures.gemdroid.ui.common.polygons
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.common.AppBar
-import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
@@ -17,7 +15,7 @@ import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeShapefile
 
 object Polygons {
     interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model, PolygonsOverview.Model {
-        var skipped: Boolean
+        val named: Boolean
     }
 
     interface AppBarTitler {
@@ -44,21 +42,27 @@ object Polygons {
         appBar: AppBar,
         snack: SnackFun,
         model: Model,
-    ): Click {
+    ) {
         val addPrefix: (String) -> String = { routePrefix + it }
 
         b.composable(addPrefix(Routes.polygons_option)) {
             PolygonsOption.Screen(model, appBar, snack, back = {
                 model.polygons.clear()
-                nav.popClear(prevRoute)
+                model.drawer.points.clear()
+                nav.popBackStack()
             }, skip = {
-                model.skipped = true
-                nav.popClear(nextRoute)
+                nav.navigate(nextRoute) {
+                    popUpTo(prevRoute)
+                }
             }, yes = {
-                nav.navigate(addPrefix(Routes.polygon_name))
+                var route = Routes.polygon_draw_or_shapefile
+                if (model.named) {
+                    route = Routes.polygon_name
+                }
+                nav.navigate(addPrefix(route))
             }, no = {
                 var route = nextRoute
-                if (model.polygons.size > 1) {
+                if (model.polygons.size > 0) {
                     route = addPrefix(Routes.polygons_overview)
                 }
 
@@ -85,7 +89,7 @@ object Polygons {
                 model.drawer.points.clear()
                 nav.popBackStack()
             }) {
-                nav.popClear(addPrefix(Routes.polygons_option))
+                nav.popBackStack(addPrefix(Routes.polygons_option), false)
             }
         }
 
@@ -96,28 +100,18 @@ object Polygons {
         }
 
         b.composable(addPrefix(Routes.visualize_shapefile_polygon)) {
-            VisualizeShapefile.Screen(model, appBar, { nav.popClear(addPrefix(Routes.polygon_draw_or_shapefile)) }) {
-                nav.popClear(addPrefix(Routes.polygons_option))
+            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(addPrefix(Routes.polygon_draw_or_shapefile), true) }) {
+                nav.popBackStack(addPrefix(Routes.polygons_option), false)
             }
         }
 
         b.composable(addPrefix(Routes.polygons_overview)) {
-            model.drawer.points.clear()
-            PolygonsOverview.Screen(model, appBar, nav::popBackStack, {
-                nav.navigate(nextRoute)
+            PolygonsOverview.Screen(model, appBar, {
+                model.polygons.clear()
+                model.drawer.points.clear()
+                nav.popBackStack(addPrefix(Routes.polygons_option), false)
             }) {
-                model.polygons.clear()
-                nav.popClear(addPrefix(Routes.polygons_option))
-            }
-        }
-
-        return {
-            if (model.skipped) {
-                model.skipped = false
-                model.polygons.clear()
-                nav.popClear(prevRoute)
-            } else {
-                nav.popBackStack()
+                nav.navigate(nextRoute)
             }
         }
     }

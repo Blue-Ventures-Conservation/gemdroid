@@ -141,6 +141,7 @@
     <string name="sub_regions">Sub Regions</string>
     <string name="excluded_region">Excluded Region</string>
     <string name="excluded_regions">Excluded Regions</string>
+    <string name="overview_excluded_regions">Excluded Regions:</string>
     <string name="polygons">Polygons</string>
     <string name="start_over">Start Over</string>
     <string name="looks_good">Looks Good</string>
@@ -175,6 +176,7 @@
     <string name="overview_polygon_points">Polygon Points: </string>
     <string name="overview_polygon_area">Polygon Area: </string>
     <string name="overview_points">%s points</string>
+    <string name="overview_regions">%s regions</string>
     <string name="expired">expired</string>
     <string name="download_imagery">download imagery</string>
     <string name="imagery_downloads">Imagery Downloads</string>
@@ -195,4 +197,5 @@
     <string name="roi_options_menu">ROI options menu</string>
     <string name="copy_of">"Copy of "</string>
     <string name="pull_down_to_refresh">Pull down to refresh!</string>
+    <string name="polygons_look_good">polygons look good</string>
 </resources>

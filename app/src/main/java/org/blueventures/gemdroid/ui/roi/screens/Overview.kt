@@ -48,6 +48,7 @@ object Overview {
                 OverviewRow(stringResource(R.string.overview_historical_months), "${viewModel.historicalMonthStart} - ${viewModel.historicalMonthEnd}")
                 OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(viewModel.roiDrawer.points.size.toString()))
                 OverviewRow(stringResource(R.string.overview_polygon_area), viewModel.roiDrawer.polygonSquareKms())
+                OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format(viewModel.polygons.size.toString()))
             }
             val ctx = LocalContext.current
             Butt.Done {

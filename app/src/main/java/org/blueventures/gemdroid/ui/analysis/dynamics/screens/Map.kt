@@ -16,10 +16,10 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.maps.Layers
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
-import org.blueventures.gemdroid.ui.common.maps.Layers
 
 object Map {
     @Composable
@@ -51,6 +51,7 @@ object Map {
                 override val menuTitle = stringResource(R.string.sub_regions)
                 override val touchEnabled = true
                 override val labels = viewModel.polygons.map { it.name }
+                override val bounds: List<LatLng>? = null
                 override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = viewModel.displayRegions(callback)
                 override fun <T> markerWork(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
             })
