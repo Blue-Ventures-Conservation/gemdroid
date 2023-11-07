@@ -181,7 +181,7 @@ object Compose {
             }
 
             draw?.let {
-                HandleTouch(draw, drawers, clearers, touchers)
+                DrawTouch(draw, drawers, clearers, touchers)
             }
         }
     }
@@ -227,7 +227,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun HandleTouch(draw: Draw.Model, drawers: List<Drawer>, clearers: List<Clearer>, touchers: MutableList<Toucher>) {
+    private fun DrawTouch(draw: Draw.Model, drawers: List<Drawer>, clearers: List<Clearer>, touchers: MutableList<Toucher>) {
         var pointCount by remember { mutableIntStateOf(draw.points.size) }
         if (pointCount > 0) {
             for (point in draw.points) {

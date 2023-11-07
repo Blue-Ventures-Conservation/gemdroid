@@ -102,6 +102,7 @@ object Polygons {
         }
 
         b.composable(addPrefix(Routes.polygons_overview)) {
+            model.drawer.points.clear()
             PolygonsOverview.Screen(model, appBar, nav::popBackStack, {
                 nav.navigate(nextRoute)
             }) {
