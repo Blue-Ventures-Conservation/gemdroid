@@ -18,11 +18,11 @@
     <string name="sign_in_label">Sign In</string>
     <string name="sign_out_label">Sign Out</string>
     <string name="sign_in_failed">Sign In Failed!</string>
-    <string name="visualize_imagery_title">False Color</string>
+    <string name="visualize_imagery_title">False Colour</string>
     <string name="unrecoverable_error">Unrecoverable error, please press Back.</string>
     <string name="access_email_subject">Requesting Access to GEM app</string>
     <string name="access_email_rationale">Apologies! We need to verify that you are not using this app for profit in order to comply with the policies of Google Earth Engine. Please tap on this message to send us an email at bv.gemapp@gmail.com and fill out the information requested, thank you!</string>
-    <string name="access_email_body">Your name:\n\n\nYour country:\n\n\nYour organization (link if possible):\n\n\nYour reason for using this App:\n\n\nThank you!</string>
+    <string name="access_email_body">Your name:\n\n\nYour country:\n\n\nYour organisation (link if possible:\n\n\nYour reason for using this App:\n\n\nThank you!</string>
     <string name="cont_high_tide">Contemporary High Tide</string>
     <string name="cont_low_tide">Contemporary Low Tide</string>
     <string name="hist_high_tide">Historical High Tide</string>
@@ -125,7 +125,7 @@
     <string name="please_enter_name">Please enter a name</string>
     <string name="please_enter_unique_non_special_name">Please enter a unique name without any special characters.</string>
     <string name="name_your_polygon">Name your %s</string>
-    <string name="visualize_shp">Visualize Shapefile</string>
+    <string name="visualize_shp">Visualise Shapefile</string>
     <string name="shp_looks_good">shapefile looks good, continue</string>
     <string name="dynamics">Dynamics</string>
     <string name="draw_polygon">Draw %s</string>
@@ -200,5 +200,5 @@
     <string name="polygons_look_good">polygons look good</string>
     <string name="click_next_to_start_s_analysis">Click Next to start %s analysis!</string>
     <string name="click_next_to_add_cras">Click Next to add Classification Reference Areas (CRAs) and move on to Classification and Dynamics for %s!</string>
-    <string name="visualize">Visualize</string>
+    <string name="visualize">Visualise</string>
 </resources>

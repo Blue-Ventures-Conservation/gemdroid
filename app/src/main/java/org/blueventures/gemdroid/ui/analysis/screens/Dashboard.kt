@@ -71,14 +71,26 @@ object Dashboard {
                 }
                 else -> {
                     viewModel.stage = stage
-                    Dashboard(stage, snack, next, back, vis, clazz, dyn)
+                    Dashboard(viewModel.roi.name, stage, snack, next, back, vis, clazz, dyn)
                 }
             }
         }
     }
 
     @Composable
-    fun Dashboard(stage: Stage, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun BackgroundPrompt(text: String) {
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth()
+        )
+    }
+
+    @Composable
+    fun Dashboard(roiName: String, stage: Stage, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
         Col.Col {
             when (stage) {
                 Stage.ERROR -> {
@@ -90,14 +102,7 @@ object Dashboard {
                 }
                 Stage.BUFFER -> {
                     Spacer(modifier = Modifier.height(0.dp))
-                    Text(
-                        text = "Click Next to start!",
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .fillMaxWidth()
-                    )
+                    BackgroundPrompt(stringResource(R.string.click_next_to_start_s_analysis).format(roiName))
                 }
                 else -> {
                     Column(
@@ -116,6 +121,10 @@ object Dashboard {
                             }
                             else -> {}
                         }
+                    }
+
+                    if (stage == Stage.CRAS) {
+                        BackgroundPrompt(stringResource(R.string.click_next_to_add_cras).format(roiName))
                     }
                 }
             }
@@ -140,22 +149,17 @@ object Dashboard {
 
     @Composable
     fun VisualizeRow(vis: Click) {
-        DashboardRow("Visualize", vis)
-    }
-
-    @Composable
-    fun SeparabilityRow(sep: Click) {
-        DashboardRow("Spectral Separability", sep)
+        DashboardRow(stringResource(R.string.visualize), vis)
     }
 
     @Composable
     fun ClassificationRow(clazz: Click) {
-        DashboardRow("Classification", clazz)
+        DashboardRow(stringResource(R.string.classification), clazz)
     }
 
     @Composable
     fun DynamicsRow(dyn: Click) {
-        DashboardRow("Dynamics", dyn)
+        DashboardRow(stringResource(R.string.dynamics), dyn)
     }
 
     @Composable
