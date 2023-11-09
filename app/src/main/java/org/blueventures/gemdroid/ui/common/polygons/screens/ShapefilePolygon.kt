@@ -26,9 +26,7 @@ object ShapefilePolygon {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.title))))
             Col.Col {
-                Shapefile.Screen(stringResource(R.string.select_a_shapefile), { bg ->
-                    model.background(bg) {}
-                }, model::validateShapefile, { err ->
+                Shapefile.Screen(stringResource(R.string.select_a_shapefile), model::background, model::validateShapefile, { err ->
                     snack(err)
                 }) { points ->
                     model.shapefile = points

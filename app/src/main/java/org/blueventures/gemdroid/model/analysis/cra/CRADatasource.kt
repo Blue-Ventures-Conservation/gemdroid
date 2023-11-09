@@ -85,8 +85,13 @@ class CRADatasource(
                 else -> null
             }
         }) { _, record ->
-            record.fields.forEach { field ->
+            for (field in record.fields) {
                 val name = field.name
+
+                if (shouldIgnoreField(name)) {
+                    continue
+                }
+
                 when (field.type) {
                     DbfFieldTypeEnum.Numeric -> addToMap(numericsMap, name, record.getString(name).toFloat().toInt().toString())
                     DbfFieldTypeEnum.Character -> addToMap(stringsMap, name, record.getString(name))
@@ -399,10 +404,24 @@ class CRADatasource(
     private fun crasIngestedFile(roiDir: File) = File(File(roiDir, crasDir), crasIngestedFile)
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAIngestion(UploadName(name, key))
 
+    private fun shouldIgnoreField(name: String): Boolean {
+        for (ignore in ignoreFields) {
+            if (name.startsWith(ignore, true)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     companion object {
         const val crasDir = "cras"
         const val crasUnzipDir = "unzip"
         const val crasFile = "cras.json"
         const val crasIngestedFile = "ingested.json"
+
+        private const val addedFieldShapeLen = "shape_len"
+        private const val addedFieldShapeArea = "shape_area"
+        private val ignoreFields = arrayOf(addedFieldShapeLen, addedFieldShapeArea)
     }
 }

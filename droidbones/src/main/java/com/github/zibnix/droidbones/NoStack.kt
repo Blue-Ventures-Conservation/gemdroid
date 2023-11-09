@@ -8,6 +8,6 @@ class NoStack(@StringRes val resId: Int): Throwable("") {
 }
 
 fun Throwable.localized(ctx: Context): String {
-    val ns = this as? NoStack ?: return ctx.getString(R.string.unknown_error)
+    val ns = this as? NoStack ?: return message ?: return ctx.getString(R.string.unknown_error)
     return ctx.getString(ns.resId)
 }

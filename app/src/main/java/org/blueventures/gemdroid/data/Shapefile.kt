@@ -111,7 +111,7 @@ data class Shapefile(
             val paths = pathsResult.getOrNull()!!
 
             val badShape = NoStack(R.string.shp_missing_files)
-            if (paths.size < 3) {
+            if (paths.size < 4) {
                 return Result.failure(badShape)
             }
 
@@ -159,12 +159,14 @@ data class Shapefile(
             }
 
             var errId: Int? = null
+            var shpStream: FileInputStream? = null
+            var dr: DbfReader? = null
 
             try {
                 // these constructors will inspect the file header
-                val shpStream = FileInputStream(shp)
+                shpStream = FileInputStream(shp)
                 val sr = ShapeFileReader(shpStream)
-                val dr = DbfReader(FileInputStream(dbf))
+                dr = DbfReader(FileInputStream(dbf))
 
                 var count = 0
                 var s = sr.next()
@@ -178,10 +180,11 @@ data class Shapefile(
                     }
                     s = sr.next()
                 }
-                shpStream.close()
-                dr.close()
             } catch (e: Exception) {
                 return Result.failure(e)
+            } finally {
+                shpStream?.close()
+                dr?.close()
             }
 
             if (errId != null) {
