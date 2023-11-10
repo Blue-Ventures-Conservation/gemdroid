@@ -23,8 +23,8 @@ object ChooseHistorical {
             val choices = viewModel.getHistoricalChoices()
 
             Col.Col(bottom = 24.dp) {
-                Text("Is a historical CRA shapefile available?", fontSize = 24.sp, textAlign = TextAlign.Center)
-                Text("(Fields must match contemporary shapefile)", fontSize = 16.sp, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.is_a_historical_cra), fontSize = 24.sp, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.fields_must_match), fontSize = 16.sp, textAlign = TextAlign.Center)
                 Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->
                     viewModel.historicalChoice = choice
                     next()

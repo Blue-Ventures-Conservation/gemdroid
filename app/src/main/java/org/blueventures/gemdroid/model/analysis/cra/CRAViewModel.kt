@@ -15,9 +15,9 @@ class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Await.CRAAwaiter, ApiViewModel(repo) {
     var roiDir = File("")
-    var contemporaryCRA: CRAFile = CRAFile()
+    var contemporaryCRA = CRAFile()
     var historicalCRA: CRAFile? = null
-    var historicalChoice: HistoricalChoice = HistoricalChoice.SEPARATE
+    var historicalChoice = HistoricalChoice.SEPARATE
         set(choice) {
             field = choice
             var hist: CRAFile? = null
@@ -144,16 +144,16 @@ class CRAViewModel(
  */
 enum class HistoricalChoice {
     SEPARATE {
-        override fun label() = "Yes, I have a separate shapefile for historical CRAs."
+        override fun label() = R.string.historical_choice_yes
     },
 
     NONE {
-        override fun label() = "No, train the classifier only on contemporary imagery."
+        override fun label() = R.string.historical_choice_no
     },
 
     CONTEMPORARY {
-        override fun label() = "The CRAs haven't changed between historical and contemporary time periods. Reuse the contemporary CRAs for historical imagery."
+        override fun label() = R.string.historical_choice_not_necessary
     };
 
-    abstract fun label(): String
+    abstract fun label(): Int
 }

@@ -201,4 +201,9 @@
     <string name="click_next_to_start_s_analysis">Click Next to start %s analysis!</string>
     <string name="click_next_to_add_cras">Click Next to add Classification Reference Areas (CRAs) and move on to Classification and Dynamics for %s!</string>
     <string name="visualize">Visualise</string>
+    <string name="historical_choice_yes">Yes, I have a separate shapefile for historical CRAs.</string>
+    <string name="historical_choice_no">No, try to classify the historical imagery by training only with the contemporary data.</string>
+    <string name="historical_choice_not_necessary">Not needed! The reference areas haven\'t changed between historical and contemporary time periods. Just use the contemporary CRAs for historical imagery.</string>
+    <string name="is_a_historical_cra">Is a historical CRA shapefile available/necessary?</string>
+    <string name="fields_must_match">(Fields must match contemporary shapefile)</string>
 </resources>

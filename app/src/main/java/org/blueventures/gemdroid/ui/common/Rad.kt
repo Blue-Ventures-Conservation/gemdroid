@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 object Rad {
@@ -20,7 +21,7 @@ object Rad {
      * Radio button group
      */
     @Composable
-    fun <T> Io(choices: List<T>, default: T?, textGetter: (T) -> String, onClick: (T) -> Unit) {
+    fun <T> Io(choices: List<T>, default: T?, textGetter: (T) -> Int, onClick: (T) -> Unit) {
         val (choice, setChoice) = remember { mutableStateOf(default) }
 
         choices.forEach { option ->
@@ -34,7 +35,7 @@ object Rad {
                     )
             ) {
                 RadioButton(selected = (option?.equals(choice) == true), onClick = { setChoice(option) })
-                Text(text = textGetter(option), modifier = Modifier.padding(start = 16.dp))
+                Text(text = stringResource(textGetter(option)), modifier = Modifier.padding(start = 16.dp))
             }
         }
         Spacer(modifier = Modifier.height(0.dp))
