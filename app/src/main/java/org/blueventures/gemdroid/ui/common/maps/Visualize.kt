@@ -15,7 +15,6 @@ import java.io.File
 object Visualize {
     interface Visualizer {
         fun parentDir(): File
-        fun bounds(): List<LatLng>
         fun tileDir(i: Int): File
         fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit): Job
         fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
@@ -27,19 +26,19 @@ object Visualize {
         visualizer: Visualizer?,
         title: String,
         appBar: AppBar,
+        center: LatLng? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
-                Maps.Screen(false, object : Layers.Model<VisualizeURLs>() {
+                Maps.Screen(false, center, object : Layers.Model<VisualizeURLs>() {
                     override val title = title
                     override val appBar = appBar
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                     override val parentDir = visualizer.parentDir()
-                    override val bounds = visualizer.bounds()
 
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
@@ -47,7 +46,7 @@ object Visualize {
                 }, draw, poly, floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, false, draw, poly, floating)
+            Maps.NoLayers(appBar, title, false, center, draw, poly, floating)
         }
     }
 }

@@ -2,13 +2,19 @@ package org.blueventures.gemdroid.data
 
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
-
+typealias PolyPts = List<List<LatLng>>
+typealias FromStateWork = (() -> GeojsonPolygon, (GeojsonPolygon) -> Unit) -> Unit
+typealias ToStateWork = (() -> PolyPts, (PolyPts) -> Unit) -> Unit
 data class GeojsonPolygon(
     @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
     @Json(name = "type") val type: String = "Polygon",
 ) {
     companion object {
-        fun toState(geo: GeojsonPolygon): List<List<LatLng>> {
+        fun toState(bg: ToStateWork, geo: GeojsonPolygon, callback: (PolyPts) -> Unit) {
+            bg({ toState(geo) }, callback)
+        }
+
+        fun toState(geo: GeojsonPolygon): PolyPts {
             val poly = mutableListOf<List<LatLng>>()
             for (ring in geo.coordinates) {
                 val newRing = mutableListOf<LatLng>()
@@ -21,7 +27,11 @@ data class GeojsonPolygon(
             return poly
         }
 
-        fun fromState(points: List<List<LatLng>>): GeojsonPolygon {
+        fun fromState(bg: FromStateWork, points: PolyPts, callback: (GeojsonPolygon) -> Unit) {
+            bg({ fromState(points) }, callback)
+        }
+
+        fun fromState(points: PolyPts): GeojsonPolygon {
             val poly = mutableListOf<List<List<Double>>>()
             for (ring in points) {
                 val convert = ringFromState(ring)

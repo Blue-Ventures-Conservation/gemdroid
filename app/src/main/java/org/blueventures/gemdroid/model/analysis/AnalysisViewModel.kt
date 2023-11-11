@@ -4,8 +4,10 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.ImageryExports
@@ -98,7 +100,6 @@ class AnalysisViewModel(
     }
 
     override fun parentDir() = roiDir
-    override fun bounds() = roi.bounds()
     override fun tileDir(i: Int) = tileDirs()[i]
 
     override fun saveVisualizeURLsFile(urls: VisualizeURLs): Job {
@@ -150,5 +151,15 @@ class AnalysisViewModel(
     fun clearExports() {
         deleteFile(resultsFile(roiDir))
         deleteFile(exportsFile(roiDir))
+    }
+
+    fun displayRegions(polygons: List<GeojsonPolygon>, callback: (List<List<List<LatLng>>>) -> Unit) {
+        background({
+            val polys = mutableListOf<List<List<LatLng>>>()
+            for (poly in polygons) {
+                polys.add(GeojsonPolygon.toState(poly))
+            }
+            polys
+        }, callback)
     }
 }

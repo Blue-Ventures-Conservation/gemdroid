@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.ui.common.maps
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.PolygonDrawer
@@ -13,9 +14,8 @@ object Poly {
         abstract val menuTitle: String
         abstract val touchEnabled: Boolean
         abstract val labels: List<String>
-        abstract val bounds: List<LatLng>?
         abstract fun polygons(callback: (List<List<List<LatLng>>>) -> Unit)
-        abstract fun <T> markerWork(work: () -> T, callback: (T) -> Unit): Job
+        abstract fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job
 
         fun polygonOptions(callback: (List<PolygonOptions>) -> Unit) {
             polygons { polys ->

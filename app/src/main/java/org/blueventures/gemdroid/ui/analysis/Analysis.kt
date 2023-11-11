@@ -11,10 +11,13 @@ import org.blueventures.gemdroid.ui.analysis.classification.Classification.Route
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
+import org.blueventures.gemdroid.ui.analysis.screens.Boundary
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
+import org.blueventures.gemdroid.ui.analysis.screens.ExcludedRegions
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
+import org.blueventures.gemdroid.ui.analysis.screens.Properties
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
@@ -27,6 +30,9 @@ object Analysis {
         const val buffer = prefix + "buffer"
         const val visualize = prefix + "visualize"
         const val imagery_downloads = prefix + "imagery_downloads"
+        const val properties = prefix + "properties"
+        const val boundary = prefix + "boundary"
+        const val excluded = prefix + "excluded_regions"
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
@@ -46,8 +52,10 @@ object Analysis {
                 }
             }, back = {
                 nav.popClear(Roi.Routes.list)
-            }, vis = {
+            }, falseColor = {
                 nav.navigate(Routes.visualize)
+            }, properties = {
+                nav.navigate(Routes.properties)
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
@@ -69,6 +77,22 @@ object Analysis {
 
         b.composable(Routes.imagery_downloads) {
             Downloads.Screen(viewModel, appBar, nav::popBackStack)
+        }
+
+        b.composable(Routes.properties) {
+            Properties.Screen(viewModel, appBar, nav::popBackStack) {
+                nav.navigate(Routes.boundary)
+            }
+        }
+
+        b.composable(Routes.boundary) {
+            Boundary.Screen(viewModel, appBar, nav::popBackStack) {
+                nav.navigate(Routes.excluded)
+            }
+        }
+
+        b.composable(Routes.excluded) {
+            ExcludedRegions.Screen(viewModel, appBar, nav::popBackStack)
         }
 
         // CRAs

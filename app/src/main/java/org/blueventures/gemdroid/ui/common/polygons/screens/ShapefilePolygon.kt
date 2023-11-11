@@ -24,7 +24,7 @@ object ShapefilePolygon {
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.title))))
+            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
             Col.Col {
                 Shapefile.Screen(stringResource(R.string.select_a_shapefile), model::background, model::validateShapefile, { err ->
                     snack(err)

@@ -41,13 +41,15 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Nav.Wrap(back) {
             Layout(viewModel, appBar, snack, {
                 next()
             }, back, {
-                vis()
-            }, {
+                falseColor()
+            },{
+              properties()
+            },{
                 clazz()
             }) {
                 dyn()
@@ -56,7 +58,7 @@ object Dashboard {
     }
 
     @Composable
-    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Roi.Loader(viewModel::getROI, snack, {
             back()
         }) {
@@ -71,7 +73,7 @@ object Dashboard {
                 }
                 else -> {
                     viewModel.stage = stage
-                    Dashboard(viewModel.roi.name, stage, snack, next, back, vis, clazz, dyn)
+                    Dashboard(viewModel.roi.name, stage, snack, next, back, falseColor, properties, clazz, dyn)
                 }
             }
         }
@@ -90,7 +92,7 @@ object Dashboard {
     }
 
     @Composable
-    fun Dashboard(roiName: String, stage: Stage, snack: SnackFun, next: Click, back: Click, vis: Click, clazz: Click, dyn: Click) {
+    fun Dashboard(roiName: String, stage: Stage, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Col.Col {
             when (stage) {
                 Stage.ERROR -> {
@@ -112,12 +114,14 @@ object Dashboard {
                     ) {
                         when (stage) {
                             Stage.CRAS -> {
-                                VisualizeRow(vis)
+                                FalseColorRow(falseColor)
+                                PropertiesRow(properties)
                             }
                             Stage.ALL -> {
-                                VisualizeRow(vis)
+                                FalseColorRow(falseColor)
                                 ClassificationRow(clazz)
                                 DynamicsRow(dyn)
+                                PropertiesRow(properties)
                             }
                             else -> {}
                         }
@@ -148,8 +152,13 @@ object Dashboard {
     }
 
     @Composable
-    fun VisualizeRow(vis: Click) {
-        DashboardRow(stringResource(R.string.visualize), vis)
+    fun FalseColorRow(falseColor: Click) {
+        DashboardRow(stringResource(R.string.visualize), falseColor)
+    }
+
+    @Composable
+    fun PropertiesRow(properties: Click) {
+        DashboardRow(stringResource(R.string.review_inputs), properties)
     }
 
     @Composable

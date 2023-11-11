@@ -131,7 +131,8 @@ object RoiList {
                 Roi.Loader({ callback ->
                     viewModel.getROI(it, callback)
                 }, snack, {}) {
-                    viewModel.importROI(stringResource(R.string.copy_of), it, floating)
+                    viewModel.importROI(stringResource(R.string.copy_of), it)
+                    floating()
                 }
             } ?: run {
                 LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {

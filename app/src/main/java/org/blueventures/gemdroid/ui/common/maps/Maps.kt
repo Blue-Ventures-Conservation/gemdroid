@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -23,12 +25,13 @@ object Maps {
         appBar: AppBar,
         title: String,
         attemptGps: Boolean = false,
+        center: LatLng? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         appBar.Update(AppBarUpdate(title))
-        Screen<URLs>(attemptGps, null, draw, poly, floating)
+        Screen<URLs>(attemptGps, center, null, draw, poly, floating)
     }
 
     /**
@@ -38,6 +41,7 @@ object Maps {
     @Composable
     fun <T : URLs> Screen(
         attemptGps: Boolean = false,
+        center: LatLng? = null,
         layers: Layers.Model<T>? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
@@ -50,10 +54,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Compose.Screen(granted, layers, draw, poly, floating)
+                Compose.Screen(granted, center, layers, draw, poly, floating)
             }
         } else {
-            Compose.Screen(false, layers, draw, poly, floating)
+            Compose.Screen(false, center, layers, draw, poly, floating)
         }
     }
 

@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
 object NamePolygon {
     interface Model: Polygons.AppBarTitler {
-        var name: String
+        var polygonName: String
 
         val polygonType: Int
 
@@ -23,13 +23,13 @@ object NamePolygon {
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap({
-            model.name = ""
+            model.polygonName = ""
             back()
         }) {
-            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.title))))
+            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
             val err = stringResource(R.string.please_enter_unique_non_special_name)
-            Collect.Text(header = stringResource(R.string.name_your_polygon).format(stringResource(model.polygonType)), label = stringResource(R.string.please_enter_name), initial = model.name, snack, { name ->
-                model.name = name
+            Collect.Text(header = stringResource(R.string.name_your_polygon).format(stringResource(model.polygonType)), label = stringResource(R.string.please_enter_name), initial = model.polygonName, snack, { name ->
+                model.polygonName = name
                 if (model.validatePolygonName()) null else err
             }, next)
         }

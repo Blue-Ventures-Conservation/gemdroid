@@ -19,7 +19,7 @@ object DrawOrShapefile {
     @Composable
     fun Screen(model: Model, appBar: AppBar, back: Click, draw: Click, shapefile: Click) {
         Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.title))))
+            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
             val polyType = stringResource(model.polygonType)
             Col.Dash(stringResource(R.string.draw_polygon_or_shapefile).format(polyType)) {
                 DashboardButton(stringResource(R.string.draw_a_polygon).format(polyType), draw)

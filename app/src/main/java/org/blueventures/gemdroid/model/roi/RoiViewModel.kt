@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.PolygonDrawer
@@ -39,26 +40,27 @@ class RoiViewModel(
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
     fun saveRoi(filesDir: File, callback: (Result<Unit>) -> Unit) = scoped {
-        repo.saveRoi(
-            filesDir,
-            roiName,
-            contemporaryYearStart,
-            contemporaryYearEnd,
-            contemporaryMonthStart,
-            contemporaryMonthEnd,
-            historicalYearStart,
-            historicalYearEnd,
-            historicalMonthStart,
-            historicalMonthEnd,
-            roiDrawer.points,
-            polygons
-        ).collect(callback)
+        repo.saveRoi(filesDir, roiFromState()).collect(callback)
     }
+
+    fun roiFromState() = ROI.fromState(
+        roiName,
+        contemporaryYearStart,
+        contemporaryYearEnd,
+        contemporaryMonthStart,
+        contemporaryMonthEnd,
+        historicalYearStart,
+        historicalYearEnd,
+        historicalMonthStart,
+        historicalMonthEnd,
+        roiDrawer.points,
+        polygons
+    )
 
     fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
     fun getROI(roiDir: File, callback: (Result<ROI>) -> Unit) = loadFile(RoiDatasource.roiFile(roiDir), ROI.Companion, callback)
 
-    fun importROI(prefix: String, roi: ROI, callback: () -> Unit) {
+    fun importROI(prefix: String, roi: ROI) {
         roiName = prefix + roi.name
         contemporaryYearStart = roi.contYearStart
         contemporaryYearEnd = roi.contYearEnd
@@ -71,16 +73,13 @@ class RoiViewModel(
         polygons.clear()
         polygons.addAll(roi.excludedRegions?.map { PolygonDrawer.NamedPolygon("", it) } ?: emptyList())
 
-        background({
-            if (roi.polygon.coordinates.isNotEmpty()) {
-                GeojsonPolygon.toState(roi.polygon).first().toMutableList()
-            } else {
-                mutableListOf()
-            }
-        }) {
-            roiDrawer = PolygonDrawer(it, maxArea = maxRoiArea, adder = this::polyAdder)
-            callback()
+        val state = GeojsonPolygon.toState(roi.polygon)
+        val points = if (state.isNotEmpty()) {
+            state.first().toMutableList()
+        } else {
+            mutableListOf()
         }
+        roiDrawer = PolygonDrawer(points, maxArea = maxRoiArea, adder = this::polyAdder)
     }
 
     fun isUnique(): Boolean {
@@ -112,30 +111,30 @@ class RoiViewModel(
 
     var filesDir: File = File("")
     override val named = false
-    override val title = R.string.create_coarse_roi
+    override val appBarTitleId = R.string.create_coarse_roi
     override fun appBarTitle(title: String) = title
     override var visualizer: Visualize.Visualizer? = null
     override val drawer = PolygonDrawer(adder = this::polyAdder)
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(listOf(drawer.points))))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points))))
         drawer.points.clear()
-        name = ""
+        polygonName = ""
     }
 
-    override fun bounds() = roiDrawer.points
+    override fun center() = Bounds.centerFromList(roiDrawer.points)
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
-            if (region.name == name) {
+            if (region.name == polygonName) {
                 return false
             }
         }
 
-        return Regexp.subRegionName.matches(name)
+        return Regexp.subRegionName.matches(polygonName)
     }
 
-    override var name = ""
+    override var polygonName = ""
     override val polygonType = R.string.excluded_region
     override val polygonTypePlural = R.string.excluded_regions
     override val maxPolygons = maxExcludedRegions
@@ -161,9 +160,9 @@ class RoiViewModel(
     override var shapefile: List<List<LatLng>> = emptyList()
     override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(shapefile)))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(shapefile)))
         shapefile = emptyList()
-        name = ""
+        polygonName = ""
     }
 
     companion object {

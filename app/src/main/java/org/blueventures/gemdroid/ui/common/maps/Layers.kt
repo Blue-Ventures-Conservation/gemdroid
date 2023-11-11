@@ -16,7 +16,6 @@ object Layers {
         abstract val initUrls: T
         abstract val layerNames: List<String>
         abstract val parentDir: File
-        abstract val bounds: List<LatLng>
 
         abstract fun tileDir(i: Int): File
         abstract fun getRemote(callback: (ApiResult<T>) -> Unit)

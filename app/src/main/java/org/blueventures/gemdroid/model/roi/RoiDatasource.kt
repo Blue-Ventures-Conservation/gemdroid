@@ -2,13 +2,11 @@ package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.mvvm.FileService
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MD5
-import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
@@ -82,41 +80,16 @@ class RoiDatasource(
         }
     }
 
-    fun saveRoi(
-        filesDir: File,
-        name: String,
-        contYearStart: Int,
-        contYearEnd: Int,
-        contMonthStart: Int,
-        contMonthEnd: Int,
-        histYearStart: Int,
-        histYearEnd: Int,
-        histMonthStart: Int,
-        histMonthEnd: Int,
-        points: List<LatLng>,
-        excludes: List<PolygonDrawer.NamedPolygon>
-    ): Result<Unit> {
+    fun saveRoi(filesDir: File, roi: ROI): Result<Unit> {
         return try {
             val roisDirRes = roisDir(filesDir)
             if (roisDirRes.isFailure) {
                 Result.failure(roisDirRes.exceptionOrNull()!!)
             } else {
                 val roisDir = roisDirRes.getOrNull()!!
-                val roiDir = File(roisDir, name)
+                val roiDir = File(roisDir, roi.name)
                 if (roiDir.exists() || roiDir.mkdirs()) {
-                    ROI.toFile(File(roiDir, filename), ROI.fromState(
-                        name,
-                        contYearStart,
-                        contYearEnd,
-                        contMonthStart,
-                        contMonthEnd,
-                        histYearStart,
-                        histYearEnd,
-                        histMonthStart,
-                        histMonthEnd,
-                        points,
-                        excludes
-                    ))
+                    ROI.toFile(File(roiDir, filename), roi)
                 } else {
                     Result.failure(NoStack(R.string.could_not_read_fs))
                 }

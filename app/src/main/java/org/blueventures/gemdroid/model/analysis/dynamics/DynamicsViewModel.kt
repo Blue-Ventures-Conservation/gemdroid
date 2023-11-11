@@ -5,6 +5,7 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.GeojsonPolygon
@@ -49,7 +50,7 @@ class DynamicsViewModel(
     lateinit var roi: ROI
     lateinit var urls: DynamicsURLs
 
-    override var name = ""
+    override var polygonName = ""
     override var drawer = PolygonDrawer { point, adder, callback ->
         scoped { repo.addPoint(point, adder).collect(callback) }
     }
@@ -89,32 +90,32 @@ class DynamicsViewModel(
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
-            if (region.name == name) {
+            if (region.name == polygonName) {
                 return false
             }
         }
 
-        return Regexp.subRegionName.matches(name)
+        return Regexp.subRegionName.matches(polygonName)
     }
 
     override val named = true
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(listOf(drawer.points))))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points))))
         drawer.points.clear()
-        name = ""
+        polygonName = ""
     }
 
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(name, GeojsonPolygon.fromState(shapefile)))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(shapefile)))
         shapefile = emptyList()
-        name = ""
+        polygonName = ""
     }
 
-    override fun bounds() = null
+    override fun center() = Bounds.centerFromList(roi.polygonToState())
 
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
-    override val title = R.string.dynamics
+    override val appBarTitleId = R.string.dynamics
     override val polygonType = R.string.sub_region
     override val maxPolygons = maxSubRegions
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)

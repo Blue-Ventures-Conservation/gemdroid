@@ -8,7 +8,9 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
@@ -34,7 +36,7 @@ object Map {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(floating = {
+            Maps.Screen(center = Bounds.centerFromList(viewModel.roi.polygonToState()), floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, layers = object : Layers.Model<DynamicsURLs>() {
                 override val title = viewModel.roi.appBarTitle(stringResource(R.string.dynamics))
@@ -42,7 +44,6 @@ object Map {
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()
                 override val parentDir = viewModel.classDir()
-                override val bounds = viewModel.roi.bounds()
 
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
@@ -51,9 +52,8 @@ object Map {
                 override val menuTitle = stringResource(R.string.sub_regions)
                 override val touchEnabled = true
                 override val labels = viewModel.polygons.map { it.name }
-                override val bounds: List<LatLng>? = null
                 override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = viewModel.displayRegions(callback)
-                override fun <T> markerWork(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
+                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             })
         }
     }

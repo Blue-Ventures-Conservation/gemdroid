@@ -21,7 +21,7 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
 object PolygonsOption {
     interface Model: Polygons.AppBarTitler {
-        var name: String
+        var polygonName: String
 
         val polygonType: Int
         val polygonTypePlural: Int
@@ -36,8 +36,8 @@ object PolygonsOption {
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
         Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.title))))
-            model.name = ""
+            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
+            model.polygonName = ""
             model.optionsInit(snack, back) {
                 Choice(model, snack, skip, yes, no)
             }

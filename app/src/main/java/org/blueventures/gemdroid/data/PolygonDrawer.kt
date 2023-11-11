@@ -15,7 +15,7 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
     override fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job  = adder(point, ::addPoint, callback)
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
-    override fun polygonSquareKms() = areaStr()
+    override fun polygonSquareKms() = areaStr(points)
     override fun area() = SphericalUtil.computeArea(points)/squareKmInMeters
 
     private fun addPoint(point: LatLng) {
@@ -59,8 +59,6 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
         points.add(point)
     }
 
-    fun areaStr() = squareKms(area().toInt())
-
     fun validate(max: Int): Boolean {
         val area = area()
         return area > 0 && area <= max
@@ -69,7 +67,9 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
     companion object {
         const val squareKmInMeters = 1_000_000
 
+        fun areaStr(points: List<LatLng>) = squareKms(area(points).toInt())
         fun squareKms(km: Int) = "${"%,d".format(km)} km²"
+        fun area(points: List<LatLng>) = SphericalUtil.computeArea(points)/squareKmInMeters
 
         fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {

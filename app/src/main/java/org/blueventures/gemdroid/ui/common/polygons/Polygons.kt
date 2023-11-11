@@ -19,7 +19,7 @@ object Polygons {
     }
 
     interface AppBarTitler {
-        val title: Int
+        val appBarTitleId: Int
         fun appBarTitle(title: String): String
     }
 
@@ -44,8 +44,15 @@ object Polygons {
         model: Model,
     ) {
         val addPrefix: (String) -> String = { routePrefix + it }
+        val routePolygonsOption = addPrefix(Routes.polygons_option)
+        val routePolygonName = addPrefix(Routes.polygon_name)
+        val routePolygonDrawOrShp = addPrefix(Routes.polygon_draw_or_shapefile)
+        val routeDrawnPolygon = addPrefix(Routes.drawn_polygon)
+        val routeShpPolygon = addPrefix(Routes.shapefile_polygon)
+        val routeVisualizeShp = addPrefix(Routes.visualize_shapefile_polygon)
+        val routePolygonsOverview = addPrefix(Routes.polygons_overview)
 
-        b.composable(addPrefix(Routes.polygons_option)) {
+        b.composable(routePolygonsOption) {
             PolygonsOption.Screen(model, appBar, snack, back = {
                 model.polygons.clear()
                 model.drawer.points.clear()
@@ -55,61 +62,61 @@ object Polygons {
                     popUpTo(prevRoute)
                 }
             }, yes = {
-                var route = Routes.polygon_draw_or_shapefile
+                var route = routePolygonDrawOrShp
                 if (model.named) {
-                    route = Routes.polygon_name
+                    route = routePolygonName
                 }
-                nav.navigate(addPrefix(route))
+                nav.navigate(route)
             }, no = {
                 var route = nextRoute
                 if (model.polygons.size > 0) {
-                    route = addPrefix(Routes.polygons_overview)
+                    route = routePolygonsOverview
                 }
 
                 nav.navigate(route)
             })
         }
 
-        b.composable(addPrefix(Routes.polygon_name)) {
+        b.composable(routePolygonName) {
             NamePolygon.Screen(model, appBar, snack, nav::popBackStack) {
-                nav.navigate(addPrefix(Routes.polygon_draw_or_shapefile))
+                nav.navigate(routePolygonDrawOrShp)
             }
         }
 
-        b.composable(addPrefix(Routes.polygon_draw_or_shapefile)) {
+        b.composable(routePolygonDrawOrShp) {
             DrawOrShapefile.Screen(model, appBar, nav::popBackStack, draw = {
-                nav.navigate(addPrefix(Routes.drawn_polygon))
+                nav.navigate(routeDrawnPolygon)
             }) {
-                nav.navigate(addPrefix(Routes.shapefile_polygon))
+                nav.navigate(routeShpPolygon)
             }
         }
 
-        b.composable(addPrefix(Routes.drawn_polygon)) {
+        b.composable(routeDrawnPolygon) {
             DrawPolygon.Screen(model, appBar, snack, {
                 model.drawer.points.clear()
                 nav.popBackStack()
             }) {
-                nav.popBackStack(addPrefix(Routes.polygons_option), false)
+                nav.popBackStack(routePolygonsOption, false)
             }
         }
 
-        b.composable(addPrefix(Routes.shapefile_polygon)) {
+        b.composable(routeShpPolygon) {
             ShapefilePolygon.Screen(model, appBar, snack, nav::popBackStack) {
-                nav.navigate(addPrefix(Routes.visualize_shapefile_polygon))
+                nav.navigate(routeVisualizeShp)
             }
         }
 
-        b.composable(addPrefix(Routes.visualize_shapefile_polygon)) {
-            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(addPrefix(Routes.polygon_draw_or_shapefile), true) }) {
-                nav.popBackStack(addPrefix(Routes.polygons_option), false)
+        b.composable(routeVisualizeShp) {
+            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(routePolygonDrawOrShp, true) }) {
+                nav.popBackStack(routePolygonsOption, false)
             }
         }
 
-        b.composable(addPrefix(Routes.polygons_overview)) {
+        b.composable(routePolygonsOverview) {
             PolygonsOverview.Screen(model, appBar, {
                 model.polygons.clear()
                 model.drawer.points.clear()
-                nav.popBackStack(addPrefix(Routes.polygons_option), false)
+                nav.popBackStack(routePolygonsOption, false)
             }) {
                 nav.navigate(nextRoute)
             }

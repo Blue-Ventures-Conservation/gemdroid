@@ -24,7 +24,7 @@ data class ROI(
     @Json(name = "excludes") val excludedRegions: List<GeojsonPolygon>? = null,
     @Json(name = "visualize") val visualize: Boolean = true,
 ) {
-    fun bounds() = polygon.coordinates[0].map { LatLng(it[1], it[0]) }
+    fun polygonToState() = if (polygon.coordinates.isNotEmpty()) polygon.coordinates[0].map { LatLng(it[1], it[0]) } else emptyList()
 
     fun appBarTitle(title: String) = "$name $title"
 

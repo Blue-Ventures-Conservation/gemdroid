@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.gms.maps.model.TileProvider
@@ -47,6 +46,7 @@ import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.Bounds.centerFromList
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -63,17 +63,19 @@ object Compose {
     @Composable
     fun <T : URLs> Screen(
         gps: Boolean,
+        center: LatLng?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        DrawingControls(gps, layers, draw, poly, floating)
+        DrawingControls(gps, center, layers, draw, poly, floating)
     }
 
     @Composable
     private fun <T : URLs> DrawingControls(
         gps: Boolean,
+        center: LatLng?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
@@ -113,7 +115,7 @@ object Compose {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 val drawers = remember { mutableStateListOf<Drawer>() }
-                Zoom(gps, layers, poly, draw, drawers, clearers)
+                Zoom(gps, center, layers, poly, draw, drawers, clearers)
 
                 if (draw == null) {
                     floating()
@@ -127,6 +129,7 @@ object Compose {
     @Composable
     private fun <T: URLs> Zoom(
         gps: Boolean,
+        center: LatLng?,
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
@@ -134,14 +137,14 @@ object Compose {
         clearers: List<Clearer>
     ) {
         val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-        var center = shouldZoom(zoomed, layers, draw, poly)
-        if (!zoomed && center != null) {
+        var target = shouldZoom(zoomed, center, draw)
+        if (!zoomed && target != null) {
             setZoomed(true)
         } else if (zoomed) {
-            center = null
+            target = null
         }
 
-        val position = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
+        val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
         Map(gps, layers, poly, draw, drawers, clearers, position)
     }
 
@@ -186,28 +189,20 @@ object Compose {
         }
     }
 
-    private fun <T : URLs> shouldZoom(zoomed: Boolean, layers: Layers.Model<T>?, draw: Draw.Model?, poly: Poly.Model?): LatLng? {
+    private fun shouldZoom(zoomed: Boolean, center: LatLng?, draw: Draw.Model?): LatLng? {
         return if (draw != null) {
             if (!zoomed) {
-                draw.points.ifEmpty {
-                    layers?.bounds ?: poly?.bounds
+                if (draw.points.isNotEmpty()) {
+                    centerFromList(draw.points)
+                } else {
+                    center
                 }
             } else {
                 null
             }
         } else {
-            layers?.bounds ?: poly?.bounds
-        }?.let { bounds ->
-            centerFromList(bounds)
+            center
         }
-    }
-
-    private fun centerFromList(list: List<LatLng>): LatLng {
-        val builder = LatLngBounds.builder()
-        for (pt in list) {
-            builder.include(pt)
-        }
-        return builder.build().center
     }
 
     @Composable
