@@ -47,7 +47,7 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
             val first = distances.indexOf(min)
             val position =  when {
                 last == first -> first
-                signedArea(points, first, point) > signedArea(points, last, point) -> first
+                areaMeters(points, first, point) > areaMeters(points, last, point) -> first
                 else -> last
             }
 
@@ -67,9 +67,9 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
     companion object {
         const val squareKmInMeters = 1_000_000
 
-        fun areaStr(points: List<LatLng>) = squareKms(area(points).toInt())
+        fun areaStr(points: List<LatLng>) = squareKms(areaKms(points).toInt())
         fun squareKms(km: Int) = "${"%,d".format(km)} km²"
-        fun area(points: List<LatLng>) = SphericalUtil.computeArea(points)/squareKmInMeters
+        fun areaKms(points: List<LatLng>) = SphericalUtil.computeArea(points)/squareKmInMeters
 
         fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {
@@ -87,12 +87,12 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
             return opts
         }
 
-        private fun signedArea(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
+        private fun areaMeters(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
             // toMutableList makes a copy so we aren't modifying the original list
             val mut = points.toMutableList()
             rotate(mut, nearestIdx)
             mut.add(point)
-            return SphericalUtil.computeSignedArea(mut)
+            return SphericalUtil.computeArea(mut)
         }
 
         private fun <T> rotate(points: MutableList<T>, nearestIdx: Int) {
