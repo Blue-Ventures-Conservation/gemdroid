@@ -106,6 +106,7 @@ object Downloads {
 
             val (checked, setChecked) = remember { mutableStateOf(false) }
 
+            Info.Txt(text = stringResource(R.string.this_is_optional))
             Info.Row {
                 Info.Txt(text = stringResource(R.string.include_all_bands))
                 Checkbox(checked = checked, onCheckedChange = setChecked)

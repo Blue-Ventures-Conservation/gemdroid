@@ -209,4 +209,5 @@
     <string name="coarse_boundary">Coarse Boundary</string>
     <string name="review_inputs">Review Inputs</string>
     <string name="view_excluded_regions">view excluded regions</string>
+    <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>
 </resources>
