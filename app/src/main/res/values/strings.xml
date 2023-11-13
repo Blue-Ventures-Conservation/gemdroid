@@ -229,4 +229,5 @@
     <string name="you_will_import_cras">On the next few screens you will be asked to import Classification Reference Areas (CRAs) to use for training the model that classifies the imagery.</string>
     <string name="cras_simple_description">\n\nCRAs contain the locations of areas that have a known classification.</string>
     <string name="we_will_add_feature">\n\nWe are going to add a feature to this app to assist with building simple/temporary CRAs on the fly, but for now this would be a manual process, ideally with robust ground-truthing involved.</string>
+    <string name="poly_too_big">Please create a polygon with less than %s points!</string>
 </resources>

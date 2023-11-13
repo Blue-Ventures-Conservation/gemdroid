@@ -6,16 +6,17 @@ import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
 import kotlinx.coroutines.Job
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class PolygonDrawer(private val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Boolean, (Boolean) -> Unit) -> Job): Draw.Data {
+class PolygonDrawer(override val maxPoints: Int = 100, private val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Int?, (Int?) -> Unit) -> Job): Draw.Data {
     override fun points() = points
     override fun clear() { points.clear(); ordered.clear() }
     override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
-    override fun addPoint(point: LatLng, callback: () -> Unit): Job  = background({ addPoint(point); true }, { callback() })
-    override fun removePrev(callback: (Boolean) -> Unit) = background(::removePrevious) { callback(it) }
+    override fun addPoint(point: LatLng, callback: (Int?) -> Unit): Job  = background({ addPoint(point) }, { callback(it) })
+    override fun removePrev(callback: (Int?) -> Unit) = background(::removePrevious) { callback(it) }
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
     override fun polygonSquareKms() = areaStr(points)
@@ -23,7 +24,11 @@ class PolygonDrawer(private val points: MutableList<LatLng> = mutableListOf(), p
 
     private val ordered = mutableListOf<LatLng>()
 
-    private fun addPoint(point: LatLng) {
+    private fun addPoint(point: LatLng): Int? {
+        if (points.size >= maxPoints) {
+            return R.string.poly_too_big
+        }
+        
         if (points.size > 2) {
             val distances = mutableListOf<Double>()
 
@@ -63,18 +68,19 @@ class PolygonDrawer(private val points: MutableList<LatLng> = mutableListOf(), p
         // 5. Now add coordinate to be drawn
         ordered.add(point)
         points.add(point)
+        return null
     }
 
-    private fun removePrevious(): Boolean {
+    private fun removePrevious(): Int? {
         if (ordered.isEmpty() || points.isEmpty()) {
-            return false
+            return null
         }
 
         points.removeLast()
         ordered.removeLast()
 
         if (ordered.isEmpty() || points.isEmpty()) {
-            return true
+            return null
         }
 
         val next = ordered.last()
@@ -83,7 +89,7 @@ class PolygonDrawer(private val points: MutableList<LatLng> = mutableListOf(), p
             rotate(points, index)
         }
 
-        return true
+        return 0
     }
 
     private fun validate(max: Int): Boolean {

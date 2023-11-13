@@ -14,11 +14,12 @@ object Draw {
     }
 
     interface Data {
+        val maxPoints: Int
         fun points(): MutableList<LatLng>
         fun clear()
         fun polygonOptions(): PolygonOptions?
-        fun addPoint(point: LatLng, callback: () -> Unit): Job
-        fun removePrev(callback: (Boolean) -> Unit): Job
+        fun addPoint(point: LatLng, callback: (Int?) -> Unit): Job
+        fun removePrev(callback: (Int?) -> Unit): Job
 
         /** validation funcs */
         fun validatePolygon(): Boolean

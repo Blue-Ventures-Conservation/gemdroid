@@ -77,7 +77,7 @@ class RoiViewModel(
         } else {
             mutableListOf()
         }
-        roiDrawer = PolygonDrawer(points, maxArea = maxRoiArea, background = ::background)
+        roiDrawer = PolygonDrawer(points = points, maxArea = maxRoiArea, background = ::background)
     }
 
     fun isUnique(): Boolean {

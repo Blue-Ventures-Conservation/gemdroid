@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.api.ApiResult
@@ -257,7 +258,7 @@ object Compose {
             val drawer = drawers.first()
             drawer.removePrev?.let {
                 draw.removePrev { didRemove ->
-                    if (didRemove) {
+                    if (didRemove != null) {
                         resetLocalState()
                         setTouch(null)
                     }
@@ -268,8 +269,14 @@ object Compose {
                 if (drawer.state) {
                     touch?.let { pt ->
                         if (points.isEmpty() || points.last() != pt) {
-                            draw.addPoint(pt) {
-                                resetLocalState()
+                            val ctx = LocalContext.current
+                            draw.addPoint(pt) { err ->
+                                if (err != null) {
+                                    draw.snack(ctx.getString(err).format(draw.maxPoints.toString()))
+                                } else {
+                                    resetLocalState()
+                                }
+                                setTouch(null)
                             }
                         }
                     }
