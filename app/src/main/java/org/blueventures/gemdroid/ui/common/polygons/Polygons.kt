@@ -107,7 +107,7 @@ object Polygons {
         }
 
         b.composable(routeVisualizeShp) {
-            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(routePolygonDrawOrShp, true) }) {
+            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(routePolygonDrawOrShp, false) }) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }

@@ -11,7 +11,8 @@ import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
-import org.blueventures.gemdroid.ui.roi.screens.CoarseRoi
+import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygon
+import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
 import org.blueventures.gemdroid.ui.roi.screens.HistoricalMonths
@@ -30,7 +31,8 @@ object Roi {
         const val contemporaryMonths = prefix + "cont_months"
         const val historicalYears = prefix + "hist_dates"
         const val historicalMonths = prefix + "hist_months"
-        const val polygon = prefix + "polygon"
+        const val coarse_polygon_purpose = prefix + "coarse_polygon_purpose"
+        const val coarse_polygon = prefix + "coarse_polygon"
         const val overview = prefix + "overview"
     }
 
@@ -93,21 +95,27 @@ object Roi {
                 viewModel.clearHistoricalMonths()
                 nav.popBackStack()
             }) {
-                nav.navigate(Routes.polygon)
+                nav.navigate(Routes.coarse_polygon_purpose)
+            }
+        }
+
+        b.composable(Routes.coarse_polygon_purpose) {
+            CoarsePolygonPurpose.Screen(appBar, back = nav::popBackStack) {
+                nav.navigate(Routes.coarse_polygon)
             }
         }
 
         // ROI polygon creation
-        b.composable(Routes.polygon) {
-            CoarseRoi.Screen(viewModel, appBar, snack, back = {
+        b.composable(Routes.coarse_polygon) {
+            CoarsePolygon.Screen(viewModel, appBar, snack, back = {
                 viewModel.roiDrawer.points.clear()
-                nav.popBackStack()
+                nav.popBackStack(Routes.historicalMonths, false)
             }) {
                 nav.navigate(Routes.prefix + Polygons.Routes.polygons_option)
             }
         }
 
-        Polygons.screens(b, nav, Routes.prefix, Routes.polygon, Routes.overview, appBar, snack, viewModel)
+        Polygons.screens(b, nav, Routes.prefix, Routes.coarse_polygon, Routes.overview, appBar, snack, viewModel)
 
         // ROI overview
         b.composable(Routes.overview) {

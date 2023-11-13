@@ -11,7 +11,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import org.blueventures.gemdroid.ui.common.maps.Maps
 
-object CoarseRoi {
+object CoarsePolygon {
     @Composable
     fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {

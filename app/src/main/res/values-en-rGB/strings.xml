@@ -211,4 +211,7 @@
     <string name="view_excluded_regions">view excluded regions</string>
     <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>
     <string name="delete_the_previous_point">delete the previous point</string>
+    <string name="you_will_create_coarse_roi">On the next screen you will create a Coarse Boundary Polygon for your ROI.</string>
+    <string name="buffered_from_coastline">This polygon should contain your region, but the exact boundary will be determined automatically by buffering the coastline found within the coarse polygon.</string>
+    <string name="maybe_sub_regions_later">This means mangrove slightly outside this coarse polygon may be included in the results, but you will have options for defining Sub-Regions for analysis later on.</string>
 </resources>
