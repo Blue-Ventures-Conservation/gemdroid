@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.analysis.classification.Classification.Routes.map
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
-import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.cont_cra
+import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.purpose
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.analysis.screens.Boundary
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
@@ -37,7 +37,7 @@ object Analysis {
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
                 Stage.BUFFER -> buffer
-                Stage.CRAS -> cont_cra
+                Stage.CRAS -> purpose
                 else -> null
             }
         }

@@ -214,4 +214,19 @@
     <string name="you_will_create_coarse_roi">On the next screen you will create a Coarse Boundary Polygon for your ROI.</string>
     <string name="buffered_from_coastline">This polygon should contain your region, but the exact boundary will be determined automatically by buffering the coastline found within the coarse polygon.</string>
     <string name="maybe_sub_regions_later">This means mangrove slightly outside this coarse polygon may be included in the results, but you will have options for defining Sub-Regions for analysis later on.</string>
+    <string name="cras_format">\n\nThe CRAs may take some effort to compile for your region, and should be shape files containing square (pixel-aligned) plots 70-85 meters per side that contain examples of your different classification areas (Mangrove, Not Mangrove, Water etc). In addition, there must be an attribute that gives the name for the class of each plot, and another numeric attribute that gives a number associated with the class for each plot.
+        \n\nThe data looks something like this:
+        \n\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| Name \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| Value
+        \n-----------------------------------------------------------
+        \n[polygon a] | Mangrove \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| 1
+        \n[polygon b] | Mangrove \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| 1
+        \n[polygon c] | Mangrove \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| 1
+        \n[polygon d] | Mangrove \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| 1
+        \n[polygon e] | Not Mangrove | 2
+        \n[polygon g] | Not Mangrove | 2
+        \n[polygon h] | Not Mangrove | 2
+    </string>
+    <string name="you_will_import_cras">On the next few screens you will be asked to import Classification Reference Areas (CRAs) to use for training the model that classifies the imagery.</string>
+    <string name="cras_simple_description">\n\nCRAs contain the locations of areas that have a known classification.</string>
+    <string name="we_will_add_feature">\n\nWe are going to add a feature to this app to assist with building simple/temporary CRAs on the fly, but for now this would be a manual process, ideally with robust ground-truthing involved.</string>
 </resources>
