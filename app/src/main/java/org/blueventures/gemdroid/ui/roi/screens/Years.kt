@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,7 +72,7 @@ object Years {
 
     @Composable
     fun SelectYear(initYear: Int, currentYear: Int, setYear: (Int) -> Unit) {
-        var year by remember { mutableStateOf(initYear) }
+        var year by remember { mutableIntStateOf(initYear) }
         NumberPicker(
             value = year,
             range = RoiViewModel.oldestLandsatYear..currentYear,

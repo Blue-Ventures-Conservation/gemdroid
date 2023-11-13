@@ -155,8 +155,8 @@
     <string name="unnamed">Unnamed</string>
     <string name="roi_buffer_title">ROI Buffer</string>
     <string name="select_buffer_distance">Select buffer distance:</string>
-    <string name="select_months_range">Select range of months (inclusive) for %s imagery:</string>
-    <string name="select_bounding_years">Select bounding years (inclusive) for %s imagery:</string>
+    <string name="select_months_range">%s imagery month range (inclusive):</string>
+    <string name="select_bounding_years">%s imagery year range (inclusive):</string>
     <string name="please_select_years_within">Please select years less than %s years apart</string>
     <string name="year_compare_fail">Year on the left must be equal to or less than the one on right</string>
     <string name="regions_of_interest">Regions of Interest</string>
@@ -213,7 +213,7 @@
     <string name="delete_the_previous_point">delete the previous point</string>
     <string name="you_will_create_coarse_roi">On the next screen you will create a Coarse Boundary Polygon for your ROI.</string>
     <string name="buffered_from_coastline">This polygon should contain your region, but the exact boundary will be determined automatically by buffering the coastline found within the coarse polygon.</string>
-    <string name="maybe_sub_regions_later">This means mangrove slightly outside this coarse polygon may be included in the results, but you will have options for defining Sub-Regions for analysis later on.</string>
+    <string name="maybe_sub_regions_later">This means mangrove slightly outside this coarse polygon may be included in the results, but you will have options for defining Sub-Regions to constrain the analysis later on.</string>
     <string name="cras_format">\n\nThe CRAs may take some effort to compile for your region, and should be shape files containing square (pixel-aligned) plots 70-85 meters per side that contain examples of your different classification areas (Mangrove, Not Mangrove, Water etc). In addition, there must be an attribute that gives the name for the class of each plot, and another numeric attribute that gives a number associated with the class for each plot.
         \n\nThe data looks something like this:
         \n\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| Name \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| Value
