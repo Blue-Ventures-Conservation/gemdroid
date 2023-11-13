@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Place
@@ -58,7 +59,7 @@ object Compose {
     data class Checker(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
     data class Toucher(override val name: String, val state: LatLng?, val setState: (LatLng?) -> Unit): Named
     data class Clearer(override val name: String, val state: Boolean?, val setState: (Boolean?) -> Unit): Named
-    data class Drawer(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
+    data class Drawer(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit, val removePrev: Boolean?, val setRemovePrev: (Boolean?) -> Unit): Named
 
     @Composable
     fun <T : URLs> Screen(
@@ -208,7 +209,11 @@ object Compose {
     @Composable
     private fun BoxScope.DrawButton(drawers: MutableList<Drawer>) {
         val (buttonState, setButtonState) = remember { mutableStateOf(false) }
-        updateList(Drawer("draw", buttonState, setButtonState), drawers)
+        val (removePrev, setRemovePrev) = remember { mutableStateOf<Boolean?>(null) }
+        updateList(Drawer("draw", buttonState, setButtonState, removePrev, setRemovePrev), drawers)
+        MapActionButton({ setRemovePrev(true) }, Alignment.BottomStart) {
+            Icon(Icons.Filled.Backspace, stringResource(R.string.delete_the_previous_point))
+        }
         MapActionButton({ setButtonState(!buttonState) }) {
             if (buttonState) {
                 Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
@@ -233,28 +238,42 @@ object Compose {
             Polygon(points = opt.points, fillColor = Color(opt.fillColor), zIndex = 100f)
         }
 
+        val resetLocalState = {
+            pointCount = draw.points.size
+            setPolyOpts(draw.polygonOptions())
+        }
+
         val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
         updateList(Toucher("drawing", touch, setTouch), touchers)
         val clearer = clearers.first()
         clearer.state?.let {
             draw.points.clear()
-            pointCount = draw.points.size
-            setPolyOpts(draw.polygonOptions())
+            resetLocalState()
             clearer.setState(null)
             setTouch(null)
         } ?: run {
             val drawer = drawers.first()
-            if (drawer.state) {
-                touch?.let { pt ->
-                    if (draw.points.isEmpty() || draw.points.last() != pt) {
-                        draw.addPoint(pt) {
-                            pointCount = draw.points.size
-                            setPolyOpts(draw.polygonOptions())
+            drawer.removePrev?.let {
+                draw.removePrev { didRemove ->
+                    if (didRemove) {
+                        resetLocalState()
+                        setTouch(null)
+                    }
+
+                    drawer.setRemovePrev(null)
+                }
+            } ?: run {
+                if (drawer.state) {
+                    touch?.let { pt ->
+                        if (draw.points.isEmpty() || draw.points.last() != pt) {
+                            draw.addPoint(pt) {
+                                resetLocalState()
+                            }
                         }
                     }
+                } else {
+                    setTouch(null)
                 }
-            } else {
-                setTouch(null)
             }
         }
     }

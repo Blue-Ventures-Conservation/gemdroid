@@ -51,9 +51,7 @@ class DynamicsViewModel(
     lateinit var urls: DynamicsURLs
 
     override var polygonName = ""
-    override var drawer = PolygonDrawer { point, adder, callback ->
-        scoped { repo.addPoint(point, adder).collect(callback) }
-    }
+    override var drawer = PolygonDrawer(background = ::background)
     override var shapefile: List<List<LatLng>> = emptyList()
 
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()

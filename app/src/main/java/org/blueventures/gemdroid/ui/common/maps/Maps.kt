@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
@@ -62,10 +63,10 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapActionButton(click: Click, content: @Composable () -> Unit) {
+    fun BoxScope.MapActionButton(click: Click, align: Alignment = Alignment.BottomEnd, content: @Composable () -> Unit) {
         FloatingActionButton(click, modifier = Modifier
-            .padding(bottom = 64.dp, end = 24.dp)
-            .align(Alignment.BottomEnd),
+            .padding(bottom = 64.dp, start = 24.dp, end = 24.dp)
+            .align(align),
             content = content,
         )
     }

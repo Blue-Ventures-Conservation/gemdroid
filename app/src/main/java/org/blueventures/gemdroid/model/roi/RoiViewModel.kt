@@ -33,9 +33,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonthStart: Int = defaultMonthStart
     var historicalMonthEnd: Int = defaultMonthEnd
-    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, adder = this::polyAdder)
-
-    private fun polyAdder(point: LatLng, adder: (LatLng) -> Unit, callback: (Unit) -> Unit) = scoped { repo.addPoint(point, adder).collect(callback) }
+    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -79,7 +77,7 @@ class RoiViewModel(
         } else {
             mutableListOf()
         }
-        roiDrawer = PolygonDrawer(points, maxArea = maxRoiArea, adder = this::polyAdder)
+        roiDrawer = PolygonDrawer(points, maxArea = maxRoiArea, background = ::background)
     }
 
     fun isUnique(): Boolean {
@@ -114,7 +112,7 @@ class RoiViewModel(
     override val appBarTitleId = R.string.create_coarse_roi
     override fun appBarTitle(title: String) = title
     override var visualizer: Visualize.Visualizer? = null
-    override val drawer = PolygonDrawer(adder = this::polyAdder)
+    override val drawer = PolygonDrawer(background = ::background)
 
     override fun polygonDrawn() {
         polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points))))

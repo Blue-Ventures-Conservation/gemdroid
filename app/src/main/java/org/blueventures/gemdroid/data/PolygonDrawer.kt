@@ -9,14 +9,17 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val adder: (LatLng, (LatLng) -> Unit, (Unit) -> Unit) -> Job): Draw.Data {
+class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Boolean, (Boolean) -> Unit) -> Job): Draw.Data {
     override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
-    override fun addPoint(point: LatLng, callback: (Unit) -> Unit): Job  = adder(point, ::addPoint, callback)
+    override fun addPoint(point: LatLng, callback: () -> Unit): Job  = background({ addPoint(point); true }, { callback() })
+    override fun removePrev(callback: (Boolean) -> Unit) = background(::removePrevious) { callback(it) }
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxSquareKms() = squareKms(maxArea ?: 0)
     override fun polygonSquareKms() = areaStr(points)
-    override fun area() = SphericalUtil.computeArea(points)/squareKmInMeters
+    override fun area() = areaKms(points)
+
+    private val ordered = mutableListOf<LatLng>()
 
     private fun addPoint(point: LatLng) {
         if (points.size > 2) {
@@ -56,11 +59,33 @@ class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), 
         }
 
         // 5. Now add coordinate to be drawn
+        ordered.add(point)
         points.add(point)
     }
 
-    fun validate(max: Int): Boolean {
-        val area = area()
+    private fun removePrevious(): Boolean {
+        if (ordered.isEmpty() || points.isEmpty()) {
+            return false
+        }
+
+        points.removeLast()
+        ordered.removeLast()
+
+        if (ordered.isEmpty() || points.isEmpty()) {
+            return true
+        }
+
+        val next = ordered.last()
+        val index = points.lastIndexOf(next)
+        if (index != points.size - 1) {
+            rotate(points, index)
+        }
+
+        return true
+    }
+
+    private fun validate(max: Int): Boolean {
+        val area = areaKms(points)
         return area > 0 && area <= max
     }
 

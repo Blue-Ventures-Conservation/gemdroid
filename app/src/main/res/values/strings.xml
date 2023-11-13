@@ -210,4 +210,5 @@
     <string name="review_inputs">Review Inputs</string>
     <string name="view_excluded_regions">view excluded regions</string>
     <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>
+    <string name="delete_the_previous_point">delete the previous point</string>
 </resources>
