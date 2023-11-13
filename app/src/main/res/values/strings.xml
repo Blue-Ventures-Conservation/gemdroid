@@ -155,8 +155,8 @@
     <string name="unnamed">Unnamed</string>
     <string name="roi_buffer_title">ROI Buffer</string>
     <string name="select_buffer_distance">Select buffer distance:</string>
-    <string name="select_months_range">%s imagery month range (inclusive):</string>
-    <string name="select_bounding_years">%s imagery year range (inclusive):</string>
+    <string name="select_months_range">Month range (inclusive):</string>
+    <string name="select_bounding_years">Year range (inclusive):</string>
     <string name="please_select_years_within">Please select years less than %s years apart</string>
     <string name="year_compare_fail">Year on the left must be equal to or less than the one on right</string>
     <string name="regions_of_interest">Regions of Interest</string>

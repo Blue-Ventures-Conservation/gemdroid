@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chargemap.compose.numberpicker.NumberPicker
 import org.blueventures.gemdroid.R
@@ -44,7 +45,10 @@ object Years {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
             Col.Col {
-                Text(stringResource(R.string.select_bounding_years).format(temporal), textAlign = TextAlign.Center, fontSize = 24.sp)
+                Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
+                    Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)
+                    Text(stringResource(R.string.select_bounding_years), textAlign = TextAlign.Center, fontSize = 20.sp)
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
