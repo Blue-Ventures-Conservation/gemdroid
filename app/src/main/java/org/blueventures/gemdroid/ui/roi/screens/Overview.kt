@@ -45,7 +45,7 @@ object Overview {
             viewModel.historicalYearEnd,
             viewModel.historicalMonthStart,
             viewModel.historicalMonthEnd,
-            viewModel.roiDrawer.points,
+            viewModel.roiDrawer.points(),
             viewModel.polygons.size,
             stringResource(id = R.string.overview),
             stringResource(id = R.string.done_button),

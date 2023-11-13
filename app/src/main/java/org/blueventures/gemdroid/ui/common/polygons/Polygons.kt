@@ -55,7 +55,7 @@ object Polygons {
         b.composable(routePolygonsOption) {
             PolygonsOption.Screen(model, appBar, snack, back = {
                 model.polygons.clear()
-                model.drawer.points.clear()
+                model.drawer.clear()
                 nav.popBackStack()
             }, skip = {
                 nav.navigate(nextRoute) {
@@ -93,7 +93,7 @@ object Polygons {
 
         b.composable(routeDrawnPolygon) {
             DrawPolygon.Screen(model, appBar, snack, {
-                model.drawer.points.clear()
+                model.drawer.clear()
                 nav.popBackStack()
             }) {
                 nav.popBackStack(routePolygonsOption, false)
@@ -115,7 +115,7 @@ object Polygons {
         b.composable(routePolygonsOverview) {
             PolygonsOverview.Screen(model, appBar, {
                 model.polygons.clear()
-                model.drawer.points.clear()
+                model.drawer.clear()
                 nav.popBackStack(routePolygonsOption, false)
             }) {
                 nav.navigate(nextRoute)

@@ -99,8 +99,8 @@ class DynamicsViewModel(
     override val named = true
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points))))
-        drawer.points.clear()
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points()))))
+        drawer.clear()
         polygonName = ""
     }
 

@@ -41,7 +41,7 @@ class RoiViewModel(
         repo.saveRoi(filesDir, roiFromState()).collect(callback)
     }
 
-    fun roiFromState() = ROI.fromState(
+    private fun roiFromState() = ROI.fromState(
         roiName,
         contemporaryYearStart,
         contemporaryYearEnd,
@@ -51,7 +51,7 @@ class RoiViewModel(
         historicalYearEnd,
         historicalMonthStart,
         historicalMonthEnd,
-        roiDrawer.points,
+        roiDrawer.points(),
         polygons
     )
 
@@ -103,7 +103,7 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.points.clear() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear() }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
@@ -115,12 +115,12 @@ class RoiViewModel(
     override val drawer = PolygonDrawer(background = ::background)
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points))))
-        drawer.points.clear()
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points()))))
+        drawer.clear()
         polygonName = ""
     }
 
-    override fun center() = Bounds.centerFromList(roiDrawer.points)
+    override fun center() = Bounds.centerFromList(roiDrawer.points())
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {

@@ -14,7 +14,8 @@ object Draw {
     }
 
     interface Data {
-        val points: MutableList<LatLng>
+        fun points(): MutableList<LatLng>
+        fun clear()
         fun polygonOptions(): PolygonOptions?
         fun addPoint(point: LatLng, callback: () -> Unit): Job
         fun removePrev(callback: (Boolean) -> Unit): Job

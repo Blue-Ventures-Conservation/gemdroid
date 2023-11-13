@@ -9,7 +9,9 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
-class PolygonDrawer(override val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Boolean, (Boolean) -> Unit) -> Job): Draw.Data {
+class PolygonDrawer(private val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Boolean, (Boolean) -> Unit) -> Job): Draw.Data {
+    override fun points() = points
+    override fun clear() { points.clear(); ordered.clear() }
     override fun polygonOptions() = ringOpts(points)
     // should be run on a coroutine
     override fun addPoint(point: LatLng, callback: () -> Unit): Job  = background({ addPoint(point); true }, { callback() })

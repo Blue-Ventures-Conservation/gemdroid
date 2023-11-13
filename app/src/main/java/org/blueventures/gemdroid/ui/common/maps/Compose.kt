@@ -193,8 +193,9 @@ object Compose {
     private fun shouldZoom(zoomed: Boolean, center: LatLng?, draw: Draw.Model?): LatLng? {
         return if (draw != null) {
             if (!zoomed) {
-                if (draw.points.isNotEmpty()) {
-                    centerFromList(draw.points)
+                val pts = draw.points()
+                if (pts.isNotEmpty()) {
+                    centerFromList(pts)
                 } else {
                     center
                 }
@@ -226,9 +227,10 @@ object Compose {
     @Composable
     @GoogleMapComposable
     private fun DrawTouch(draw: Draw.Model, drawers: List<Drawer>, clearers: List<Clearer>, touchers: MutableList<Toucher>) {
-        var pointCount by remember { mutableIntStateOf(draw.points.size) }
+        val points = draw.points()
+        var pointCount by remember { mutableIntStateOf(points.size) }
         if (pointCount > 0) {
-            for (point in draw.points) {
+            for (point in points) {
                 Marker(state = MarkerState(point))
             }
         }
@@ -239,7 +241,7 @@ object Compose {
         }
 
         val resetLocalState = {
-            pointCount = draw.points.size
+            pointCount = points.size
             setPolyOpts(draw.polygonOptions())
         }
 
@@ -247,7 +249,7 @@ object Compose {
         updateList(Toucher("drawing", touch, setTouch), touchers)
         val clearer = clearers.first()
         clearer.state?.let {
-            draw.points.clear()
+            draw.clear()
             resetLocalState()
             clearer.setState(null)
             setTouch(null)
@@ -265,7 +267,7 @@ object Compose {
             } ?: run {
                 if (drawer.state) {
                     touch?.let { pt ->
-                        if (draw.points.isEmpty() || draw.points.last() != pt) {
+                        if (points.isEmpty() || points.last() != pt) {
                             draw.addPoint(pt) {
                                 resetLocalState()
                             }
