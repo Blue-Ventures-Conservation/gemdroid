@@ -16,9 +16,10 @@ object CoarsePolygon {
     fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
             Maps.NoLayers(
-                attemptGps = true,
                 appBar = appBar,
                 title = stringResource(R.string.create_coarse_roi),
+                attemptGps = true,
+                storage = Maps.Storage.fromViewModel(viewModel),
                 draw = Draw.Model(viewModel.roiDrawer, snack, next)
             )
         }

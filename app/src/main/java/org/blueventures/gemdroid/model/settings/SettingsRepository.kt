@@ -1,8 +1,8 @@
 package org.blueventures.gemdroid.model.settings
 
-import com.github.zibnix.droidbones.mvvm.IORepository
+import org.blueventures.gemdroid.model.api.ApiRepository
 
 class SettingsRepository(
     private val datasource: SettingsDatasource = SettingsDatasource(),
-): IORepository() {
+): ApiRepository() {
 }

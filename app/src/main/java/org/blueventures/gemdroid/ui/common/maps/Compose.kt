@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Checkbox
@@ -66,18 +67,20 @@ object Compose {
     fun <T : URLs> Screen(
         gps: Boolean,
         center: LatLng?,
+        storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        DrawingControls(gps, center, layers, draw, poly, floating)
+        DrawingControls(gps, center, storage, layers, draw, poly, floating)
     }
 
     @Composable
     private fun <T : URLs> DrawingControls(
         gps: Boolean,
         center: LatLng?,
+        storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
@@ -117,7 +120,7 @@ object Compose {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 val drawers = remember { mutableStateListOf<Drawer>() }
-                Zoom(gps, center, layers, poly, draw, drawers, clearers)
+                Zoom(gps, center, storage, layers, poly, draw, drawers, clearers)
 
                 if (draw == null) {
                     floating()
@@ -129,9 +132,10 @@ object Compose {
     }
 
     @Composable
-    private fun <T: URLs> Zoom(
+    private fun <T: URLs> BoxScope.Zoom(
         gps: Boolean,
         center: LatLng?,
+        storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
@@ -147,12 +151,13 @@ object Compose {
         }
 
         val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
-        Map(gps, layers, poly, draw, drawers, clearers, position)
+        Map(gps, storage, layers, poly, draw, drawers, clearers, position)
     }
 
     @Composable
-    private fun <T : URLs> Map(
+    private fun <T : URLs> BoxScope.Map(
         gps: Boolean,
+        storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
@@ -160,35 +165,68 @@ object Compose {
         clearers: List<Clearer>,
         position: CameraPosition
     ) {
-        val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
-        val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
-        val properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = MapType.SATELLITE)) }
-        val touchers = remember { mutableStateListOf<Toucher>() }
-        GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
-            for (toucher in touchers) {
-                toucher.setState(pt)
-            }
-        }) {
-            val checkers = mutableListOf<Checker>()
-            layers?.let {
-                Tiles(layers, checkers)
+        val ctx = LocalContext.current
+        val (mapTypeResult, setMapTypeResult) = remember { mutableStateOf<Result<Int>?>(null) }
+        if (mapTypeResult == null && storage != null) {
+            storage.getMapType(ctx, setMapTypeResult)
+        } else {
+            val mapType = if (mapTypeResult?.isSuccess == true) getMapType(mapTypeResult.getOrNull()!!) else MapType.HYBRID
+            val touchers = remember { mutableStateListOf<Toucher>() }
+            val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
+            val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
+            var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
+            GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
+                for (toucher in touchers) {
+                    toucher.setState(pt)
+                }
+            }) {
+                val checkers = mutableListOf<Checker>()
+                layers?.let {
+                    Tiles(layers, checkers)
+                }
+
+                poly?.let {
+                    Polygons(poly, checkers, touchers)
+                }
+
+                layers?.let {
+                    layers.appBar.Update(AppBarUpdate(
+                        title = layers.title,
+                        actions = { LayersDropdown(checkers) }
+                    ))
+                }
+
+                draw?.let {
+                    DrawTouch(draw, drawers, clearers, touchers)
+                }
             }
 
-            poly?.let {
-                Polygons(poly, checkers, touchers)
-            }
+            MapActionButton({
+                val values = MapType.values()
+                val size = values.size
 
-            layers?.let {
-                layers.appBar.Update(AppBarUpdate(
-                    title = layers.title,
-                    actions = { LayersDropdown(checkers) }
-                ))
-            }
+                var next = (values.indexOf(properties.mapType) + 1) % size
+                if (next == MapType.NONE.value) {
+                    next = (next + 1) % size
+                }
+                val mt = values[next]
 
-            draw?.let {
-                DrawTouch(draw, drawers, clearers, touchers)
+                properties = MapProperties(isMyLocationEnabled = gps, mapType = mt)
+                storage?.setMapType(ctx, mt.value)
+            }, Alignment.TopStart) {
+                Icon(Icons.Filled.Layers, stringResource(R.string.next_base_map))
             }
         }
+    }
+
+    private fun getMapType(from: Int): MapType {
+        for (t in MapType.values()) {
+            if (t.value == from) {
+                return t
+            }
+        }
+
+        return MapType.HYBRID
     }
 
     private fun shouldZoom(zoomed: Boolean, center: LatLng?, draw: Draw.Model?): LatLng? {

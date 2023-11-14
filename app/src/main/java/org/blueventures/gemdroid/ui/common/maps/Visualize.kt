@@ -27,13 +27,14 @@ object Visualize {
         title: String,
         appBar: AppBar,
         center: LatLng? = null,
+        storage: Maps.Storage? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
-                Maps.Screen(false, center, object : Layers.Model<VisualizeURLs>() {
+                Maps.Screen(false, center, storage, object : Layers.Model<VisualizeURLs>() {
                     override val title = title
                     override val appBar = appBar
                     override val initUrls = urls
@@ -46,7 +47,7 @@ object Visualize {
                 }, draw, poly, floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, false, center, draw, poly, floating)
+            Maps.NoLayers(appBar, title, false, center, storage, draw, poly, floating)
         }
     }
 }

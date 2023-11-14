@@ -15,6 +15,7 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRe
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import java.io.File
@@ -121,7 +122,7 @@ class RoiViewModel(
     }
 
     override fun center() = Bounds.centerFromList(roiDrawer.points())
-
+    override val storage = Maps.Storage.fromViewModel(this)
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
             if (region.name == polygonName) {

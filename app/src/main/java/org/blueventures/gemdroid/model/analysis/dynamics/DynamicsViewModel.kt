@@ -31,6 +31,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.common.Shapefile
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.theme.LightGreen
@@ -111,7 +112,7 @@ class DynamicsViewModel(
     }
 
     override fun center() = Bounds.centerFromList(roi.polygonToState())
-
+    override val storage = Maps.Storage.fromViewModel(this)
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics
     override val polygonType = R.string.sub_region

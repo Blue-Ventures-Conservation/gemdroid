@@ -15,6 +15,7 @@ import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
@@ -24,6 +25,8 @@ object VisualizeShapefile {
         var polygonName: String
         var visualizer: Visualize.Visualizer?
         var shapefile: List<List<LatLng>>
+
+        val storage: Maps.Storage?
 
         fun shapefileLooksGood()
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
@@ -44,7 +47,7 @@ object VisualizeShapefile {
                 }
             } else {
                 val title = stringResource(R.string.visualize_shp)
-                Visualize.Screen(model.visualizer, title, appBar, center = center, poly = object : Poly.Model() {
+                Visualize.Screen(model.visualizer, title, appBar, center = center, storage = model.storage, poly = object : Poly.Model() {
                     override val menuTitle = stringResource(R.string.shapefile)
                     override val touchEnabled = true
                     override val labels = listOf(model.polygonName)

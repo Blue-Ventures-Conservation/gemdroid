@@ -1,6 +1,8 @@
 package org.blueventures.gemdroid.model.api
 
+import android.content.Context
 import android.net.Uri
+import androidx.datastore.preferences.core.Preferences
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.IOViewModel
 import kotlinx.coroutines.Job
@@ -36,6 +38,9 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
 
     fun saveResults(file: File, results: TasksResults) = saveFile(file, results, TasksResults.Companion)
     fun loadResults(file: File, callback: (Result<TasksResults>) -> Unit) = loadFile(file, TasksResults.Companion, callback)
+
+    fun <T> read(context: Context, key: Preferences.Key<T>, callback: (Result<T>) -> Unit) = scoped { repo.read(context, key).collect(callback) }
+    fun <T> write(context: Context, key: Preferences.Key<T>, value: T, callback: (Preferences?) -> Unit = {}) = scoped { repo.write(context, key, value).collect(callback) }
 
     companion object {
         fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(null, err.message)

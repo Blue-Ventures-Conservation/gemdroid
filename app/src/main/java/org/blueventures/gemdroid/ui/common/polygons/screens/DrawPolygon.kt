@@ -10,12 +10,14 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Draw
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object DrawPolygon {
     interface Model {
         var visualizer: Visualize.Visualizer?
 
+        val storage: Maps.Storage?
         val polygonType: Int
         val drawer: PolygonDrawer
 
@@ -26,7 +28,7 @@ object DrawPolygon {
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         Nav.Wrap(back) {
             val title = stringResource(R.string.draw_polygon).format(stringResource(model.polygonType))
-            Visualize.Screen(model.visualizer, title, appBar, center = model.center(), draw = Draw.Model(model.drawer, snack) {
+            Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, draw = Draw.Model(model.drawer, snack) {
                 model.polygonDrawn()
                 next()
             })

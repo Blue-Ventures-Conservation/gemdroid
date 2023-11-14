@@ -1,6 +1,10 @@
 package org.blueventures.gemdroid.model.api
 
+import android.content.Context
 import android.net.Uri
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +18,8 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 open class ApiDatasource(
     private val api: Api.Service = Api.Service.instance(),
@@ -32,8 +38,6 @@ open class ApiDatasource(
 
     suspend fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> ApiResult<O>) = call(api, body)
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S) = serializer.fromFile(file)
-    fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S): Result<Unit> {
-        return serializer.toFile(file, data)
-    }
+    fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = serializer.toFile(file, data)
     fun deleteFile(file: File) = FileService.deleteFile(file)
 }
