@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
@@ -163,7 +164,8 @@ object RoiList {
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp))
+            // weight here asks compose to measure the icon first, before doing layout of text, so that text overflow doesn't obscure the icon
+            Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp).weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Icon(
                 Icons.Filled.MoreVert, stringResource(R.string.roi_options_menu), modifier = Modifier
                     .padding(20.dp)

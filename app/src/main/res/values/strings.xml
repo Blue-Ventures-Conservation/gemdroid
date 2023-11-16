@@ -123,7 +123,7 @@
     <string name="create_coarse_roi">Create Coarse ROI</string>
     <string name="name_your_roi">Name your ROI</string>
     <string name="please_enter_name">Please enter a name</string>
-    <string name="please_enter_unique_non_special_name">Please enter a unique name without any special characters.</string>
+    <string name="please_enter_unique_non_special_name">Please enter a unique name, max %s characters, without any special characters.</string>
     <string name="name_your_polygon">Name your %s</string>
     <string name="visualize_shp">Visualize Shapefile</string>
     <string name="shp_looks_good">shapefile looks good, continue</string>

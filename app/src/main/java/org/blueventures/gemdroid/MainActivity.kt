@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -92,7 +93,7 @@ fun GEMApp(activity: ComponentActivity) {
             topBar = {
                      TopAppBar(
                          modifier = Modifier.fillMaxWidth(),
-                         title = { Text(barState.update.title) },
+                         title = { Text(barState.update.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                          actions = { barState.update.actions?.invoke(this) },
                          colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
                      )

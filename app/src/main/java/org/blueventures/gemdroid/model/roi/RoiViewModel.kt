@@ -12,6 +12,7 @@ import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -80,6 +81,8 @@ class RoiViewModel(
         }
         roiDrawer = PolygonDrawer(points = points, maxArea = maxRoiArea, background = ::background)
     }
+
+    fun notTooLong() = roiName.length <= maxNameCharLength
 
     fun isUnique(): Boolean {
         for (dir in rois) {

@@ -112,6 +112,7 @@ class RoiDatasource(
         const val filename = "roi.json"
         const val dirname = "rois"
 
+        const val maxNameCharLength = 50
         const val maxExcludedRegions = 5
 
         fun roiFile(roiDir: File) = File(roiDir, filename)

@@ -15,7 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -32,7 +32,7 @@ object Info {
     @Composable
     fun Header(title: String) {
         Column {
-            Text(text = title, fontSize = 32.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp))
+            Text(text = title, fontSize = 32.sp, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
             BlueLine()
         }
     }
@@ -40,7 +40,7 @@ object Info {
     @Composable
     fun SubHeader(title: String) {
         Column(modifier = Modifier.padding(start = 16.dp, top = 16.dp)) {
-            Text(text = title, fontSize = 20.sp, textAlign = TextAlign.Center)
+            Text(text = title, fontSize = 20.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             BlueLine()
         }
     }
