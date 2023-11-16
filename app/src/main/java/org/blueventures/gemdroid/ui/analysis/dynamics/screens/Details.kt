@@ -26,11 +26,14 @@ object Details {
                     Info.Header(viewModel.roi.name)
                     StatsBlock(viewModel.targetClass, viewModel.urls.stats)
                 }
-                Info.Block {
-                    if (viewModel.urls.subRegionStats.isNotEmpty()) {
+                if (viewModel.urls.subRegionStats.isNotEmpty()) {
+                    Info.Block {
                         Info.Header(stringResource(R.string.sub_regions))
-                        viewModel.urls.subRegionStats.forEach { stats ->
-                            Info.SubHeader(stats.name ?: stringResource(R.string.unnamed))
+                    }
+
+                    viewModel.urls.subRegionStats.forEach { stats ->
+                        Info.Block {
+                            Info.Header(stats.name ?: stringResource(R.string.unnamed))
                             StatsBlock(viewModel.targetClass, stats)
                         }
                     }

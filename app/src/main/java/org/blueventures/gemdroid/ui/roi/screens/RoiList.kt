@@ -181,7 +181,7 @@ object RoiList {
         ModalBottomSheet(onDismissRequest = {
             setShowSheet(null)
         }, sheetState = state) {
-            Text(dir.name, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp, textAlign = TextAlign.Center)
+            Text(dir.name, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
             SheetRow({
                 setDupeRoi(dir)
             }, Icons.Filled.ContentCopy, R.string.copy_region, R.string.copy_roi)

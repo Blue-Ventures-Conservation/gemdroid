@@ -1,5 +1,7 @@
 package org.blueventures.gemdroid.ui.common
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,11 +61,19 @@ object Roi {
 
     @Composable
     fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, points: List<LatLng>, excludedCount: Int, header: String, buttonLabel: String, next: Click) {
+
         Col.Col(scroll = true) {
             Info.Block {
                 Info.Header(title = header)
-                Info.BlueLine()
-                OverviewRow(stringResource(R.string.overview_name), name)
+
+                val nameLabel = stringResource(R.string.overview_name)
+                val (overflowed, setOverflowed) = remember { mutableStateOf<Boolean?>(null) }
+                when(overflowed) {
+                    null -> MeasureName(nameLabel, name, setOverflowed)
+                    true -> WrappedName(name)
+                    false -> OverviewRow(nameLabel, name)
+                }
+
                 OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
                 OverviewRow(stringResource(R.string.overview_contemporary_months), "$contMonthStart - $contMonthEnd")
                 OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
@@ -74,6 +84,27 @@ object Roi {
             }
             DashboardButton(buttonLabel, next)
         }
+    }
+
+    @Composable
+    private fun MeasureName(label: String, name: String, setOverflowed: (Boolean?) -> Unit) {
+        Info.Row(verticalPadding = 16.dp) {
+            Info.Txt(label)
+            Text(text = name, fontSize = Info.txtSize, maxLines = 1, onTextLayout = { layout ->
+                setOverflowed(layout.hasVisualOverflow)
+            })
+        }
+    }
+
+    @Composable
+    private fun WrappedName(name: String) {
+        Info.Row(verticalPadding = 16.dp) {
+            Column {
+                Info.Txt(stringResource(R.string.overview_name))
+                Info.Txt(name)
+            }
+        }
+        Info.BlueLine()
     }
 
     @Composable

@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Info {
+    val txtSize = 20.sp
+
     @Composable
     fun BlueLine() = Divider(color = SkyBlue, thickness = 1.dp)
 
@@ -34,6 +36,7 @@ object Info {
         val maxLines = if (truncate) 1 else Int.MAX_VALUE
         Column {
             Text(text = title, fontSize = 32.sp, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp), maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+            BlueLine()
             BlueLine()
         }
     }
@@ -53,7 +56,7 @@ object Info {
     }
 
     @Composable
-    fun Txt(text: String, fontSize: TextUnit = 20.sp) = Text(text, fontSize = fontSize)
+    fun Txt(text: String, fontSize: TextUnit = txtSize) = Text(text, fontSize = fontSize)
 
     @Composable
     fun Row(verticalPadding: Dp = 4.dp, enabled: Boolean = false, click: Click = {}, content: @Composable RowScope.() -> Unit) {
