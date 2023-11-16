@@ -133,11 +133,12 @@ class RoiViewModel(
             }
         }
 
-        return Regexp.subRegionName.matches(polygonName)
+        return polygonName.length <= maxNameLength && Regexp.subRegionName.matches(polygonName)
     }
 
     override var polygonName = ""
     override val polygonType = R.string.excluded_region
+    override val maxNameLength = maxNameCharLength
     override val polygonTypePlural = R.string.excluded_regions
     override val maxPolygons = maxExcludedRegions
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()

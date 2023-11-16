@@ -27,6 +27,7 @@ import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Comp
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.subRegionsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.urlsFile
 import org.blueventures.gemdroid.model.api.ApiViewModel
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Shapefile
@@ -92,7 +93,7 @@ class DynamicsViewModel(
             }
         }
 
-        return Regexp.subRegionName.matches(polygonName)
+        return polygonName.length <= maxNameLength && Regexp.subRegionName.matches(polygonName)
     }
 
     override val named = true
@@ -113,6 +114,7 @@ class DynamicsViewModel(
     override val storage = Maps.Storage.fromViewModel(this)
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics
+    override val maxNameLength = maxNameCharLength
     override val polygonType = R.string.sub_region
     override val maxPolygons = maxSubRegions
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)

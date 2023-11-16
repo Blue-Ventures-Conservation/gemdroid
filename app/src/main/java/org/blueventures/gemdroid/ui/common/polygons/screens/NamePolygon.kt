@@ -16,6 +16,7 @@ object NamePolygon {
         var polygonName: String
 
         val polygonType: Int
+        val maxNameLength: Int
 
         fun validatePolygonName(): Boolean
     }
@@ -27,7 +28,7 @@ object NamePolygon {
             back()
         }) {
             appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
-            val err = stringResource(R.string.please_enter_unique_non_special_name)
+            val err = stringResource(R.string.please_enter_unique_non_special_name).format(model.maxNameLength.toString())
             Collect.Text(header = stringResource(R.string.name_your_polygon).format(stringResource(model.polygonType)), label = stringResource(R.string.please_enter_name), initial = model.polygonName, snack, { name ->
                 model.polygonName = name
                 if (model.validatePolygonName()) null else err

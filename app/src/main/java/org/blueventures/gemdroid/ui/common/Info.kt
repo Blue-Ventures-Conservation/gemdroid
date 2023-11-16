@@ -30,17 +30,19 @@ object Info {
     fun Space() = Spacer(modifier = Modifier.height(16.dp))
 
     @Composable
-    fun Header(title: String) {
+    fun Header(title: String, truncate: Boolean = true) {
+        val maxLines = if (truncate) 1 else Int.MAX_VALUE
         Column {
-            Text(text = title, fontSize = 32.sp, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = title, fontSize = 32.sp, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp), maxLines = maxLines, overflow = TextOverflow.Ellipsis)
             BlueLine()
         }
     }
 
     @Composable
-    fun SubHeader(title: String) {
+    fun SubHeader(title: String, truncate: Boolean = true) {
+        val maxLines = if (truncate) 1 else Int.MAX_VALUE
         Column(modifier = Modifier.padding(start = 16.dp, top = 16.dp)) {
-            Text(text = title, fontSize = 20.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = title, fontSize = 20.sp, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
             BlueLine()
         }
     }
