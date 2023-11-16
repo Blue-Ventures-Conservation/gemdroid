@@ -56,9 +56,12 @@ object Details {
 
     @Composable
     fun DetailsRow(label: String, value: String) {
-        Info.Row {
-            Info.Txt(label)
-            Info.Txt(value)
+        Info.Block {
+            Info.SubHeader(label)
+            Info.Row {
+                Info.Txt(stringResource(R.string.area))
+                Info.Txt(value)
+            }
         }
     }
 
