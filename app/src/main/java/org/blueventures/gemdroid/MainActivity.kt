@@ -79,11 +79,11 @@ fun GEMApp(activity: ComponentActivity) {
             signOut = { SignIn.signOut(activity, Firebase.auth) },
         )) }
 
-        val appBar = AppBar {
+        val appBar = AppBar { update ->
             LaunchedEffect(true) {
-                if (it.title != barState.update.title || it.actions != null) {
-                    val acts: @Composable (RowScope.() -> Unit) = it.actions ?: { BasicActions(barState.signOut) }
-                    setBarState(barState.copy(update = AppBarUpdate(it.title, acts)))
+                if (update.title != barState.update.title || update.actions != null || barState.update.actions != null) {
+                    val acts: @Composable (RowScope.() -> Unit) = update.actions ?: { BasicActions(barState.signOut) }
+                    setBarState(barState.copy(update = AppBarUpdate(update.title, acts)))
                 }
             }
         }
