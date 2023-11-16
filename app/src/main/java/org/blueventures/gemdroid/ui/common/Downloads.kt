@@ -50,7 +50,7 @@ object Downloads {
 
     @Composable
     fun <T> Screen(
-        holder: VisualizeHolder,
+        holder: VisualizeHolder?,
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: (Boolean, (ApiResult<T>) -> Unit) -> Unit,
         save: (T) -> Unit,
@@ -82,7 +82,7 @@ object Downloads {
                         }
                     }
                 }, getRemote = { callback ->
-                    getRemote(holder.visualize, callback)
+                    getRemote(holder?.visualize ?: true, callback)
                 }, save = save, checkExpires = true) { exports ->
                     List(convert(exports), clear)
                 }
@@ -91,13 +91,13 @@ object Downloads {
     }
 
     @Composable
-    fun ChooseType(holder: VisualizeHolder, setChosen: () -> Unit) {
+    fun ChooseType(holder: VisualizeHolder?, setChosen: () -> Unit) {
         Col.Col {
             val (allBands, setAllBands) = remember { mutableStateOf(false) }
 
             if (allBands) {
                 AllBandsDialog({
-                    holder.visualize = false
+                    holder?.visualize = false
                     setChosen()
                 }) {
                     setAllBands(false)
@@ -107,15 +107,17 @@ object Downloads {
             val (checked, setChecked) = remember { mutableStateOf(false) }
 
             Info.Txt(text = stringResource(R.string.this_is_optional))
-            Info.Row {
-                Info.Txt(text = stringResource(R.string.include_all_bands))
-                Checkbox(checked = checked, onCheckedChange = setChecked)
+            if (holder != null) {
+                Info.Row {
+                    Info.Txt(text = stringResource(R.string.include_all_bands))
+                    Checkbox(checked = checked, onCheckedChange = setChecked)
+                }
             }
             Butt.Text(stringResource(R.string.prepare_files)) {
                 if (checked) {
                     setAllBands(true)
                 } else {
-                    holder.visualize = true
+                    holder?.visualize = true
                     setChosen()
                 }
             }

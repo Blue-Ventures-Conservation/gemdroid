@@ -29,7 +29,6 @@ import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Comp
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
-import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Visualize
@@ -42,7 +41,7 @@ import java.io.File
 
 class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
-): Downloads.VisualizeHolder, ApiViewModel(repo), Polygons.Model {
+): ApiViewModel(repo), Polygons.Model {
     override var visualizer: Visualize.Visualizer? = null
     lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cra: CRA
@@ -56,7 +55,6 @@ class DynamicsViewModel(
     override var shapefile: List<List<LatLng>> = emptyList()
 
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
-    override var visualize = true
 
     fun init(awaiter: Await.CRAAwaiter, vis: Visualize.Visualizer) {
         craAwaiter = awaiter

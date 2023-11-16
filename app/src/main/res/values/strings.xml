@@ -231,4 +231,5 @@
     <string name="we_will_add_feature">\n\nWe are going to add a feature to this app to assist with building simple/temporary CRAs on the fly, but for now this would be a manual process, ideally with robust ground-truthing involved.</string>
     <string name="poly_too_big">Please create a polygon with less than %s points!</string>
     <string name="next_base_map">next base map type (satellite, hybrid, etc)</string>
+    <string name="expand_layers_options_menu">expand layers options menu</string>
 </resources>

@@ -16,10 +16,9 @@ import org.blueventures.gemdroid.ui.common.Nav
 object Downloads {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click) {
-        viewModel.visualize = true
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics_downloads))))
-            Downloads.Screen(viewModel, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
+            Downloads.Screen(null, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
                 viewModel.clearExports()
                 back()
             }) { exports ->

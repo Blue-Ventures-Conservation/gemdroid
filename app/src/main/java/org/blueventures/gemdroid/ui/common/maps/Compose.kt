@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Checkbox
@@ -214,7 +215,7 @@ object Compose {
                 properties = MapProperties(isMyLocationEnabled = gps, mapType = mt)
                 storage?.setMapType(ctx, mt.value)
             }, Alignment.TopStart) {
-                Icon(Icons.Filled.Layers, stringResource(R.string.next_base_map))
+                Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
             }
         }
     }
@@ -444,7 +445,7 @@ object Compose {
     private fun LayersDropdown(checkers: List<Checker>) {
         val (menu, setMenu) = remember { mutableStateOf(false) }
         IconButton(onClick = { setMenu(!menu) }) {
-            Icon(Icons.Filled.MoreVert, "")
+            Icon(Icons.Filled.Layers, stringResource(R.string.expand_layers_options_menu))
         }
         DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }) {
             checkers.forEach { checker ->
