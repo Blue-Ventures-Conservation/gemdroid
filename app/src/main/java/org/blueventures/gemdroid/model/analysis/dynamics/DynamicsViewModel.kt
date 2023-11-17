@@ -32,6 +32,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.maps.Maps
+import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.theme.LightGreen
@@ -69,15 +70,16 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    override fun displayRegions(callback: (List<List<List<LatLng>>>) -> Unit) {
-        background({
-            val polys = mutableListOf<List<List<LatLng>>>()
-            for (poly in polygons) {
-                polys.add(GeojsonPolygon.toState(poly.polygon))
-            }
-            polys
+    override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        return background({
+            val polys = mutableListOf<Poly.NamedPoly>()
+            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonPolygon.toState(poly.polygon)))
+            listOf(Poly.PolygonGroup(polygonTypePlural, polys), backgroundPolygon())
         }, callback)
     }
+    override fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
+
+    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, listOf(roi.polygonToState()))), false)
 
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)
     fun tileDirs() = listOf(lossTileDir(roiDir, targetClass), persistenceTileDir(roiDir, targetClass), gainTileDir(roiDir, targetClass))

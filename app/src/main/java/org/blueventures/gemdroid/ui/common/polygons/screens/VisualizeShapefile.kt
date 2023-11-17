@@ -29,6 +29,7 @@ object VisualizeShapefile {
         val storage: Maps.Storage?
 
         fun shapefileLooksGood()
+        fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -48,16 +49,16 @@ object VisualizeShapefile {
             } else {
                 val title = stringResource(R.string.visualize_shp)
                 Visualize.Screen(model.visualizer, title, appBar, center = center, storage = model.storage, poly = object : Poly.Model() {
-                    override val menuTitle = stringResource(R.string.shapefile)
                     override val touchEnabled = true
-                    override val labels = listOf(model.polygonName)
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
 
-                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) {
-                        if (model.shapefile.isEmpty()) {
-                            callback(emptyList())
-                        } else {
-                            callback(listOf(model.shapefile))
+                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+                        return model.backgroundPolygon { bg ->
+                            if (model.shapefile.isEmpty()) {
+                                callback(listOf(bg))
+                            } else {
+                                callback(listOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile))), bg))
+                            }
                         }
                     }
                 }, floating = {

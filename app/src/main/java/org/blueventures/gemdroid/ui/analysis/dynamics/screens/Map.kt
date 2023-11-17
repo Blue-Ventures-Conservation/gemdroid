@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
@@ -36,11 +35,9 @@ object Map {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromList(viewModel.roi.polygonToState()), floating = {
+            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromList(viewModel.roi.polygonToState()), floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, layers = object : Layers.Model<DynamicsURLs>() {
-                override val title = viewModel.roi.appBarTitle(stringResource(R.string.dynamics))
-                override val appBar = appBar
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()
                 override val parentDir = viewModel.classDir()
@@ -49,10 +46,8 @@ object Map {
                 override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
             }, poly = object : Poly.Model() {
-                override val menuTitle = stringResource(R.string.sub_regions)
                 override val touchEnabled = true
-                override val labels = viewModel.polygons.map { it.name }
-                override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = viewModel.displayRegions(callback)
+                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.displayRegions(callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             })
         }

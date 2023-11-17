@@ -17,6 +17,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
+import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import java.io.File
@@ -107,7 +108,7 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
-    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear() }
+    fun clear() { clearName(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear(); polygons.clear(); }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
@@ -150,15 +151,16 @@ class RoiViewModel(
     override val optionsInit: @Composable (SnackFun, Click, @Composable () -> Unit) -> Unit = { _, _, content ->
         content()
     }
-    override fun displayRegions(callback: (List<List<List<LatLng>>>) -> Unit) {
-        background({
-            val polys = mutableListOf<List<List<LatLng>>>()
-            for (poly in polygons) {
-                polys.add(GeojsonPolygon.toState(poly.polygon))
-            }
-            polys
+    override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        return background({
+            val polys = mutableListOf<Poly.NamedPoly>()
+            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonPolygon.toState(poly.polygon)))
+            listOf(Poly.PolygonGroup(polygonTypePlural, polys), backgroundPolygon())
         }, callback)
     }
+    override fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
+
+    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roiName, listOf(roiDrawer.points()))), false)
 
     override var shapefile: List<List<LatLng>> = emptyList()
     override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }

@@ -34,9 +34,7 @@ object Visualize {
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
-                Maps.Screen(false, center, storage, object : Layers.Model<VisualizeURLs>() {
-                    override val title = title
-                    override val appBar = appBar
+                Maps.Screen(appBar, title, false, center, storage, object : Layers.Model<VisualizeURLs>() {
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                     override val parentDir = visualizer.parentDir()

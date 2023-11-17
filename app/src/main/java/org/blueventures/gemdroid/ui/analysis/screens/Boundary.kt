@@ -5,7 +5,6 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
@@ -26,10 +25,8 @@ object Boundary {
             Visualize.Screen(viewModel, viewModel.roi.appBarTitle(coarseBoundary), appBar,
                 center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel),
                 poly = object : Poly.Model() {
-                    override val menuTitle = coarseBoundary
                     override val touchEnabled = true
-                    override val labels = listOf(viewModel.roi.name)
-                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = callback(listOf(listOf(viewModel.roi.polygonToState())))
+                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.backgroundPolygon { callback(listOf(it)) }
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
                 }
             ) {

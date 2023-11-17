@@ -22,8 +22,8 @@ fun g2R2B(index: Int, size: Int): Color {
     return Color(blend3Way(LightGreen, MildRed, SkyBlue, index, size))
 }
 
-fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int): Int {
-    return when (size) {
+fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {
+    return ColorUtils.setAlphaComponent(when (size) {
         1 -> from.toArgb()
         2 -> {
             when (index) {
@@ -38,7 +38,7 @@ fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int): Int {
                 else -> blend(from, mid, index, half + 1)
             }
         }
-    }
+    }, alpha)
 }
 
 fun blend(from: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {

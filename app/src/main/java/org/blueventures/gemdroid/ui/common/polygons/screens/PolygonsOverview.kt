@@ -9,7 +9,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Info
@@ -25,10 +24,9 @@ object PolygonsOverview {
 
         val storage: Maps.Storage?
         val polygonTypePlural: Int
-        val polygons: MutableList<PolygonDrawer.NamedPolygon>
 
         fun center(): LatLng?
-        fun displayRegions(callback: (List<List<List<LatLng>>>) -> Unit)
+        fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -36,14 +34,11 @@ object PolygonsOverview {
     fun Screen(model: Model, appBar: AppBar, back: Click, ok: Click) {
         Nav.Wrap(back) {
             Info.Block {
-                val plural = stringResource(model.polygonTypePlural)
-                val title = stringResource(R.string.review_polygons).format(plural)
+                val title = stringResource(R.string.review_polygons).format(stringResource(model.polygonTypePlural))
 
                 Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
-                    override val menuTitle = plural
                     override val touchEnabled = true
-                    override val labels = model.polygons.map { it.name }
-                    override fun polygons(callback: (List<List<List<LatLng>>>) -> Unit) = model.displayRegions(callback)
+                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(callback)
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
                 }) {
                     MapActionButton(ok) {

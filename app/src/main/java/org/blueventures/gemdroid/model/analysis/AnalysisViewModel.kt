@@ -4,9 +4,9 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
@@ -30,6 +30,7 @@ import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Downloads
+import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 
@@ -153,13 +154,21 @@ class AnalysisViewModel(
         deleteFile(exportsFile(roiDir))
     }
 
-    fun displayRegions(polygons: List<GeojsonPolygon>, callback: (List<List<List<LatLng>>>) -> Unit) {
-        background({
-            val polys = mutableListOf<List<List<LatLng>>>()
-            for (poly in polygons) {
-                polys.add(GeojsonPolygon.toState(poly))
-            }
-            polys
-        }, callback)
+    fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        return if (roi.excludedRegions?.isNotEmpty() == true) {
+            val excludes = roi.excludedRegions!!
+            background({
+                val polys = mutableListOf<Poly.NamedPoly>()
+                for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonPolygon.toState(poly)))
+                listOf(Poly.PolygonGroup(R.string.excluded_regions, polys))
+            }, callback)
+        } else {
+            callback(emptyList())
+            Job()
+        }
     }
+
+    fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
+
+    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, listOf(roi.polygonToState()))))
 }

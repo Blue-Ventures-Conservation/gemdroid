@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -36,7 +35,6 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
@@ -53,6 +51,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds.centerFromList
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
+import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Info
@@ -66,6 +65,8 @@ object Compose {
 
     @Composable
     fun <T : URLs> Screen(
+        appBar: AppBar,
+        title: String,
         gps: Boolean,
         center: LatLng?,
         storage: Maps.Storage?,
@@ -74,11 +75,13 @@ object Compose {
         poly: Poly.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        DrawingControls(gps, center, storage, layers, draw, poly, floating)
+        DrawingControls(appBar, title, gps, center, storage, layers, draw, poly, floating)
     }
 
     @Composable
     private fun <T : URLs> DrawingControls(
+        appBar: AppBar,
+        title: String,
         gps: Boolean,
         center: LatLng?,
         storage: Maps.Storage?,
@@ -121,7 +124,7 @@ object Compose {
 
             Box(modifier = Modifier.fillMaxSize()) {
                 val drawers = remember { mutableStateListOf<Drawer>() }
-                Zoom(gps, center, storage, layers, poly, draw, drawers, clearers)
+                Zoom(appBar, title, gps, center, storage, layers, poly, draw, drawers, clearers)
 
                 if (draw == null) {
                     floating()
@@ -134,6 +137,8 @@ object Compose {
 
     @Composable
     private fun <T: URLs> BoxScope.Zoom(
+        appBar: AppBar,
+        title: String,
         gps: Boolean,
         center: LatLng?,
         storage: Maps.Storage?,
@@ -143,20 +148,15 @@ object Compose {
         drawers: List<Drawer>,
         clearers: List<Clearer>
     ) {
-        val (zoomed, setZoomed) = remember { mutableStateOf(false) }
-        var target = shouldZoom(zoomed, center, draw)
-        if (!zoomed && target != null) {
-            setZoomed(true)
-        } else if (zoomed) {
-            target = null
-        }
-
-        val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (center == null) 0f else 9f)
-        Map(gps, storage, layers, poly, draw, drawers, clearers, position)
+        val target = zoomOrDraw(center, draw)
+        val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (target == null) 0f else 9f)
+        Map(appBar, title, gps, storage, layers, poly, draw, drawers, clearers, position)
     }
 
     @Composable
     private fun <T : URLs> BoxScope.Map(
+        appBar: AppBar,
+        title: String,
         gps: Boolean,
         storage: Maps.Storage?,
         layers: Layers.Model<T>?,
@@ -190,9 +190,9 @@ object Compose {
                     Polygons(poly, checkers, touchers)
                 }
 
-                layers?.let {
-                    layers.appBar.Update(AppBarUpdate(
-                        title = layers.title,
+                if (checkers.isNotEmpty()) {
+                    appBar.Update(AppBarUpdate(
+                        title = title,
                         actions = { LayersDropdown(checkers) }
                     ))
                 }
@@ -230,17 +230,13 @@ object Compose {
         return MapType.HYBRID
     }
 
-    private fun shouldZoom(zoomed: Boolean, center: LatLng?, draw: Draw.Model?): LatLng? {
+    private fun zoomOrDraw(center: LatLng?, draw: Draw.Model?): LatLng? {
         return if (draw != null) {
-            if (!zoomed) {
-                val pts = draw.points()
-                if (pts.isNotEmpty()) {
-                    centerFromList(pts)
-                } else {
-                    center
-                }
+            val pts = draw.points()
+            if (pts.isNotEmpty()) {
+                centerFromList(pts)
             } else {
-                null
+                center
             }
         } else {
             center
@@ -359,22 +355,38 @@ object Compose {
     @Composable
     @GoogleMapComposable
     private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, touchers: MutableList<Toucher>) {
-        val (polyOpts, setPolyOpts) = remember { mutableStateOf<List<PolygonOptions>?>(null) }
-        when (polyOpts) {
+        val (polyOptsGroups, setPolyOptsGroups) = remember { mutableStateOf<List<Poly.PolyOptionsGroup>?>(null) }
+        when (polyOptsGroups) {
             null -> {
-                poly.polygonOptions(setPolyOpts)
+                poly.polygonOptions(setPolyOptsGroups)
             }
             else -> {
-                if (polyOpts.isNotEmpty()) {
-                    val (checked, setChecked) = remember { mutableStateOf(true) }
-                    updateList(Checker(poly.menuTitle, checked, setChecked), checkers)
-                    for (opt in polyOpts) {
-                        Polygon(points = opt.points, fillColor = Color(opt.fillColor), visible = checked, zIndex = 99f)
-                    }
+                var totalPolys = 0
+                val prevCounts = mutableListOf(0)
+                for (polyOpts in polyOptsGroups) {
+                    totalPolys += polyOpts.options.size
+                    prevCounts.add(totalPolys)
+                }
 
-                    if (poly.touchEnabled) {
-                        PolygonTouch(poly, polyOpts, touchers)
+                val firstZ = 99f
+
+                for (gindex in polyOptsGroups.indices) {
+                    val startingZ = firstZ - prevCounts[gindex]
+                    val polyOpts = polyOptsGroups[gindex]
+
+                    if (polyOpts.options.isNotEmpty()) {
+                        val (checked, setChecked) = remember { mutableStateOf(polyOpts.startChecked) }
+                        updateList(Checker(stringResource(polyOpts.menuTitle), checked, setChecked), checkers)
+                        for (i in polyOpts.options.indices) {
+                            val opt = polyOpts.options[i]
+                            val zIndex = startingZ + i
+                            Polygon(points = opt.options.points, fillColor = Color(opt.options.fillColor), visible = checked, zIndex = zIndex)
+                        }
                     }
+                }
+
+                if (poly.touchEnabled) {
+                    PolygonTouch(poly, polyOptsGroups, touchers)
                 }
             }
         }
@@ -382,7 +394,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun PolygonTouch(poly: Poly.Model, opts: List<PolygonOptions>, touchers: MutableList<Toucher>) {
+    private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, touchers: MutableList<Toucher>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
             val state = MarkerState(it.position)
@@ -398,11 +410,16 @@ object Compose {
             } else {
                 poly.markerWork({
                     var mopts: MarkerOptions? = null
-                    for (i in opts.indices) {
-                        val opt = opts[i]
-                        val label = poly.labels[i]
-                        if (PolyUtil.containsLocation(pt, opt.points, true)) {
-                            mopts = MarkerOptions().position(pt).title(label)
+                    for (opts in optGroups) {
+                        for (i in opts.options.indices) {
+                            val opt = opts.options[i]
+                            if (PolyUtil.containsLocation(pt, opt.options.points, true)) {
+                                mopts = MarkerOptions().position(pt).title(opt.name)
+                                break
+                            }
+                        }
+
+                        if (mopts != null) {
                             break
                         }
                     }

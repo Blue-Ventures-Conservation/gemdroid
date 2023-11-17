@@ -43,6 +43,7 @@ object Dashboard {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Nav.Wrap(back) {
+            Effect.Once { viewModel.dynamicsViewModel.polygons.clear() }
             Layout(viewModel, appBar, snack, {
                 next()
             }, back, {

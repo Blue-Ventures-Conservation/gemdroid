@@ -18,7 +18,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
 
@@ -48,8 +47,7 @@ object Maps {
         poly: Poly.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        appBar.Update(AppBarUpdate(title))
-        Screen<URLs>(attemptGps, center, storage, null, draw, poly, floating)
+        Screen<URLs>(appBar, title, attemptGps, center, storage, null, draw, poly, floating)
     }
 
     /**
@@ -58,6 +56,8 @@ object Maps {
     @OptIn(ExperimentalPermissionsApi::class)
     @Composable
     fun <T : URLs> Screen(
+        appBar: AppBar,
+        title: String,
         attemptGps: Boolean = false,
         center: LatLng? = null,
         storage: Storage? = null,
@@ -73,17 +73,17 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Compose.Screen(granted, center, storage, layers, draw, poly, floating)
+                Compose.Screen(appBar, title, granted, center, storage, layers, draw, poly, floating)
             }
         } else {
-            Compose.Screen(false, center, storage, layers, draw, poly, floating)
+            Compose.Screen(appBar, title, false, center, storage, layers, draw, poly, floating)
         }
     }
 
     @Composable
     fun BoxScope.MapActionButton(click: Click, align: Alignment = Alignment.BottomEnd, content: @Composable () -> Unit) {
         FloatingActionButton(click, modifier = Modifier
-            .padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 64.dp)
+            .padding(start = 12.dp, top = 12.dp, end = 12.dp, bottom = 48.dp)
             .align(align),
             content = content,
         )

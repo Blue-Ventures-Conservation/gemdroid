@@ -46,6 +46,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
@@ -62,6 +63,7 @@ object RoiList {
     fun Screen(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
         val (wentNext, setWentNext) = remember { mutableStateOf(false) }
         if (!wentNext) {
+            Effect.Once { viewModel.clear() }
             Layout(viewModel, dirHolder, filesDir, appBar, snack, {
                 setWentNext(true)
                 next()
