@@ -74,12 +74,10 @@ class DynamicsViewModel(
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonPolygon.toState(poly.polygon)))
-            listOf(Poly.PolygonGroup(polygonTypePlural, polys), backgroundPolygon())
+            listOf(Poly.PolygonGroup(polygonTypePlural, polys))
         }, callback)
     }
-    override fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
-
-    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, listOf(roi.polygonToState()))), false)
+    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)
 
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClass)
     fun tileDirs() = listOf(lossTileDir(roiDir, targetClass), persistenceTileDir(roiDir, targetClass), gainTileDir(roiDir, targetClass))

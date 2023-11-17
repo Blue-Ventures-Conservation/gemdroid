@@ -370,6 +370,7 @@ object Compose {
 
                 val firstZ = 99f
 
+                val visibilityState = mutableListOf<Boolean>()
                 for (gindex in polyOptsGroups.indices) {
                     val startingZ = firstZ - prevCounts[gindex]
                     val polyOpts = polyOptsGroups[gindex]
@@ -377,6 +378,7 @@ object Compose {
                     if (polyOpts.options.isNotEmpty()) {
                         val (checked, setChecked) = remember { mutableStateOf(polyOpts.startChecked) }
                         updateList(Checker(stringResource(polyOpts.menuTitle), checked, setChecked), checkers)
+                        visibilityState.add(checked)
                         for (i in polyOpts.options.indices) {
                             val opt = polyOpts.options[i]
                             val zIndex = startingZ + i
@@ -386,7 +388,7 @@ object Compose {
                 }
 
                 if (poly.touchEnabled) {
-                    PolygonTouch(poly, polyOptsGroups, touchers)
+                    PolygonTouch(poly, polyOptsGroups, visibilityState, touchers)
                 }
             }
         }
@@ -394,7 +396,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, touchers: MutableList<Toucher>) {
+    private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, visibility: List<Boolean>, touchers: MutableList<Toucher>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
             val state = MarkerState(it.position)
@@ -410,12 +412,16 @@ object Compose {
             } else {
                 poly.markerWork({
                     var mopts: MarkerOptions? = null
-                    for (opts in optGroups) {
-                        for (i in opts.options.indices) {
-                            val opt = opts.options[i]
-                            if (PolyUtil.containsLocation(pt, opt.options.points, true)) {
-                                mopts = MarkerOptions().position(pt).title(opt.name)
-                                break
+                    for (i in optGroups.indices) {
+                        val opts = optGroups[i]
+
+                        if (opts.options.isNotEmpty() && visibility[i]) {
+                            for (j in opts.options.indices) {
+                                val opt = opts.options[j]
+                                if (PolyUtil.containsLocation(pt, opt.options.points, true)) {
+                                    mopts = MarkerOptions().position(pt).title(opt.name)
+                                    break
+                                }
                             }
                         }
 

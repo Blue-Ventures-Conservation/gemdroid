@@ -158,7 +158,7 @@ class RoiViewModel(
             listOf(Poly.PolygonGroup(polygonTypePlural, polys), backgroundPolygon())
         }, callback)
     }
-    override fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
+    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ backgroundPolygon() }, callback)
 
     private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roiName, listOf(roiDrawer.points()))), false)
 

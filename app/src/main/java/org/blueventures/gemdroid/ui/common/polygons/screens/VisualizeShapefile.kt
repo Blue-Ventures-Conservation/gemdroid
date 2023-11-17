@@ -29,7 +29,7 @@ object VisualizeShapefile {
         val storage: Maps.Storage?
 
         fun shapefileLooksGood()
-        fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit): Job
+        fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -54,11 +54,9 @@ object VisualizeShapefile {
 
                     override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
                         return model.backgroundPolygon { bg ->
-                            if (model.shapefile.isEmpty()) {
-                                callback(listOf(bg))
-                            } else {
-                                callback(listOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile))), bg))
-                            }
+                            val list = if (model.shapefile.isEmpty()) mutableListOf() else mutableListOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile))))
+                            if (bg != null) list.add(bg)
+                            callback(list)
                         }
                     }
                 }, floating = {
