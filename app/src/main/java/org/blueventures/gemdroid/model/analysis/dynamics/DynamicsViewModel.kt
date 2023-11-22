@@ -63,6 +63,7 @@ class DynamicsViewModel(
         visualizer = vis
     }
 
+    var subregionsFinalized = false
     private var dynamicsJob: Job? = null
     private var exportsJobs: Job? = null
     private var statusJob: Job? = null

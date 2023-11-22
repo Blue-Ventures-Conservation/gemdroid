@@ -28,8 +28,11 @@ object Dynamics {
         Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_class, appBar, snack, viewModel)
 
         b.composable(Routes.target_class) {
-            TargetClass.Screen(viewModel, appBar, nav::popBackStack) {
+            TargetClass.Screen(viewModel, appBar, {
+                if (viewModel.subregionsFinalized) nav.popBackStack(Analysis.Routes.dashboard, false) else nav.popBackStack()
+            }) {
                 viewModel.saveSubRegionsFile()
+                viewModel.subregionsFinalized = true
                 nav.navigate(Routes.map)
             }
         }

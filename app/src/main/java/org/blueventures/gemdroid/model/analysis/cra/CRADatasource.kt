@@ -5,11 +5,11 @@ import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.apiResultCheck
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.storage
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.iryndin.jdbf.core.DbfFieldTypeEnum

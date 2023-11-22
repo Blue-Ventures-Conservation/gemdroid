@@ -7,11 +7,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.storage
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.api.Token
 import org.blueventures.gemdroid.data.Serializer

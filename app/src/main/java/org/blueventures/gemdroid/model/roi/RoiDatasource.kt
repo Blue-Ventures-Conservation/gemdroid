@@ -2,9 +2,9 @@ package org.blueventures.gemdroid.model.roi
 
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.mvvm.FileService
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MD5
 import org.blueventures.gemdroid.data.Shapefile
