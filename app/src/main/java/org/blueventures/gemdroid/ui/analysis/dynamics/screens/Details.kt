@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.squareKmInMeters
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.squareKms
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsStats
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -54,7 +54,7 @@ object Details {
 
     @Composable
     fun StatsRow(label: String, area: Double) {
-        DetailsRow(label, squareKms(toSquareKm(area)))
+        DetailsRow(label, hectares(toHectares(area)))
     }
 
     @Composable
@@ -80,5 +80,5 @@ object Details {
     @Composable
     private fun TargetLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
 
-    private fun toSquareKm(meters: Double) = (meters/squareKmInMeters).toInt()
+    private fun toHectares(meters: Double) = (meters/hectareInMeters).toInt()
 }

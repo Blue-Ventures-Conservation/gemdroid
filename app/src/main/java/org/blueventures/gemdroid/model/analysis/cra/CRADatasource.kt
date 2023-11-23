@@ -106,7 +106,7 @@ class CRADatasource(
 
         numericsMap.forEach { (nf, nof) ->
             stringsMap.forEach { (sf, sof) ->
-                if (nof.size() == sof.size()) {
+                if (nof.size() == sof.size() && nof.counts == sof.counts) {
                     numerics.add(nf)
                     if (!strings.contains(sf)) {
                         strings.add(sf)
@@ -297,7 +297,7 @@ class CRADatasource(
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         val data = result.data!!
-        if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_falied))
+        if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_failed))
         cra.eeUploadName = data.name
         FileService.deleteFile(cra.localFile ?: File(""))
         return Result.success(Unit)

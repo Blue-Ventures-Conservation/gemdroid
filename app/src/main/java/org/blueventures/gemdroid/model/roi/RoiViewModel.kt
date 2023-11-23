@@ -171,7 +171,7 @@ class RoiViewModel(
     }
 
     companion object {
-        const val maxRoiArea = 40_000 // square kilometers
+        const val maxRoiArea = 5_000_000 // hectares
         const val maxYearGap = 5
         const val defaultContemporaryYearStart = 2019
         const val defaultContemporaryYearEnd = 2021

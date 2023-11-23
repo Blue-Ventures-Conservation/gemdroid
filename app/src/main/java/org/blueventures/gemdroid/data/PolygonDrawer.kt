@@ -18,9 +18,9 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
     override fun addPoint(point: LatLng, callback: (Int?) -> Unit): Job  = background({ addPoint(point) }, { callback(it) })
     override fun removePrev(callback: (Int?) -> Unit) = background(::removePrevious) { callback(it) }
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
-    override fun maxSquareKms() = squareKms(maxArea ?: 0)
-    override fun polygonSquareKms() = areaStr(points)
-    override fun area() = areaKms(points)
+    override fun maxHectares() = hectares(maxArea ?: 0)
+    override fun polygonHectares() = areaStr(points)
+    override fun area() = areaHectares(points)
 
     private val ordered = mutableListOf<LatLng>()
 
@@ -93,16 +93,16 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
     }
 
     private fun validate(max: Int): Boolean {
-        val area = areaKms(points)
+        val area = areaHectares(points)
         return area > 0 && area <= max
     }
 
     companion object {
-        const val squareKmInMeters = 1_000_000
+        const val hectareInMeters = 10_000
 
-        fun areaStr(points: List<LatLng>) = squareKms(areaKms(points).toInt())
-        fun squareKms(km: Int) = "${"%,d".format(km)} km²"
-        fun areaKms(points: List<LatLng>) = SphericalUtil.computeArea(points)/squareKmInMeters
+        fun areaStr(points: List<LatLng>) = hectares(areaHectares(points).toInt())
+        fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
+        fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters
 
         fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {

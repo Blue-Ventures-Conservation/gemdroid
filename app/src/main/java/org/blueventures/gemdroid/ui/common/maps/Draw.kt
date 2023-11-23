@@ -23,8 +23,8 @@ object Draw {
 
         /** validation funcs */
         fun validatePolygon(): Boolean
-        fun maxSquareKms(): String
-        fun polygonSquareKms(): String
+        fun maxHectares(): String
+        fun polygonHectares(): String
         fun area(): Double
     }
 

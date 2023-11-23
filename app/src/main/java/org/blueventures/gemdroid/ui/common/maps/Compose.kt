@@ -111,8 +111,8 @@ object Compose {
                             val msg = if (draw.area() <= 0) {
                                 pleaseDraw
                             } else {
-                                val max = draw.maxSquareKms()
-                                val current = draw.polygonSquareKms()
+                                val max = draw.maxHectares()
+                                val current = draw.polygonHectares()
                                 tooBig.format(max, current)
                             }
 

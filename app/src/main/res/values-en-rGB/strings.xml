@@ -62,14 +62,14 @@
     <string name="shps_must_differ">Please select two different shapefiles.</string>
     <string name="please_reuse_shp">Please use the previously uploaded shapefile by that name.</string>
     <string name="internal_cra_err">Internal CRA data error, sorry!</string>
-    <string name="shp_no_candidate_num">Shapefile has no candidate fields for the numeric class field.</string>
+    <string name="shp_no_candidate_num">There must be a matching pair of numeric and character columns with equal numbers of distinct values, and the columns must always agree!</string>
     <string name="shp_no_candidate_char">Shapefile has no candidate fields for the character class field.</string>
     <string name="shp_name_alphanumeric">Shapefile name can only contain alphanumeric characters, dashes and underscores.</string>
     <string name="shps_must_match_fields">Please select shapefiles that have matching field names and values.</string>
     <string name="unreachable_err">Unreachable error encountered …</string>
     <string name="internal_storage_key_err">Internal storage key error, sorry!</string>
     <string name="internal_sho_err">Internal shapefile error, sorry!</string>
-    <string name="gee_ingestion_falied">Ingestion of CRA into Earth Engine failed.</string>
+    <string name="gee_ingestion_failed">Ingestion of CRA into Earth Engine failed.</string>
     <string name="could_not_read_fs">Could not read filesystem</string>
     <string name="analysis">Analysis</string>
     <string name="select_char_field">Select Character Class Field:</string>
@@ -99,7 +99,7 @@
     <string name="gps_rationale">This app uses GPS to help zoom the map to your location. Please grant the permission.</string>
     <string name="gps_rationale_description">Please grant permission for the app to use GPS.</string>
     <string name="clear">Clear</string>
-    <string name="polygon_sizing">Please create a polygon. It\'s area must be less than %s. Yours is currently %s</string>
+    <string name="polygon_sizing">Please create a polygon. It\'s area must be less than %1$s. Yours is currently %2$s</string>
     <string name="no_polygons_found">No polygons found in Shapefile</string>
     <string name="choose_class_dynamics">Choose one of your classes to measure dynamics:</string>
     <string name="classification_reference_areas">Classification Reference Areas (CRAs)</string>
@@ -135,7 +135,7 @@
     <string name="view_dynamics_details">View dynamics details</string>
     <string name="sub_regions_overview">Sub Regions Overview</string>
     <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
-    <string name="please_hit_no">You can\'t have more than %s %s, please hit no!</string>
+    <string name="please_hit_no">You can\'t have more than %1$s %2$s, please hit no!</string>
     <string name="please_create_polygon">Please create a polygon.</string>
     <string name="sub_region">Sub Region</string>
     <string name="sub_regions">Sub Regions</string>
