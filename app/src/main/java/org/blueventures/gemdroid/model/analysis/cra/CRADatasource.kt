@@ -105,14 +105,24 @@ class CRADatasource(
         val zipFile = zipResult.getOrNull()!!
 
         numericsMap.forEach { (nf, nof) ->
+            var matched = false
             stringsMap.forEach { (sf, sof) ->
                 if (nof.size() == sof.size() && nof.counts == sof.counts) {
-                    numerics.add(nf)
+                    matched = true
+
+                    val numbers = nof.values.map { it.toInt() }
+                    val sorted = numbers.zip(sof.values).sortedBy { it.first }
+                    val sofValues = sorted.map { it.second }
+
                     if (!strings.contains(sf)) {
                         strings.add(sf)
-                        stringValues[sf] = sof.values
+                        stringValues[sf] = sofValues
                     }
                 }
+            }
+
+            if (matched) {
+                numerics.add(nf)
             }
         }
 

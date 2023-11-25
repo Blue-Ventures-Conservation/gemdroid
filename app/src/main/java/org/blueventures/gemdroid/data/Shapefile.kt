@@ -30,7 +30,6 @@ data class Shapefile(
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
         fun toFile(file: File, shp: Shapefile) = FileService.toFile(file, shp, adapter)
 
-
         fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxPoints: Int = 1000, errId: Int = R.string.please_use_smaller_shp): Result<List<List<LatLng>>> {
             val unzipDir = File(workDir, "shapes_unzip_polygons")
             val pathsResult = unzipOrCopy(unzipDir, files, names)
