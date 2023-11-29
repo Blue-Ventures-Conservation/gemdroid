@@ -31,46 +31,51 @@ object Shapefile {
 
     @Composable
     fun <T> Screen(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
+        val ctx = LocalContext.current
+        val resultHandler: (Result<T>?) -> Unit = { result ->
+            if (result != null) {
+                when {
+                    result.isSuccess -> success(result.getOrNull()!!)
+                    else -> failure(result.exceptionOrNull()!!.localized(ctx))
+                }
+            }
+        }
+
+        Result(title, background, validator, resultHandler) {}
+    }
+
+    @Composable
+    fun <T> Result(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, result: (Result<T>?) -> Unit, progress: () -> Unit = {}) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
         when (uris) {
             null -> GetUris(title, setUris)
-            else -> Validation(background, validator, uris, failure, success, setUris)
+            else -> Validation(background, validator, uris, result, setUris, progress)
         }
     }
 
     @Composable
-    fun <T> Validation(background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, failure: (String) -> Unit, success: (T) -> Unit, setUris: (List<Uri>?) -> Unit) {
-        val (validation, setValidation) = remember { mutableStateOf<Result<T>?>(null) }
-
-        when {
-            validation == null -> {
-                Progress()
-                val context = LocalContext.current
-                background({
-                    val strms = mutableListOf<InputStream?>()
-                    val names = mutableListOf<String?>()
-                    uris.forEach { uri ->
-                        strms.add(context.contentResolver.openInputStream(uri))
-                        names.add(contentDisplayName(context, uri))
+    fun <T> Validation(background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, result: (Result<T>?) -> Unit, setUris: (List<Uri>?) -> Unit, progress: () -> Unit = {}) {
+        Progress()
+        val context = LocalContext.current
+        Effect.Once {
+            background({
+                val strms = mutableListOf<InputStream?>()
+                val names = mutableListOf<String?>()
+                uris.forEach { uri ->
+                    strms.add(context.contentResolver.openInputStream(uri))
+                    names.add(contentDisplayName(context, uri))
+                }
+                Streams(strms, names)
+            }) {
+                validator(it) { res ->
+                    if (res?.isFailure == true) {
+                        setUris(null)
                     }
-                    Streams(strms, names)
-                }) {
-                    validator(it, setValidation)
+                    result(res)
                 }
             }
-            validation.isFailure -> {
-                val ctx = LocalContext.current
-                Effect.Once {
-                    failure(validation.exceptionOrNull()!!.localized(ctx))
-                    setUris(null)
-                }
-            }
-            validation.isSuccess -> {
-                Effect.Once {
-                    success(validation.getOrNull()!!)
-                }
-            }
+            progress()
         }
     }
 

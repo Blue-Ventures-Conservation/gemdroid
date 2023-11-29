@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -59,64 +61,90 @@ object Common {
     @Composable
     fun Selection(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
         Col.Col {
-            if (remoteCRAs.isEmpty()) {
-                LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal)
-            } else {
-                LocalRemoteSwitch(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal, setRemote)
+            val (craFile, setCRAFile) = remember { mutableStateOf<Result<CRAFile>?>(null) }
+            val (remoteKey, setRemoteKey) = remember { mutableStateOf<String?>(null) }
+            val (progress, setProgress) = remember { mutableStateOf(false) }
+            val (checkedState, setCheckedState) = remember { mutableStateOf(true) }
+
+            when {
+                progress -> Progress()
+                remoteKey != null -> {
+                    Effect.Once {
+                        setRemote(remoteKey)
+                        next()
+                    }
+                }
+                craFile != null -> {
+                    val ctx = LocalContext.current
+                    Effect.Once {
+                        when {
+                            craFile.isSuccess ->  {
+                                setLocal(craFile.getOrNull()!!)
+                                next()
+                            }
+                            else -> {
+                                snack(craFile.exceptionOrNull()!!.localized(ctx))
+                                setCRAFile(null)
+                            }
+                        }
+                    }
+                }
+                else -> {
+                    val sp = { setProgress(true) }
+                    val local: (Result<CRAFile>?) -> Unit = { setProgress(false); setCRAFile(it) }
+                    if (remoteCRAs.isEmpty()) {
+                        LocalCRA(viewModel, temporal, remoteCRAs, previous, local, sp)
+                    } else {
+                        LocalRemoteSwitch(viewModel, checkedState, setCheckedState, temporal, remoteCRAs, previous, local, setRemoteKey, sp)
+                    }
+                }
             }
         }
     }
 
     @Composable
-    fun LocalRemoteSwitch(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
-        val checkedState = remember { mutableStateOf(true) }
+    fun LocalRemoteSwitch(viewModel: CRAViewModel, checkedState: Boolean, setCheckedState: (Boolean) -> Unit, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<CRAFile>?) -> Unit, setRemote: (String) -> Unit, setProgress: () -> Unit) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (checkedState.value) {
+            if (checkedState) {
                 Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
             } else {
                 Text(text = stringResource(R.string.select_a_shapefile_from_local_files), fontSize = 16.sp)
             }
             Switch(
-                checked = checkedState.value,
-                onCheckedChange = { checkedState.value = it }
+                checked = checkedState,
+                onCheckedChange = { setCheckedState(it) }
             )
         }
 
-        if (checkedState.value) {
-            RemoteCRA(temporal, remoteCRAs, next, setRemote)
+        if (checkedState) {
+            RemoteCRA(temporal, remoteCRAs, setRemote)
         } else {
-            LocalCRA(viewModel, temporal, snack, remoteCRAs, previous, next, setLocal)
+            LocalCRA(viewModel, temporal, remoteCRAs, previous, setLocal, setProgress)
         }
     }
 
     @Composable
-    fun LocalCRA(viewModel: CRAViewModel, temporal: String, snack: SnackFun, remoteCRAs: List<String>, previous: String?, next: Click, setLocal: (CRAFile) -> Unit) {
-        Shapefile.Screen(stringResource(R.string.select_a_temporal_shapefile).format(temporal), viewModel::background, { streams, callback ->
+    fun LocalCRA(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<CRAFile>?) -> Unit, setProgress: () -> Unit) {
+        Shapefile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), viewModel::background, { streams, callback ->
             viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, callback)
-        }, { err ->
-            snack(err)
-        }, { cra ->
-            setLocal(cra)
-            next()
-        })
+        }, setLocal, setProgress)
     }
 
     @Composable
-    fun RemoteCRA(temporal: String, remoteCRAs: List<String>, next: Click, setRemote: (String) -> Unit) {
-        val nextEnabled = remember { mutableStateOf(false) }
-        val selected = remember { mutableStateOf("") }
+    fun RemoteCRA(temporal: String, remoteCRAs: List<String>, setRemote: (String) -> Unit) {
+        var nextEnabled by remember { mutableStateOf(false) }
+        var selected by remember { mutableStateOf("") }
         Dropdown(title = stringResource(R.string.select_a_temporal_shapefile).format(temporal), labels = remoteCRAs) { i ->
-            selected.value = remoteCRAs[i]
-            nextEnabled.value = true
+            selected= remoteCRAs[i]
+            nextEnabled= true
         }
 
-        Butt.Next(nextEnabled.value) {
-            setRemote(selected.value)
-            next()
+        Butt.Next(nextEnabled) {
+            setRemote(selected)
         }
     }
 }
