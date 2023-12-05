@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.model.analysis
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -32,6 +33,7 @@ import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
+import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 
 class AnalysisViewModel(
@@ -154,13 +156,13 @@ class AnalysisViewModel(
         deleteFile(exportsFile(roiDir))
     }
 
-    fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    fun excludedRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return if (roi.excludedRegions?.isNotEmpty() == true) {
             val excludes = roi.excludedRegions!!
             background({
                 val polys = mutableListOf<Poly.NamedPoly>()
                 for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonPolygon.toState(poly)))
-                listOf(Poly.PolygonGroup(R.string.excluded_regions, polys))
+                listOf(Poly.PolygonGroup(R.string.excluded_regions, polys, MildRed.toArgb()))
             }, callback)
         } else {
             callback(emptyList())

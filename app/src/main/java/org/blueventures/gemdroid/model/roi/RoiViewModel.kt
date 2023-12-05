@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.roi
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
@@ -20,6 +21,7 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 import java.util.Calendar
 
@@ -155,12 +157,12 @@ class RoiViewModel(
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonPolygon.toState(poly.polygon)))
-            listOf(Poly.PolygonGroup(polygonTypePlural, polys), backgroundPolygon())
+            listOf(Poly.PolygonGroup(polygonTypePlural, polys, MildRed.toArgb()), backgroundPolygon())
         }, callback)
     }
     override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ backgroundPolygon() }, callback)
 
-    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roiName, listOf(roiDrawer.points()))), false)
+    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roiName, listOf(roiDrawer.points()))), startChecked = false)
 
     override var shapefile: List<List<LatLng>> = emptyList()
     override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }

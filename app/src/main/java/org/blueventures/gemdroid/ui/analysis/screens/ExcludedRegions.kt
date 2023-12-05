@@ -21,7 +21,7 @@ object ExcludedRegions {
             Visualize.Screen(viewModel, viewModel.roi.appBarTitle(excludedLabel), appBar, center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel),
                 poly = object : Poly.Model() {
                     override val touchEnabled = true
-                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.displayRegions(callback)
+                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.excludedRegions(callback)
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
                 }
             )
