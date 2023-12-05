@@ -18,7 +18,7 @@
     <string name="sign_in_label">Se connecter</string>
     <string name="sign_out_label">Déconnexion</string>
     <string name="sign_in_failed">Échec de la connexion !</string>
-    <string name="visualize_imagery_title">Fausse couleur</string>
+    <string name="visualize_imagery_title">Imagerie par satellite</string>
     <string name="unrecoverable_error">Erreur irrécupérable, veuillez appuyer sur Retour.</string>
     <string name="access_email_subject">Demande d\'accès à l\'application GEM</string>
     <string name="access_email_rationale">Excuses ! Nous devons vérifier que vous n\'utilisez pas cette application à des fins lucratives afin de respecter les politiques de Google Earth Engine. Veuillez appuyer sur ce message pour nous envoyer un e-mail à bv.gemapp@gmail.com et remplir les informations demandées, merci !</string>
@@ -200,7 +200,6 @@
     <string name="polygons_look_good">les polygones ont l\'air bien</string>
     <string name="click_next_to_start_s_analysis">Cliquez sur Suivant pour démarrer l\'analyse %s !</string>
     <string name="click_next_to_add_cras">Cliquez sur Suivant pour ajouter des zones de référence de classification (CRA) et passez à Classification et dynamique pour %s !</string>
-    <string name="visualize">Fausse couleur</string>
     <string name="historical_choice_yes">Oui, j\'ai un fichier de formes distinct pour les ARC historiques.</string>
     <string name="historical_choice_no">Non, essayez de classer l\'imagerie historique en vous entraînant uniquement avec les données contemporaines.</string>
     <string name="historical_choice_not_necessary">Pas nécessaire ! Les zones de référence n\'ont pas changé entre les périodes historiques et contemporaines. Utilisez simplement les ARC contemporaines pour les images historiques.</string>
@@ -233,4 +232,8 @@
     <string name="next_base_map">type de carte de base suivant (satellite, hybride, etc.)</string>
     <string name="expand_layers_options_menu">développer le menu d\'options des calques</string>
     <string name="area">Zone :</string>
+    <string name="false_color_imagery">Images en fausses couleurs</string>
+    <string name="false_color_imagery_description">description des images en fausses couleurs</string>
+    <string name="false_color_channels">Les pixels de cette imagerie utilisent les canaux proche infrarouge, infrarouge à ondes courtes I et rouge à la place des canaux rouge, vert et bleu d\'une image en vraies couleurs.</string>
+    <string name="false_color_mangroves">Ce composite en fausses couleurs met en évidence les mangroves côtières en orange foncé afin qu\'elles puissent être distinguées de la forêt terrestre voisine.</string>
 </resources>

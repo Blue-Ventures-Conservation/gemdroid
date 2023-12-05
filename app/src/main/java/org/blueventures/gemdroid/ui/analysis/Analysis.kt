@@ -16,8 +16,9 @@ import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.screens.ExcludedRegions
-import org.blueventures.gemdroid.ui.analysis.screens.FalseColor
-import org.blueventures.gemdroid.ui.analysis.screens.Properties
+import org.blueventures.gemdroid.ui.analysis.screens.FalseColorDescription
+import org.blueventures.gemdroid.ui.analysis.screens.ReviewInputs
+import org.blueventures.gemdroid.ui.analysis.screens.Satellite
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
@@ -29,8 +30,9 @@ object Analysis {
         const val dashboard = prefix + "dashboard"
         const val buffer = prefix + "buffer"
         const val visualize = prefix + "visualize"
+        const val imagery_description = prefix + "imagery_description"
         const val imagery_downloads = prefix + "imagery_downloads"
-        const val properties = prefix + "properties"
+        const val review_inputs = prefix + "review_inputs"
         const val boundary = prefix + "boundary"
         const val excluded = prefix + "excluded_regions"
 
@@ -54,8 +56,8 @@ object Analysis {
                 nav.popClear(Roi.Routes.list)
             }, falseColor = {
                 nav.navigate(Routes.visualize)
-            }, properties = {
-                nav.navigate(Routes.properties)
+            }, review = {
+                nav.navigate(Routes.review_inputs)
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
@@ -70,7 +72,13 @@ object Analysis {
 
         // Visualization
         b.composable(Routes.visualize) {
-            FalseColor.Screen(viewModel, appBar, nav::popBackStack) {
+            Satellite.Screen(viewModel, appBar, nav::popBackStack) {
+                nav.navigate(Routes.imagery_description)
+            }
+        }
+
+        b.composable(Routes.imagery_description) {
+            FalseColorDescription.Screen(appBar, nav::popBackStack) {
                 nav.navigate(Routes.imagery_downloads)
             }
         }
@@ -79,8 +87,8 @@ object Analysis {
             Downloads.Screen(viewModel, appBar, nav::popBackStack)
         }
 
-        b.composable(Routes.properties) {
-            Properties.Screen(viewModel, appBar, nav::popBackStack) {
+        b.composable(Routes.review_inputs) {
+            ReviewInputs.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.boundary)
             }
         }

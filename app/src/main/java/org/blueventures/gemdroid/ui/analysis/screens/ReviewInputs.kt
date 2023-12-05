@@ -10,7 +10,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Roi.OverviewFromROI
 
-object Properties {
+object ReviewInputs {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click, polygon: Click) {
         Nav.Wrap(back) {

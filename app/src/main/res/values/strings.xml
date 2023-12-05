@@ -18,7 +18,7 @@
     <string name="sign_in_label">Sign In</string>
     <string name="sign_out_label">Sign Out</string>
     <string name="sign_in_failed">Sign In Failed!</string>
-    <string name="visualize_imagery_title">False Color</string>
+    <string name="visualize_imagery_title">Satellite Imagery</string>
     <string name="unrecoverable_error">Unrecoverable error, please press Back.</string>
     <string name="access_email_subject">Requesting Access to GEM app</string>
     <string name="access_email_rationale">Apologies! We need to verify that you are not using this app for profit in order to comply with the policies of Google Earth Engine. Please tap on this message to send us an email at bv.gemapp@gmail.com and fill out the information requested, thank you!</string>
@@ -200,7 +200,6 @@
     <string name="polygons_look_good">polygons look good</string>
     <string name="click_next_to_start_s_analysis">Click Next to start %s analysis!</string>
     <string name="click_next_to_add_cras">Click Next to add Classification Reference Areas (CRAs) and move on to Classification and Dynamics for %s!</string>
-    <string name="visualize">False Color</string>
     <string name="historical_choice_yes">Yes, I have a separate shapefile for historical CRAs.</string>
     <string name="historical_choice_no">No, try to classify the historical imagery by training only with the contemporary data.</string>
     <string name="historical_choice_not_necessary">Not needed! The reference areas haven\'t changed between historical and contemporary time periods. Just use the contemporary CRAs for historical imagery.</string>
@@ -233,4 +232,8 @@
     <string name="next_base_map">next base map type (satellite, hybrid, etc)</string>
     <string name="expand_layers_options_menu">expand layers options menu</string>
     <string name="area">Area:</string>
+    <string name="false_color_imagery">False Color Imagery</string>
+    <string name="false_color_imagery_description">false color imagery description</string>
+    <string name="false_color_channels">The pixels in this imagery use the Near Infrared, Shortwave Infrared I and Red channels in place of the Red, Green and Blue channels of a true color image.</string>
+    <string name="false_color_mangroves">This false color composite highlights coastal mangroves in dark orange so that they can be distinguished from nearby terrestrial forest.</string>
 </resources>

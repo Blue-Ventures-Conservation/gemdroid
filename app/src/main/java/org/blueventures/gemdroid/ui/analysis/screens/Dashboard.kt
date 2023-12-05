@@ -41,20 +41,10 @@ import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, review: Click, clazz: Click, dyn: Click) {
         Nav.Wrap(back) {
             Effect.Once { viewModel.dynamicsViewModel.polygons.clear() }
-            Layout(viewModel, appBar, snack, {
-                next()
-            }, back, {
-                falseColor()
-            },{
-              properties()
-            },{
-                clazz()
-            }) {
-                dyn()
-            }
+            Layout(viewModel, appBar, snack, next, back, falseColor, review, clazz, dyn)
         }
     }
 
@@ -115,14 +105,14 @@ object Dashboard {
                     ) {
                         when (stage) {
                             Stage.CRAS -> {
-                                FalseColorRow(falseColor)
-                                PropertiesRow(properties)
+                                SatelliteRow(falseColor)
+                                ReviewInputsRow(properties)
                             }
                             Stage.ALL -> {
-                                FalseColorRow(falseColor)
+                                SatelliteRow(falseColor)
                                 ClassificationRow(clazz)
                                 DynamicsRow(dyn)
-                                PropertiesRow(properties)
+                                ReviewInputsRow(properties)
                             }
                             else -> {}
                         }
@@ -153,12 +143,12 @@ object Dashboard {
     }
 
     @Composable
-    fun FalseColorRow(falseColor: Click) {
-        DashboardRow(stringResource(R.string.visualize), falseColor)
+    fun SatelliteRow(falseColor: Click) {
+        DashboardRow(stringResource(R.string.visualize_imagery_title), falseColor)
     }
 
     @Composable
-    fun PropertiesRow(properties: Click) {
+    fun ReviewInputsRow(properties: Click) {
         DashboardRow(stringResource(R.string.review_inputs), properties)
     }
 

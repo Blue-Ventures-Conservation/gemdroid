@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -15,13 +15,13 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 
-object FalseColor {
+object Satellite {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click, downloads: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click, imageryDescription: Click) {
         Nav.Wrap(back) {
             Visualize.Screen(viewModel, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)), appBar,
                 center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel), floating = {
-                MapActionButton(downloads) { Icon(Icons.Filled.Download, stringResource(R.string.download_imagery)) }
+                MapActionButton(imageryDescription) { Icon(Icons.Filled.Info, stringResource(R.string.false_color_imagery_description)) }
             })
         }
     }
