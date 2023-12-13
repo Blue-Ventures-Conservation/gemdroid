@@ -157,8 +157,8 @@ class AnalysisViewModel(
     }
 
     fun excludedRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
-        return if (roi.excludedRegions?.isNotEmpty() == true) {
-            val excludes = roi.excludedRegions!!
+        return if (roi.excludedRegions.isNotEmpty()) {
+            val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Poly.NamedPoly>()
                 for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonPolygon.toState(poly)))

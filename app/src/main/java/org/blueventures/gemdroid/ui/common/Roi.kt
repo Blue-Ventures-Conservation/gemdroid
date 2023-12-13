@@ -52,7 +52,7 @@ object Roi {
             histMonthStart = roi.histMonthStart,
             histMonthEnd = roi.histMonthEnd,
             points = roi.polygonToState(),
-            excludedCount = roi.excludedRegions?.size ?: 0,
+            excludedCount = roi.excludedRegions.size,
             header = header,
             buttonLabel = buttonLabel,
             next = next,

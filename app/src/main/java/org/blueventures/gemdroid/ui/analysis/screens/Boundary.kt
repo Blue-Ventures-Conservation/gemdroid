@@ -30,7 +30,7 @@ object Boundary {
                     override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
                 }
             ) {
-                if (viewModel.roi.excludedRegions?.isNotEmpty() == true) {
+                if (viewModel.roi.excludedRegions.isNotEmpty()) {
                     MapActionButton(excluded) { Icon(Icons.Filled.ArrowForward, stringResource(R.string.view_excluded_regions)) }
                 }
             }

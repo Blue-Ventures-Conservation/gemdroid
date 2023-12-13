@@ -74,7 +74,7 @@ class RoiViewModel(
         historicalMonthStart = roi.histMonthStart
         historicalMonthEnd = roi.histMonthEnd
         polygons.clear()
-        polygons.addAll(roi.excludedRegions?.map { PolygonDrawer.NamedPolygon("", it) } ?: emptyList())
+        polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) } ?: emptyList())
 
         val state = GeojsonPolygon.toState(roi.polygon)
         val points = if (state.isNotEmpty()) {
