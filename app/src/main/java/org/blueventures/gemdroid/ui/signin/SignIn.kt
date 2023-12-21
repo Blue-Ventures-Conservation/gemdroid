@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -42,9 +41,9 @@ import org.blueventures.gemdroid.MainActivity
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.SignInActivity
 import org.blueventures.gemdroid.ui.common.Butt
+import org.blueventures.gemdroid.ui.common.Progress
 
 object SignIn {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(activity: Activity) {
         val snackHostState = remember { SnackbarHostState() }
@@ -55,14 +54,16 @@ object SignIn {
             }
         }
         val (msg, setMsg) = remember { mutableStateOf("") }
+        val (signingIn, setSigningIn) = remember { mutableStateOf(false) }
 
         val oneTapClient = Identity.getSignInClient(activity)
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            onSignInResult(activity, result, oneTapClient, Firebase.auth) { user ->
+            onSignInResult(activity, result, oneTapClient, Firebase.auth) { user, err ->
                 user?.let {
                     signedIn(activity)
                 } ?: run {
-                    setMsg(activity.getString(R.string.sign_in_failed))
+                    setSigningIn(false)
+                    setMsg(err ?: "")
                 }
             }
         }
@@ -74,20 +75,28 @@ object SignIn {
                 snackbar(msg)
             }
 
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.sign_in_prompt),
-                    modifier = Modifier.padding(48.dp),
-                )
-                Butt.Text(stringResource(R.string.sign_in_label)) {
-                    setMsg("")
-                    doSignIn(activity, oneTapClient, launcher)
+            if (signingIn) {
+                Progress()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.sign_in_prompt),
+                        modifier = Modifier.padding(48.dp),
+                    )
+                    Butt.Text(stringResource(R.string.sign_in_label)) {
+                        setMsg("")
+                        setSigningIn(true)
+                        doSignIn(activity, oneTapClient, launcher) { err ->
+                            setSigningIn(false)
+                            setMsg(err ?: "")
+                        }
+                    }
                 }
             }
         }
@@ -95,7 +104,7 @@ object SignIn {
 
     private const val TAG = "Signer"
 
-    private fun doSignIn(activity: Activity, oneTapClient: SignInClient, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+    private fun doSignIn(activity: Activity, oneTapClient: SignInClient, launcher: ActivityResultLauncher<IntentSenderRequest>, fail: (String?) -> Unit) {
         val signInRequest = BeginSignInRequest.builder()
             .setPasswordRequestOptions(
                 BeginSignInRequest.PasswordRequestOptions.builder()
@@ -117,17 +126,19 @@ object SignIn {
                 try {
                     launcher.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
                 } catch (e: IntentSender.SendIntentException) {
+                    fail(null)
                     Log.e(TAG, "could not send intent: ${e.message}")
                 }
             }
             .addOnFailureListener(activity) { e ->
                 // No saved credentials found. Launch the One Tap sign-up flow, or
                 // do nothing and continue presenting the signed-out UI.
+                fail(activity.getString(R.string.sign_in_network_fail))
                 Log.e(TAG, "no saved credentials found: ${e.message}")
             }
     }
 
-    private fun onSignInResult(activity: Activity, result: ActivityResult, oneTapClient: SignInClient, auth: FirebaseAuth, setUser: (FirebaseUser?) -> Unit) {
+    private fun onSignInResult(activity: Activity, result: ActivityResult, oneTapClient: SignInClient, auth: FirebaseAuth, setUser: (FirebaseUser?, err: String?) -> Unit) {
         if (result.resultCode == Activity.RESULT_OK) {
             try {
                 val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
@@ -136,25 +147,29 @@ object SignIn {
                 auth.signInWithCredential(firebaseCredential)
                     .addOnCompleteListener(activity) { task ->
                         if (task.isSuccessful) {
-                            setUser(auth.currentUser)
+                            setUser(auth.currentUser, null)
                         } else {
-                            setUser(null)
+                            setUser(null, activity.getString(R.string.sign_in_failed))
                         }
                     }
             } catch (e: ApiException) {
+                var err: String? = null
                 when (e.statusCode) {
                     CommonStatusCodes.CANCELED -> {
                         Log.d(TAG, "One-tap dialog was closed.")
                     }
                     CommonStatusCodes.NETWORK_ERROR -> {
+                        err = activity.getString(R.string.sign_in_network_fail)
                         Log.d(TAG, "One-tap encountered a network error.")
                     }
                     else -> {
                         Log.d(TAG, "Couldn't get credential from result." + " (${e.localizedMessage})")
                     }
                 }
+                setUser(null, err)
             }
         } else {
+            setUser(null, null)
             Log.d(TAG, "result not OK")
         }
     }

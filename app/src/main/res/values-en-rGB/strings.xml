@@ -236,4 +236,5 @@
     <string name="false_color_imagery_description">false colour imagery description</string>
     <string name="false_color_channels">The pixels in this imagery use the Near Infrared, Shortwave Infrared I and Red channels in place of the Red, Green and Blue channels of a true colour image.</string>
     <string name="false_color_mangroves">This false colour composite highlights coastal mangroves in dark orange so that they can be distinguished from nearby terrestrial forest.</string>
+    <string name="sign_in_network_fail">Sign in failed, do you have a network connection?</string>
 </resources>

@@ -236,4 +236,5 @@
     <string name="false_color_imagery_description">description des images en fausses couleurs</string>
     <string name="false_color_channels">Les pixels de cette imagerie utilisent les canaux proche infrarouge, infrarouge à ondes courtes I et rouge à la place des canaux rouge, vert et bleu d\'une image en vraies couleurs.</string>
     <string name="false_color_mangroves">Ce composite en fausses couleurs met en évidence les mangroves côtières en orange foncé afin qu\'elles puissent être distinguées de la forêt terrestre voisine.</string>
+    <string name="sign_in_network_fail">Échec de la connexion, disposez-vous d\'une connexion réseau ?</string>
 </resources>
