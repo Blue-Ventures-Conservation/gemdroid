@@ -83,7 +83,7 @@ object Api {
                 backend(timeout)
             }
 
-            fun instance(timeout: Long = 600): Service {
+            fun instance(timeout: Long = 1200): Service {
                 Companion.timeout = timeout
                 return service
             }
