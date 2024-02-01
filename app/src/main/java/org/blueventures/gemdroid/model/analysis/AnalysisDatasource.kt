@@ -51,10 +51,8 @@ class AnalysisDatasource(
         private const val exportsFilename = "landsat_exports.json"
         private const val resultsFile = "results.json"
 
-        // roi file details
-        private const val roiFilename = RoiDatasource.filename
-
-        fun roiFile(roiDir: File) = File(roiDir, roiFilename)
+        fun roiUUID() = RoiDatasource.roiUUID()
+        fun roiFile(roiDir: File) = RoiDatasource.roiFile(roiDir)
         fun buffersFile(roiDir: File) = File(roiDir, buffersChartFile)
         fun buffDistFile(roiDir: File) = File(roiDir, bufferFile)
         fun urlsFile(roiDir: File) = File(visDir(roiDir), visualizeURLsFile)

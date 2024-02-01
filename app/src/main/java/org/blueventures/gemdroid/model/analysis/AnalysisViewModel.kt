@@ -82,6 +82,7 @@ class AnalysisViewModel(
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = loadFile(roiFile(roiDir), ROI.Companion, callback)
+    fun saveROI(roi: ROI) = saveFile(roiFile(roiDir), roi, ROI.Companion)
 
     fun saveBuffersFile(buffers: Buffers) = saveFile(buffersFile(roiDir), buffers, Buffers.Companion)
     fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = loadFile(buffersFile(roiDir), Buffers.Companion, callback)

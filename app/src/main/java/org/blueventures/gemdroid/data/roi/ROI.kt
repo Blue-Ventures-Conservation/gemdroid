@@ -23,6 +23,7 @@ data class ROI(
     @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
     @Json(name = "excludes") val excludedRegions: List<GeojsonPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,
+    @Json(name = "region_uuid") val regionUUID: String? = null
 ) {
     fun polygonToState() = if (polygon.coordinates.isNotEmpty()) polygon.coordinates[0].map { LatLng(it[1], it[0]) } else emptyList()
 
@@ -43,7 +44,8 @@ data class ROI(
             histMonthEnd: Int,
             points: List<LatLng>,
             excludes: List<PolygonDrawer.NamedPolygon>,
-            buffDist: Int = -1
+            buffDist: Int = -1,
+            regionUUID: String? = null
         ): ROI {
             return ROI(
                 buffDist,
@@ -58,6 +60,7 @@ data class ROI(
                 histMonthEnd,
                 GeojsonPolygon(listOf(ringFromState(points))),
                 excludes.map { it.polygon },
+                regionUUID = regionUUID
             )
         }
 

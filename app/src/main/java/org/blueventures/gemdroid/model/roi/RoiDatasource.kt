@@ -12,6 +12,7 @@ import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
 import java.io.InputStream
+import java.util.UUID
 
 class RoiDatasource(
     private val auth: FirebaseAuth = Firebase.auth
@@ -116,5 +117,6 @@ class RoiDatasource(
         const val maxExcludedRegions = 5
 
         fun roiFile(roiDir: File) = File(roiDir, filename)
+        fun roiUUID() = UUID.randomUUID().toString().replace("-", "")
     }
 }

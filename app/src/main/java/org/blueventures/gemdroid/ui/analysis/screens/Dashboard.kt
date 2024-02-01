@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.roiUUID
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -53,7 +54,12 @@ object Dashboard {
         Roi.Loader(viewModel::getROI, snack, {
             back()
         }) {
-            viewModel.roi = it
+            var roi = it
+            if (it.regionUUID == null) {
+                roi = it.copy(regionUUID = roiUUID())
+                viewModel.saveROI(roi)
+            }
+            viewModel.roi = roi
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.analysis))))
 
             val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }

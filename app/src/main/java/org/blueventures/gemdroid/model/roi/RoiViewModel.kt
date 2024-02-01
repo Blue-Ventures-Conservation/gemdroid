@@ -14,6 +14,7 @@ import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.roiUUID
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -24,6 +25,7 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 import java.util.Calendar
+import java.util.UUID
 
 class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
@@ -57,7 +59,8 @@ class RoiViewModel(
         historicalMonthStart,
         historicalMonthEnd,
         roiDrawer.points(),
-        polygons
+        polygons,
+        regionUUID = roiUUID()
     )
 
     fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
