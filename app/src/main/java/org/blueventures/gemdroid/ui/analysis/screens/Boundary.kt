@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -31,7 +31,7 @@ object Boundary {
                 }
             ) {
                 if (viewModel.roi.excludedRegions.isNotEmpty()) {
-                    MapActionButton(excluded) { Icon(Icons.Filled.ArrowForward, stringResource(R.string.view_excluded_regions)) }
+                    MapActionButton(excluded) { Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(R.string.view_excluded_regions)) }
                 }
             }
         }

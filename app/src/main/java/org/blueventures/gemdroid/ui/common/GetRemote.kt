@@ -14,6 +14,12 @@ import org.blueventures.gemdroid.data.Expires
 import org.blueventures.gemdroid.data.staleCheck
 import java.net.HttpURLConnection
 
+/**
+ * Functions in this file will load from the network when loading locally fails.
+ *
+ * This means that even though there may be locally cached data, when the API data changes, that local file load
+ * can fail and we'll just fetch the updated format from the server without showing errors to the user.
+ */
 object GetRemote {
     @Composable
     fun <T> Save(

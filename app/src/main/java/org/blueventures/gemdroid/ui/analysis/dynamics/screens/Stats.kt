@@ -7,7 +7,7 @@ import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
-import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsStats
+import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -16,40 +16,28 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Nav
 
-object Details {
+object Stats {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, downloads: Click) {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             Col.MidPad(arrange = Arrangement.Top, scroll = true) {
                 Info.Block {
-                    Info.Header(viewModel.roi.name)
-                    StatsBlock(viewModel.targetClass, viewModel.urls.stats)
+                    Info.Header(viewModel.analysisRegion.name)
+                    ClassBlock(viewModel.analysisClass)
                 }
-                if (viewModel.urls.subRegionStats.isNotEmpty()) {
-                    Info.Block {
-                        Info.Header(stringResource(R.string.sub_regions))
-                    }
-
-                    viewModel.urls.subRegionStats.forEach { stats ->
-                        Info.Block {
-                            Info.Header(stats.name ?: stringResource(R.string.unnamed))
-                            StatsBlock(viewModel.targetClass, stats)
-                        }
-                    }
-                }
-                Downloads(downloads)
             }
         }
     }
 
     @Composable
-    fun StatsBlock(targetClass: String, stats: DynamicsStats) {
-        StatsRow(TargetLabel(R.string.total_cont_area, targetClass), stats.cont_area)
-        StatsRow(TargetLabel(R.string.total_hist_area, targetClass), stats.hist_area)
-        StatsRow(TargetLabel(R.string.loss_fmt, targetClass), stats.loss)
-        StatsRow(TargetLabel(R.string.gain_fmt, targetClass), stats.gain)
-        StatsRow(TargetLabel(R.string.persistence_fmt, targetClass), stats.persistence)
+    fun ClassBlock(classDynamics: ClassDynamics) {
+        val className = classDynamics.name
+        StatsRow(ClassLabel(R.string.total_cont_area, className), classDynamics.contArea)
+        StatsRow(ClassLabel(R.string.total_hist_area, className), classDynamics.histArea)
+        StatsRow(ClassLabel(R.string.loss_fmt, className), classDynamics.loss)
+        StatsRow(ClassLabel(R.string.gain_fmt, className), classDynamics.gain)
+        StatsRow(ClassLabel(R.string.persistence_fmt, className), classDynamics.persistence)
     }
 
     @Composable
@@ -69,16 +57,7 @@ object Details {
     }
 
     @Composable
-    private fun Downloads(downloads: Click) {
-        Info.Block {
-            Info.BlueLine()
-            Info.Space()
-            Col.DashboardButton(stringResource(R.string.downloads), downloads)
-        }
-    }
-
-    @Composable
-    private fun TargetLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
+    private fun ClassLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
 
     private fun toHectares(meters: Double) = (meters/hectareInMeters).toInt()
 }

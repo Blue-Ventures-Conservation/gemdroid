@@ -101,7 +101,7 @@
     <string name="clear">Effacer</string>
     <string name="polygon_sizing">Veuillez créer un polygone. Sa superficie doit être inférieure à %1$s. Le vôtre est actuellement %2$s</string>
     <string name="no_polygons_found">Aucun polygone trouvé dans le Shapefile</string>
-    <string name="choose_class_dynamics">Choisissez une de vos classes pour mesurer la dynamique :</string>
+    <string name="choose_class_dynamics">Choisissez une ou plusieurs classes à combiner pour l\'analyse :</string>
     <string name="classification_reference_areas">Zones de référence de classification (CRA)</string>
     <string name="would_you_like_polygons">Voulez-vous ajouter %s dans votre ROI ?</string>
     <string name="yes_add_polygons">Oui : Ajouter %s</string>
@@ -237,4 +237,8 @@
     <string name="false_color_channels">Les pixels de cette imagerie utilisent les canaux proche infrarouge, infrarouge à ondes courtes I et rouge à la place des canaux rouge, vert et bleu d\'une image en vraies couleurs.</string>
     <string name="false_color_mangroves">Ce composite en fausses couleurs met en évidence les mangroves côtières en orange foncé afin qu\'elles puissent être distinguées de la forêt terrestre voisine.</string>
     <string name="sign_in_network_fail">Échec de la connexion, disposez-vous d\'une connexion réseau ?</string>
+    <string name="please_select_at_least">Veuillez sélectionner au moins %s!</string>
+    <string name="create_a_combined_name">Créez un nom pour cette combinaison de classes</string>
+    <string name="choose_which_region_to_analyze">Choisissez la région à analyser :</string>
+    <string name="choose_which_class_to_analyze">Choisissez la classe à analyser :</string>
 </resources>

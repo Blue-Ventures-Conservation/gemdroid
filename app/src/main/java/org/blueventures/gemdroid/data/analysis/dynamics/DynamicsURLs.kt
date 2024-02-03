@@ -6,14 +6,13 @@ import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
 data class DynamicsURLs(
-    @Json(name = "name") val name: String,
-    @Json(name = "stats") val stats: DynamicsStats,
     @Json(name = "loss_url") val lossURL: String,
     @Json(name = "persistence_url") val persistenceURL: String,
     @Json(name = "gain_url") val gainURL: String,
+    @Json(name = "stats") val stats: DynamicsStats,
+    @Json(name = "sub_region_stats") val subRegionStats: List<DynamicsStats>,
     @Json(name = "created_at") override val createdAt: Int, // seconds
     @Json(name = "timeout") override val timeout: Int, // seconds
-    @Json(name = "sub_region_stats") val subRegionStats: List<DynamicsStats>,
 ): URLs {
     override fun ordered(i: Int): String {
         return when(i) { 0 -> lossURL; 1 -> persistenceURL; else -> gainURL }
@@ -27,10 +26,26 @@ data class DynamicsURLs(
 }
 
 data class DynamicsStats(
-    @Json(name = "name") val name: String?,
-    @Json(name = "contemporary_area") val cont_area: Double,
-    @Json(name = "historical_area") val hist_area: Double,
+    @Json(name = "name") val name: String,
+    @Json(name = "all_classes") val allClasses: List<ClassDynamics>,
+)
+
+data class ClassDynamics(
+    @Json(name = "name") val name: String,
+    @Json(name = "cont") val contArea: Double,
+    @Json(name = "hist") val histArea: Double,
     @Json(name = "loss") val loss: Double,
     @Json(name = "persistence") val persistence: Double,
     @Json(name = "gain") val gain: Double,
+    @Json(name = "conversions") val conversions: ClassConversions,
+)
+
+data class ClassConversions(
+    @Json(name = "to") val to: List<Conversion>,
+    @Json(name = "from") val from: List<Conversion>,
+)
+
+data class Conversion(
+    @Json(name = "area") val area: Double,
+    @Json(name = "name") val name: String,
 )

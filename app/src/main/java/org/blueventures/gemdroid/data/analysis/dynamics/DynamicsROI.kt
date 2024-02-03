@@ -5,7 +5,8 @@ import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.roi.ROI
 
 data class DynamicsROI(
-    @Json(name = "target_class") val targetClass: String,
+    @Json(name = "target_classes") val targetClass: List<String>,
+    @Json(name = "combined_name") val combinedName: String?,
     @Json(name = "sub_regions") val subRegions: List<PolygonDrawer.NamedPolygon>,
     @Json(name = "red") val red: String,
     @Json(name = "green") val green: String,

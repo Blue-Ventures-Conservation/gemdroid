@@ -101,7 +101,7 @@
     <string name="clear">Clear</string>
     <string name="polygon_sizing">Please create a polygon. It\'s area must be less than %1$s. Yours is currently %2$s</string>
     <string name="no_polygons_found">No polygons found in Shapefile</string>
-    <string name="choose_class_dynamics">Choose one of your classes to measure dynamics:</string>
+    <string name="choose_class_dynamics">Choose one or more classes to combine for analysis:</string>
     <string name="classification_reference_areas">Classification Reference Areas (CRAs)</string>
     <string name="would_you_like_polygons">Would you like to add %s within your ROI?</string>
     <string name="yes_add_polygons">Yes: Add %s</string>
@@ -237,4 +237,8 @@
     <string name="false_color_channels">The pixels in this imagery use the Near Infrared, Shortwave Infrared I and Red channels in place of the Red, Green and Blue channels of a true colour image.</string>
     <string name="false_color_mangroves">This false colour composite highlights coastal mangroves in dark orange so that they can be distinguished from nearby terrestrial forest.</string>
     <string name="sign_in_network_fail">Sign in failed, do you have a network connection?</string>
+    <string name="please_select_at_least">Please select at least %s!</string>
+    <string name="create_a_combined_name">Create a name for this combination of classes</string>
+    <string name="choose_which_region_to_analyze">Choose which region to analyse:</string>
+    <string name="choose_which_class_to_analyze">Choose which class to analyse:</string>
 </resources>

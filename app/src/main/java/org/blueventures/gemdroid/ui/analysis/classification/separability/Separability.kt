@@ -48,7 +48,7 @@ object Separability {
         }
 
         b.composable(Routes.scatterClasses) {
-            ScatterClasses.Screen(viewModel, appBar, nav::popBackStack) {
+            ScatterClasses.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 nav.navigate(Routes.scatterBands)
             }
         }

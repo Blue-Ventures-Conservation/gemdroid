@@ -25,12 +25,12 @@ class DynamicsDatasource(
 
         fun dynamicDir(roiDir: File) = File(roiDir, dynamicsDir)
         fun subRegionsFile(roiDir: File) = File(dynamicDir(roiDir), subRegionFile)
-        fun classDir(roiDir: File, targetClass: String) = File(dynamicDir(roiDir), MD5.string(targetClass))
-        fun urlsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), dynamicsURLsFile)
-        fun exportsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), exportsFilename)
-        fun resultsFile(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), resultsFile)
-        fun gainTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), gainTilesDir)
-        fun lossTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), lossTilesDir)
-        fun persistenceTileDir(roiDir: File, targetClass: String) = File(classDir(roiDir, targetClass), persistenceTilesDir)
+        fun classDir(roiDir: File, targetClasses: List<String>) = File(dynamicDir(roiDir), MD5.string(targetClasses.reduce { acc, className -> acc + className }))
+        fun urlsFile(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), dynamicsURLsFile)
+        fun exportsFile(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), exportsFilename)
+        fun resultsFile(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), resultsFile)
+        fun gainTileDir(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), gainTilesDir)
+        fun lossTileDir(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), lossTilesDir)
+        fun persistenceTileDir(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), persistenceTilesDir)
     }
 }
