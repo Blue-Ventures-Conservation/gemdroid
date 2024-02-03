@@ -11,6 +11,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Checklist
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -29,7 +30,6 @@ object TargetClasses {
                     Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes, initState = false, min = 1) { checked ->
                         viewModel.targetClasses = checked
                         setClassesChosen(true)
-                        next()
                     }
                 }
                 true -> {
@@ -39,8 +39,10 @@ object TargetClasses {
                             viewModel.loadDynamicsFile(setDynamicsResult)
                         }
                         else -> {
-                            viewModel.alreadyDownloaded = dynamicsResult.isSuccess
-                            next()
+                            Effect.Once {
+                                viewModel.alreadyDownloaded = dynamicsResult.isSuccess
+                                next()
+                            }
                         }
                     }
                 }

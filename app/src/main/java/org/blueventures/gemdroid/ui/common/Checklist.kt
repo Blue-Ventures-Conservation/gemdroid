@@ -19,7 +19,7 @@ object Checklist {
         val checkMap = remember { mutableStateMapOf(*pairs.toTypedArray()) }
 
         Col.MidPad(scroll = true) {
-            Info.Header(title)
+            Info.Header(title, false)
             Info.Block {
                 for (item in items) {
                     Info.Row {

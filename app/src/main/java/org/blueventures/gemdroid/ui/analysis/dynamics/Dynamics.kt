@@ -54,7 +54,8 @@ object Dynamics {
 
         b.composable(Routes.combined_name) {
             CombinedName.Screen(viewModel, appBar, snack, nav::popBackStack) {
-               nav.navigate(Routes.map)
+                finalizeSubregions(viewModel)
+                nav.navigate(Routes.map)
             }
         }
 
