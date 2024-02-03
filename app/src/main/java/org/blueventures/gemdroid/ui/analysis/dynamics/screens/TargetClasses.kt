@@ -21,18 +21,27 @@ object TargetClasses {
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             val classes = viewModel.cra.contemporaryCRA.stringClassValues
+            val (classesChosen, setClassesChosen) = remember { mutableStateOf(false) }
             val (dynamicsResult, setDynamicsResult) = remember { mutableStateOf<Result<DynamicsURLs>?>(null) }
 
-            when (dynamicsResult) {
-                null -> {
-                    Progress()
-                    viewModel.loadDynamicsFile(setDynamicsResult)
-                }
-                else -> {
-                    viewModel.alreadyDownloaded = dynamicsResult.isSuccess
+            when (classesChosen) {
+                false -> {
                     Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes, initState = false, min = 1) { checked ->
                         viewModel.targetClasses = checked
+                        setClassesChosen(true)
                         next()
+                    }
+                }
+                true -> {
+                    when (dynamicsResult) {
+                        null -> {
+                            Progress()
+                            viewModel.loadDynamicsFile(setDynamicsResult)
+                        }
+                        else -> {
+                            viewModel.alreadyDownloaded = dynamicsResult.isSuccess
+                            next()
+                        }
                     }
                 }
             }
