@@ -88,13 +88,14 @@ class CRADatasource(
             for (field in record.fields) {
                 val name = field.name
 
-                if (shouldIgnoreField(name)) {
+                val stringVal = record.getString(name)
+                if (shouldIgnoreField(name) || stringVal == null) {
                     continue
                 }
 
                 when (field.type) {
-                    DbfFieldTypeEnum.Numeric -> addToMap(numericsMap, name, record.getString(name).toFloat().toInt().toString())
-                    DbfFieldTypeEnum.Character -> addToMap(stringsMap, name, record.getString(name))
+                    DbfFieldTypeEnum.Numeric -> addToMap(numericsMap, name, stringVal.toFloat().toInt().toString())
+                    DbfFieldTypeEnum.Character -> addToMap(stringsMap, name, stringVal)
                     else -> {}
                 }
             }
@@ -345,7 +346,7 @@ class CRADatasource(
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
         val shpRes = Shapefile.toFile(tmp,
-            org.blueventures.gemdroid.data.Shapefile(
+            Shapefile(
                 key,
                 cra.eeUploadName!!,
                 cra.fields.chosenNumeric!!,
