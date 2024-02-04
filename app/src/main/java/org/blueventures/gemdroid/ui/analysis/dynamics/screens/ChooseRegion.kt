@@ -1,7 +1,15 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -22,11 +30,16 @@ object ChooseRegion {
                 regions.add(subRegion)
             }
 
-            Col.Dash(stringResource(R.string.choose_which_region_to_analyze)) {
-                regions.forEach { region ->
-                    DashboardButton(region.name) {
-                        viewModel.analysisRegion = region
-                        next()
+            Col.Col(scroll = true) {
+                Column {
+                    Text(stringResource(R.string.choose_which_region_to_analyze), fontSize = 20.sp, textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.size(16.dp))
+                    regions.forEach { region ->
+                        DashboardButton(region.name) {
+                            viewModel.analysisRegion = region
+                            next()
+                        }
+                        Spacer(modifier = Modifier.size(16.dp))
                     }
                 }
                 Downloads(downloads)
@@ -39,7 +52,7 @@ object ChooseRegion {
         Info.Block {
             Info.BlueLine()
             Info.Space()
-            DashboardButton(stringResource(R.string.downloads), downloads)
+            DashboardButton(stringResource(R.string.imagery_downloads), downloads)
         }
     }
 }

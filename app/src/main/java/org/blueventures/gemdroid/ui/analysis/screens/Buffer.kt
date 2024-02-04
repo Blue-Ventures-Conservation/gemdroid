@@ -20,6 +20,7 @@ import com.anychart.enums.Position
 import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -79,46 +80,14 @@ object Buffer {
 
     @Composable
     fun Chart(buffers: Buffers) {
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.67f),
-            factory = { context ->
-                AnyChartView(context).apply {
-                    val cartesian = Charts.prep(this, AnyChart::column) as Cartesian
-
-                    val sums = buffers.sums
-                    val data = mutableListOf<DataEntry>()
-                    sums.keys.forEachIndexed { i, key ->
-                        data.add(ValueDataEntry(key, sums.vals[i]))
-                    }
-
-                    val column = cartesian.column(data)
-
-                    column.tooltip()
-                        .titleFormat("{%X}")
-                        .position(Position.CENTER_BOTTOM)
-                        .anchor(Anchor.CENTER_BOTTOM)
-                        .offsetX(0.0)
-                        .offsetY(5.0)
-                        .format("{%Value}{groupsSeparator: }")
-
-                    cartesian.animation(true)
-                    cartesian.title("Mangrove Area by Buffer")
-
-                    cartesian.yScale().minimum(0)
-
-                    cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
-
-                    cartesian.tooltip().positionMode(TooltipPositionMode.POINT)
-                    cartesian.interactivity().hoverMode(HoverMode.BY_X)
-
-                    cartesian.xAxis(0).title("Shoreline Buffer (km)")
-                    cartesian.yAxis(0).title("Area (m²)")
-
-                    setChart(cartesian)
-                }
-            }
-        )
+        val title = stringResource(R.string.mangrove_area_by_buffer)
+        val xLabel = stringResource(R.string.shoreline_buffer_km)
+        val yLabel = stringResource(R.string.area_ha)
+        val sums = buffers.sums
+        val data = mutableListOf<DataEntry>()
+        sums.keys.forEachIndexed { i, key ->
+            data.add(ValueDataEntry(key, (sums.vals[i].toDouble()/hectareInMeters).toInt()))
+        }
+        Charts.BarChart(title, xLabel, yLabel, data, true)
     }
 }

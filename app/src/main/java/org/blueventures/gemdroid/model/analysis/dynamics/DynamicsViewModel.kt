@@ -16,7 +16,7 @@ import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
-import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsStats
+import org.blueventures.gemdroid.data.analysis.dynamics.RegionStats
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.dynamicDir
@@ -53,7 +53,7 @@ class DynamicsViewModel(
     lateinit var roiDir: File
     lateinit var roi: ROI
     lateinit var urls: DynamicsURLs
-    lateinit var analysisRegion: DynamicsStats
+    lateinit var analysisRegion: RegionStats
     lateinit var analysisClass: ClassDynamics
     var alreadyDownloaded = false
     var combinedName: String? = null

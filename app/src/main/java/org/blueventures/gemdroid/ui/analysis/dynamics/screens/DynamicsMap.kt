@@ -22,7 +22,7 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
 
-object Map {
+object DynamicsMap {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, details: Click) {
         Nav.Wrap(back) {

@@ -241,4 +241,10 @@
     <string name="create_a_combined_name">Create a name for this combination of classes</string>
     <string name="choose_which_region_to_analyze">Choose which region to analyze:</string>
     <string name="choose_which_class_to_analyze">Choose which class to analyze:</string>
+    <string name="mangrove_area_by_buffer">Mangrove Area by Buffer</string>
+    <string name="area_ha">Area (ha)</string>
+    <string name="shoreline_buffer_km">Shoreline Buffer (km)</string>
+    <string name="other_classes">Other Classes</string>
+    <string name="conversion_to_other_classes">%s conversion to other classes</string>
+    <string name="other_class_conversions_to">Other class conversions to %s</string>
 </resources>

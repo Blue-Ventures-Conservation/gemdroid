@@ -19,6 +19,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object TargetClasses {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+        viewModel.combinedName = null
         Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             val classes = viewModel.cra.contemporaryCRA.stringClassValues

@@ -15,10 +15,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object CombinedName {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap({
-            viewModel.combinedName = null
-            back()
-        }) {
+        Nav.Wrap(back) {
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
             val err = stringResource(R.string.please_enter_unique_non_special_name).format(RoiDatasource.maxNameCharLength.toString())
             Collect.Text(stringResource(R.string.create_a_combined_name), stringResource(R.string.please_enter_name), initial = viewModel.combinedName ?: "", snack, { name ->

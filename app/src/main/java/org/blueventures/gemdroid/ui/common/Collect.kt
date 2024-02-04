@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.common
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -34,7 +33,7 @@ object Collect {
                 textStyle = TextStyle.Default.copy(fontSize = 24.sp)
             )
             Butt.Next {
-                validator(text)?.let(snack) ?: run(next)
+                validator(text.trim())?.let(snack) ?: run(next)
             }
         }
     }

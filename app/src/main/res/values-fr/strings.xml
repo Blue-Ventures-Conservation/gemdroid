@@ -241,4 +241,10 @@
     <string name="create_a_combined_name">Créez un nom pour cette combinaison de classes</string>
     <string name="choose_which_region_to_analyze">Choisissez la région à analyser :</string>
     <string name="choose_which_class_to_analyze">Choisissez la classe à analyser :</string>
+    <string name="mangrove_area_by_buffer">Zone de mangrove par zone tampon</string>
+    <string name="area_ha">Superficie (ha)</string>
+    <string name="shoreline_buffer_km">Zone tampon riveraine (km)</string>
+    <string name="other_classes">Autres Cours</string>
+    <string name="conversion_to_other_classes">%s conversion vers d\'autres classes</string>
+    <string name="other_class_conversions_to">Autres conversions de classe en %s</string>
 </resources>

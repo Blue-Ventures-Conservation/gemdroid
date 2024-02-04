@@ -9,8 +9,8 @@ data class DynamicsURLs(
     @Json(name = "loss_url") val lossURL: String,
     @Json(name = "persistence_url") val persistenceURL: String,
     @Json(name = "gain_url") val gainURL: String,
-    @Json(name = "stats") val stats: DynamicsStats,
-    @Json(name = "sub_region_stats") val subRegionStats: List<DynamicsStats>,
+    @Json(name = "stats") val stats: RegionStats,
+    @Json(name = "sub_region_stats") val subRegionStats: List<RegionStats>,
     @Json(name = "created_at") override val createdAt: Int, // seconds
     @Json(name = "timeout") override val timeout: Int, // seconds
 ): URLs {
@@ -25,7 +25,7 @@ data class DynamicsURLs(
     }
 }
 
-data class DynamicsStats(
+data class RegionStats(
     @Json(name = "name") val name: String,
     @Json(name = "all_classes") val allClasses: List<ClassDynamics>,
 )

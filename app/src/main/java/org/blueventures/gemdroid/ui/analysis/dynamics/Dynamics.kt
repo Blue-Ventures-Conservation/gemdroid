@@ -11,7 +11,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.ChooseClass
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.ChooseRegion
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.CombinedName
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Downloads
-import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Map
+import org.blueventures.gemdroid.ui.analysis.dynamics.screens.DynamicsMap
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Stats
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClasses
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -60,7 +60,9 @@ object Dynamics {
         }
 
         b.composable(Routes.map) {
-            Map.Screen(viewModel, appBar, nav::popBackStack) {
+            DynamicsMap.Screen(viewModel, appBar, {
+                nav.popBackStack(Routes.target_classes, false)
+            }) {
                 nav.navigate(Routes.choose_region)
             }
         }
@@ -84,9 +86,7 @@ object Dynamics {
         }
 
         b.composable(Routes.stats) {
-            Stats.Screen(viewModel, appBar, nav::popBackStack) {
-                nav.navigate(Routes.downloads)
-            }
+            Stats.Screen(viewModel, appBar, nav::popBackStack)
         }
     }
 
