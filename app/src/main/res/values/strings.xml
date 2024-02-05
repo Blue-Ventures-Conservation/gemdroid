@@ -232,7 +232,6 @@
     <string name="next_base_map">next base map type (satellite, hybrid, etc)</string>
     <string name="expand_layers_options_menu">expand layers options menu</string>
     <string name="area">Area:</string>
-    <string name="false_color_imagery">False Color Imagery</string>
     <string name="false_color_imagery_description">false color imagery description</string>
     <string name="false_color_channels">The pixels in this imagery use the Near Infrared, Shortwave Infrared I and Red channels in place of the Red, Green and Blue channels of a true color image.</string>
     <string name="false_color_mangroves">This false color composite highlights coastal mangroves in dark orange so that they can be distinguished from nearby terrestrial forest.</string>

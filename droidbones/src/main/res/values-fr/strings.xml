@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="turn_on_location">Veuillez activer la localisation dans les paramètres et choisir Haute précision pour la méthode de localisation (si disponible)</string>
+    <string name="zip_path_traversal">le chemin du fichier zip contient des caractères de parcours</string>
+    <string name="parsed_null">La valeur analysée était nulle</string>
+    <string name="file_was_empty">Le fichier était vide</string>
+    <string name="could_not_delete_dir">Impossible de supprimer le répertoire</string>
+    <string name="could_not_del_dir_contents">Impossible de supprimer le contenu du répertoire</string>
+    <string name="could_not_del_file">Impossible de supprimer le fichier</string>
+    <string name="could_not_rename_file">Impossible de renommer le fichier</string>
+    <string name="could_not_read_parent_dir">Impossible de lire le nom du répertoire parent</string>
+    <string name="could_not_create_file">Impossible de créer le fichier</string>
+    <string name="could_not_create_dir">Impossible de créer le répertoire</string>
+    <string name="network_error_try_again">Erreur réseau rencontrée, veuillez réessayer</string>
+    <string name="unknown_error">Erreur inconnue rencontrée</string>
+</resources>

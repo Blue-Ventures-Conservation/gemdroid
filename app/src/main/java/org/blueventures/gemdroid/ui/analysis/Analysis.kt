@@ -78,7 +78,7 @@ object Analysis {
         }
 
         b.composable(Routes.imagery_description) {
-            FalseColorDescription.Screen(appBar, nav::popBackStack) {
+            FalseColorDescription.Screen(viewModel, appBar, nav::popBackStack) {
                 nav.navigate(Routes.imagery_downloads)
             }
         }

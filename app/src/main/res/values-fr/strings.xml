@@ -232,7 +232,6 @@
     <string name="next_base_map">type de carte de base suivant (satellite, hybride, etc.)</string>
     <string name="expand_layers_options_menu">développer le menu d\'options des calques</string>
     <string name="area">Zone :</string>
-    <string name="false_color_imagery">Images en fausses couleurs</string>
     <string name="false_color_imagery_description">description des images en fausses couleurs</string>
     <string name="false_color_channels">Les pixels de cette imagerie utilisent les canaux proche infrarouge, infrarouge à ondes courtes I et rouge à la place des canaux rouge, vert et bleu d\'une image en vraies couleurs.</string>
     <string name="false_color_mangroves">Ce composite en fausses couleurs met en évidence les mangroves côtières en orange foncé afin qu\'elles puissent être distinguées de la forêt terrestre voisine.</string>

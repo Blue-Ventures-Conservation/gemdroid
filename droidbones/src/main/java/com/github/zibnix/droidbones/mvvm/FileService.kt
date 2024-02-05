@@ -218,8 +218,15 @@ object FileService {
             val paths = mutableListOf<String>()
             var ze = zin.nextEntry
             while (ze != null) {
+                val dir = File(path)
+                val canonicalDirPath = dir.canonicalPath
+                val file = File(dir, ze.name)
+                val canonicalPath = dir.canonicalPath
+                if (!canonicalPath.startsWith(canonicalDirPath)) {
+                    throw SecurityException(NoStack(R.string.zip_path_traversal))
+                }
                 val fpath = path+sep+ze.name
-                val fout = FileOutputStream(fpath)
+                val fout = FileOutputStream(file)
                 var c: Int = zin.read()
                 while (c != -1) {
                     fout.write(c)
