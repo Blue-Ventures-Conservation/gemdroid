@@ -25,7 +25,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 object Api {
-    private const val backendBaseUrl = "http://192.168.0.54:8080/"
+    private const val backendBaseUrl = "https://gembackend-oxtfh6aefa-zf.a.run.app/"
 
     private fun backend(timeout: Long): Service {
         val pair = BaseApi.authResultRetrofit(backendBaseUrl, timeout, BuildConfig.DEBUG)

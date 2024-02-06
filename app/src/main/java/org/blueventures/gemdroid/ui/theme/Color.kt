@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 
 val SkyBlue = Color(0xFF25AADD)
-val LightGreen = Color(0xFF25DDAA)
+val LightGreen = Color(0xFF25EE25)
 val Caution = Color(0xFFFFE968)
 val MildRed = Color(0xFFDD4425)
 val LightGrey = Color(0xFF909090)
