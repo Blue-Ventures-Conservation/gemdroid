@@ -92,10 +92,12 @@
     <string name="explore_separability">Explorer la séparabilité</string>
     <string name="good_separation_msg">Vos CRA affichent une bonne séparation de bande entre vos classes pour cette imagerie %s !</string>
     <string name="bad_separation_msg">Vos CRA ne fournissent pas de séparation de bande entre certaines de vos classes pour cette imagerie %s.</string>
-    <string name="and_between">et entre</string>
+    <string name="and_between">et</string>
     <string name="band_not_show_separability">Cette bande n\'affiche la séparabilité entre aucune de vos classes.</string>
-    <string name="band_separability_between">Cette bande assure la séparabilité entre</string>
-    <string name="separability_lacking_between">La séparation manque entre</string>
+    <string name="band_separability_between">Cette bande permet la séparabilité entre ces classes :</string>
+    <string name="band_separability_between_all">Ce groupe assure la séparabilité entre toutes vos classes !</string>
+    <string name="band_separability_between_all_except">Cette bande permet la séparabilité entre toutes vos classes, à l\'exception de celles-ci :</string>
+    <string name="separability_lacking_between">La séparation manque entre :</string>
     <string name="gps_rationale">Cette application utilise le GPS pour vous aider à zoomer sur la carte jusqu\'à votre emplacement. Veuillez accorder l\'autorisation.</string>
     <string name="gps_rationale_description">Veuillez autoriser l\'application à utiliser le GPS.</string>
     <string name="clear">Effacer</string>

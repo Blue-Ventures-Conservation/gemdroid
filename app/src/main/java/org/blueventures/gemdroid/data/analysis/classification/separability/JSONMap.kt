@@ -44,7 +44,7 @@ object JSONMap : Serializer<Map<String, Any>>() {
             builder.appendLine()
             builder.appendLine()
             builder.append(context.getString(R.string.separability_lacking_between))
-            andBetween(context, builder, gaps)
+            ands(context, builder, gaps)
         }
     }
 
@@ -108,16 +108,61 @@ object JSONMap : Serializer<Map<String, Any>>() {
         return result
     }
 
-    fun boxChartBandInfo(context: Context, m: Map<String, Any>, band: String): Pair<String, Map<String, List<Double>>>? {
+    private fun maxPairs(count: Int): Int {
+        return when {
+            count < 2 -> 0
+            count%2 == 0 -> (count/2) * (count - 1)
+            else -> count * ((count - 1)/2)
+        }
+    }
+
+    fun exceptions(classes: List<String>, separations: List<List<String>>): List<List<String>> {
+        val sepSet = mutableSetOf<String>()
+        for (sep in separations) {
+            if (sep.size < 2) {
+                continue
+            }
+
+            val c1 = sep[0]
+            val c2 = sep[1]
+            sepSet.add(c1+c2)
+            sepSet.add(c2+c1)
+        }
+
+        val exceptions = mutableListOf<List<String>>()
+        for ((i, cls) in classes.withIndex()) {
+            for (other in classes.subList(i+1, classes.size)) {
+                if (!sepSet.contains(cls+other)) {
+                    exceptions.add(listOf(cls, other))
+                }
+            }
+        }
+
+        return exceptions
+    }
+
+    fun boxChartBandInfo(context: Context, m: Map<String, Any>, band: String, classes: List<String>): Pair<String, Map<String, List<Double>>>? {
         val bmap = (m[band] as? Map<*, *>)?.checkItemsAre<String, Any>() ?: return null
         val bcopy = HashMap(bmap)
         val seps = (bcopy.remove("separability") as? List<*>)?.checkItemsAre<List<String>>() ?: return null
 
-        val sepStr = if (seps.isEmpty()) {
-            context.getString(R.string.band_not_show_separability)
-        } else {
-            val builder = StringBuilder(context.getString(R.string.band_separability_between))
-            andBetween(context, builder, seps)
+        val maxPairs = maxPairs(classes.size)
+        val halfMax = maxPairs/2
+        val size = seps.size
+        val sepStr = when {
+            maxPairs < 1 -> ""
+            size == 0 -> context.getString(R.string.band_not_show_separability)
+            size >= maxPairs -> context.getString(R.string.band_separability_between_all)
+            size >= halfMax + (halfMax/2) -> {
+                val builder = StringBuilder(context.getString(R.string.band_separability_between_all_except))
+                builder.appendLine()
+                ands(context, builder, exceptions(classes, seps))
+            }
+            else -> {
+                val builder = StringBuilder(context.getString(R.string.band_separability_between))
+                builder.appendLine()
+                ands(context, builder, seps)
+            }
         }
 
         val cmap = (bcopy as? Map<*, *>)?.checkItemsAre<String, List<Double>>() ?: return null
@@ -125,26 +170,16 @@ object JSONMap : Serializer<Map<String, Any>>() {
         return Pair(sepStr, cmap)
     }
 
-    private fun andBetween(context: Context, builder: StringBuilder, separations: List<List<String>>): String {
+    private fun ands(context: Context, builder: StringBuilder, separations: List<List<String>>): String {
         val ab = context.getString(R.string.and_between)
-
-        var first = true
         for (sep in separations) {
             if (sep.size < 2) {
                 continue
             }
 
-            builder.append(" ")
-
-            if (!first) {
-                builder.append(ab)
-                builder.append(" ")
-            }
-            first = false
-
-            builder.append("${sep[0]} & ${sep[1]}")
+            builder.appendLine()
+            builder.append("${sep[0]} $ab ${sep[1]}")
         }
-        builder.append(".")
         return builder.toString()
     }
 

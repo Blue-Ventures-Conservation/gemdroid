@@ -92,10 +92,12 @@
     <string name="explore_separability">Explore Separability</string>
     <string name="good_separation_msg">Your CRAs show good band separation between your classes for this %s imagery!</string>
     <string name="bad_separation_msg">Your CRAs are not providing band separation between some of your classes for this %s imagery.</string>
-    <string name="and_between">and between</string>
+    <string name="and_between">and</string>
     <string name="band_not_show_separability">This band does not show separability between any of your classes.</string>
-    <string name="band_separability_between">This band provides separability between</string>
-    <string name="separability_lacking_between">Separation is lacking between</string>
+    <string name="band_separability_between">This band provides separability between these classes:</string>
+    <string name="band_separability_between_all">This band provides separability between all of your classes!</string>
+    <string name="band_separability_between_all_except">This band provides separability between all of your classes except these:</string>
+    <string name="separability_lacking_between">Separation is lacking between:</string>
     <string name="gps_rationale">This app uses GPS to help zoom the map to your location. Please grant the permission.</string>
     <string name="gps_rationale_description">Please grant permission for the app to use GPS.</string>
     <string name="clear">Clear</string>
