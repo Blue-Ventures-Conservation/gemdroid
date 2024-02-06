@@ -214,7 +214,7 @@
     <string name="delete_the_previous_point">supprimer le point précédent</string>
     <string name="you_will_create_coarse_roi">Sur l\'écran suivant, vous allez créer un polygone de limite grossier pour votre retour sur investissement.</string>
     <string name="buffered_from_coastline">Ce polygone doit contenir votre région, mais la limite exacte sera déterminée automatiquement en tamponnant le littoral trouvé dans le polygone grossier.</string>
-    <string name="maybe_sub_regions_later">Cela signifie que la mangrove légèrement en dehors de ce polygone grossier peut être incluse dans les résultats, mais vous aurez des options pour définir des sous-régions afin de contraindre l\'analyse ultérieurement.</string>
+    <string name="maybe_sub_regions_later">Rien en dehors de ce polygone grossier ne sera inclus dans l\'analyse, et vous pouvez également définir des zones à exclure de l\'analyse ou des sous-régions à traiter séparément lors de l\'analyse.</string>
     <string name="cras_format">\n\nLa compilation des CRA peut nécessiter un certain effort pour votre région et doit être des fichiers de formes contenant des tracés carrés (alignés par pixels) de 70 à 85 mètres de côté contenant des exemples de vos différentes zones de classification. (Mangrove, Pas Mangrove, Eau, etc.). De plus, il doit y avoir un attribut qui donne le nom de la classe de chaque parcelle, et un autre attribut numérique qui donne un numéro associé à la classe pour chaque parcelle.
         \n\nLes données ressemblent à ceci :
         \n\n\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0| Valeur
