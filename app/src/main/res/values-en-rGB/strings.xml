@@ -22,7 +22,7 @@
     <string name="unrecoverable_error">Unrecoverable error, please press Back.</string>
     <string name="access_email_subject">Requesting Access to GEM app</string>
     <string name="access_email_rationale">Apologies! We need to verify that you are not using this app for profit in order to comply with the policies of Google Earth Engine. Please tap on this message to send us an email at bv.gemapp@gmail.com and fill out the information requested, thank you!</string>
-    <string name="access_email_body">Your name:\n\n\nYour country:\n\n\nYour organisation (link if possible:\n\n\nYour reason for using this App:\n\n\nThank you!</string>
+    <string name="access_email_body">Your name:\n\n\nYour country:\n\n\nYour organisation (link if possible):\n\n\nYour reason for using this App:\n\n\nThank you!</string>
     <string name="cont_high_tide">Contemporary High Tide</string>
     <string name="cont_low_tide">Contemporary Low Tide</string>
     <string name="hist_high_tide">Historical High Tide</string>
