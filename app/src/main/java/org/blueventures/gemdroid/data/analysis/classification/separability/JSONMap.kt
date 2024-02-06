@@ -153,21 +153,24 @@ object JSONMap : Serializer<Map<String, Any>>() {
             maxPairs < 1 -> ""
             size == 0 -> context.getString(R.string.band_not_show_separability)
             size >= maxPairs -> context.getString(R.string.band_separability_between_all)
+            size == 1 -> separabilityBetween(context, seps)
             size >= halfMax + (halfMax/2) -> {
                 val builder = StringBuilder(context.getString(R.string.band_separability_between_all_except))
                 builder.appendLine()
                 ands(context, builder, exceptions(classes, seps))
             }
-            else -> {
-                val builder = StringBuilder(context.getString(R.string.band_separability_between))
-                builder.appendLine()
-                ands(context, builder, seps)
-            }
+            else -> separabilityBetween(context, seps)
         }
 
         val cmap = (bcopy as? Map<*, *>)?.checkItemsAre<String, List<Double>>() ?: return null
 
         return Pair(sepStr, cmap)
+    }
+
+    private fun separabilityBetween(context: Context, seps: List<List<String>>): String {
+        val builder = StringBuilder(context.getString(R.string.band_separability_between))
+        builder.appendLine()
+        return ands(context, builder, seps)
     }
 
     private fun ands(context: Context, builder: StringBuilder, separations: List<List<String>>): String {

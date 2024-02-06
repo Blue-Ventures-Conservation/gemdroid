@@ -5,8 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 
 val SkyBlue = Color(0xFF25AADD)
-val DarkGreen = Color(0xFF006400)
-val LightGreen = Color(0xFF25EE25)
+val LightGreen = Color(0xFF11DD11)
 val Caution = Color(0xFFFFE968)
 val MildRed = Color(0xFFDD4425)
 val LightGrey = Color(0xFF909090)
@@ -20,7 +19,7 @@ fun g2R2BHex(index: Int, size: Int): String {
 }
 
 fun g2R2B(index: Int, size: Int): Color {
-    return Color(blend3Way(DarkGreen, MildRed, SkyBlue, index, size))
+    return Color(blend3Way(LightGreen, MildRed, SkyBlue, index, size))
 }
 
 fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {
