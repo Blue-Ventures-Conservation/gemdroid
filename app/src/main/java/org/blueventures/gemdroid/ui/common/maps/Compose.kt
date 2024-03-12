@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
+import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
@@ -19,9 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,9 +59,6 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 
 object Compose {
     data class Checker(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
-    data class Toucher(override val name: String, val state: LatLng?, val setState: (LatLng?) -> Unit): Named
-    data class Clearer(override val name: String, val state: Boolean?, val setState: (Boolean?) -> Unit): Named
-    data class Drawer(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit, val removePrev: Boolean?, val setRemovePrev: (Boolean?) -> Unit): Named
 
     @Composable
     fun <T : URLs> Screen(
@@ -94,13 +91,11 @@ object Compose {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val clearers = remember { mutableStateListOf<Clearer>() }
+            val clearState = remember { mutableStateOf<Boolean?>(null) }
             draw?.let { draw ->
                 Info.Row {
-                    val (clear, setClear) = remember { mutableStateOf<Boolean?>(null) }
-                    updateList(Clearer("clear", clear, setClear), clearers)
                     Butt.Text(stringResource(R.string.clear)) {
-                        setClear(true)
+                        clearState.value = true
                     }
                     val pleaseDraw = stringResource(R.string.please_create_polygon)
                     val tooBig = stringResource(R.string.polygon_sizing)
@@ -123,13 +118,16 @@ object Compose {
             }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                val drawers = remember { mutableStateListOf<Drawer>() }
-                Zoom(appBar, title, gps, center, storage, layers, poly, draw, drawers, clearers)
+                val drawState = remember { mutableStateOf(false) }
+                val removeState = remember { mutableStateOf<Boolean?>(null) }
+                val touchState = remember { mutableStateOf<LatLng?>(null) }
+
+                Zoom(appBar, title, gps, center, storage, layers, poly, draw, clearState, drawState, removeState, touchState)
 
                 if (draw == null) {
                     floating()
                 } else {
-                    DrawButton(drawers)
+                    DrawButton(drawState, removeState, touchState)
                 }
             }
         }
@@ -145,12 +143,14 @@ object Compose {
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        drawers: List<Drawer>,
-        clearers: List<Clearer>
+        clearState: MutableState<Boolean?>,
+        drawState: MutableState<Boolean>,
+        removeState: MutableState<Boolean?>,
+        touchState: MutableState<LatLng?>
     ) {
         val target = zoomOrDraw(center, draw)
         val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (target == null) 0f else 9f)
-        Map(appBar, title, gps, storage, layers, poly, draw, drawers, clearers, position)
+        Map(appBar, title, gps, storage, layers, poly, draw, clearState, drawState, removeState, touchState, position)
     }
 
     @Composable
@@ -162,8 +162,10 @@ object Compose {
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        drawers: List<Drawer>,
-        clearers: List<Clearer>,
+        clearState: MutableState<Boolean?>,
+        drawState: MutableState<Boolean>,
+        removeState: MutableState<Boolean?>,
+        touchState: MutableState<LatLng?>,
         position: CameraPosition
     ) {
         val ctx = LocalContext.current
@@ -172,14 +174,11 @@ object Compose {
             storage.getMapType(ctx, setMapTypeResult)
         } else {
             val mapType = if (mapTypeResult?.isSuccess == true) getMapType(mapTypeResult.getOrNull()!!) else MapType.HYBRID
-            val touchers = remember { mutableStateListOf<Toucher>() }
             val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
             val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
             var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
             GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
-                for (toucher in touchers) {
-                    toucher.setState(pt)
-                }
+                touchState.value = pt
             }) {
                 val checkers = mutableListOf<Checker>()
                 layers?.let {
@@ -187,7 +186,7 @@ object Compose {
                 }
 
                 poly?.let {
-                    Polygons(poly, checkers, touchers)
+                    Polygons(poly, checkers, touchState)
                 }
 
                 if (checkers.isNotEmpty()) {
@@ -198,7 +197,7 @@ object Compose {
                 }
 
                 draw?.let {
-                    DrawTouch(draw, drawers, clearers, touchers)
+                    DrawTouch(draw, clearState, drawState, removeState, touchState)
                 }
             }
 
@@ -244,15 +243,15 @@ object Compose {
     }
 
     @Composable
-    private fun BoxScope.DrawButton(drawers: MutableList<Drawer>) {
-        val (buttonState, setButtonState) = remember { mutableStateOf(false) }
-        val (removePrev, setRemovePrev) = remember { mutableStateOf<Boolean?>(null) }
-        updateList(Drawer("draw", buttonState, setButtonState, removePrev, setRemovePrev), drawers)
-        MapActionButton({ setRemovePrev(true) }, Alignment.BottomStart) {
-            Icon(Icons.Filled.Backspace, stringResource(R.string.delete_the_previous_point))
+    private fun BoxScope.DrawButton(draw: MutableState<Boolean>, remove: MutableState<Boolean?>, touchState: MutableState<LatLng?>) {
+        MapActionButton({ remove.value = true }, Alignment.BottomStart) {
+            Icon(Icons.AutoMirrored.Filled.Backspace, stringResource(R.string.delete_the_previous_point))
         }
-        MapActionButton({ setButtonState(!buttonState) }) {
-            if (buttonState) {
+        MapActionButton({
+            touchState.value = null
+            draw.value = !draw.value
+        }) {
+            if (draw.value) {
                 Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
             } else {
                 Icon(Icons.Filled.Place, stringResource(R.string.place_polygon_corner))
@@ -262,7 +261,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun DrawTouch(draw: Draw.Model, drawers: List<Drawer>, clearers: List<Clearer>, touchers: MutableList<Toucher>) {
+    private fun DrawTouch(draw: Draw.Model, clearState: MutableState<Boolean?>, drawState: MutableState<Boolean>, removeState: MutableState<Boolean?>, lastTouch: MutableState<LatLng?>) {
         val points = draw.points()
         var pointCount by remember { mutableIntStateOf(points.size) }
         if (pointCount > 0) {
@@ -281,28 +280,24 @@ object Compose {
             setPolyOpts(draw.polygonOptions())
         }
 
-        val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
-        updateList(Toucher("drawing", touch, setTouch), touchers)
-        val clearer = clearers.first()
-        clearer.state?.let {
+        if (clearState.value != null) {
             draw.clear()
+            clearState.value = null
+            lastTouch.value = null
             resetLocalState()
-            clearer.setState(null)
-            setTouch(null)
-        } ?: run {
-            val drawer = drawers.first()
-            drawer.removePrev?.let {
+        } else {
+            if (removeState.value != null) {
                 draw.removePrev { didRemove ->
                     if (didRemove != null) {
                         resetLocalState()
-                        setTouch(null)
+                        lastTouch.value = null
                     }
 
-                    drawer.setRemovePrev(null)
+                    removeState.value = null
                 }
-            } ?: run {
-                if (drawer.state) {
-                    touch?.let { pt ->
+            } else {
+                if (drawState.value) {
+                    lastTouch.value?.let { pt ->
                         if (points.isEmpty() || points.last() != pt) {
                             val ctx = LocalContext.current
                             draw.addPoint(pt) { err ->
@@ -311,12 +306,12 @@ object Compose {
                                 } else {
                                     resetLocalState()
                                 }
-                                setTouch(null)
+                                lastTouch.value = null
                             }
                         }
                     }
                 } else {
-                    setTouch(null)
+                    lastTouch.value = null
                 }
             }
         }
@@ -354,7 +349,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, touchers: MutableList<Toucher>) {
+    private fun Polygons(poly: Poly.Model, checkers: MutableList<Checker>, lastTouch: MutableState<LatLng?>) {
         val (polyOptsGroups, setPolyOptsGroups) = remember { mutableStateOf<List<Poly.PolyOptionsGroup>?>(null) }
         when (polyOptsGroups) {
             null -> {
@@ -388,7 +383,7 @@ object Compose {
                 }
 
                 if (poly.touchEnabled) {
-                    PolygonTouch(poly, polyOptsGroups, visibilityState, touchers)
+                    PolygonTouch(poly, polyOptsGroups, visibilityState, lastTouch)
                 }
             }
         }
@@ -396,7 +391,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, visibility: List<Boolean>, touchers: MutableList<Toucher>) {
+    private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, visibility: List<Boolean>, lastTouch: MutableState<LatLng?>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
             val state = MarkerState(it.position)
@@ -404,11 +399,9 @@ object Compose {
             Marker(state = state, title = it.title)
         }
 
-        val (touch, setTouch) = remember { mutableStateOf<LatLng?>(null) }
-        updateList(Toucher("polygons", touch, setTouch), touchers)
-        touch?.let { pt ->
+        lastTouch.value?.let { pt ->
             if (markerOpts?.position == pt) {
-                setTouch(null)
+                lastTouch.value = null
             } else {
                 poly.markerWork({
                     var mopts: MarkerOptions? = null
@@ -433,7 +426,7 @@ object Compose {
                     mopts
                 }) { opts ->
                     if (opts == null) {
-                        setTouch(null)
+                        lastTouch.value = null
                     }
                     markerOpts = opts
                 }

@@ -21,11 +21,11 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
+import org.blueventures.gemdroid.ui.common.polygons.Polygon
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 import java.util.Calendar
-import java.util.UUID
 
 class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
@@ -185,5 +185,42 @@ class RoiViewModel(
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
+    }
+
+    val coarseModel: Polygon.Model = CoarsePolygonModel(this)
+}
+
+class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
+    override val appBarTitleId = R.string.create_coarse_roi
+    override fun appBarTitle(title: String) = title
+
+    override val polygonType: Int = R.string.coarse_boundary
+    override var visualizer: Visualize.Visualizer? = null
+    override val storage: Maps.Storage = viewModel.storage
+    override val drawer: PolygonDrawer
+        get() = viewModel.roiDrawer
+
+    override fun polygonDrawn() {}
+
+    override fun center() = viewModel.center()
+
+    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = viewModel.background({ null }, callback)
+
+    override var shapefile: List<List<LatLng>> = emptyList()
+
+    override fun <T> background(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
+
+    override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = viewModel.validateShapefile(streams, callback)
+
+    override var polygonName: String = viewModel.roiName
+
+    override fun shapefileLooksGood() {
+        val points = if (shapefile.isNotEmpty()) {
+            shapefile.first().toMutableList()
+        } else {
+            mutableListOf()
+        }
+
+        viewModel.roiDrawer = PolygonDrawer(points = points, maxArea = RoiViewModel.maxRoiArea, background = ::background)
     }
 }

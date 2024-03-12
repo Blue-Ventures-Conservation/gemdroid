@@ -24,13 +24,13 @@ object Polygons {
     }
 
     object Routes {
-        const val polygons_option = "polygons_option"
-        const val polygon_name = "polygon_name"
-        const val polygon_draw_or_shapefile = "polygon_draw_or_shapefile"
-        const val drawn_polygon = "drawn_polygon"
-        const val shapefile_polygon = "shapefile_polygon"
-        const val visualize_shapefile_polygon = "visualize_shapefile_polygon"
-        const val polygons_overview = "polygons_overview"
+        const val option = "polygons_option"
+        const val name = "polygons_polygon_name"
+        const val draw_or_shapefile = "polygons_draw_or_shapefile"
+        const val drawn = "polygons_drawn"
+        const val shapefile = "polygons_shapefile"
+        const val visualize_shapefile = "polygons_visualize_shapefile"
+        const val overview = "polygons_overview"
     }
 
     fun screens(
@@ -44,13 +44,13 @@ object Polygons {
         model: Model,
     ) {
         val addPrefix: (String) -> String = { routePrefix + it }
-        val routePolygonsOption = addPrefix(Routes.polygons_option)
-        val routePolygonName = addPrefix(Routes.polygon_name)
-        val routePolygonDrawOrShp = addPrefix(Routes.polygon_draw_or_shapefile)
-        val routeDrawnPolygon = addPrefix(Routes.drawn_polygon)
-        val routeShpPolygon = addPrefix(Routes.shapefile_polygon)
-        val routeVisualizeShp = addPrefix(Routes.visualize_shapefile_polygon)
-        val routePolygonsOverview = addPrefix(Routes.polygons_overview)
+        val routePolygonsOption = addPrefix(Routes.option)
+        val routePolygonName = addPrefix(Routes.name)
+        val routePolygonDrawOrShp = addPrefix(Routes.draw_or_shapefile)
+        val routeDrawnPolygon = addPrefix(Routes.drawn)
+        val routeShpPolygon = addPrefix(Routes.shapefile)
+        val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
+        val routePolygonsOverview = addPrefix(Routes.overview)
 
         b.composable(routePolygonsOption) {
             PolygonsOption.Screen(model, appBar, snack, back = {

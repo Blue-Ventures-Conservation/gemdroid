@@ -61,7 +61,7 @@ object Analysis {
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
-                nav.navigate(Dynamics.Routes.prefix + Polygons.Routes.polygons_option)
+                nav.navigate(Dynamics.Routes.prefix + Polygons.Routes.option)
             })
         }
 
