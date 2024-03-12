@@ -3,13 +3,11 @@ package org.blueventures.gemdroid.ui.analysis.cra
 import android.content.Context
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
-import org.blueventures.gemdroid.ui.analysis.Analysis.Routes.dashboard
 import org.blueventures.gemdroid.ui.analysis.cra.screens.CRAFields
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
@@ -17,6 +15,7 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Purpose
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import java.net.HttpURLConnection
 
 object CRA {
@@ -30,23 +29,25 @@ object CRA {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
-        b.composable(Routes.purpose) {
-            Purpose.Screen(appBar, nav::popBackStack) {
+        b.backHandler(Routes.purpose, nav::popBackStack) {
+            Purpose.Screen(appBar) {
                 nav.navigate(Routes.cont_cra)
             }
         }
-        b.composable(Routes.cont_cra) {
-            ContemporaryCRA.Screen(viewModel, appBar, snack, {
-                nav.popBackStack(dashboard, false)
-            }) {
+
+        b.backHandler(Routes.cont_cra, {
+            nav.popBackStack(Analysis.Routes.dashboard, false)
+        }) {
+            ContemporaryCRA.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.hist_choice)
             }
         }
-        b.composable(Routes.hist_choice) {
-            ChooseHistorical.Screen(viewModel, appBar, {
-                viewModel.clearHistoricalChoice()
-                nav.popBackStack()
-            }) {
+
+        b.backHandler(Routes.hist_choice, {
+            viewModel.clearHistoricalChoice()
+            nav.popBackStack()
+        }) {
+            ChooseHistorical.Screen(viewModel, appBar) {
                 when (viewModel.historicalChoice) {
                     HistoricalChoice.SEPARATE -> {
                         nav.navigate(Routes.hist_cra)
@@ -57,12 +58,14 @@ object CRA {
                 }
             }
         }
-        b.composable(Routes.hist_cra) {
-            HistoricalCRA.Screen(viewModel, appBar, snack, nav::popBackStack) {
+
+        b.backHandler(Routes.hist_cra, nav::popBackStack) {
+            HistoricalCRA.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.cra_fields)
             }
         }
-        b.composable(Routes.cra_fields) {
+
+        b.backHandler(Routes.cra_fields, nav::popBackStack) {
             CRAFields.Screen(viewModel, appBar, snack, nav::popBackStack) {
                 viewModel.clear()
                 nav.popClear(Analysis.Routes.dashboard)

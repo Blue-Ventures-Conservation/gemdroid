@@ -11,7 +11,6 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi.OverviewFromState
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -19,16 +18,14 @@ import java.io.File
 
 object Overview {
     @Composable
-    fun Screen(viewModel: RoiViewModel, filesDir: File, appBar: AppBar, snack: SnackFun, back: Click, done: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
-            val (saving, setSaving) = remember { mutableStateOf(false) }
+    fun Screen(viewModel: RoiViewModel, filesDir: File, appBar: AppBar, snack: SnackFun, done: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        val (saving, setSaving) = remember { mutableStateOf(false) }
 
-            if (saving) {
-                Progress()
-            } else {
-                OverviewDetails(viewModel, filesDir, snack, done, setSaving)
-            }
+        if (saving) {
+            Progress()
+        } else {
+            OverviewDetails(viewModel, filesDir, snack, done, setSaving)
         }
     }
 

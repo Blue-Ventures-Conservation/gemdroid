@@ -2,9 +2,9 @@ package org.blueventures.gemdroid.ui.common.polygons
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.NamePolygon
@@ -52,12 +52,12 @@ object Polygons {
         val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
         val routePolygonsOverview = addPrefix(Routes.overview)
 
-        b.composable(routePolygonsOption) {
-            PolygonsOption.Screen(model, appBar, snack, back = {
-                model.polygons.clear()
-                model.drawer.clear()
-                nav.popBackStack()
-            }, skip = {
+        b.backHandler(routePolygonsOption, {
+            model.polygons.clear()
+            model.drawer.clear()
+            nav.popBackStack()
+        }) { back ->
+            PolygonsOption.Screen(model, appBar, snack, back, skip = {
                 nav.navigate(nextRoute) {
                     popUpTo(prevRoute)
                 }
@@ -77,47 +77,52 @@ object Polygons {
             })
         }
 
-        b.composable(routePolygonName) {
-            NamePolygon.Screen(model, appBar, snack, nav::popBackStack) {
+        b.backHandler(routePolygonName, {
+            model.polygonName = ""
+            nav.popBackStack()
+        }) {
+            NamePolygon.Screen(model, appBar, snack) {
                 nav.navigate(routePolygonDrawOrShp)
             }
         }
 
-        b.composable(routePolygonDrawOrShp) {
-            DrawOrShapefile.Screen(model, appBar, nav::popBackStack, draw = {
+        b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
+            DrawOrShapefile.Screen(model, appBar, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
             }
         }
 
-        b.composable(routeDrawnPolygon) {
-            DrawPolygon.Screen(model, appBar, snack, {
-                model.drawer.clear()
-                nav.popBackStack()
-            }) {
+        b.backHandler(routeDrawnPolygon, {
+            model.drawer.clear()
+            nav.popBackStack()
+        }) {
+            DrawPolygon.Screen(model, appBar, snack) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }
 
-        b.composable(routeShpPolygon) {
-            ShapefilePolygon.Screen(model, appBar, snack, nav::popBackStack) {
+        b.backHandler(routeShpPolygon, nav::popBackStack) {
+            ShapefilePolygon.Screen(model, appBar, snack) {
                 nav.navigate(routeVisualizeShp)
             }
         }
 
-        b.composable(routeVisualizeShp) {
-            VisualizeShapefile.Screen(model, appBar, { nav.popBackStack(routePolygonDrawOrShp, false) }) {
+        b.backHandler(routeVisualizeShp, {
+            nav.popBackStack(routePolygonDrawOrShp, false)
+        }) {
+            VisualizeShapefile.Screen(model, appBar) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }
 
-        b.composable(routePolygonsOverview) {
-            PolygonsOverview.Screen(model, appBar, {
-                model.polygons.clear()
-                model.drawer.clear()
-                nav.popBackStack(routePolygonsOption, false)
-            }) {
+        b.backHandler(routePolygonsOverview, {
+            model.polygons.clear()
+            model.drawer.clear()
+            nav.popBackStack(routePolygonsOption, false)
+        }) {
+            PolygonsOverview.Screen(model, appBar) {
                 nav.navigate(nextRoute)
             }
         }

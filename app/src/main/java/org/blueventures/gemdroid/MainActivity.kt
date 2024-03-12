@@ -91,12 +91,12 @@ fun GEMApp(activity: ComponentActivity) {
 
         Scaffold(
             topBar = {
-                     TopAppBar(
-                         modifier = Modifier.fillMaxWidth(),
-                         title = { Text(barState.update.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                         actions = { barState.update.actions?.invoke(this) },
-                         colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
-                     )
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = { Text(barState.update.title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    actions = { barState.update.actions?.invoke(this) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue, titleContentColor = OffWhite, actionIconContentColor = OffWhite)
+                )
             },
             snackbarHost = { SnackbarHost(snackHostState) }
         ) { padding ->

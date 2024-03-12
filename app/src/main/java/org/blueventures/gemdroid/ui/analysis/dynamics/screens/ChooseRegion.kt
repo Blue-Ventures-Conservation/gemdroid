@@ -18,32 +18,29 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 
 object ChooseRegion {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, downloads: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
-            val regions = mutableListOf(viewModel.urls.stats)
-            for (subRegion in viewModel.urls.subRegionStats) {
-                regions.add(subRegion)
-            }
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, downloads: Click, next: Click) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
+        val regions = mutableListOf(viewModel.urls.stats)
+        for (subRegion in viewModel.urls.subRegionStats) {
+            regions.add(subRegion)
+        }
 
-            Col.Col(scroll = true) {
-                Column {
-                    Text(stringResource(R.string.choose_which_region_to_analyze), fontSize = 20.sp, textAlign = TextAlign.Center)
-                    Spacer(modifier = Modifier.size(16.dp))
-                    regions.forEach { region ->
-                        DashboardButton(region.name) {
-                            viewModel.analysisRegion = region
-                            next()
-                        }
-                        Spacer(modifier = Modifier.size(16.dp))
+        Col.Col(scroll = true) {
+            Column {
+                Text(stringResource(R.string.choose_which_region_to_analyze), fontSize = 20.sp, textAlign = TextAlign.Center)
+                Spacer(modifier = Modifier.size(16.dp))
+                regions.forEach { region ->
+                    DashboardButton(region.name) {
+                        viewModel.analysisRegion = region
+                        next()
                     }
+                    Spacer(modifier = Modifier.size(16.dp))
                 }
-                Downloads(downloads)
             }
+            Downloads(downloads)
         }
     }
 

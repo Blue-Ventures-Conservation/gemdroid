@@ -12,24 +12,21 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.once
 
 object Dashboard {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click, separation: Click, scatter: Click, correlation: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.title))
+        appBar.Update(AppBarUpdate(viewModel.title))
 
-            GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, errorHandler = CRA::errHandler) { json ->
-                Layout(viewModel, json, back, {
-                    separation()
-                }, {
-                    scatter()
-                }) {
-                    correlation()
-                }
+        GetRemote.Save(viewModel::loadSeparationFile, viewModel::getSeparation, viewModel::saveSeparationFile, errorHandler = CRA::errHandler) { json ->
+            Layout(viewModel, json, back, {
+                separation()
+            }, {
+                scatter()
+            }) {
+                correlation()
             }
         }
     }
@@ -39,7 +36,7 @@ object Dashboard {
         val msg = JSONMap.separabilityMessage(LocalContext.current, viewModel.timePeriod, json)
 
         if (msg == null) {
-            Effect.Once { back() }
+            back.once()
             return
         }
 

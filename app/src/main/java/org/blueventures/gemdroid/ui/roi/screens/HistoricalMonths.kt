@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.ui.common.Click
 
 object HistoricalMonths {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBar, back: Click, next: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBar, next: Click) {
         Months.Screen(
             object : Months.Selector {
                 override val initMonthStart: Int = viewModel.historicalMonthStart
@@ -21,7 +21,7 @@ object HistoricalMonths {
                 override fun setMonthEnd(month: Int) {
                     viewModel.historicalMonthEnd = month
                 }
-            }, stringResource(R.string.historical), appBar, back, next
+            }, stringResource(R.string.historical), appBar, next
         )
     }
 }

@@ -26,7 +26,6 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Years {
@@ -41,34 +40,32 @@ object Years {
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
-            Col.Col {
-                Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
-                    Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)
-                    Text(stringResource(R.string.select_bounding_years), textAlign = TextAlign.Center, fontSize = 20.sp)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SelectYear(selector.initYearStart, currentYear, selector::setYearStart)
-                    SelectYear(selector.initYearEnd, currentYear, selector::setYearEnd)
-                }
-                val gapMsg = stringResource(R.string.please_select_years_within).format(RoiViewModel.maxYearGap.toString())
-                val orderMsg = stringResource(R.string.year_compare_fail)
-                Butt.Next {
-                    if (selector.validateOrder()) {
-                        if (selector.validateGap()) {
-                            next()
-                        } else {
-                            snack(gapMsg)
-                        }
+    fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBar, snack: SnackFun, next: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        Col.Col {
+            Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
+                Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)
+                Text(stringResource(R.string.select_bounding_years), textAlign = TextAlign.Center, fontSize = 20.sp)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SelectYear(selector.initYearStart, currentYear, selector::setYearStart)
+                SelectYear(selector.initYearEnd, currentYear, selector::setYearEnd)
+            }
+            val gapMsg = stringResource(R.string.please_select_years_within).format(RoiViewModel.maxYearGap.toString())
+            val orderMsg = stringResource(R.string.year_compare_fail)
+            Butt.Next {
+                if (selector.validateOrder()) {
+                    if (selector.validateGap()) {
+                        next()
                     } else {
-                        snack(orderMsg)
+                        snack(gapMsg)
                     }
+                } else {
+                    snack(orderMsg)
                 }
             }
         }

@@ -12,7 +12,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
@@ -31,19 +30,17 @@ object PolygonsOverview {
     }
 
     @Composable
-    fun Screen(model: Model, appBar: AppBar, back: Click, ok: Click) {
-        Nav.Wrap(back) {
-            Info.Block {
-                val title = stringResource(R.string.review_polygons).format(stringResource(model.polygonTypePlural))
+    fun Screen(model: Model, appBar: AppBar, ok: Click) {
+        Info.Block {
+            val title = stringResource(R.string.review_polygons).format(stringResource(model.polygonTypePlural))
 
-                Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
-                    override val touchEnabled = true
-                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(callback)
-                    override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
-                }) {
-                    MapActionButton(ok) {
-                        Icon(Icons.Filled.Check, stringResource(R.string.polygons_look_good))
-                    }
+            Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
+                override val touchEnabled = true
+                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(callback)
+                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
+            }) {
+                MapActionButton(ok) {
+                    Icon(Icons.Filled.Check, stringResource(R.string.polygons_look_good))
                 }
             }
         }

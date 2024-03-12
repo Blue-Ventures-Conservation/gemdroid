@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.ui.analysis.classification
 import android.content.Context
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.ui.analysis.classification.screens.Details
@@ -14,6 +13,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.separability.Separab
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import java.net.HttpURLConnection
 
 object Classification {
@@ -27,22 +27,22 @@ object Classification {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun) {
         Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
 
-        b.composable(Routes.map) {
-            Map.Screen(viewModel, appBar, snack, nav::popBackStack) {
+        b.backHandler(Routes.map, nav::popBackStack) { back ->
+            Map.Screen(viewModel, appBar, snack, back) {
                 nav.navigate(Routes.details)
             }
         }
 
-        b.composable(Routes.details) {
-            Details.Screen(viewModel, appBar, nav::popBackStack, {
+        b.backHandler(Routes.details, nav::popBackStack) {
+            Details.Screen(viewModel, appBar, {
                 nav.navigate(timePeriod)
             }) {
                 nav.navigate(Routes.downloads)
             }
         }
 
-        b.composable(Routes.downloads) {
-            Downloads.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.downloads, nav::popBackStack) { back ->
+            Downloads.Screen(viewModel, appBar, back)
         }
     }
 

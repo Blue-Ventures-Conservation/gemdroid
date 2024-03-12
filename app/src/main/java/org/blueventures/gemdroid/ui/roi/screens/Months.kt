@@ -25,7 +25,6 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Nav
 
 object Months {
     private val resources = listOf(R.string.january, R.string.february, R.string.march, R.string.april, R.string.may, R.string.june, R.string.july, R.string.august, R.string.september, R.string.october, R.string.november, R.string.december)
@@ -39,29 +38,27 @@ object Months {
     }
 
     @Composable
-    fun Screen(selector: Selector, temporal: String, appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
-            val months = mutableListOf<String>()
-            for (res in resources) {
-                months.add(stringResource(res))
-            }
+    fun Screen(selector: Selector, temporal: String, appBar: AppBar, next: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        val months = mutableListOf<String>()
+        for (res in resources) {
+            months.add(stringResource(res))
+        }
 
-            Col.Col {
-                Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
-                    Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)
-                    Text(stringResource(R.string.select_months_range), textAlign = TextAlign.Center, fontSize = 20.sp)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SelectMonth(months, selector.initMonthStart, selector::setMonthStart)
-                    SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
-                }
-                Butt.Next(click = next)
+        Col.Col {
+            Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
+                Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)
+                Text(stringResource(R.string.select_months_range), textAlign = TextAlign.Center, fontSize = 20.sp)
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SelectMonth(months, selector.initMonthStart, selector::setMonthStart)
+                SelectMonth(months, selector.initMonthEnd, selector::setMonthEnd)
+            }
+            Butt.Next(click = next)
         }
     }
 

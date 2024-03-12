@@ -10,7 +10,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 object HistoricalYears {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         Years.Screen(
             object : Years.Selector {
                 override val initYearStart: Int = viewModel.historicalYearStart
@@ -25,7 +25,7 @@ object HistoricalYears {
 
                 override fun validateOrder(): Boolean = viewModel.validateHistoricalYearsOrder()
                 override fun validateGap(): Boolean = viewModel.validateHistoricalYearsGap()
-            }, stringResource(R.string.historical), viewModel.currentYear(), appBar, snack, back, next
+            }, stringResource(R.string.historical), viewModel.currentYear(), appBar, snack, next
         )
     }
 }

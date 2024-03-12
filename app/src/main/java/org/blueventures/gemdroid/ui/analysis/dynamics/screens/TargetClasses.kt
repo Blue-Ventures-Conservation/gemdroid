@@ -12,38 +12,35 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Checklist
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Effect
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object TargetClasses {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         viewModel.combinedName = null
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
-            val classes = viewModel.cra.contemporaryCRA.stringClassValues
-            val (classesChosen, setClassesChosen) = remember { mutableStateOf(false) }
-            val (dynamicsResult, setDynamicsResult) = remember { mutableStateOf<Result<DynamicsURLs>?>(null) }
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
+        val classes = viewModel.cra.contemporaryCRA.stringClassValues
+        val (classesChosen, setClassesChosen) = remember { mutableStateOf(false) }
+        val (dynamicsResult, setDynamicsResult) = remember { mutableStateOf<Result<DynamicsURLs>?>(null) }
 
-            when (classesChosen) {
-                false -> {
-                    Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes, initState = false, min = 1) { checked ->
-                        viewModel.targetClasses = checked
-                        setClassesChosen(true)
-                    }
+        when (classesChosen) {
+            false -> {
+                Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes, initState = false, min = 1) { checked ->
+                    viewModel.targetClasses = checked
+                    setClassesChosen(true)
                 }
-                true -> {
-                    when (dynamicsResult) {
-                        null -> {
-                            Progress()
-                            viewModel.loadDynamicsFile(setDynamicsResult)
-                        }
-                        else -> {
-                            Effect.Once {
-                                viewModel.alreadyDownloaded = dynamicsResult.isSuccess
-                                next()
-                            }
+            }
+            true -> {
+                when (dynamicsResult) {
+                    null -> {
+                        Progress()
+                        viewModel.loadDynamicsFile(setDynamicsResult)
+                    }
+                    else -> {
+                        Effect.Once {
+                            viewModel.alreadyDownloaded = dynamicsResult.isSuccess
+                            next()
                         }
                     }
                 }

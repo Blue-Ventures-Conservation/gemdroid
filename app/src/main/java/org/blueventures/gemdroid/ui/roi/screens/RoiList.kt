@@ -19,9 +19,9 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -51,6 +51,7 @@ import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.once
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
@@ -86,7 +87,7 @@ object RoiList {
                 viewModel.refreshRois(filesDir, setRois)
             }
             rois.isFailure -> {
-                snack(rois.exceptionOrNull()!!.localized(LocalContext.current))
+                snack.once(rois.exceptionOrNull()!!.localized(LocalContext.current))
             }
             else -> {
                 val list = rois.getOrNull()!!
@@ -141,7 +142,7 @@ object RoiList {
                 LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
                     items(rois) { dir ->
                         RoiRow(dir, dirHolder, next, setShowSheet)
-                        Divider(color = SkyBlue, thickness = 1.dp)
+                        HorizontalDivider(color = SkyBlue, thickness = 1.dp)
                     }
                 }
             }

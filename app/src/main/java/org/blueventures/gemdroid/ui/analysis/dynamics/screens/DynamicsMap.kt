@@ -16,7 +16,6 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.maps.Layers
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
@@ -24,14 +23,7 @@ import org.blueventures.gemdroid.ui.common.maps.Poly
 
 object DynamicsMap {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, details: Click) {
-        Nav.Wrap(back) {
-            Dynamics(viewModel, appBar, details)
-        }
-    }
-
-    @Composable
-    fun Dynamics(viewModel: DynamicsViewModel, appBar: AppBar, details: Click) {
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, details: Click) {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 

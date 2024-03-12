@@ -18,35 +18,31 @@ import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
-import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.theme.g2R2BHex
 
 object Stats {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
 
-            val size = viewModel.analysisRegion.allClasses.size
-            val classColors = mutableMapOf<String, String>()
-            for ((i, classDynamics) in viewModel.analysisRegion.allClasses.withIndex()) {
-                classColors[classDynamics.name] = g2R2BHex(i, size)
-            }
+        val size = viewModel.analysisRegion.allClasses.size
+        val classColors = mutableMapOf<String, String>()
+        for ((i, classDynamics) in viewModel.analysisRegion.allClasses.withIndex()) {
+            classColors[classDynamics.name] = g2R2BHex(i, size)
+        }
 
-            Col.MidPad(arrange = Arrangement.Top, scroll = true) {
-                Info.Block {
-                    val className = viewModel.analysisClass.name
-                    val conversions = viewModel.analysisClass.conversions
+        Col.MidPad(arrange = Arrangement.Top, scroll = true) {
+            Info.Block {
+                val className = viewModel.analysisClass.name
+                val conversions = viewModel.analysisClass.conversions
 
-                    Info.Header(viewModel.analysisRegion.name)
-                    ClassBlock(className, viewModel.analysisClass)
-                    Chart(stringResource(R.string.conversion_to_other_classes).format(className), conversions.from, classColors)
-                    Spacer(modifier = Modifier.size(16.dp))
-                    Chart(stringResource(R.string.other_class_conversions_to).format(className), conversions.to, classColors)
-                }
+                Info.Header(viewModel.analysisRegion.name)
+                ClassBlock(className, viewModel.analysisClass)
+                Chart(stringResource(R.string.conversion_to_other_classes).format(className), conversions.from, classColors)
+                Spacer(modifier = Modifier.size(16.dp))
+                Chart(stringResource(R.string.other_class_conversions_to).format(className), conversions.to, classColors)
             }
         }
     }

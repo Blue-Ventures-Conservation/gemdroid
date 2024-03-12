@@ -2,9 +2,9 @@ package org.blueventures.gemdroid.ui.common.polygons
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.ShapefilePolygon
@@ -35,34 +35,34 @@ object Polygon {
         val routeShpPolygon = addPrefix(Routes.shapefile)
         val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
 
-        b.composable(routePolygonDrawOrShp) {
-            DrawOrShapefile.Screen(model, appBar, nav::popBackStack, draw = {
+        b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
+            DrawOrShapefile.Screen(model, appBar, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
             }
         }
 
-        b.composable(routeDrawnPolygon) {
-            DrawPolygon.Screen(model, appBar, snack, {
-                model.drawer.clear()
-                nav.popBackStack()
-            }) {
+        b.backHandler(routeDrawnPolygon, {
+            model.drawer.clear()
+            nav.popBackStack()
+        }) {
+            DrawPolygon.Screen(model, appBar, snack) {
                 nav.navigate(nextRoute)
             }
         }
 
-        b.composable(routeShpPolygon) {
-            ShapefilePolygon.Screen(model, appBar, snack, nav::popBackStack) {
+        b.backHandler(routeShpPolygon, nav::popBackStack) {
+            ShapefilePolygon.Screen(model, appBar, snack) {
                 nav.navigate(routeVisualizeShp)
             }
         }
 
-        b.composable(routeVisualizeShp) {
-            VisualizeShapefile.Screen(model, appBar, {
-                model.drawer.clear()
-                nav.popBackStack(routePolygonDrawOrShp, false)
-            }) {
+        b.backHandler(routeVisualizeShp, {
+            model.drawer.clear()
+            nav.popBackStack(routePolygonDrawOrShp, false)
+        }) {
+            VisualizeShapefile.Screen(model, appBar) {
                 nav.navigate(nextRoute)
             }
         }

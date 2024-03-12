@@ -9,7 +9,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import org.blueventures.gemdroid.ui.common.maps.Maps
@@ -29,20 +28,18 @@ object DrawPolygon {
         fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit): Job
     }
     @Composable
-    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            val title = stringResource(R.string.draw_polygon).format(stringResource(model.polygonType))
-            Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, draw = Draw.Model(model.drawer, snack) {
-                model.polygonDrawn()
-                next()
-            }, poly = object : Poly.Model() {
-                override val touchEnabled = false
-                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.backgroundPolygon { if (it != null) callback(listOf(it)) else callback(emptyList()) }
-                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
-                    callback(null)
-                    return Job()
-                }
-            })
-        }
+    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, next: Click) {
+        val title = stringResource(R.string.draw_polygon).format(stringResource(model.polygonType))
+        Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, draw = Draw.Model(model.drawer, snack) {
+            model.polygonDrawn()
+            next()
+        }, poly = object : Poly.Model() {
+            override val touchEnabled = false
+            override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.backgroundPolygon { if (it != null) callback(listOf(it)) else callback(emptyList()) }
+            override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
+                callback(null)
+                return Job()
+            }
+        })
     }
 }

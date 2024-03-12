@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.ui.common.Click
 
 object ContemporaryMonths {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBar, back: Click, next: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBar, next: Click) {
         Months.Screen(
             object : Months.Selector {
                 override val initMonthStart: Int = viewModel.contemporaryMonthStart
@@ -21,7 +21,7 @@ object ContemporaryMonths {
                 override fun setMonthEnd(month: Int) {
                     viewModel.contemporaryMonthEnd = month
                 }
-            }, stringResource(R.string.contemporary), appBar, back, next
+            }, stringResource(R.string.contemporary), appBar, next
         )
     }
 }

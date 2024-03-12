@@ -16,23 +16,20 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SelectTimePeriod {
     @Composable
-    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.spectral_separability)))
+    fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.spectral_separability)))
 
-            Await.CRA(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
-                val cont = cra.contemporaryCRA
-                val hist = cra.historicalShp()
-                val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
-                val setCont = { setShp(cont) }
-                val setHist = { setShp(hist) }
-                Dashboard(viewModel, { setCont(); next() }, { setCont(); next() }, { setHist(); next() }) { setHist(); next() }
-            }
+        Await.CRA(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
+            val cont = cra.contemporaryCRA
+            val hist = cra.historicalShp()
+            val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
+            val setCont = { setShp(cont) }
+            val setHist = { setShp(hist) }
+            Dashboard(viewModel, { setCont(); next() }, { setCont(); next() }, { setHist(); next() }) { setHist(); next() }
         }
     }
 

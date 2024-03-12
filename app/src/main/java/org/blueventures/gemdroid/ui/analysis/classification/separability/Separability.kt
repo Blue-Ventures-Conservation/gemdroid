@@ -13,6 +13,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.separability.screens
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Separation
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 
 object Separability {
     object Routes {
@@ -27,14 +28,14 @@ object Separability {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun) {
-        b.composable(Routes.timePeriod) {
-            SelectTimePeriod.Screen(viewModel, appBar, snack, nav::popBackStack) {
+        b.backHandler(Routes.timePeriod, nav::popBackStack) { back ->
+            SelectTimePeriod.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.dashboard)
             }
         }
 
-        b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, appBar, nav::popBackStack, separation = {
+        b.backHandler(Routes.dashboard, nav::popBackStack) { back ->
+            Dashboard.Screen(viewModel, appBar, back, separation = {
                 nav.navigate(Routes.separation)
             }, scatter = {
                 nav.navigate(Routes.scatterClasses)
@@ -43,28 +44,28 @@ object Separability {
             }
         }
 
-        b.composable(Routes.separation) {
-            Separation.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.separation, nav::popBackStack) { back ->
+            Separation.Screen(viewModel, appBar, back)
         }
 
-        b.composable(Routes.scatterClasses) {
-            ScatterClasses.Screen(viewModel, appBar, snack, nav::popBackStack) {
+        b.backHandler(Routes.scatterClasses, nav::popBackStack) { back ->
+            ScatterClasses.Screen(viewModel, appBar, snack, back) {
                 nav.navigate(Routes.scatterBands)
             }
         }
 
-        b.composable(Routes.scatterBands) {
-            ScatterChoices.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.scatterBands, nav::popBackStack) { back ->
+            ScatterChoices.Screen(viewModel, appBar, back) {
                 nav.navigate(Routes.scatterPlot)
             }
         }
 
-        b.composable(Routes.scatterPlot) {
-            ScatterPlot.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.scatterPlot, nav::popBackStack) { back ->
+            ScatterPlot.Screen(viewModel, appBar, back)
         }
 
-        b.composable(Routes.correlation) {
-            Correlation.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.correlation, nav::popBackStack) { back ->
+            Correlation.Screen(viewModel, appBar, back)
         }
     }
 }

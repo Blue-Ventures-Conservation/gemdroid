@@ -33,10 +33,8 @@ object Await {
             }
             cras.isFailure -> {
                 val msg = cras.exceptionOrNull()!!.localized(LocalContext.current)
-                Effect.Once {
-                    snack(msg)
-                    back()
-                }
+                snack.once(msg)
+                back.once()
             }
             should == null -> {
                 awaiter.shouldAwaitCRAs(setShould)
@@ -47,9 +45,7 @@ object Await {
             }
             else -> {
                 if (awaited != null && awaited.isFailure) {
-                    Effect.Once {
-                        snack(notVerified)
-                    }
+                    snack.once(notVerified)
                 }
 
                 content(cras.getOrNull()!!)

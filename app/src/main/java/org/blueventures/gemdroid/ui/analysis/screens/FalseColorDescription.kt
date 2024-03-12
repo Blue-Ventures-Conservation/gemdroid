@@ -13,19 +13,16 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 
 object FalseColorDescription {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, back: Click, downloads: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title))))
-            Col.Col(scroll = true) {
-                Spacer(modifier = Modifier.height(0.dp))
-                Info.Txt(stringResource(R.string.false_color_channels))
-                Info.Txt(stringResource(R.string.false_color_mangroves))
-                Col.DashboardButton(stringResource(R.string.downloads), downloads)
-            }
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, downloads: Click) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title))))
+        Col.Col(scroll = true) {
+            Spacer(modifier = Modifier.height(0.dp))
+            Info.Txt(stringResource(R.string.false_color_channels))
+            Info.Txt(stringResource(R.string.false_color_mangroves))
+            Col.DashboardButton(stringResource(R.string.downloads), downloads)
         }
     }
 }

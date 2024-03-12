@@ -9,7 +9,6 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
@@ -22,16 +21,14 @@ object ShapefilePolygon {
     }
 
     @Composable
-    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
-            Col.Col {
-                Shapefile.Screen(stringResource(R.string.select_a_shapefile), model::background, model::validateShapefile, { err ->
-                    snack(err)
-                }) { points ->
-                    model.shapefile = points
-                    next()
-                }
+    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, next: Click) {
+        appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
+        Col.Col {
+            Shapefile.Screen(stringResource(R.string.select_a_shapefile), model::background, model::validateShapefile, { err ->
+                snack(err)
+            }) { points ->
+                model.shapefile = points
+                next()
             }
         }
     }

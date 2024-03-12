@@ -12,6 +12,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygon
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
@@ -49,57 +50,57 @@ object Roi {
         }
 
         // ROI name creation
-        b.composable(Routes.name) {
-            Name.Screen(viewModel, appBar, snack, back = {
-                viewModel.clear()
-                nav.popBackStack()
-            }) {
+        b.backHandler(Routes.name, {
+            viewModel.clear()
+            nav.popBackStack()
+        }) {
+            Name.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.contemporaryYears)
             }
         }
 
         // ROI contemporary years selection
-        b.composable(Routes.contemporaryYears) {
-            ContemporaryYears.Screen(viewModel, appBar, snack, back = {
-                viewModel.clearContemporaryYears()
-                nav.popBackStack()
-            }) {
+        b.backHandler(Routes.contemporaryYears, {
+            viewModel.clearContemporaryYears()
+            nav.popBackStack()
+        }) {
+            ContemporaryYears.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.contemporaryMonths)
             }
         }
 
         // ROI contemporary months selection
-        b.composable(Routes.contemporaryMonths) {
-            ContemporaryMonths.Screen(viewModel, appBar, back = {
-                viewModel.clearContemporaryMonths()
-                nav.popBackStack()
-            }) {
+        b.backHandler(Routes.contemporaryMonths, {
+            viewModel.clearContemporaryMonths()
+            nav.popBackStack()
+        }) {
+            ContemporaryMonths.Screen(viewModel, appBar) {
                 nav.navigate(Routes.historicalYears)
             }
         }
 
         // ROI historical years selection
-        b.composable(Routes.historicalYears) {
-            HistoricalYears.Screen(viewModel, appBar, snack, back = {
-                viewModel.clearHistoricalYears()
-                nav.popBackStack()
-            }) {
+        b.backHandler(Routes.historicalYears, {
+            viewModel.clearHistoricalYears()
+            nav.popBackStack()
+        }) {
+            HistoricalYears.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.historicalMonths)
             }
         }
 
         // ROI months range selection
-        b.composable(Routes.historicalMonths) {
-            HistoricalMonths.Screen(viewModel, appBar, back = {
-                viewModel.clearHistoricalMonths()
-                nav.popBackStack()
-            }) {
+        b.backHandler(Routes.historicalMonths, {
+            viewModel.clearHistoricalMonths()
+            nav.popBackStack()
+        }) {
+            HistoricalMonths.Screen(viewModel, appBar) {
                 nav.navigate(Routes.coarse_polygon_purpose)
             }
         }
 
-        b.composable(Routes.coarse_polygon_purpose) {
-            CoarsePolygonPurpose.Screen(appBar, back = nav::popBackStack) {
+        b.backHandler(Routes.coarse_polygon_purpose, nav::popBackStack) {
+            CoarsePolygonPurpose.Screen(appBar) {
                 nav.navigate(Routes.prefix+Polygon.Routes.draw_or_shapefile) {
                     popUpTo(Routes.historicalMonths)
                 }
@@ -113,8 +114,8 @@ object Roi {
         Polygons.screens(b, nav, Routes.prefix, Routes.prefix+Polygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, viewModel)
 
         // ROI overview
-        b.composable(Routes.overview) {
-            Overview.Screen(viewModel, activity.filesDir, appBar, snack, nav::popBackStack) {
+        b.backHandler(Routes.overview, nav::popBackStack) {
+            Overview.Screen(viewModel, activity.filesDir, appBar, snack) {
                 viewModel.clear()
                 nav.popClear(Routes.list)
             }

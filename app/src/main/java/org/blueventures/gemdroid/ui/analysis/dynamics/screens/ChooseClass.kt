@@ -9,20 +9,17 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
-import org.blueventures.gemdroid.ui.common.Nav
 
 object ChooseClass {
     @Composable
-    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
+    fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, next: Click) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
 
-            Col.Dash(stringResource(R.string.choose_which_class_to_analyze)) {
-                viewModel.analysisRegion.allClasses.forEach { classDynamics ->
-                    DashboardButton(classDynamics.name) {
-                        viewModel.analysisClass = classDynamics
-                        next()
-                    }
+        Col.Dash(stringResource(R.string.choose_which_class_to_analyze)) {
+            viewModel.analysisRegion.allClasses.forEach { classDynamics ->
+                DashboardButton(classDynamics.name) {
+                    viewModel.analysisClass = classDynamics
+                    next()
                 }
             }
         }

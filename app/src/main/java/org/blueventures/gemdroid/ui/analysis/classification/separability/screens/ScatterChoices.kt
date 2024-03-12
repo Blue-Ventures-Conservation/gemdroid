@@ -14,26 +14,23 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.once
 
 object ScatterChoices {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.title))
+        appBar.Update(AppBarUpdate(viewModel.title))
 
-            GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
-                val bands = JSONMap.bands(json)
+        GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
+            val bands = JSONMap.bands(json)
 
-                if (bands == null) {
-                    Effect.Once { back() }
-                    return@AwaitSave
-                }
-
-                Choices(viewModel, bands, next)
+            if (bands == null) {
+                back.once()
+                return@AwaitSave
             }
+
+            Choices(viewModel, bands, next)
         }
     }
 

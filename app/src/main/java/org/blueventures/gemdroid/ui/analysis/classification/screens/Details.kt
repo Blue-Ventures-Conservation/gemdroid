@@ -17,21 +17,18 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.theme.g2R2B
 
 object Details {
     @Composable
-    fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, back: Click, separability: Click, downloads: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.classification))))
+    fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, separability: Click, downloads: Click) {
+        appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.classification))))
 
-            Col.MidPad(arrange = Arrangement.Top, scroll = true) {
-                Legend(viewModel.urls)
-                Separability(separability)
-                Accuracy(viewModel.urls)
-                Downloads(downloads)
-            }
+        Col.MidPad(arrange = Arrangement.Top, scroll = true) {
+            Legend(viewModel.urls)
+            Separability(separability)
+            Accuracy(viewModel.urls)
+            Downloads(downloads)
         }
     }
 

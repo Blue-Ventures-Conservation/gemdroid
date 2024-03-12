@@ -18,29 +18,26 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.once
 import org.blueventures.gemdroid.ui.theme.g2R2BHex
 
 object ScatterPlot {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.title))
+        appBar.Update(AppBarUpdate(viewModel.title))
 
-            val screen: @Composable (Map<String, Any>) -> Unit = { json ->
-                val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
+        val screen: @Composable (Map<String, Any>) -> Unit = { json ->
+            val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
 
-                if (data == null) {
-                    Effect.Once { back() }
-                } else {
-                    Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
-                }
+            if (data == null) {
+                back.once()
+            } else {
+                Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
             }
-
-            GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler, setLocal = screen, setRemote = screen)
         }
+
+        GetRemote.Display(viewModel::loadScatterFile, viewModel::getScatter, errorHandler = CRA::errHandler, setLocal = screen, setRemote = screen)
     }
 
     @Composable

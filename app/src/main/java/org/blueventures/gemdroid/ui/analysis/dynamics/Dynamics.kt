@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.ui.analysis.dynamics
 import android.content.Context
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
@@ -16,6 +15,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.Stats
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClasses
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
 object Dynamics {
@@ -38,10 +38,10 @@ object Dynamics {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
         Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, viewModel)
 
-        b.composable(Routes.target_classes) {
-            TargetClasses.Screen(viewModel, appBar, snack, {
-                if (viewModel.subregionsFinalized) nav.popBackStack(Analysis.Routes.dashboard, false) else nav.popBackStack()
-            }) {
+        b.backHandler(Routes.target_classes, {
+            if (viewModel.subregionsFinalized) nav.popBackStack(Analysis.Routes.dashboard, false) else nav.popBackStack()
+        }) {
+            TargetClasses.Screen(viewModel, appBar, snack) {
                 when {
                     viewModel.combinedNameNeeded() -> nav.navigate(Routes.combined_name)
                     else -> {
@@ -52,41 +52,41 @@ object Dynamics {
             }
         }
 
-        b.composable(Routes.combined_name) {
-            CombinedName.Screen(viewModel, appBar, snack, nav::popBackStack) {
+        b.backHandler(Routes.combined_name, nav::popBackStack) {
+            CombinedName.Screen(viewModel, appBar, snack) {
                 finalizeSubregions(viewModel)
                 nav.navigate(Routes.map)
             }
         }
 
-        b.composable(Routes.map) {
-            DynamicsMap.Screen(viewModel, appBar, {
-                nav.popBackStack(Routes.target_classes, false)
-            }) {
+        b.backHandler(Routes.map, {
+            nav.popBackStack(Routes.target_classes, false)
+        }) {
+            DynamicsMap.Screen(viewModel, appBar) {
                 nav.navigate(Routes.choose_region)
             }
         }
 
-        b.composable(Routes.choose_region) {
-            ChooseRegion.Screen(viewModel, appBar, nav::popBackStack, {
+        b.backHandler(Routes.choose_region, nav::popBackStack) {
+            ChooseRegion.Screen(viewModel, appBar, {
                 nav.navigate(Routes.downloads)
             }) {
                 nav.navigate(Routes.choose_class)
             }
         }
 
-        b.composable(Routes.downloads) {
-            Downloads.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.downloads, nav::popBackStack) { back ->
+            Downloads.Screen(viewModel, appBar, back)
         }
 
-        b.composable(Routes.choose_class) {
-            ChooseClass.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.choose_class, nav::popBackStack) {
+            ChooseClass.Screen(viewModel, appBar) {
                 nav.navigate(Routes.stats)
             }
         }
 
-        b.composable(Routes.stats) {
-            Stats.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.stats, nav::popBackStack) {
+            Stats.Screen(viewModel, appBar)
         }
     }
 

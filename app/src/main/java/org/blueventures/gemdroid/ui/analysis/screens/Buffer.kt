@@ -1,23 +1,12 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
-import com.anychart.AnyChart
-import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
-import com.anychart.charts.Cartesian
-import com.anychart.enums.Anchor
-import com.anychart.enums.HoverMode
-import com.anychart.enums.Position
-import com.anychart.enums.TooltipPositionMode
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
@@ -31,25 +20,21 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
-import org.blueventures.gemdroid.ui.common.Orient
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click) {
-        Nav.Wrap(back, true) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
 
-            val (saving, setSaving) = remember { mutableStateOf(false) }
+        val (saving, setSaving) = remember { mutableStateOf(false) }
 
-            if (saving) {
-                Progress()
-            } else {
-                GetRemote.Save(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
-                    BufferChoice(viewModel, buffs, snack, back, setSaving)
-                }
+        if (saving) {
+            Progress()
+        } else {
+            GetRemote.Save(viewModel::loadBuffersFile, viewModel::getBuffers, viewModel::saveBuffersFile) { buffs ->
+                BufferChoice(viewModel, buffs, snack, back, setSaving)
             }
         }
     }

@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.analysis
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.popClear
@@ -22,6 +21,7 @@ import org.blueventures.gemdroid.ui.analysis.screens.Satellite
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
@@ -47,13 +47,13 @@ object Analysis {
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
         // Dashboard
-        b.composable(Routes.dashboard) {
-            Dashboard.Screen(viewModel, appBar, snack, next = {
+        b.backHandler(Routes.dashboard, {
+            nav.popClear(Roi.Routes.list)
+        }) { back ->
+            Dashboard.Screen(viewModel, appBar, snack, back, next = {
                 Routes.dashboardNext(viewModel.stage)?.let { route ->
                     nav.navigate(route)
                 }
-            }, back = {
-                nav.popClear(Roi.Routes.list)
             }, falseColor = {
                 nav.navigate(Routes.visualize)
             }, review = {
@@ -66,41 +66,41 @@ object Analysis {
         }
 
         // Buffer selection
-        b.composable(Routes.buffer) {
-            Buffer.Screen(viewModel, appBar, snack, nav::popBackStack)
+        b.backHandler(Routes.buffer, nav::popBackStack, true) { back ->
+            Buffer.Screen(viewModel, appBar, snack, back)
         }
 
         // Visualization
-        b.composable(Routes.visualize) {
-            Satellite.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.visualize, nav::popBackStack) {
+            Satellite.Screen(viewModel, appBar) {
                 nav.navigate(Routes.imagery_description)
             }
         }
 
-        b.composable(Routes.imagery_description) {
-            FalseColorDescription.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.imagery_description, nav::popBackStack) {
+            FalseColorDescription.Screen(viewModel, appBar) {
                 nav.navigate(Routes.imagery_downloads)
             }
         }
 
-        b.composable(Routes.imagery_downloads) {
-            Downloads.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.imagery_downloads, nav::popBackStack) { back ->
+            Downloads.Screen(viewModel, appBar, back)
         }
 
-        b.composable(Routes.review_inputs) {
-            ReviewInputs.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.review_inputs, nav::popBackStack) {
+            ReviewInputs.Screen(viewModel, appBar) {
                 nav.navigate(Routes.boundary)
             }
         }
 
-        b.composable(Routes.boundary) {
-            Boundary.Screen(viewModel, appBar, nav::popBackStack) {
+        b.backHandler(Routes.boundary, nav::popBackStack) {
+            Boundary.Screen(viewModel, appBar) {
                 nav.navigate(Routes.excluded)
             }
         }
 
-        b.composable(Routes.excluded) {
-            ExcludedRegions.Screen(viewModel, appBar, nav::popBackStack)
+        b.backHandler(Routes.excluded, nav::popBackStack) {
+            ExcludedRegions.Screen(viewModel, appBar)
         }
 
         // CRAs

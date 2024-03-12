@@ -14,7 +14,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
@@ -34,38 +33,36 @@ object VisualizeShapefile {
     }
 
     @Composable
-    fun Screen(model: Model, appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            val (gotCenter, setGotCenter) = remember { mutableStateOf(false) }
-            val (center, setCenter) = remember { mutableStateOf<LatLng?>(null) }
-            if (!gotCenter) {
-                model.background({
-                    val points = if (model.shapefile.isNotEmpty()) model.shapefile.first() else emptyList()
-                    Bounds.centerFromList(points)
-                }) { cent ->
-                    setGotCenter(true)
-                    setCenter(cent)
-                }
-            } else {
-                val title = stringResource(R.string.visualize_shp)
-                Visualize.Screen(model.visualizer, title, appBar, center = center, storage = model.storage, poly = object : Poly.Model() {
-                    override val touchEnabled = true
-                    override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
-
-                    override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
-                        return model.backgroundPolygon { bg ->
-                            val list = if (model.shapefile.isEmpty()) mutableListOf() else mutableListOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile))))
-                            if (bg != null) list.add(bg)
-                            callback(list)
-                        }
-                    }
-                }, floating = {
-                    MapActionButton({
-                        model.shapefileLooksGood()
-                        next()
-                    }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }
-                })
+    fun Screen(model: Model, appBar: AppBar, next: Click) {
+        val (gotCenter, setGotCenter) = remember { mutableStateOf(false) }
+        val (center, setCenter) = remember { mutableStateOf<LatLng?>(null) }
+        if (!gotCenter) {
+            model.background({
+                val points = if (model.shapefile.isNotEmpty()) model.shapefile.first() else emptyList()
+                Bounds.centerFromList(points)
+            }) { cent ->
+                setGotCenter(true)
+                setCenter(cent)
             }
+        } else {
+            val title = stringResource(R.string.visualize_shp)
+            Visualize.Screen(model.visualizer, title, appBar, center = center, storage = model.storage, poly = object : Poly.Model() {
+                override val touchEnabled = true
+                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
+
+                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+                    return model.backgroundPolygon { bg ->
+                        val list = if (model.shapefile.isEmpty()) mutableListOf() else mutableListOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile))))
+                        if (bg != null) list.add(bg)
+                        callback(list)
+                    }
+                }
+            }, floating = {
+                MapActionButton({
+                    model.shapefileLooksGood()
+                    next()
+                }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }
+            })
         }
     }
 }

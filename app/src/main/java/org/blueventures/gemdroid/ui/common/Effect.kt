@@ -10,3 +10,19 @@ object Effect {
         LaunchedEffect(true, block)
     }
 }
+
+@Composable
+fun Click.once() {
+    val click = this
+    Effect.Once {
+        click()
+    }
+}
+
+@Composable
+fun SnackFun.once(msg: String) {
+    val snack = this
+    Effect.Once {
+        snack(msg)
+    }
+}

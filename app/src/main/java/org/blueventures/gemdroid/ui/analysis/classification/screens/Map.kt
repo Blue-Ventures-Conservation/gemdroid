@@ -16,7 +16,6 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Layers
 import org.blueventures.gemdroid.ui.common.maps.Maps
@@ -25,11 +24,9 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 object Map {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun, back: Click, details: Click) {
-        Nav.Wrap(back) {
-            Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
-                viewModel.cra = cra
-                Classify(viewModel, appBar, details)
-            }
+        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
+            viewModel.cra = cra
+            Classify(viewModel, appBar, details)
         }
     }
 

@@ -13,20 +13,17 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Nav
 
 object CoarsePolygonPurpose {
     @Composable
-    fun Screen(appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
-            Col.Col(scroll = true) {
-                Spacer(modifier = Modifier.height(0.dp))
-                Info.Txt(stringResource(R.string.you_will_create_coarse_roi))
-                Info.Txt(stringResource(R.string.buffered_from_coastline))
-                Info.Txt(stringResource(R.string.maybe_sub_regions_later))
-                Butt.Next(click = next)
-            }
+    fun Screen(appBar: AppBar, next: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        Col.Col(scroll = true) {
+            Spacer(modifier = Modifier.height(0.dp))
+            Info.Txt(stringResource(R.string.you_will_create_coarse_roi))
+            Info.Txt(stringResource(R.string.buffered_from_coastline))
+            Info.Txt(stringResource(R.string.maybe_sub_regions_later))
+            Butt.Next(click = next)
         }
     }
 }

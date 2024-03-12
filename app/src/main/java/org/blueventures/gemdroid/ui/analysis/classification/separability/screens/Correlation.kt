@@ -24,9 +24,8 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.Nav
+import org.blueventures.gemdroid.ui.common.once
 import org.blueventures.gemdroid.ui.theme.Caution
 import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.LightGrey
@@ -36,19 +35,17 @@ import org.blueventures.gemdroid.ui.theme.toHexString
 object Correlation {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(viewModel.title))
+        appBar.Update(AppBarUpdate(viewModel.title))
 
-            GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, errorHandler = CRA::errHandler) { json ->
-                val corrs = JSONMap.correlationChartInfo(json)
+        GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, errorHandler = CRA::errHandler) { json ->
+            val corrs = JSONMap.correlationChartInfo(json)
 
-                if (corrs == null) {
-                    Effect.Once { back() }
-                    return@Save
-                }
-
-                Chart(corrs)
+            if (corrs == null) {
+                back.once()
+                return@Save
             }
+
+            Chart(corrs)
         }
     }
 

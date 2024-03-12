@@ -16,23 +16,21 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.once
 
 object CRAFields {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun, back: Click, done: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
-            val (saving, setSaving) = remember{ mutableStateOf(false) }
+        appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+        val (saving, setSaving) = remember{ mutableStateOf(false) }
 
-            if (saving) {
-                PleaseWait()
-            } else {
-                CRAFields(viewModel, snack, setSaving, back, done)
-            }
+        if (saving) {
+            PleaseWait()
+        } else {
+            CRAFields(viewModel, snack, setSaving, back, done)
         }
     }
 
@@ -50,10 +48,8 @@ object CRAFields {
             fields.isFailure -> {
                 Progress()
                 val msg = fields.exceptionOrNull()!!.localized(LocalContext.current)
-                Effect.Once {
-                    snack(msg)
-                    back()
-                }
+                snack.once(msg)
+                back.once()
             }
             fields.getOrNull()!!.complete() -> {
                 PleaseWait()

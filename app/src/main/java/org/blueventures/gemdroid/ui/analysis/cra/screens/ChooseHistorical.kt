@@ -12,24 +12,21 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Rad
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBar, back: Click, next: Click) {
-        Nav.Wrap(back) {
-            appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
-            val choices = viewModel.getHistoricalChoices()
+    fun Screen(viewModel: CRAViewModel, appBar: AppBar, next: Click) {
+        appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+        val choices = viewModel.getHistoricalChoices()
 
-            Col.Col(bottom = 24.dp) {
-                Text(stringResource(R.string.is_a_historical_cra), fontSize = 24.sp, textAlign = TextAlign.Center)
-                Text(stringResource(R.string.fields_must_match), fontSize = 16.sp, textAlign = TextAlign.Center)
-                Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->
-                    viewModel.historicalChoice = choice
-                    next()
-                })
-            }
+        Col.Col(bottom = 24.dp) {
+            Text(stringResource(R.string.is_a_historical_cra), fontSize = 24.sp, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.fields_must_match), fontSize = 16.sp, textAlign = TextAlign.Center)
+            Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->
+                viewModel.historicalChoice = choice
+                next()
+            })
         }
     }
 }

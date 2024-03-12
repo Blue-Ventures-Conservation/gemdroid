@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,23 +35,21 @@ import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Effect
-import org.blueventures.gemdroid.ui.common.Nav
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.once
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, review: Click, clazz: Click, dyn: Click) {
-        Nav.Wrap(back) {
-            Effect.Once { viewModel.dynamicsViewModel.polygons.clear() }
-            Layout(viewModel, appBar, snack, next, back, falseColor, review, clazz, dyn)
-        }
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, review: Click, clazz: Click, dyn: Click) {
+        Effect.Once { viewModel.dynamicsViewModel.polygons.clear() }
+        Layout(viewModel, appBar, snack, back, next, falseColor, review, clazz, dyn)
     }
 
     @Composable
-    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
+    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Roi.Loader(viewModel::getROI, snack, {
             back()
         }) {
@@ -70,7 +69,7 @@ object Dashboard {
                 }
                 else -> {
                     viewModel.stage = stage
-                    Dashboard(viewModel.roi.name, stage, snack, next, back, falseColor, properties, clazz, dyn)
+                    Dashboard(viewModel.roi.name, stage, snack, back, next, falseColor, properties, clazz, dyn)
                 }
             }
         }
@@ -89,15 +88,13 @@ object Dashboard {
     }
 
     @Composable
-    fun Dashboard(roiName: String, stage: Stage, snack: SnackFun, next: Click, back: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
+    fun Dashboard(roiName: String, stage: Stage, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
         Col.Col {
             when (stage) {
                 Stage.ERROR -> {
                     val msg = stringResource(R.string.could_not_read_fs)
-                    Effect.Once {
-                        snack(msg)
-                        back()
-                    }
+                    snack.once(msg)
+                    back.once()
                 }
                 Stage.BUFFER -> {
                     Spacer(modifier = Modifier.height(0.dp))
@@ -178,10 +175,10 @@ object Dashboard {
         ) {
             Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(24.dp))
             Icon(
-                Icons.Filled.ArrowForward, "Go to $title", modifier = Modifier
+                Icons.AutoMirrored.Filled.ArrowForward, "Go to $title", modifier = Modifier
                     .padding(20.dp)
                     .size(32.dp))
         }
-        Divider(color = SkyBlue, thickness = 1.dp)
+        HorizontalDivider(color = SkyBlue, thickness = 1.dp)
     }
 }

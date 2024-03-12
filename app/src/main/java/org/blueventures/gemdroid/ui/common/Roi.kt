@@ -28,10 +28,8 @@ object Roi {
             roi.isFailure -> {
                 Progress()
                 val ctx = LocalContext.current
-                Effect.Once {
-                    snack(roi.exceptionOrNull()!!.localized(ctx))
-                    fail()
-                }
+                snack.once(roi.exceptionOrNull()!!.localized(ctx))
+                fail.once()
             }
             else -> {
                 setter(roi.getOrNull()!!)
