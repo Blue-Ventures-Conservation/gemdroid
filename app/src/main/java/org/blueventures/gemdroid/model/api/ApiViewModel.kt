@@ -39,8 +39,9 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
     fun saveResults(file: File, results: TasksResults) = saveFile(file, results, TasksResults.Companion)
     fun loadResults(file: File, callback: (Result<TasksResults>) -> Unit) = loadFile(file, TasksResults.Companion, callback)
 
-    fun <T> read(context: Context, key: Preferences.Key<T>, callback: (Result<T>) -> Unit) = scoped { repo.read(context, key).collect(callback) }
-    fun <T> write(context: Context, key: Preferences.Key<T>, value: T, callback: (Preferences?) -> Unit = {}) = scoped { repo.write(context, key, value).collect(callback) }
+    fun <T> read(context: Context, builder: (Preferences) -> T, callback: (T) -> Unit) = scoped { repo.read(context, builder).collect(callback) }
+    fun <T> read(context: Context, key: Preferences.Key<T>, default: T, callback: (T) -> Unit) = scoped { repo.read(context, KeyValue(key, default)).collect(callback) }
+    fun <T> write(context: Context, key: Preferences.Key<T>, value: T, callback: () -> Unit = {}) = scoped { repo.write(context, key, value).collect { callback() } }
 
     companion object {
         fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(null, err.message)

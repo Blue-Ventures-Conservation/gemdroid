@@ -23,15 +23,14 @@ open class ApiRepository(
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = goFlow { datasource.saveFile(file, data, serializer) }
     fun deleteFile(file: File) = goFlow { datasource.deleteFile(file) }
 
-    fun <T> read(context: Context, key: Preferences.Key<T>) = context.dataStore.data.catch {
+    fun <T> read(context: Context, callback: (Preferences) -> T) = context.dataStore.data.catch {
+        emit(emptyPreferences())
+    }.map(callback).flowOn(ioDispatcher)
+
+    fun <T> read(context: Context, default: KeyValue<T>) = context.dataStore.data.catch {
         emit(emptyPreferences())
     }.map { prefs ->
-        val out = prefs[key]
-        if (out != null) {
-            Result.success(out)
-        } else {
-            Result.failure(Throwable())
-        }
+        default.read(prefs)
     }.flowOn(ioDispatcher)
 
     fun <T> write(context: Context, key: Preferences.Key<T>, value: T) = goFlow {
@@ -39,8 +38,10 @@ open class ApiRepository(
             context.dataStore.edit { prefs ->
                 prefs[key] = value
             }
-        } catch (e: Exception) {
-            null
-        }
+        } catch (_: Exception) {}
     }
+}
+
+data class KeyValue<T>(val key: Preferences.Key<T>, val default: T) {
+    fun read(prefs: Preferences) = prefs[key] ?: default
 }

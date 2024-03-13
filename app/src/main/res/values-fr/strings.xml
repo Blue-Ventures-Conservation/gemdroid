@@ -248,4 +248,7 @@
     <string name="other_classes">Autres Cours</string>
     <string name="conversion_to_other_classes">%s conversion vers d\'autres classes</string>
     <string name="other_class_conversions_to">Autres conversions de classe en %s</string>
+    <string name="landsat_only">Landsat uniquement</string>
+    <string name="landsat_only_description">Lorsque cette option est désactivée, l\'imagerie Sentinel-2 est utilisée lorsque cela est possible, mais elle utilise beaucoup plus de données.</string>
+    <string name="app_version">Version de l\'application :</string>
 </resources>

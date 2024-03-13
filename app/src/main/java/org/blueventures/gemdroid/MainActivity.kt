@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.model.Licenses
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
+import org.blueventures.gemdroid.model.settings.SettingsViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarState
@@ -41,6 +41,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.BasicActions
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
+import org.blueventures.gemdroid.ui.settings.AppSettings
 import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
 import org.blueventures.gemdroid.ui.theme.OffWhite
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GEMApp(activity: ComponentActivity) {
+    val settingsViewModel: SettingsViewModel by activity.viewModels()
     val roiModel: RoiViewModel by activity.viewModels()
     val analysisModel: AnalysisViewModel by activity.viewModels()
     analysisModel.init(activity)
@@ -76,15 +78,18 @@ fun GEMApp(activity: ComponentActivity) {
 
     GEMDroidTheme {
         val (barState, setBarState) = remember { mutableStateOf(AppBarState(
-            // add settings nav here
+            settings = { nav.navigate(AppSettings.Routes.settings) },
             signOut = { SignIn.signOut(activity, Firebase.auth) },
         )) }
 
         val appBar = AppBar { update ->
             LaunchedEffect(true) {
                 if (update.title != barState.update.title || update.actions != null || barState.update.actions != null) {
-                    val acts: @Composable (RowScope.() -> Unit) = update.actions ?: { BasicActions(barState.signOut) }
-                    setBarState(barState.copy(update = AppBarUpdate(update.title, acts)))
+                    setBarState(barState.copy(update = AppBarUpdate(update.title, false, update.actions ?: if (update.logoutOnly) {
+                        { BasicActions(null, barState.signOut) }
+                    } else {
+                        { BasicActions(barState.settings, barState.signOut)  }
+                    })))
                 }
             }
         }
@@ -107,6 +112,7 @@ fun GEMApp(activity: ComponentActivity) {
                     .padding(padding)
                     .fillMaxSize()
             ) {
+                AppSettings.screens(this, nav, activity, settingsViewModel, appBar, snack)
                 Roi.screens(this, nav, activity, roiModel, analysisModel, appBar, snack)
                 Analysis.screens(this, nav, analysisModel, appBar, snack)
             }

@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -21,26 +21,34 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.theme.DarkSlate
 
 data class AppBarState(
+    val settings: Click = {},
     val signOut: Click = {},
     val update: AppBarUpdate = AppBarUpdate(""
     ) {
-        BasicActions(signOut)
+        BasicActions(settings, signOut)
     }
 )
 
 data class AppBarUpdate(
     val title: String = "",
+    val logoutOnly: Boolean = false,
     val actions: (@Composable RowScope.() -> Unit)? = null
 )
 
 @Composable
-fun BasicActions(signOut: Click) {
+fun BasicActions(settings: Click?, signOut: Click) {
     val (menu, setMenu) = remember { mutableStateOf(false) }
     IconButton(onClick = { setMenu(!menu) }) {
         Icon(Icons.Filled.MoreVert, "")
     }
     DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }, modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-        Divider(color = DarkSlate, thickness = 1.dp)
+        if (settings != null) {
+            ActionItem(stringResource(R.string.settings_label)) {
+                setMenu(false)
+                settings()
+            }
+        }
+        HorizontalDivider(color = DarkSlate, thickness = 1.dp)
         ActionItem(label = stringResource(R.string.logout_label)) {
             setMenu(false)
             signOut()

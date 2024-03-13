@@ -248,4 +248,7 @@
     <string name="other_classes">Other Classes</string>
     <string name="conversion_to_other_classes">%s conversion to other classes</string>
     <string name="other_class_conversions_to">Other class conversions to %s</string>
+    <string name="landsat_only">Landsat Only</string>
+    <string name="landsat_only_description">With this disabled, Sentinel-2 imagery is used when possible, but this uses much more data.</string>
+    <string name="app_version">App Version:</string>
 </resources>

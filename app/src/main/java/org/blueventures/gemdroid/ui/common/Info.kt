@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,7 +26,7 @@ object Info {
     val txtSize = 20.sp
 
     @Composable
-    fun BlueLine() = Divider(color = SkyBlue, thickness = 1.dp)
+    fun BlueLine() = HorizontalDivider(color = SkyBlue, thickness = 1.dp)
 
     @Composable
     fun Space() = Spacer(modifier = Modifier.height(16.dp))
@@ -43,9 +43,8 @@ object Info {
 
     @Composable
     fun SubHeader(title: String, truncate: Boolean = true) {
-        val maxLines = if (truncate) 1 else Int.MAX_VALUE
         Column(modifier = Modifier.padding(start = 16.dp, top = 16.dp)) {
-            Text(text = title, fontSize = 20.sp, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+            Txt(text = title, truncate = truncate)
             BlueLine()
         }
     }
@@ -56,7 +55,10 @@ object Info {
     }
 
     @Composable
-    fun Txt(text: String, fontSize: TextUnit = txtSize) = Text(text, fontSize = fontSize)
+    fun Txt(text: String, fontSize: TextUnit = txtSize, truncate: Boolean = false) {
+        val maxLines = if (truncate) 1 else Int.MAX_VALUE
+        Text(text, fontSize = fontSize, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+    }
 
     @Composable
     fun Row(verticalPadding: Dp = 4.dp, enabled: Boolean = false, click: Click = {}, content: @Composable RowScope.() -> Unit) {

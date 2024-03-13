@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.MapType
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.URLs
@@ -23,15 +24,25 @@ import org.blueventures.gemdroid.ui.common.RequestPermission
 
 object Maps {
     interface Storage {
-        fun getMapType(context: Context, callback: (Result<Int>) -> Unit): Job
-        fun setMapType(context: Context, mapType: Int): Job
+        fun getMapType(context: Context, callback: (MapType) -> Unit): Job
+        fun setMapType(context: Context, mapType: MapType): Job
 
         companion object {
             val mapTypeKey = intPreferencesKey("map_type_key")
 
             fun fromViewModel(viewModel: ApiViewModel) = object : Storage {
-                override fun getMapType(context: Context, callback: (Result<Int>) -> Unit) = viewModel.read(context, mapTypeKey, callback)
-                override fun setMapType(context: Context, mapType: Int) = viewModel.write(context, mapTypeKey, mapType)
+                override fun getMapType(context: Context, callback: (MapType) -> Unit) = viewModel.read(context, mapTypeKey, MapType.HYBRID.value) { callback(convert(it)) }
+                override fun setMapType(context: Context, mapType: MapType) = viewModel.write(context, mapTypeKey, mapType.value)
+            }
+
+            private fun convert(from: Int): MapType {
+                for (t in MapType.values()) {
+                    if (t.value == from) {
+                        return t
+                    }
+                }
+
+                return MapType.HYBRID
             }
         }
     }

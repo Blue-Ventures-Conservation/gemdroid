@@ -169,14 +169,13 @@ object Compose {
         position: CameraPosition
     ) {
         val ctx = LocalContext.current
-        val (mapTypeResult, setMapTypeResult) = remember { mutableStateOf<Result<Int>?>(null) }
-        if (mapTypeResult == null && storage != null) {
-            storage.getMapType(ctx, setMapTypeResult)
+        val (mapType, setMapType) = remember { mutableStateOf<MapType?>(null) }
+        if (mapType == null && storage != null) {
+            storage.getMapType(ctx, setMapType)
         } else {
-            val mapType = if (mapTypeResult?.isSuccess == true) getMapType(mapTypeResult.getOrNull()!!) else MapType.HYBRID
             val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
             val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
-            var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
+            var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType!!)) }
             GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
                 touchState.value = pt
             }) {
@@ -212,21 +211,11 @@ object Compose {
                 val mt = values[next]
 
                 properties = MapProperties(isMyLocationEnabled = gps, mapType = mt)
-                storage?.setMapType(ctx, mt.value)
+                storage?.setMapType(ctx, mt)
             }, Alignment.TopStart) {
                 Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
             }
         }
-    }
-
-    private fun getMapType(from: Int): MapType {
-        for (t in MapType.values()) {
-            if (t.value == from) {
-                return t
-            }
-        }
-
-        return MapType.HYBRID
     }
 
     private fun zoomOrDraw(center: LatLng?, draw: Draw.Model?): LatLng? {
