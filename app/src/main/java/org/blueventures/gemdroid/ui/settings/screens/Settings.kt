@@ -33,12 +33,12 @@ object Settings {
             }
             else -> {
                 Col.MidPad(scroll = true) {
-                    SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description)) {
-                        SettingsCheckbox(state.forceLandsat) { force ->
-                            viewModel.setForceLandsat(ctx, force)
-                        }
-                    }
-
+                    Info.Txt(stringResource(R.string.more_settings_coming_soon))
+//                    SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description)) {
+//                        SettingsCheckbox(state.forceLandsat) { force ->
+//                            viewModel.setForceLandsat(ctx, force)
+//                        }
+//                    }
                     Info.Txt("${stringResource(R.string.app_version)} $versionString")
                 }
             }
