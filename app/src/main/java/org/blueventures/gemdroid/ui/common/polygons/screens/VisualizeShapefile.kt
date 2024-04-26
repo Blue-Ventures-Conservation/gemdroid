@@ -46,7 +46,7 @@ object VisualizeShapefile {
             }
         } else {
             val title = stringResource(R.string.visualize_shp)
-            Visualize.Screen(model.visualizer, title, appBar, center = center, storage = model.storage, poly = object : Poly.Model() {
+            Visualize.Screen(model.visualizer, appBar, title, false, center = center, storage = model.storage, poly = object : Poly.Model() {
                 override val touchEnabled = true
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
 

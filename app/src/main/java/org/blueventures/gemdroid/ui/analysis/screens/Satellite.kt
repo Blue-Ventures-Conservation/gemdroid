@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 object Satellite {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, imageryDescription: Click) {
-        Visualize.Screen(viewModel, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)), appBar,
+        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)),
             center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel), floating = {
                 MapActionButton(imageryDescription) { Icon(Icons.Filled.Info, stringResource(R.string.false_color_imagery_description)) }
             }

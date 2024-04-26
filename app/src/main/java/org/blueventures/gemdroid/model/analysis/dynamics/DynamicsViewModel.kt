@@ -123,6 +123,7 @@ class DynamicsViewModel(
     override val appBarTitleId = R.string.dynamics
     override val maxNameLength = maxNameCharLength
     override val polygonType = R.string.sub_region
+    override val attemptGps = false
     override val maxPolygons = maxSubRegions
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)
     override val polygonTypePlural = R.string.sub_regions

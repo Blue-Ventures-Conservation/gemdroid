@@ -108,9 +108,9 @@
     <string name="would_you_like_polygons">Would you like to add %s within your ROI?</string>
     <string name="yes_add_polygons">Yes: Add %s</string>
     <string name="no_skip_polygons">No: I don\'t need %s</string>
-    <string name="draw_polygon_or_shapefile">Draw a %s, or use a Shapefile?</string>
+    <string name="draw_polygon_or_shapefile">Draw a %s, or import a Shapefile?</string>
     <string name="draw_a_polygon">Draw a %s</string>
-    <string name="use_a_shapefile">Use a Shapefile</string>
+    <string name="use_a_shapefile">Import a Shapefile</string>
     <string name="select_shapefile">Select Shapefile</string>
     <string name="or_you_can_select_a_zip">Or you can select a .zip that contains these.</string>
     <string name="you_should_select_all_of">\"You should select all of: \"</string>
@@ -137,6 +137,9 @@
     <string name="view_dynamics_details">View dynamics details</string>
     <string name="sub_regions_overview">Sub Regions Overview</string>
     <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
+    <string name="please_use_polygon_shp">Please use a shapefile with at least one polygon.</string>
+    <string name="please_use_only_polygons_shp">Please use a shapefile that only contains polygons.</string>
+    <string name="please_use_only_well_formed_polygons_shp">At least one polygon is invalid for having too few points.</string>
     <string name="please_hit_no">You can\'t have more than %1$s %2$s, please hit no!</string>
     <string name="please_create_polygon">Please create a polygon.</string>
     <string name="sub_region">Sub Region</string>
@@ -212,7 +215,7 @@
     <string name="view_excluded_regions">view excluded regions</string>
     <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>
     <string name="delete_the_previous_point">delete the previous point</string>
-    <string name="you_will_create_coarse_roi">On the next screen you will create a Coarse Boundary Polygon for your ROI.</string>
+    <string name="you_will_create_coarse_roi">On the next screen you will draw or import a Coarse Boundary Polygon for your ROI.</string>
     <string name="buffered_from_coastline">This polygon should contain your region, but the exact boundary will be determined automatically by buffering the coastline found within the coarse polygon.</string>
     <string name="maybe_sub_regions_later">Nothing outside this coarse polygon will be included in the analysis, and you can also define areas to be excluded from analysis or Sub-Regions to be treated separately during analysis.</string>
     <string name="cras_format">\n\nThe CRAs may take some effort to compile for your region, and should be shape files containing square (pixel-aligned) plots 70-85 meters per side that contain examples of your different classification areas (Mangrove, Not Mangrove, Water etc). In addition, there must be an attribute that gives the name for the class of each plot, and another numeric attribute that gives a number associated with the class for each plot.

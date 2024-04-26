@@ -18,8 +18,6 @@ import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.Shapefile
-import org.blueventures.gemdroid.data.Shapefile.Companion.inspectAndZip
-import org.blueventures.gemdroid.data.Shapefile.Companion.unzipOrCopy
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
@@ -59,10 +57,7 @@ class CRADatasource(
 
     fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
         val crasDir = File(roiDir, crasDir)
-        val unzipDir = File(crasDir, crasUnzipDir)
-        val result = validateShapes(crasDir, remoteCRAs, previous, unzipOrCopy(unzipDir, files, names))
-        FileService.deleteDir(unzipDir)
-        return result
+        return validateShapes(crasDir, files, names, remoteCRAs, previous)
     }
 
     private data class OrderedField(val values: MutableList<String>, val counts: MutableList<Int>) {
@@ -70,21 +65,21 @@ class CRADatasource(
         fun indexOf(field: String) = values.indexOf(field)
     }
 
-    private fun validateShapes(crasDir: File, remoteCRAs: List<String>, previous: String?, pathsResult: Result<List<String>>): Result<CRAFile> {
+    private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
         val numerics = mutableListOf<String>()
         val strings = mutableListOf<String>()
         val numericsMap = mutableMapOf<String, OrderedField>()
         val stringsMap = mutableMapOf<String, OrderedField>()
         val stringValues = mutableMapOf<String, List<String>>()
 
-        val zipResult = inspectAndZip(crasDir, pathsResult, { shpName ->
+        val zipResult = Shapefile.file(crasDir, files, names, nameCheck = { shpName ->
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
                 remoteCRAs.contains(shpName) -> NoStack(R.string.please_reuse_shp)
                 !Regexp.assetName.matches(shpName) -> NoStack(R.string.shp_name_alphanumeric)
                 else -> null
             }
-        }) { _, record ->
+        }, recordf = { record ->
             for (field in record.fields) {
                 val name = field.name
 
@@ -100,7 +95,7 @@ class CRADatasource(
                 }
             }
             null
-        }
+        })
 
         if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
         val zipFile = zipResult.getOrNull()!!
@@ -427,7 +422,6 @@ class CRADatasource(
 
     companion object {
         const val crasDir = "cras"
-        const val crasUnzipDir = "unzip"
         const val crasFile = "cras.json"
         const val crasIngestedFile = "ingested.json"
 

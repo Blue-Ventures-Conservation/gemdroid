@@ -24,8 +24,9 @@ object Visualize {
     @Composable
     fun Screen(
         visualizer: Visualizer?,
-        title: String,
         appBar: AppBar,
+        title: String,
+        attemptGps: Boolean = false,
         center: LatLng? = null,
         storage: Maps.Storage? = null,
         draw: Draw.Model? = null,
@@ -34,7 +35,7 @@ object Visualize {
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
-                Maps.Screen(appBar, title, false, center, storage, object : Layers.Model<VisualizeURLs>() {
+                Maps.Screen(appBar, title, attemptGps, center, storage, object : Layers.Model<VisualizeURLs>() {
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                     override val parentDir = visualizer.parentDir()
@@ -45,7 +46,7 @@ object Visualize {
                 }, draw, poly, floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, false, center, storage, draw, poly, floating)
+            Maps.NoLayers(appBar, title, attemptGps, center, storage, draw, poly, floating)
         }
     }
 }

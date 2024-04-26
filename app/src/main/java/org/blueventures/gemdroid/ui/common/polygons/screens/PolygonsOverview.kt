@@ -34,7 +34,7 @@ object PolygonsOverview {
         Info.Block {
             val title = stringResource(R.string.review_polygons).format(stringResource(model.polygonTypePlural))
 
-            Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
+            Visualize.Screen(model.visualizer, appBar, title, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)

@@ -20,7 +20,7 @@ object Boundary {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, excluded: Click) {
         val coarseBoundary = stringResource(R.string.coarse_boundary)
-        Visualize.Screen(viewModel, viewModel.roi.appBarTitle(coarseBoundary), appBar,
+        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(coarseBoundary),
             center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel),
             poly = object : Poly.Model() {
                 override val touchEnabled = true

@@ -77,7 +77,7 @@ class RoiViewModel(
         historicalMonthStart = roi.histMonthStart
         historicalMonthEnd = roi.histMonthEnd
         polygons.clear()
-        polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) } ?: emptyList())
+        polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) })
 
         val state = GeojsonPolygon.toState(roi.polygon)
         val points = if (state.isNotEmpty()) {
@@ -144,6 +144,7 @@ class RoiViewModel(
 
     override var polygonName = ""
     override val polygonType = R.string.excluded_region
+    override val attemptGps = false
     override val maxNameLength = maxNameCharLength
     override val polygonTypePlural = R.string.excluded_regions
     override val maxPolygons = maxExcludedRegions
@@ -197,6 +198,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
     override val polygonType: Int = R.string.coarse_boundary
     override var visualizer: Visualize.Visualizer? = null
     override val storage: Maps.Storage = viewModel.storage
+    override val attemptGps = true
     override val drawer: PolygonDrawer
         get() = viewModel.roiDrawer
 

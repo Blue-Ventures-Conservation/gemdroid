@@ -22,15 +22,17 @@ object DrawPolygon {
         val storage: Maps.Storage?
         val polygonType: Int
         val drawer: PolygonDrawer
+        val attemptGps: Boolean
 
         fun polygonDrawn()
         fun center(): LatLng?
         fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit): Job
     }
+
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, next: Click) {
         val title = stringResource(R.string.draw_polygon).format(stringResource(model.polygonType))
-        Visualize.Screen(model.visualizer, title, appBar, center = model.center(), storage = model.storage, draw = Draw.Model(model.drawer, snack) {
+        Visualize.Screen(model.visualizer, appBar, title, model.attemptGps, center = model.center(), storage = model.storage, draw = Draw.Model(model.drawer, snack) {
             model.polygonDrawn()
             next()
         }, poly = object : Poly.Model() {
