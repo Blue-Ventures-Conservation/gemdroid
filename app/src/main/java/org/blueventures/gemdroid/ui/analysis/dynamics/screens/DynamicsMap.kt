@@ -27,7 +27,7 @@ object DynamicsMap {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromList(viewModel.roi.polygonToState()), floating = {
+            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
             }, layers = object : Layers.Model<DynamicsURLs>() {
                 override val initUrls = urls

@@ -51,7 +51,7 @@ object Roi {
 
         // ROI name creation
         b.backHandler(Routes.name, {
-            viewModel.clear()
+            viewModel.clearState()
             nav.popBackStack()
         }) {
             Name.Screen(viewModel, appBar, snack) {
@@ -95,7 +95,11 @@ object Roi {
             nav.popBackStack()
         }) {
             HistoricalMonths.Screen(viewModel, appBar) {
-                nav.navigate(Routes.coarse_polygon_purpose)
+                if (viewModel.importedROI.isEmpty()) {
+                    nav.navigate(Routes.coarse_polygon_purpose)
+                } else {
+                    nav.navigate(Routes.prefix+Polygons.Routes.option)
+                }
             }
         }
 
@@ -116,7 +120,7 @@ object Roi {
         // ROI overview
         b.backHandler(Routes.overview, nav::popBackStack) {
             Overview.Screen(viewModel, activity.filesDir, appBar, snack) {
-                viewModel.clear()
+                viewModel.clearState()
                 nav.popClear(Routes.list)
             }
         }

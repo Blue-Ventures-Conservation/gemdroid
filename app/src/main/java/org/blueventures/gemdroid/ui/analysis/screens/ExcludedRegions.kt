@@ -15,7 +15,7 @@ object ExcludedRegions {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar) {
         val excludedLabel = stringResource(R.string.excluded_regions)
-        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(excludedLabel), center = Bounds.centerFromList(viewModel.roi.polygonToState()), storage = Maps.Storage.fromViewModel(viewModel),
+        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(excludedLabel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel),
             poly = object : Poly.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.excludedRegions(callback)

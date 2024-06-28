@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.data
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.shp.Shapefile
 import java.io.File
 
 /**

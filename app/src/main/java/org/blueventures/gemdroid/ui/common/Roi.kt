@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
-import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
@@ -49,7 +49,7 @@ object Roi {
             histYearEnd = roi.histYearEnd,
             histMonthStart = roi.histMonthStart,
             histMonthEnd = roi.histMonthEnd,
-            points = roi.polygonToState(),
+            multi = roi.boundaryPolyToState(),
             excludedCount = roi.excludedRegions.size,
             header = header,
             buttonLabel = buttonLabel,
@@ -58,7 +58,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, points: List<LatLng>, excludedCount: Int, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excludedCount: Int, header: String, buttonLabel: String, next: Click) {
 
         Col.Col(scroll = true) {
             Info.Block {
@@ -72,12 +72,18 @@ object Roi {
                     false -> OverviewRow(nameLabel, name)
                 }
 
+                var ptCount = 0
+                for (poly in multi) {
+                    for (ring in poly) {
+                        ptCount += ring.size
+                    }
+                }
                 OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
                 OverviewRow(stringResource(R.string.overview_contemporary_months), "$contMonthStart - $contMonthEnd")
                 OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
                 OverviewRow(stringResource(R.string.overview_historical_months), "$histMonthStart - $histMonthEnd")
-                OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(points.size.toString()))
-                OverviewRow(stringResource(R.string.overview_polygon_area), PolygonDrawer.areaStr(points))
+                OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(ptCount.toString()))
+                OverviewRow(stringResource(R.string.overview_polygon_area), PolygonDrawer.areaStr(multi))
                 OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedCount"))
             }
             DashboardButton(buttonLabel, next)

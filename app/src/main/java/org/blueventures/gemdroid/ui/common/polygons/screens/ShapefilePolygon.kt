@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
@@ -15,9 +16,9 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
 object ShapefilePolygon {
     interface Model: Polygons.AppBarTitler {
-        var shapefile: List<List<LatLng>>
+        var shapefile: MultiPolyPts
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
-        fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit): Job
+        fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
     }
 
     @Composable

@@ -8,7 +8,7 @@ import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.GeojsonPolygon
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.ImageryExports
@@ -162,7 +162,7 @@ class AnalysisViewModel(
             val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Poly.NamedPoly>()
-                for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonPolygon.toState(poly)))
+                for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonMultiPolygon.toState(poly)))
                 listOf(Poly.PolygonGroup(R.string.excluded_regions, polys, MildRed.toArgb()))
             }, callback)
         } else {
@@ -173,5 +173,5 @@ class AnalysisViewModel(
 
     fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
 
-    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, listOf(roi.polygonToState()))))
+    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())))
 }

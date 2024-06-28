@@ -35,7 +35,7 @@ object Map {
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, errorHandler = Classification::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.classification)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromList(viewModel.roi.polygonToState()), floating = {
+            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.classification)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), floating = {
                 MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_classifications_details)) }
             }, layers = object : Layers.Model<ClassificationURLs>() {
                 override val initUrls = urls

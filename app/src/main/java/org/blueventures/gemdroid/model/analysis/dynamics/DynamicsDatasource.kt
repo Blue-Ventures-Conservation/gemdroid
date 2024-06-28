@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.model.analysis.dynamics
 
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.MD5
-import org.blueventures.gemdroid.data.Shapefile.Companion.polygons
+import org.blueventures.gemdroid.data.shp.Shapefile.Companion.polygons
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 import java.io.InputStream

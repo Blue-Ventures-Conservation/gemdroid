@@ -1,4 +1,4 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.shp
 
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.mvvm.FileService
@@ -7,10 +7,11 @@ import com.squareup.moshi.Json
 import net.iryndin.jdbf.core.DbfRecord
 import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.R
-import org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader
+import org.blueventures.gemdroid.data.MultiPolyPts
+import org.blueventures.gemdroid.data.PolyPts
 import org.nocrala.tools.gis.data.esri.shapefile.shape.AbstractShape
 import org.nocrala.tools.gis.data.esri.shapefile.shape.ShapeType
-import org.nocrala.tools.gis.data.esri.shapefile.shape.shapes.PolygonShape
+import org.nocrala.tools.gis.data.esri.shapefile.shape.shapes.AbstractPolyShape
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -26,14 +27,15 @@ data class Shapefile(
     @Json(name = "string_class_field_values") val stringClassValues: List<String>,
 ) {
     companion object {
+        private const val maxVerts = 100_000
         private val adapter = FileService.adapter<Shapefile>()
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
         fun toFile(file: File, shp: Shapefile) = FileService.toFile(file, shp, adapter)
 
-        fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxPoints: Int = 1000, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }): Result<List<List<LatLng>>> {
-            val polys = mutableListOf<List<LatLng>>()
+        fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }): Result<MultiPolyPts> {
+            val polys = mutableListOf<List<List<LatLng>>>()
 
-            val zipResult = file(workDir, files, names, maxPoints, nameCheck, recordf) { pts ->
+            val zipResult = file(workDir, files, names, maxVertices, nameCheck, recordf) { pts ->
                 polys.add(pts)
             }
             if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
@@ -42,47 +44,52 @@ data class Shapefile(
             return Result.success(polys)
         }
 
-        fun file(workDir: File, files: List<InputStream?>, names: List<String?>, maxPoints: Int = 1000, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (List<LatLng>) -> Unit = {}): Result<File> {
+        fun file(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (PolyPts) -> Unit = {}): Result<File> {
             val unzipDir = File(workDir, "shapes_unzip_polygons")
 
-            var count = 0
+            var atLeastOne = false
             val zipResult = try {
                 inspectAndZip(unzipDir, unzipOrCopy(unzipDir, files, names), nameCheck, { shape, record ->
-                    if (shape.shapeType == ShapeType.POLYGON) {
+                    var vertexCount = 0
+                    var tooManyVertices = false
+                    if (shape.shapeType == ShapeType.POLYGON || shape.shapeType == ShapeType.POLYGON_Z || shape.shapeType == ShapeType.POLYGON_M) {
                         val recordErr = recordf(record)
                         if (recordErr == null) {
-                            val pShape = shape as PolygonShape
-                            val pts = mutableListOf<LatLng>()
+                            val pShape = shape as AbstractPolyShape
+                            val poly = mutableListOf<List<LatLng>>()
 
-                            var tooManyPts = false
                             for (i in 0 until pShape.numberOfParts) {
+                                val pts = mutableListOf<LatLng>()
                                 val shapePts = pShape.getPointsOfPart(i)
-                                count += shapePts.size
+                                atLeastOne = true
+                                vertexCount += shapePts.size
 
-                                if (count > maxPoints) {
-                                    tooManyPts = true
+                                if (vertexCount > maxVertices) {
+                                    tooManyVertices = true
                                     break
                                 }
 
                                 for (pt in shapePts) {
                                     pts.add(toLatLng(pt.x, pt.y))
                                 }
-                            }
 
-                            if (tooManyPts) {
-                                R.string.please_use_smaller_shp
-                            } else {
                                 if (pts.isNotEmpty()) {
                                     if (pts.first() != pts.last()) {
                                         pts.add(pts.first())
                                     }
                                     if (pts.size > 3) {
-                                        polyReceiver(pts)
-                                        null
-                                    } else R.string.please_use_only_well_formed_polygons_shp
-                                } else {
-                                    R.string.please_use_only_well_formed_polygons_shp
+                                        poly.add(pts)
+                                    }
                                 }
+                            }
+
+                            if (tooManyVertices) {
+                                R.string.please_use_smaller_shp
+                            } else {
+                                if (poly.isNotEmpty()) {
+                                    polyReceiver(poly)
+                                }
+                                null
                             }
                         } else {
                             recordErr
@@ -91,7 +98,7 @@ data class Shapefile(
                         R.string.please_use_only_polygons_shp
                     }
                 }) {
-                    if (count <= 0) R.string.please_use_polygon_shp else null
+                    if (!atLeastOne) R.string.please_use_polygon_shp else null
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -181,7 +188,7 @@ data class Shapefile(
             try {
                 // these constructors will inspect the file header
                 shpStream = FileInputStream(shp)
-                val sr = ShapeFileReader(shpStream)
+                val sr = BVShapeFileReader(shpStream)
                 dr = DbfReader(FileInputStream(dbf))
 
                 var count = 0

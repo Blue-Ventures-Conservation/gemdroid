@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.data.roi.ROI

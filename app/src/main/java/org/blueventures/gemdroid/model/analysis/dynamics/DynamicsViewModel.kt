@@ -8,7 +8,8 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
-import org.blueventures.gemdroid.data.GeojsonPolygon
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
+import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.Tasks
@@ -60,7 +61,7 @@ class DynamicsViewModel(
 
     override var polygonName = ""
     override var drawer = PolygonDrawer(background = ::background)
-    override var shapefile: List<List<LatLng>> = emptyList()
+    override var shapefile: List<List<List<LatLng>>> = emptyList()
 
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
 
@@ -80,7 +81,7 @@ class DynamicsViewModel(
     override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()
-            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonPolygon.toState(poly.polygon)))
+            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
             listOf(Poly.PolygonGroup(polygonTypePlural, polys))
         }, callback)
     }
@@ -91,7 +92,7 @@ class DynamicsViewModel(
 
     private fun loadSubRegionsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadFile(subRegionsFile(roiDir), DrawnPolygonsFile.Companion, callback)
     fun saveSubRegionsFile() = saveFile(subRegionsFile(roiDir), DrawnPolygonsFile(polygons), DrawnPolygonsFile.Companion)
-    override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<List<List<LatLng>>>?) -> Unit) = scoped { repo.validateShapefile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
+    override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validateShapefile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
@@ -106,18 +107,18 @@ class DynamicsViewModel(
     override val named = true
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(listOf(drawer.points()))))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points())))))
         drawer.clear()
         polygonName = ""
     }
 
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonPolygon.fromState(shapefile)))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(shapefile)))
         shapefile = emptyList()
         polygonName = ""
     }
 
-    override fun center() = Bounds.centerFromList(roi.polygonToState())
+    override fun center() = Bounds.centerFromMultiPoly(roi.boundaryPolyToState())
     override val storage = Maps.Storage.fromViewModel(this)
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics

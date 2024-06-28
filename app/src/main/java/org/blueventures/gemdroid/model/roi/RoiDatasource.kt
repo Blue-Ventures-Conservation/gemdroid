@@ -7,8 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MD5
-import org.blueventures.gemdroid.data.Shapefile
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
 import java.io.InputStream

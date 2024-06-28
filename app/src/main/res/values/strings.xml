@@ -136,7 +136,7 @@
     <string name="gain">Gain</string>
     <string name="view_dynamics_details">View dynamics details</string>
     <string name="sub_regions_overview">Sub Regions Overview</string>
-    <string name="please_use_smaller_shp">Please use a shapefile with fewer than 1000 total points.</string>
+    <string name="please_use_smaller_shp">Please use a shapefile with fewer than 100,000 total points.</string>
     <string name="please_use_polygon_shp">Please use a shapefile with at least one polygon.</string>
     <string name="please_use_only_polygons_shp">Please use a shapefile that only contains polygons.</string>
     <string name="please_use_only_well_formed_polygons_shp">At least one polygon is invalid for having too few points.</string>

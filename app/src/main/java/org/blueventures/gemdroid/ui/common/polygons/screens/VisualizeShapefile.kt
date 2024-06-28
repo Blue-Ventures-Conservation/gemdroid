@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
+import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.maps.Maps
@@ -23,7 +24,7 @@ object VisualizeShapefile {
     interface Model {
         var polygonName: String
         var visualizer: Visualize.Visualizer?
-        var shapefile: List<List<LatLng>>
+        var shapefile: MultiPolyPts
 
         val storage: Maps.Storage?
 
@@ -38,8 +39,7 @@ object VisualizeShapefile {
         val (center, setCenter) = remember { mutableStateOf<LatLng?>(null) }
         if (!gotCenter) {
             model.background({
-                val points = if (model.shapefile.isNotEmpty()) model.shapefile.first() else emptyList()
-                Bounds.centerFromList(points)
+                Bounds.centerFromMultiPoly(model.shapefile)
             }) { cent ->
                 setGotCenter(true)
                 setCenter(cent)

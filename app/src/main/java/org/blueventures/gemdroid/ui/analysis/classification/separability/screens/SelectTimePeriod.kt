@@ -3,7 +3,7 @@ package org.blueventures.gemdroid.ui.analysis.classification.separability.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Shapefile
+import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryHighTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryLowTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.HistoricalHighTide

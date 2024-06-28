@@ -122,7 +122,7 @@ class CRAViewModel(
         }
     }
 
-    fun clear() { clearHistoricalChoice() }
+    fun clearState() { clearHistoricalChoice() }
 
     /**
      * Following functions below are intended to be used by other packages for getting CRAs.

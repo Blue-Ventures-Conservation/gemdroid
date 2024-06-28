@@ -10,6 +10,9 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.maps.Draw
 import java.util.Collections
 
+/**
+ * Only draws a single closed polygon with no holes.
+ */
 class PolygonDrawer(override val maxPoints: Int = 100, private val points: MutableList<LatLng> = mutableListOf(), private val maxArea: Int? = null, private val background: (() -> Int?, (Int?) -> Unit) -> Job): Draw.Data {
     override fun points() = points
     override fun clear() { points.clear(); ordered.clear() }
@@ -19,7 +22,7 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
     override fun removePrev(callback: (Int?) -> Unit) = background(::removePrevious) { callback(it) }
     override fun validatePolygon() = if (maxArea != null) validate(maxArea) else area() > 0
     override fun maxHectares() = hectares(maxArea ?: 0)
-    override fun polygonHectares() = areaStr(points)
+    override fun polygonHectares() = areaStr(listOf(listOf(points)))
     override fun area() = areaHectares(points)
 
     private val ordered = mutableListOf<LatLng>()
@@ -100,24 +103,59 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
     companion object {
         const val hectareInMeters = 10_000
 
-        fun areaStr(points: List<LatLng>) = hectares(areaHectares(points).toInt())
+        fun areaStr(multi: MultiPolyPts): String {
+            var total = 0.0
+            for (poly in multi) {
+                var first: List<LatLng>? = null
+                for (ring in poly) {
+                    if (first == null) {
+                        total += areaHectares(ring)
+                        first = ring
+                        continue
+                    }
+
+                    // this should be just a subtraction of the intersection between
+                    // the outer ring and this inner ring, but alas it's too much work right now
+                    total -= areaHectares(ring)
+                }
+            }
+            return hectares(total.toInt())
+        }
         fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
         fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters
 
-        fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
+        fun opts(multi: MultiPolyPts, stroke: Float = 2f, fill: Int = 0x7F00FF00): List<PolygonOptions> {
+            val opts = mutableListOf<PolygonOptions>()
+            for (poly in multi) {
+                val opt = PolygonOptions().strokeWidth(stroke).fillColor(fill).zIndex(Float.MAX_VALUE)
+
+                var first = true
+                for (ring in poly) {
+                    if (first) {
+                        opt.addAll(ring)
+                        first = false
+                        continue
+                    }
+
+                    opt.addHole(ring)
+                }
+
+                opts.add(opt)
+            }
+            return opts
+        }
+
+        private fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {
                 return null
             }
 
-            return opts(listOf(points), stroke, fill)
-        }
-
-        fun opts(points: List<List<LatLng>>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions {
-            val opts = PolygonOptions().strokeWidth(stroke).fillColor(fill).zIndex(Float.MAX_VALUE)
-            for (ring in points) {
-                opts.addAll(ring)
+            val options = opts(listOf(listOf(points)), stroke, fill)
+            if (options.isEmpty()) {
+                return null
             }
-            return opts
+
+            return options.first()
         }
 
         private fun areaMeters(points: List<LatLng>, nearestIdx: Int, point: LatLng): Double {
@@ -146,6 +184,6 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
 
     data class NamedPolygon(
         @Json(name = "name") val name: String,
-        @Json(name = "geometry") val polygon: GeojsonPolygon,
+        @Json(name = "geometry") val polygon: GeojsonMultiPolygon,
     )
 }

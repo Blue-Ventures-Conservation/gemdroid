@@ -24,7 +24,7 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import java.io.InputStream
 
-typealias StreamValidator<T> = (Shapefile.Streams, (Result<T>?) -> Unit) -> Job
+typealias StreamValidator<T> = (Shapefile.Streams, (Result<T>) -> Unit) -> Job
 
 object Shapefile {
     data class Streams(val streams: List<InputStream?>, val names: List<String?>)
@@ -45,7 +45,7 @@ object Shapefile {
     }
 
     @Composable
-    fun <T> Result(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, result: (Result<T>?) -> Unit, progress: () -> Unit = {}) {
+    fun <T> Result(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
         when (uris) {
@@ -55,7 +55,7 @@ object Shapefile {
     }
 
     @Composable
-    fun <T> Validation(background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, result: (Result<T>?) -> Unit, setUris: (List<Uri>?) -> Unit, progress: () -> Unit = {}) {
+    fun <T> Validation(background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, result: (Result<T>) -> Unit, setUris: (List<Uri>?) -> Unit, progress: () -> Unit = {}) {
         Progress()
         val context = LocalContext.current
         Effect.Once {
@@ -69,7 +69,7 @@ object Shapefile {
                 Streams(strms, names)
             }) {
                 validator(it) { res ->
-                    if (res?.isFailure == true) {
+                    if (res.isFailure) {
                         setUris(null)
                     }
                     result(res)
