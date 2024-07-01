@@ -190,15 +190,10 @@ class RoiViewModel(
         const val oldestLandsatYear = 1973
 
         fun firstRing(multi: MultiPolyPts) =
-            if (multi.isNotEmpty()) {
-                val poly = multi.first()
-                if (poly.isNotEmpty()) {
-                    poly.first().toMutableList()
-                } else {
-                    mutableListOf()
-                }
-            } else {
+            if (multi.isEmpty() || multi.first().isEmpty()) {
                 mutableListOf()
+            } else {
+                multi.first().first().toMutableList()
             }
     }
 
