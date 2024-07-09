@@ -89,7 +89,12 @@ class CRADatasource(
                 }
 
                 when (field.type) {
-                    DbfFieldTypeEnum.Numeric -> addToMap(numericsMap, name, stringVal.toFloat().toInt().toString())
+                    DbfFieldTypeEnum.Numeric -> {
+                        try {
+                            val numericVal = stringVal.toFloat().toInt().toString()
+                            addToMap(numericsMap, name, numericVal)
+                        } catch (_: Exception) {}
+                    }
                     DbfFieldTypeEnum.Character -> addToMap(stringsMap, name, stringVal)
                     else -> {}
                 }

@@ -197,7 +197,7 @@ object JSONMap : Serializer<Map<String, Any>>() {
             for (pt in cmap) {
                 val x = pt[bandX] ?: return null
                 val y = pt[bandY] ?: return null
-                val id = pt["ID"] ?: pt["ID_Numeric"]
+                val id = pt["id"] ?: pt["ID"] ?: pt["ID_Numeric"] ?: pt["id_numeric"]
                 out[cls]!!.add(ScatterPoint(id, x, y))
             }
         }
