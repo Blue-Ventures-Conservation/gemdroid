@@ -83,7 +83,7 @@ object Stats {
         for (conv in conversions) {
             data.add(ConversionEntry(conv.name, classColors[conv.name] ?: "", toHectares(conv.area)))
         }
-        Charts.BarChart(title, stringResource(R.string.other_classes), stringResource(R.string.area_ha), data, false)
+        Charts.BarChart(title, stringResource(R.string.other_classes), stringResource(R.string.area_ha), data, yUnit = "ha", fill = false)
     }
 
     class ConversionEntry(x: String, color: String, value: Number) : DataEntry() {

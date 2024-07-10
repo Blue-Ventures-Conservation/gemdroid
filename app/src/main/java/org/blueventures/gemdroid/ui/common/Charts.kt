@@ -32,7 +32,7 @@ object Charts {
     }
 
     @Composable
-    fun BarChart(title: String, xLabel: String, yLabel: String, data: List<DataEntry>, fill: Boolean = true, height: Dp = 350.dp) {
+    fun BarChart(title: String, xLabel: String, yLabel: String, data: List<DataEntry>, xUnit: String = "", yUnit: String = "", fill: Boolean = true, height: Dp = 350.dp) {
         var modifier = Modifier.fillMaxWidth()
         modifier = if (fill) modifier.fillMaxHeight(0.67f) else modifier.height(height)
         AndroidView(
@@ -44,12 +44,12 @@ object Charts {
                     val column = cartesian.column(data)
 
                     column.tooltip()
-                        .titleFormat("{%X}")
+                        .titleFormat("{%X} $xUnit")
                         .position(Position.CENTER_BOTTOM)
                         .anchor(Anchor.CENTER_BOTTOM)
                         .offsetX(0.0)
                         .offsetY(5.0)
-                        .format("{%Value}{groupsSeparator: }")
+                        .format("{%Value}{groupsSeparator: } $yUnit")
 
                     cartesian.animation(true)
                     cartesian.title(title)

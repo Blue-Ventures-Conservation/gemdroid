@@ -20,6 +20,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 
@@ -45,6 +46,7 @@ object Buffer {
 
         Col.Col {
             val ctx = LocalContext.current
+            Info.Txt(text = stringResource(R.string.tap_bars_hectares))
             Chart(buffers)
             Dropdown(title = stringResource(R.string.select_buffer_distance), labels = buffers.buffers.keys) { i ->
                 setBufferDist(Pair(buffers.buffers.vals[i], true))
@@ -69,10 +71,16 @@ object Buffer {
         val xLabel = stringResource(R.string.shoreline_buffer_km)
         val yLabel = stringResource(R.string.area_ha)
         val sums = buffers.sums
+        val bufferKeys = buffers.buffers.keys
         val data = mutableListOf<DataEntry>()
-        sums.keys.forEachIndexed { i, key ->
+        sums.keys.forEachIndexed { i, sumKey ->
+            val key = if (bufferKeys.size > i) {
+                bufferKeys[i].split(" ").first()
+            } else {
+                sumKey
+            }
             data.add(ValueDataEntry(key, (sums.vals[i].toDouble()/hectareInMeters).toInt()))
         }
-        Charts.BarChart(title, xLabel, yLabel, data, true)
+        Charts.BarChart(title, xLabel, yLabel, data, "km", "ha", true)
     }
 }
