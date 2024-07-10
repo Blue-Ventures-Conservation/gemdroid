@@ -14,14 +14,13 @@ import org.blueventures.gemdroid.ui.analysis.screens.Boundary
 import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
-import org.blueventures.gemdroid.ui.analysis.screens.ExcludedRegions
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColorDescription
 import org.blueventures.gemdroid.ui.analysis.screens.ReviewInputs
 import org.blueventures.gemdroid.ui.analysis.screens.Satellite
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.common.backHandler
+import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
@@ -34,7 +33,6 @@ object Analysis {
         const val imagery_downloads = prefix + "imagery_downloads"
         const val review_inputs = prefix + "review_inputs"
         const val boundary = prefix + "boundary"
-        const val excluded = prefix + "excluded_regions"
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
@@ -94,13 +92,7 @@ object Analysis {
         }
 
         b.backHandler(Routes.boundary, nav::popBackStack) {
-            Boundary.Screen(viewModel, appBar) {
-                nav.navigate(Routes.excluded)
-            }
-        }
-
-        b.backHandler(Routes.excluded, nav::popBackStack) {
-            ExcludedRegions.Screen(viewModel, appBar)
+            Boundary.Screen(viewModel, appBar)
         }
 
         // CRAs

@@ -43,7 +43,7 @@ object Overview {
             viewModel.historicalMonthStart,
             viewModel.historicalMonthEnd,
             viewModel.multiPolyFromState(),
-            viewModel.polygons.size,
+            viewModel.polygons.map { it.polygon },
             stringResource(id = R.string.overview),
             stringResource(id = R.string.done_button),
         ) {

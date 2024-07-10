@@ -103,7 +103,8 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
     companion object {
         const val hectareInMeters = 10_000
 
-        fun areaStr(multi: MultiPolyPts): String {
+        fun areaStr(multi: MultiPolyPts) = hectares(areaHectares(multi))
+        fun areaHectares(multi: MultiPolyPts): Int {
             var total = 0.0
             for (poly in multi) {
                 var first: List<LatLng>? = null
@@ -119,7 +120,7 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
                     total -= areaHectares(ring)
                 }
             }
-            return hectares(total.toInt())
+            return total.toInt()
         }
         fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
         fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters

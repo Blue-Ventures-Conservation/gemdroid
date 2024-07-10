@@ -147,6 +147,7 @@
     <string name="excluded_region">Excluded Region</string>
     <string name="excluded_regions">Excluded Regions</string>
     <string name="overview_excluded_regions">Excluded Regions:</string>
+    <string name="overview_excluded_area">Excluded Area:</string>
     <string name="polygons">Polygons</string>
     <string name="start_over">Start Over</string>
     <string name="looks_good">Looks Good</string>
@@ -179,9 +180,9 @@
     <string name="overview_historical_years">Historical Years: </string>
     <string name="overview_historical_months">Historical Months: </string>
     <string name="overview_polygon_points">Polygon Points: </string>
-    <string name="overview_polygon_area">Polygon Area: </string>
+    <string name="overview_polygon_area">Coarse ROI Area: </string>
     <string name="overview_points">%s points</string>
-    <string name="overview_regions">%s regions</string>
+    <string name="overview_regions">%s polygons</string>
     <string name="expired">expired</string>
     <string name="download_imagery">download imagery</string>
     <string name="imagery_downloads">Imagery Downloads</string>
@@ -210,9 +211,8 @@
     <string name="historical_choice_not_necessary">Not needed! The reference areas haven\'t changed between historical and contemporary time periods. Just use the contemporary CRAs for historical imagery.</string>
     <string name="is_a_historical_cra">Is a historical CRA shapefile available/necessary?</string>
     <string name="fields_must_match">(Fields must match contemporary shapefile)</string>
-    <string name="coarse_boundary">Coarse Boundary</string>
+    <string name="coarse_boundary">Review Boundary</string>
     <string name="review_inputs">Review Inputs</string>
-    <string name="view_excluded_regions">view excluded regions</string>
     <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>
     <string name="delete_the_previous_point">delete the previous point</string>
     <string name="you_will_create_coarse_roi">On the next screen you will draw or import a Coarse Boundary Polygon for your ROI.</string>

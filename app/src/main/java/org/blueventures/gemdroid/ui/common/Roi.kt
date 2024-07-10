@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.roi.ROI
@@ -50,7 +51,7 @@ object Roi {
             histMonthStart = roi.histMonthStart,
             histMonthEnd = roi.histMonthEnd,
             multi = roi.boundaryPolyToState(),
-            excludedCount = roi.excludedRegions.size,
+            excluded = roi.excludedRegions,
             header = header,
             buttonLabel = buttonLabel,
             next = next,
@@ -58,8 +59,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excludedCount: Int, header: String, buttonLabel: String, next: Click) {
-
+    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, header: String, buttonLabel: String, next: Click) {
         Col.Col(scroll = true) {
             Info.Block {
                 Info.Header(title = header)
@@ -72,19 +72,21 @@ object Roi {
                     false -> OverviewRow(nameLabel, name)
                 }
 
-                var ptCount = 0
-                for (poly in multi) {
-                    for (ring in poly) {
-                        ptCount += ring.size
-                    }
+                var excludedPolygons = 0
+                var excludedArea = 0
+                for (region in excluded) {
+                    val excl = GeojsonMultiPolygon.toState(region)
+                    excludedPolygons += excl.size
+                    excludedArea += PolygonDrawer.areaHectares(excl)
                 }
+
                 OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
                 OverviewRow(stringResource(R.string.overview_contemporary_months), "$contMonthStart - $contMonthEnd")
                 OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
                 OverviewRow(stringResource(R.string.overview_historical_months), "$histMonthStart - $histMonthEnd")
-                OverviewRow(stringResource(R.string.overview_polygon_points), stringResource(R.string.overview_points).format(ptCount.toString()))
                 OverviewRow(stringResource(R.string.overview_polygon_area), PolygonDrawer.areaStr(multi))
-                OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedCount"))
+                OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedPolygons"))
+                OverviewRow(stringResource(R.string.overview_excluded_area), PolygonDrawer.hectares(excludedArea))
             }
             DashboardButton(buttonLabel, next)
         }
