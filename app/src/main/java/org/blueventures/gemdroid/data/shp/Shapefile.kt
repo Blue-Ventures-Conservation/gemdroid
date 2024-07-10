@@ -49,7 +49,7 @@ data class Shapefile(
 
             var atLeastOne = false
             val zipResult = try {
-                inspectAndZip(unzipDir, unzipOrCopy(unzipDir, files, names), nameCheck, { shape, record ->
+                inspectAndZip(workDir, unzipOrCopy(unzipDir, files, names), nameCheck, { shape, record ->
                     var vertexCount = 0
                     var tooManyVertices = false
                     if (shape.shapeType == ShapeType.POLYGON || shape.shapeType == ShapeType.POLYGON_Z || shape.shapeType == ShapeType.POLYGON_M) {
