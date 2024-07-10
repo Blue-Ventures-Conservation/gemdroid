@@ -69,7 +69,7 @@ object Polygons {
                 nav.navigate(route)
             }, no = {
                 var route = nextRoute
-                if (model.polygons.size > 0) {
+                if (model.polygons.size > 1) {
                     route = routePolygonsOverview
                 }
 

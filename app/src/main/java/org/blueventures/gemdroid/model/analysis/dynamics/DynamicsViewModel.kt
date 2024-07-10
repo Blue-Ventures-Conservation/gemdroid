@@ -120,6 +120,7 @@ class DynamicsViewModel(
 
     override fun center() = Bounds.centerFromMultiPoly(roi.boundaryPolyToState())
     override val storage = Maps.Storage.fromViewModel(this)
+    override val shpColor = null
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics
     override val maxNameLength = maxNameCharLength

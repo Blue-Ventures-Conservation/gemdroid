@@ -84,6 +84,7 @@ class RoiViewModel(
         polygons.clear()
         polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) })
         if (roi.polygon.coordinates.size > 1) {
+            // there's more than one polygon, so it likely came in via shapefile
             importedROI = GeojsonMultiPolygon.toState(roi.polygon)
         } else {
             roiDrawer = PolygonDrawer(points = firstRing(GeojsonMultiPolygon.toState(roi.polygon)), maxArea = maxRoiArea, background = ::background)
@@ -134,6 +135,7 @@ class RoiViewModel(
 
     override fun center() = Bounds.centerFromRing(roiDrawer.points())
     override val storage = Maps.Storage.fromViewModel(this)
+    override val shpColor = MildRed.toArgb()
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
             if (region.name == polygonName) {
@@ -207,6 +209,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
     override val polygonType: Int = R.string.coarse_boundary
     override var visualizer: Visualize.Visualizer? = null
     override val storage: Maps.Storage = viewModel.storage
+    override val shpColor = null
     override val attemptGps = true
     override val drawer: PolygonDrawer
         get() = viewModel.roiDrawer
