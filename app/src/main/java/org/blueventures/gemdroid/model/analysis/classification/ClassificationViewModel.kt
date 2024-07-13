@@ -68,8 +68,8 @@ class ClassificationViewModel(
 
     fun saveExports(exports: ClassificationExports) = saveFile(exportsFile(roiDir), exports, ClassificationExports.Companion)
     fun loadExports(callback: (Result<ClassificationExports>) -> Unit) = loadFile(exportsFile(roiDir), ClassificationExports.Companion, callback)
-    fun getExports(visualize: Boolean, callback: (ApiResult<ClassificationExports>) -> Unit) {
-        exportsJobs = getRemote(exportsJobs, makeClassificationROI(visualize), { result ->
+    fun getExports(callback: (ApiResult<ClassificationExports>) -> Unit) {
+        exportsJobs = getRemote(exportsJobs, makeClassificationROI(), { result ->
             if (result is ApiResult.Success) {
                 deleteFile(resultsFile(roiDir)) { callback(result) }
             } else {
@@ -80,14 +80,14 @@ class ClassificationViewModel(
         }
     }
 
-    private fun makeClassificationROI(visualize: Boolean = true) = ClassificationROI(
+    private fun makeClassificationROI() = ClassificationROI(
         cra.contemporaryCRA.shapefileStorageKey,
         cra.historicalShp().shapefileStorageKey,
         cra.useContSpec(),
         cra.contemporaryCRA.numericClassField,
         cra.contemporaryCRA.stringClassField,
         makePalette(cra),
-        roi.copy(visualize = visualize),
+        roi,
     )
 
     fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir), results)

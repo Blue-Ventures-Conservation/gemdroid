@@ -257,4 +257,5 @@
     <string name="more_settings_coming_soon">Plus de paramètres à venir !</string>
     <string name="tap_bars_hectares">(Appuyez barres pour voir superficie en hectares)</string>
     <string name="review_boundary">Examiner la limite</string>
+    <string name="please_wait_the_classification_is_being_saved">S\'il vous plaît, attendez! Le classement est en cours de sauvegarde.</string>
 </resources>

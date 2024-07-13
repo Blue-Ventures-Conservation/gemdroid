@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.ui.analysis.dynamics
 import android.content.Context
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
@@ -17,6 +18,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import java.net.HttpURLConnection
 
 object Dynamics {
     object Routes {
@@ -91,6 +93,13 @@ object Dynamics {
     }
 
     fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
-        return Classification.errHandler(ctx, code, message)
+        val classificationErr = Classification.errHandler(ctx, code, message)
+        return if (classificationErr.first != null) {
+            classificationErr
+        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("classification cache unavailable") == true) {
+            Pair(ctx.getString(R.string.please_wait_the_classification_is_being_saved), false)
+        } else {
+            Pair(null, true)
+        }
     }
 }

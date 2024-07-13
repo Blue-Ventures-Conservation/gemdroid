@@ -16,7 +16,9 @@ object Downloads {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, back: Click) {
         appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.classification_downloads))))
-        Downloads.Screen(null, getLocal = viewModel::loadExports, getRemote = viewModel::getExports, save = viewModel::saveExports, {
+        Downloads.Screen(null, getLocal = viewModel::loadExports, getRemote = { _, callback ->
+            viewModel.getExports(callback)
+        }, save = viewModel::saveExports, {
             viewModel.clearExports()
             back()
         }) { exports ->

@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
 import android.net.Uri
+import androidx.compose.runtime.Composable
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
@@ -14,18 +15,23 @@ import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
-import org.blueventures.gemdroid.data.analysis.dynamics.RegionStats
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsReady
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsReadyResponse
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
+import org.blueventures.gemdroid.data.analysis.dynamics.RegionStats
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.dynamicDir
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.exportsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.gainTileDir
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.lossTileDir
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.maxSubRegions
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.persistenceTileDir
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.readyFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.resultsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.subRegionsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.urlsFile
@@ -33,7 +39,9 @@ import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
+import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
@@ -71,6 +79,7 @@ class DynamicsViewModel(
     }
 
     var subregionsFinalized = false
+    private var readyJob: Job? = null
     private var dynamicsJob: Job? = null
     private var exportsJobs: Job? = null
     private var statusJob: Job? = null
@@ -87,6 +96,7 @@ class DynamicsViewModel(
     }
     override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)
 
+    fun loadClassificationFile(callback: (Result<ClassificationURLs>) -> Unit) = loadFile(ClassificationDatasource.urlsFile(roiDir), ClassificationURLs.Companion, callback)
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClasses)
     fun tileDirs() = listOf(lossTileDir(roiDir, targetClasses), persistenceTileDir(roiDir, targetClasses), gainTileDir(roiDir, targetClasses))
 
@@ -129,7 +139,11 @@ class DynamicsViewModel(
     override val maxPolygons = maxSubRegions
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)
     override val polygonTypePlural = R.string.sub_regions
-    override val optionsInit = SubRegionsOption.screen(this)
+
+    @Composable
+    override fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
+        SubRegionsOption.Screen(this, snack, back, content)
+    }
 
     fun combinedNameNeeded() = !alreadyDownloaded && targetClasses.size > 1
     fun validateCombinedName(name: String): Boolean {
@@ -146,6 +160,26 @@ class DynamicsViewModel(
         return true
     }
 
+    fun getDynamicsReady(contOp: String? = null, histOp: String? = null, callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
+        readyJob = getRemote(readyJob, makeDynamicsReady(contOp ?: "unknown", histOp ?: "unknown"), callback) { api, ready ->
+            api.dynamicsReady(ready)
+        }
+    }
+    fun saveDynamicsReadyFile(ready: DynamicsReadyResponse) = saveFile(readyFile(roiDir), ready, DynamicsReadyResponse.Companion)
+    fun loadDynamicsReadyFile(callback: (Result<DynamicsReadyResponse>) -> Unit) = loadFile(readyFile(roiDir), DynamicsReadyResponse.Companion) { result ->
+        when {
+            result.isSuccess -> {
+                val resp = result.getOrNull()!!
+                if (!resp.isReady()) {
+                    callback(Result.failure(Throwable()))
+                } else {
+                    callback(result)
+                }
+            }
+            else -> callback(result)
+        }
+    }
+
     fun getDynamics(callback: (ApiResult<DynamicsURLs>) -> Unit) {
         dynamicsJob = getRemote(dynamicsJob, makeDynamicsROI(), callback) { api, roi ->
             api.dynamics(roi)
@@ -156,8 +190,8 @@ class DynamicsViewModel(
 
     fun saveExports(exports: DynamicsExports) = saveFile(exportsFile(roiDir, targetClasses), exports, DynamicsExports.Companion)
     fun loadExports(callback: (Result<DynamicsExports>) -> Unit) = loadFile(exportsFile(roiDir, targetClasses), DynamicsExports.Companion, callback)
-    fun getExports(visualize: Boolean, callback: (ApiResult<DynamicsExports>) -> Unit) {
-        exportsJobs = getRemote(exportsJobs, makeDynamicsROI(visualize), { result ->
+    fun getExports(callback: (ApiResult<DynamicsExports>) -> Unit) {
+        exportsJobs = getRemote(exportsJobs, makeDynamicsROI(), { result ->
             if (result is ApiResult.Success) {
                 deleteFile(resultsFile(roiDir, targetClasses)) { callback(result) }
             } else {
@@ -168,7 +202,18 @@ class DynamicsViewModel(
         }
     }
 
-    private fun makeDynamicsROI(visualize: Boolean = true) = DynamicsROI(
+    private fun makeDynamicsReady(contOp: String, histOp: String) = DynamicsReady(
+        contOp,
+        histOp,
+        cra.contemporaryCRA.shapefileStorageKey,
+        cra.historicalShp().shapefileStorageKey,
+        cra.useContSpec(),
+        cra.contemporaryCRA.numericClassField,
+        cra.contemporaryCRA.stringClassField,
+        roi,
+    )
+
+    private fun makeDynamicsROI() = DynamicsROI(
         targetClasses,
         combinedName,
         polygons,
@@ -180,7 +225,7 @@ class DynamicsViewModel(
         cra.useContSpec(),
         cra.contemporaryCRA.numericClassField,
         cra.contemporaryCRA.stringClassField,
-        roi.copy(visualize = visualize),
+        roi,
     )
 
     fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir, targetClasses), results)

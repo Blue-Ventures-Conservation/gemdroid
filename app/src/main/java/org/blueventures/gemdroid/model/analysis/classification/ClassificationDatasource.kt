@@ -8,10 +8,10 @@ class ClassificationDatasource(
     api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api) {
     companion object {
-        private const val classificationDir = "classification"
+        const val classificationDir = "classification"
+        const val classificationURLsFile = "urls.json"
         private const val contLCTilesDir = "cont_lc_tiles" // land cover tiles
         private const val histLCTilesDir = "hist_lc_tiles" // land cover tiles
-        private const val classificationURLsFile = "urls.json"
         private const val exportsFilename = "classification_exports.json"
         private const val resultsFile = "results.json"
         private fun classDir(roiDir: File) = File(roiDir, classificationDir)

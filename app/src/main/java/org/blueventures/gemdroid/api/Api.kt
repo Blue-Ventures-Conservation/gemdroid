@@ -19,13 +19,15 @@ import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsReady
+import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsReadyResponse
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
 import org.blueventures.gemdroid.data.roi.ROI
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 object Api {
-    private const val backendBaseUrl = "https://gembackend-oxtfh6aefa-zf.a.run.app/"
+    private const val backendBaseUrl = "http://192.168.0.54:8080/"
 
     private fun backend(timeout: Long): Service {
         val pair = BaseApi.authResultRetrofit(backendBaseUrl, timeout, BuildConfig.DEBUG)
@@ -62,6 +64,9 @@ object Api {
 
         @POST("/correlation_chart")
         suspend fun correlationChart(@Body roi: CraROI): ApiResult<Map<String, Any>>
+
+        @POST("/dynamics_ready")
+        suspend fun dynamicsReady(@Body roi: DynamicsReady): ApiResult<DynamicsReadyResponse>
 
         @POST("/dynamics")
         suspend fun dynamics(@Body roi: DynamicsROI): ApiResult<DynamicsURLs>

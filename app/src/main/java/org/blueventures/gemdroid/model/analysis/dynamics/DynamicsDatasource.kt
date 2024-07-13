@@ -14,6 +14,7 @@ class DynamicsDatasource(
 
     companion object {
         private const val dynamicsDir = "dynamics"
+        private const val readyFile = "ready.json"
         private const val subRegionFile = "subregions.json"
         private const val gainTilesDir = "gain_tiles"
         private const val lossTilesDir = "loss_tiles"
@@ -24,6 +25,7 @@ class DynamicsDatasource(
         const val maxSubRegions = 5
 
         fun dynamicDir(roiDir: File) = File(roiDir, dynamicsDir)
+        fun readyFile(roiDir: File) = File(dynamicDir(roiDir), readyFile)
         fun subRegionsFile(roiDir: File) = File(dynamicDir(roiDir), subRegionFile)
         fun classDir(roiDir: File, targetClasses: List<String>) = File(dynamicDir(roiDir), MD5.string(targetClasses.reduce { acc, className -> acc + className }))
         fun urlsFile(roiDir: File, targetClasses: List<String>) = File(classDir(roiDir, targetClasses), dynamicsURLsFile)

@@ -257,4 +257,5 @@
     <string name="more_settings_coming_soon">More settings coming soon!</string>
     <string name="tap_bars_hectares">(Tap bars to see area in hectares)</string>
     <string name="review_boundary">Review Boundary</string>
+    <string name="please_wait_the_classification_is_being_saved">Please wait! The classification is being saved.</string>
 </resources>

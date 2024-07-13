@@ -28,8 +28,8 @@ object PolygonsOption {
         val polygons: MutableList<PolygonDrawer.NamedPolygon>
 
         fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job
-
-        val optionsInit: @Composable (SnackFun, Click, @Composable () -> Unit) -> Unit
+        @Composable
+        fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit)
     }
 
     @Composable

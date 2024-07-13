@@ -28,4 +28,5 @@ data class Classified(
     @Json(name = "url") val url: String,
     @Json(name = "resubstitution_accuracy") val resubstitutionAccuracy: Float,
     @Json(name = "validation_accuracy") val validationAccuracy: Float,
+    @Json(name = "image_op") val imageOp: String? = null
 )

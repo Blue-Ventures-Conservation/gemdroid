@@ -38,6 +38,7 @@ object Analysis {
             return when(stage) {
                 Stage.BUFFER -> buffer
                 Stage.CRAS -> purpose
+                Stage.CLASSIFICATION -> map
                 else -> null
             }
         }

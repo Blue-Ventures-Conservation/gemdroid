@@ -158,9 +158,12 @@ class RoiViewModel(
         callback(Result.failure(Exception()))
         return Job()
     }
-    override val optionsInit: @Composable (SnackFun, Click, @Composable () -> Unit) -> Unit = { _, _, content ->
+
+    @Composable
+    override fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
         content()
     }
+
     override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()

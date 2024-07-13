@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.model.analysis
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.roi.RoiDatasource
@@ -15,6 +16,7 @@ class AnalysisDatasource(
             when {
                 !File(roiDir, bufferFile).exists() -> Stage.BUFFER
                 !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists() -> Stage.CRAS
+                !File(File(roiDir, ClassificationDatasource.classificationDir), ClassificationDatasource.classificationURLsFile).exists() -> Stage.CLASSIFICATION
                 else -> Stage.ALL
             }
         } catch(e: Exception) {
@@ -67,5 +69,5 @@ class AnalysisDatasource(
 }
 
 enum class Stage {
-    ERROR, BUFFER, CRAS, ALL
+    ERROR, BUFFER, CRAS, CLASSIFICATION, ALL
 }
