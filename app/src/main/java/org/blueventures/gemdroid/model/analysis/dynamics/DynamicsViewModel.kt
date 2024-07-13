@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
@@ -140,11 +141,6 @@ class DynamicsViewModel(
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)
     override val polygonTypePlural = R.string.sub_regions
 
-    @Composable
-    override fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
-        SubRegionsOption.Screen(this, snack, back, content)
-    }
-
     fun combinedNameNeeded() = !alreadyDownloaded && targetClasses.size > 1
     fun validateCombinedName(name: String): Boolean {
         if (name.length > maxNameLength || !Regexp.roiName.matches(name)) {
@@ -162,13 +158,26 @@ class DynamicsViewModel(
 
     private var contOp: String? = null
     private var histOp: String? = null
+    @Composable
+    override fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
+        contOp = null
+        histOp = null
+
+        SubRegionsOption.Screen(this, snack, back, content)
+
+        BackHandler {
+            contOp = null
+            histOp = null
+            back()
+        }
+    }
     fun getDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
         if (contOp == null || histOp == null) {
             loadClassificationFile { res ->
                 if (res.isSuccess) {
                     val urls = res.getOrNull()!!
                     contOp = urls.contemporaryClassification.imageOp
-                    histOp = urls.contemporaryClassification.imageOp
+                    histOp = urls.historicalClassification.imageOp
                 }
                 fetchDynamicsReady(callback)
             }
