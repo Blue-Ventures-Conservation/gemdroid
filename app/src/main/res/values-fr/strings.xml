@@ -211,7 +211,7 @@
     <string name="historical_choice_not_necessary">Pas nécessaire ! Les zones de référence n\'ont pas changé entre les périodes historiques et contemporaines. Utilisez simplement les ARC contemporaines pour les images historiques.</string>
     <string name="is_a_historical_cra">Un fichier de formes CRA historique est-il disponible/nécessaire ?</string>
     <string name="fields_must_match">(Les champs doivent correspondre au fichier de formes contemporain)</string>
-    <string name="coarse_boundary">Examiner la limite</string>
+    <string name="coarse_boundary">Limite grossière</string>
     <string name="review_inputs">Examiner les entrées</string>
     <string name="this_is_optional">Le téléchargement des images est facultatif ! Vous souhaiterez peut-être télécharger ces images pour les utiliser en dehors de l\'application.</string>
     <string name="delete_the_previous_point">supprimer le point précédent</string>
@@ -256,4 +256,5 @@
     <string name="app_version">Version de l\'application :</string>
     <string name="more_settings_coming_soon">Plus de paramètres à venir !</string>
     <string name="tap_bars_hectares">(Appuyez barres pour voir superficie en hectares)</string>
+    <string name="review_boundary">Examiner la limite</string>
 </resources>

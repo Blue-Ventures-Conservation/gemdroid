@@ -14,6 +14,6 @@ object ReviewInputs {
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, polygon: Click) {
         val roi = viewModel.roi
         appBar.Update(AppBarUpdate(stringResource(R.string.review_inputs)))
-        OverviewFromROI(roi, stringResource(R.string.overview), stringResource(R.string.coarse_boundary), polygon)
+        OverviewFromROI(roi, stringResource(R.string.overview), stringResource(R.string.review_boundary), polygon)
     }
 }
