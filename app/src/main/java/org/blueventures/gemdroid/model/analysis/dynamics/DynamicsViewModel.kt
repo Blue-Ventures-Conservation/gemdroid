@@ -160,7 +160,23 @@ class DynamicsViewModel(
         return true
     }
 
-    fun getDynamicsReady(contOp: String? = null, histOp: String? = null, callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
+    private var contOp: String? = null
+    private var histOp: String? = null
+    fun getDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
+        if (contOp == null || histOp == null) {
+            loadClassificationFile { res ->
+                if (res.isSuccess) {
+                    val urls = res.getOrNull()!!
+                    contOp = urls.contemporaryClassification.imageOp
+                    histOp = urls.contemporaryClassification.imageOp
+                }
+                fetchDynamicsReady(callback)
+            }
+        } else {
+            fetchDynamicsReady(callback)
+        }
+    }
+    private fun fetchDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
         readyJob = getRemote(readyJob, makeDynamicsReady(contOp ?: "unknown", histOp ?: "unknown"), callback) { api, ready ->
             api.dynamicsReady(ready)
         }
@@ -170,6 +186,9 @@ class DynamicsViewModel(
         when {
             result.isSuccess -> {
                 val resp = result.getOrNull()!!
+                contOp = resp.contOp
+                histOp = resp.histOp
+
                 if (!resp.isReady()) {
                     callback(Result.failure(Throwable()))
                 } else {
