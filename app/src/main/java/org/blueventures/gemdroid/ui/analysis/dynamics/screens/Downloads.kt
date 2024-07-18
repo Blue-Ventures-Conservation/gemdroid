@@ -22,6 +22,7 @@ object Downloads {
             viewModel.clearExports()
             back()
         }) { exports ->
+            val csvTitle = stringResource(R.string.areas_csv)
             val lossTitle = stringResource(R.string.loss)
             val persistenceTitle = stringResource(R.string.persistence)
             val gainTitle = stringResource(R.string.gain)
@@ -31,7 +32,16 @@ object Downloads {
                 override fun loadResults(callback: (Result<TasksResults>) -> Unit) = viewModel.loadResults(callback)
                 override fun getResults(callback: (ApiResult<TasksResults>) -> Unit) = viewModel.getResults(exports, callback)
                 override fun list(): List<Downloads.NamedExport> {
-                    return listOf(
+                    val list = mutableListOf<Downloads.NamedExport>()
+                    if (exports.csv != null) {
+                        list.add(object : Downloads.NamedExport {
+                            override val title = csvTitle
+                            override val filename = "${viewModel.roi.name}_areas_hectares.csv"
+                            override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getAreasCSVUri(exports.csv.storagePath, callback)
+                        })
+                    }
+
+                    list.addAll(listOf(
                         object : Downloads.NamedExport {
                             override val title = lossTitle
                             override val filename = "${viewModel.roi.name}_loss_dynamics.tif"
@@ -47,7 +57,9 @@ object Downloads {
                             override val filename = "${viewModel.roi.name}_gain_dynamics.tif"
                             override fun getDownloadUri(callback: (Result<Uri>) -> Unit) = viewModel.getGainUri(exports.gain.storagePath, callback)
                         }
-                    )
+                    ))
+
+                    return list
                 }
             }
         }

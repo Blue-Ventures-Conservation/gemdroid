@@ -83,6 +83,11 @@ object GetRemote {
         val (localResult, setLocalResult) = remember { mutableStateOf<Result<T>?>(null) }
         val (remoteResult, setRemoteResult) = remember { mutableStateOf<ApiResult<T>?>(null) }
 
+        // rotation resend these requests, because this is poor design with compose
+        // and yet, I should be free to automatically schedule things on other threads
+        // that ultimately affect the UI without the user's constant interaction, so here we are
+        Orient.Portrait()
+
         when {
             localResult == null -> {
                 Progress()

@@ -117,6 +117,9 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
+    // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
+    // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have
+    // that many view models? Do I want to have to think that much about how to pass state between them all? I do not.
     fun clearState() { clearName(); clearImport(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear(); polygons.clear(); }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap

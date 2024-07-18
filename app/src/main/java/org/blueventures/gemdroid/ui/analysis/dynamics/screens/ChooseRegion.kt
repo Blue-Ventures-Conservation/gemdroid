@@ -49,7 +49,7 @@ object ChooseRegion {
         Info.Block {
             Info.BlueLine()
             Info.Space()
-            DashboardButton(stringResource(R.string.imagery_downloads), downloads)
+            DashboardButton(stringResource(R.string.downloads), downloads)
         }
     }
 }

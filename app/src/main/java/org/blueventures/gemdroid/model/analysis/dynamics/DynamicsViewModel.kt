@@ -84,6 +84,7 @@ class DynamicsViewModel(
     private var dynamicsJob: Job? = null
     private var exportsJobs: Job? = null
     private var statusJob: Job? = null
+    private var areasCSVJob: Job? = null
     private var lossUriJob: Job? = null
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
@@ -259,11 +260,22 @@ class DynamicsViewModel(
     fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir, targetClasses), results)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir, targetClasses), callback)
     fun getResults(exports: DynamicsExports, callback: (ApiResult<TasksResults>) -> Unit) {
-        statusJob = getRemote(statusJob, Tasks(listOf(exports.loss.name, exports.persistence.name, exports.gain.name)), callback) { api, tasks ->
+        val taskList = mutableListOf<String>()
+
+        if (exports.csv != null) {
+            taskList.add(exports.csv.name)
+        }
+
+        taskList.addAll(listOf(exports.loss.name, exports.persistence.name, exports.gain.name))
+
+        statusJob = getRemote(statusJob, Tasks(taskList), callback) { api, tasks ->
             api.tasksResults(tasks)
         }
     }
 
+    fun getAreasCSVUri(path: String, callback: (Result<Uri>) -> Unit) {
+        areasCSVJob = uriFromStorage(areasCSVJob, path, callback)
+    }
     fun getLossUri(path: String, callback: (Result<Uri>) -> Unit) {
         lossUriJob = uriFromStorage(lossUriJob, path, callback)
     }

@@ -7,6 +7,7 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class DynamicsExports(
+    @Json(name = "csv") val csv: Export?,
     @Json(name = "loss") val loss: Export,
     @Json(name = "persistence") val persistence: Export,
     @Json(name = "gain") val gain: Export,
