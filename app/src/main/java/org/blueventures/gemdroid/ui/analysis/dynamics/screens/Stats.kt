@@ -21,6 +21,7 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.theme.g2R2BHex
+import kotlin.math.round
 
 object Stats {
     @Composable
@@ -48,13 +49,22 @@ object Stats {
     }
 
     @Composable
-    fun ClassBlock(className: String, classDynamics: ClassDynamics) {
-        StatsRow(ClassLabel(R.string.total_hist_area, className), classDynamics.histArea)
-        StatsRow(ClassLabel(R.string.total_cont_area, className), classDynamics.contArea)
-        StatsRow(ClassLabel(R.string.loss_fmt, className), classDynamics.loss)
-        StatsRow(ClassLabel(R.string.gain_fmt, className), classDynamics.gain)
-        StatsRow(ClassLabel(R.string.persistence_fmt, className), classDynamics.persistence)
+    fun ClassBlock(className: String, cd: ClassDynamics) {
+        StatsRow(ClassLabel(R.string.total_hist_area, className), cd.histArea)
+        StatsRow(ClassLabel(R.string.total_cont_area, className), cd.contArea)
+        DetailsRow(ClassLabel(R.string.percent_change_of, className), percentChange(cd.contArea, cd.histArea))
+        PercentRow(ClassLabel(R.string.loss_fmt, className), cd.loss, cd.histArea)
+        PercentRow(ClassLabel(R.string.persistence_fmt, className), cd.persistence, cd.histArea)
+        PercentRow(ClassLabel(R.string.gain_fmt, className), cd.gain, cd.histArea)
     }
+
+    @Composable
+    fun PercentRow(label: String, area: Double, historicalArea: Double) {
+        DetailsRow(label, hectares(toHectares(area)) + " [" + percent(area, historicalArea) + "]")
+    }
+
+    private fun percent(num: Double, denom: Double) = (round((num/denom) * 1e4)/1e2).toString() + "%"
+    private fun percentChange(cont: Double, hist: Double) = percent(cont - hist, hist)
 
     @Composable
     fun StatsRow(label: String, area: Double) {

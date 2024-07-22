@@ -259,4 +259,5 @@
     <string name="review_boundary">Examiner la limite</string>
     <string name="please_wait_the_classification_is_being_saved">S\'il vous plaît, attendez! Le classement est en cours de sauvegarde.</string>
     <string name="areas_csv">Zones CSV</string>
+    <string name="percent_change_of">Pourcentage de variation de %s</string>
 </resources>

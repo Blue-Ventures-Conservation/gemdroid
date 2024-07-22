@@ -259,4 +259,5 @@
     <string name="review_boundary">Review Boundary</string>
     <string name="please_wait_the_classification_is_being_saved">Please wait! The classification is being saved.</string>
     <string name="areas_csv">Areas CSV</string>
+    <string name="percent_change_of">Percent change of %s</string>
 </resources>

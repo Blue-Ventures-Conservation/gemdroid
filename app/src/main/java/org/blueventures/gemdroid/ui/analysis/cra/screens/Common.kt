@@ -63,7 +63,7 @@ object Common {
             val (craFile, setCRAFile) = remember { mutableStateOf<Result<CRAFile>?>(null) }
             val (remoteKey, setRemoteKey) = remember { mutableStateOf<String?>(null) }
             val (progress, setProgress) = remember { mutableStateOf(false) }
-            val (checkedState, setCheckedState) = remember { mutableStateOf(true) }
+            val (checkedState, setCheckedState) = remember { mutableStateOf(false) }
 
             when {
                 progress -> Progress()
@@ -108,11 +108,7 @@ object Common {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (checkedState) {
-                Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
-            } else {
-                Text(text = stringResource(R.string.select_a_shapefile_from_local_files), fontSize = 16.sp)
-            }
+            Text(text = stringResource(R.string.reuse_a_previously_uploaded_shapefile), fontSize = 16.sp)
             Switch(
                 checked = checkedState,
                 onCheckedChange = { setCheckedState(it) }

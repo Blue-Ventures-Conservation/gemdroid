@@ -1,11 +1,14 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,6 +21,9 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Info
+import org.blueventures.gemdroid.ui.theme.LightGreen
+import org.blueventures.gemdroid.ui.theme.MildRed
+import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object ChooseRegion {
     @Composable
@@ -29,6 +35,7 @@ object ChooseRegion {
         }
 
         Col.Col(scroll = true) {
+            Legend()
             Column {
                 Text(stringResource(R.string.choose_which_region_to_analyze), fontSize = 20.sp, textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.size(16.dp))
@@ -41,6 +48,26 @@ object ChooseRegion {
                 }
             }
             Downloads(downloads)
+        }
+    }
+
+    @Composable
+    private fun Legend() {
+        Info.Block {
+            Info.Header(stringResource(R.string.legend))
+            LegendRow(stringResource(R.string.loss), MildRed)
+            LegendRow(stringResource(R.string.persistence), SkyBlue)
+            LegendRow(stringResource(R.string.gain), LightGreen)
+        }
+    }
+
+    @Composable
+    private fun LegendRow(label: String, color: Color) {
+        Info.Row {
+            Info.Txt(label)
+            Box(modifier = Modifier
+                .background(color)
+                .size(24.dp))
         }
     }
 
