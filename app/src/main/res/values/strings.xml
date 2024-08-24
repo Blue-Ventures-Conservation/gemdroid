@@ -268,4 +268,7 @@
     <string name="use_landsat">so the GEM will use Landsat imagery.</string>
     <string name="sentinel_2_warning">\n\nSentinel-2 imagery is much larger than Landsat. If this imagery is too large, you can force the use of Landsat by enabling the option on the Settings screen.</string>
     <string name="imagery">Imagery</string>
+    <string name="satellites">Satellites:</string>
+    <string name="sentinel_2">Sentinel-2</string>
+    <string name="landsat">Landsat</string>
 </resources>

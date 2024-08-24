@@ -36,17 +36,18 @@ object HistoricalMonths {
         }
 
         forceLandsat?.let { force ->
-            ImageryDialog(viewModel.shouldUseS2(), force, next)
+            ImageryDialog(viewModel, viewModel.shouldUseS2(), force, next)
         }
     }
 
     @Composable
-    fun ImageryDialog(useS2: Boolean, forceLandsat: Boolean, next: Click) {
+    fun ImageryDialog(viewModel: RoiViewModel, useS2: Boolean, forceLandsat: Boolean, next: Click) {
         val starts = if (useS2) stringResource(R.string.starts_after_or_during) else stringResource(R.string.starts_before)
         val but = if (useS2 && forceLandsat) stringResource(R.string.but_force_landsat) else ""
         val imagery = if (useS2 && !forceLandsat) stringResource(R.string.use_sentinel_2) else stringResource(R.string.use_landsat)
         val warning = if (useS2 && !forceLandsat) stringResource(R.string.sentinel_2_warning) else ""
 
+        viewModel.forceLS = forceLandsat
         AlertDialog(
             onDismissRequest = next,
             title = { Text(text = stringResource(R.string.imagery)) },

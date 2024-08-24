@@ -45,6 +45,7 @@ class RoiViewModel(
     var historicalMonthEnd: Int = defaultMonthEnd
     var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
     var importedROI: MultiPolyPts = emptyList()
+    var forceLS: Boolean = true
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -64,7 +65,8 @@ class RoiViewModel(
         historicalMonthEnd,
         multiPolyFromState(),
         polygons,
-        regionUUID = roiUUID()
+        regionUUID = roiUUID(),
+        forceLandsat = forceLS
     )
 
     fun multiPolyFromState() = importedROI.ifEmpty {
@@ -121,7 +123,7 @@ class RoiViewModel(
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
 
     fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, true, callback)
-    fun shouldUseS2() = fitsS2Range(contemporaryYearStart, contemporaryMonthStart) && fitsS2Range(historicalYearStart, historicalMonthStart)
+    fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonthStart, historicalYearStart, historicalMonthStart)
 
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have

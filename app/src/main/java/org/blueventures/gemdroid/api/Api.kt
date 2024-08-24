@@ -38,11 +38,11 @@ object Api {
         @POST("/area_chart")
         suspend fun getBuffers(@Body roi: ROI): ApiResult<Buffers>
 
-        @POST("/ls_imagery")
+        @POST("/get_imagery")
         suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
-        @POST("export_ls_imagery")
-        suspend fun exportLandsat(@Body roi:ROI): ApiResult<ImageryExports>
+        @POST("export_imagery")
+        suspend fun exportLandsat(@Body roi: ROI): ApiResult<ImageryExports>
 
         @POST("/upload_cra")
         suspend fun ingestCRA(@Body key: CRAKey): ApiResult<CRAIngestRequested>

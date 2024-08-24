@@ -6,6 +6,7 @@ import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Serializer
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.shouldUseS2
 import java.io.File
 
 // Saved on device based on user input when creating an ROI
@@ -24,10 +25,13 @@ data class ROI(
     @Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,
     @Json(name = "region_uuid") val regionUUID: String? = null,
+    @Json(name = "force_landsat") val forceLandsat: Boolean? = null,
 ) {
     fun boundaryPolyToState() = if (polygon.coordinates.isNotEmpty()) GeojsonMultiPolygon.toState(polygon) else emptyList()
 
     fun appBarTitle(title: String) = "$name $title"
+
+    fun useS2() = !(forceLandsat ?: true) && shouldUseS2(contYearStart, contMonthStart, histYearStart, histMonthStart)
 
     companion object : Serializer<ROI>() {
         private val adapter = make<ROI>()
@@ -45,7 +49,8 @@ data class ROI(
             points: MultiPolyPts,
             excludes: List<PolygonDrawer.NamedPolygon>,
             buffDist: Int = -1,
-            regionUUID: String? = null
+            regionUUID: String? = null,
+            forceLandsat: Boolean? = null,
         ): ROI {
             return ROI(
                 buffDist,
@@ -60,7 +65,8 @@ data class ROI(
                 histMonthEnd,
                 GeojsonMultiPolygon.fromState(points),
                 excludes.map { it.polygon },
-                regionUUID = regionUUID
+                regionUUID = regionUUID,
+                forceLandsat = forceLandsat,
             )
         }
 

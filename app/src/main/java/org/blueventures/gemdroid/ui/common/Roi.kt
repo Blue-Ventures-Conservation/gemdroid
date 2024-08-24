@@ -52,6 +52,7 @@ object Roi {
             histMonthEnd = roi.histMonthEnd,
             multi = roi.boundaryPolyToState(),
             excluded = roi.excludedRegions,
+            useS2 = roi.useS2(),
             header = header,
             buttonLabel = buttonLabel,
             next = next,
@@ -59,7 +60,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
         Col.Col(scroll = true) {
             Info.Block {
                 Info.Header(title = header)
@@ -87,6 +88,7 @@ object Roi {
                 OverviewRow(stringResource(R.string.overview_polygon_area), PolygonDrawer.areaStr(multi))
                 OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedPolygons"))
                 OverviewRow(stringResource(R.string.overview_excluded_area), PolygonDrawer.hectares(excludedArea))
+                OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
             }
             DashboardButton(buttonLabel, next)
         }

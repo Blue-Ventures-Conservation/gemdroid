@@ -118,6 +118,7 @@ class RoiDatasource(
 
         private const val s2StartYear = 2018;
         private const val s2StartMonth = 12;
+        fun shouldUseS2(contemporaryYearStart: Int, contemporaryMonthStart: Int, historicalYearStart: Int, historicalMonthStart: Int) = fitsS2Range(contemporaryYearStart, contemporaryMonthStart) && fitsS2Range(historicalYearStart, historicalMonthStart)
         fun fitsS2Range(startYear: Int, startMonth: Int) = (startYear > s2StartYear) || (startYear == s2StartYear  && startMonth >= s2StartMonth)
 
         fun roiFile(roiDir: File) = File(roiDir, filename)
