@@ -17,11 +17,10 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
-import org.blueventures.gemdroid.ui.common.SnackFun
 
 object Settings {
     @Composable
-    fun Screen(viewModel: SettingsViewModel, appBar: AppBar, snack: SnackFun) {
+    fun Screen(viewModel: SettingsViewModel, appBar: AppBar) {
         appBar.Update(AppBarUpdate(stringResource(R.string.settings_label), true))
         val (state, setState) = remember { mutableStateOf<State?>(null) }
 
@@ -33,12 +32,11 @@ object Settings {
             }
             else -> {
                 Col.MidPad(scroll = true) {
-                    Info.Txt(stringResource(R.string.more_settings_coming_soon))
-//                    SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description)) {
-//                        SettingsCheckbox(state.forceLandsat) { force ->
-//                            viewModel.setForceLandsat(ctx, force)
-//                        }
-//                    }
+                    SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description)) {
+                        SettingsCheckbox(state.forceLandsat) { force ->
+                            viewModel.setForceLandsat(ctx, force)
+                        }
+                    }
                     Info.Txt("${stringResource(R.string.app_version)} $versionString")
                 }
             }

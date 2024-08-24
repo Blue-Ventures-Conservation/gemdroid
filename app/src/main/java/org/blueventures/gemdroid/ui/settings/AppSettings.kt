@@ -16,7 +16,7 @@ object AppSettings {
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, activity: Activity, viewModel: SettingsViewModel, appBar: AppBar, snack: SnackFun) {
         b.backHandler(Routes.settings, nav::popBackStack) {
-            Settings.Screen(viewModel, appBar, snack)
+            Settings.Screen(viewModel, appBar)
         }
     }
 }

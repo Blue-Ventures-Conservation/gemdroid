@@ -260,4 +260,12 @@
     <string name="please_wait_the_classification_is_being_saved">S\'il vous plaît, attendez! Le classement est en cours de sauvegarde.</string>
     <string name="areas_csv">Zones CSV</string>
     <string name="percent_change_of">Pourcentage de variation de %s</string>
+    <string name="dismiss">Rejeter</string>
+    <string name="starts_after_or_during">Votre plage de dates commence après ou pendant le mois de décembre 2018, </string>
+    <string name="starts_before">Votre plage de dates commence avant décembre 2018, </string>
+    <string name="but_force_landsat">mais le paramètre pour forcer l\'utilisation de Landsat est activé, </string>
+    <string name="use_sentinel_2">le GEM utilisera donc les images Sentinel-2.</string>
+    <string name="use_landsat">le GEM utilisera donc l\'imagerie Landsat.</string>
+    <string name="sentinel_2_warning">\n\nLes images Sentinel-2 sont beaucoup plus grandes que celles de Landsat. Si ces images sont trop volumineuses, vous pouvez forcer l\'utilisation de Landsat en activant l\'option sur l\'écran Paramètres.</string>
+    <string name="imagery">Imagerie</string>
 </resources>

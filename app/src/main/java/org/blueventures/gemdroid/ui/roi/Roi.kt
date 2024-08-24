@@ -10,9 +10,9 @@ import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.polygons.Polygon
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
-import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears

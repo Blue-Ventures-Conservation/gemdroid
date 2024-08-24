@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.roi
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 import kotlinx.coroutines.Job
@@ -12,9 +13,11 @@ import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiViewModel
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.fitsS2Range
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.roiUUID
+import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.forceLandsat
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Shapefile
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -116,6 +119,9 @@ class RoiViewModel(
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
     fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
+
+    fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, true, callback)
+    fun shouldUseS2() = fitsS2Range(contemporaryYearStart, contemporaryMonthStart) && fitsS2Range(historicalYearStart, historicalMonthStart)
 
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have

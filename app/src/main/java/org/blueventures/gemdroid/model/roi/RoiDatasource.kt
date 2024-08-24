@@ -116,6 +116,10 @@ class RoiDatasource(
         const val maxNameCharLength = 50
         const val maxExcludedRegions = 5
 
+        private const val s2StartYear = 2018;
+        private const val s2StartMonth = 12;
+        fun fitsS2Range(startYear: Int, startMonth: Int) = (startYear > s2StartYear) || (startYear == s2StartYear  && startMonth >= s2StartMonth)
+
         fun roiFile(roiDir: File) = File(roiDir, filename)
         fun roiUUID() = UUID.randomUUID().toString().replace("-", "")
     }

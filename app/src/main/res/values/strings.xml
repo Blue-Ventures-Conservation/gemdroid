@@ -260,4 +260,12 @@
     <string name="please_wait_the_classification_is_being_saved">Please wait! The classification is being saved.</string>
     <string name="areas_csv">Areas CSV</string>
     <string name="percent_change_of">Percent change of %s</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="starts_after_or_during">"Your date range starts after or during December 2018, "</string>
+    <string name="starts_before">"Your date range starts before December 2018, "</string>
+    <string name="but_force_landsat">"but the setting to force the use of Landsat is enabled, "</string>
+    <string name="use_sentinel_2">so the GEM will use Sentinel-2 imagery.</string>
+    <string name="use_landsat">so the GEM will use Landsat imagery.</string>
+    <string name="sentinel_2_warning">\n\nSentinel-2 imagery is much larger than Landsat. If this imagery is too large, you can force the use of Landsat by enabling the option on the Settings screen.</string>
+    <string name="imagery">Imagery</string>
 </resources>
