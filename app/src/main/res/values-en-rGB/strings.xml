@@ -189,7 +189,7 @@
     <string name="prepare_files">Prepare Files</string>
     <string name="include_all_bands">Include All Bands?</string>
     <string name="download_all_bands">Download All Bands</string>
-    <string name="large_file_warning">Including all bands means this will be a large file, potentially larger than 100 MB.\n\nYou will also need to process this file further before displaying it.\n\nIs all of that OK?</string>
+    <string name="large_file_warning">Including all bands means this will be a large file, potentially larger than 100MB for Landsat or 1.5GB for Sentinel-2.\n\nYou will also need to process this file further before displaying it.\n\nIs all of that OK?</string>
     <string name="download_this_file">download this file</string>
     <string name="download_has_failed">this download has failed</string>
     <string name="download_started">download started</string>

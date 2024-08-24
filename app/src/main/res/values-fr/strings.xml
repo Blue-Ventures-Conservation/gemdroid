@@ -189,7 +189,7 @@
     <string name="prepare_files">Préparer les fichiers</string>
     <string name="include_all_bands">Inclure toutes les bandes ?</string>
     <string name="download_all_bands">Télécharger toutes les bandes</string>
-    <string name="large_file_warning">L\'inclusion de toutes les bandes signifie qu\'il s\'agira d\'un fichier volumineux, potentiellement supérieur à 100 Mo.\n\nVous devrez également traiter ce fichier davantage avant de l\'afficher.\n\nEst-ce que tout cela est OK ? </string>
+    <string name="large_file_warning">L\'inclusion de toutes les bandes signifie qu\'il s\'agira d\'un fichier volumineux, potentiellement supérieur à 100MB pour Landsat ou à 1,5GB pour Sentinel-2.\n\nVous devrez également traiter davantage ce fichier avant de l\'afficher.\n\nEst-ce que tout cela est OK ?</string>
     <string name="download_this_file">télécharger ce fichier</string>
     <string name="download_has_failed">ce téléchargement a échoué</string>
     <string name="download_started">téléchargement commencé</string>
