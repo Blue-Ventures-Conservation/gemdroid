@@ -13,8 +13,8 @@ android {
         applicationId "org.blueventures.gemdroid"
         minSdk 24
         targetSdk 34
-        versionCode 29
-        versionName "1.2.1"
+        versionCode 30
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-appcheck-debug'
     implementation 'com.google.android.play:integrity:1.4.0'
 
-    def nav_version = "2.7.7"
+    def nav_version = "2.8.0-rc01"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
