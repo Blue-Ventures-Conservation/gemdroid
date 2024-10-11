@@ -13,7 +13,6 @@ import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiViewModel
-import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.fitsS2Range
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.roiUUID
@@ -120,7 +119,7 @@ class RoiViewModel(
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
-    fun currentYear() = Calendar.getInstance().get(Calendar.YEAR)
+    fun currentYear() = thisYear()
 
     fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, true, callback)
     fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonthStart, historicalYearStart, historicalMonthStart)
@@ -196,12 +195,13 @@ class RoiViewModel(
     }
 
     companion object {
+        fun thisYear() = Calendar.getInstance().get(Calendar.YEAR)
+        val defaultContemporaryYearEnd = thisYear()
+        val defaultContemporaryYearStart = defaultContemporaryYearEnd - 1
+        val defaultHistoricalYearEnd = defaultContemporaryYearEnd - 10
+        val defaultHistoricalYearStart = defaultHistoricalYearEnd - 1
         const val maxRoiArea = 5_000_000 // hectares
-        const val maxYearGap = 5
-        const val defaultContemporaryYearStart = 2019
-        const val defaultContemporaryYearEnd = 2021
-        const val defaultHistoricalYearStart = 1998
-        const val defaultHistoricalYearEnd = 2001
+        const val maxYearGap = 4
         const val defaultMonthStart = 6
         const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
