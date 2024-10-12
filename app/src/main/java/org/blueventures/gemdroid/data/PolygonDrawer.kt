@@ -125,7 +125,7 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
         fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
         fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters
 
-        fun opts(multi: MultiPolyPts, stroke: Float = 2f, fill: Int = 0x7F00FF00): List<PolygonOptions> {
+        fun opts(multi: MultiPolyPts, stroke: Float = 4f, fill: Int = 0x7F00FF00): List<PolygonOptions> {
             val opts = mutableListOf<PolygonOptions>()
             for (poly in multi) {
                 val opt = PolygonOptions().strokeWidth(stroke).fillColor(fill).zIndex(Float.MAX_VALUE)
@@ -146,7 +146,7 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
             return opts
         }
 
-        private fun ringOpts(points: List<LatLng>, stroke: Float = 2f, fill: Int = 0x7F00FF00): PolygonOptions? {
+        private fun ringOpts(points: List<LatLng>, stroke: Float = 4f, fill: Int = 0x7F00FF00): PolygonOptions? {
             if (points.size < 3) {
                 return null
             }

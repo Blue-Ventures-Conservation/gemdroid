@@ -261,7 +261,7 @@ object Compose {
 
         val (polyOpts, setPolyOpts) = remember { mutableStateOf(draw.polygonOptions()) }
         polyOpts?.let { opt ->
-            Polygon(points = opt.points, fillColor = Color(opt.fillColor), zIndex = 100f)
+            Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeWidth = opt.strokeWidth, zIndex = 100f)
         }
 
         val resetLocalState = {
@@ -358,7 +358,7 @@ object Compose {
                         visibilityState.add(checked)
                         for (namedOptions in group.namedOptions) {
                             for (opts in namedOptions.options) {
-                                Polygon(points = opts.points, fillColor = Color(opts.fillColor), visible = checked, zIndex = zIndex)
+                                Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeWidth = opts.strokeWidth, visible = checked, zIndex = zIndex)
                             }
                         }
                     }
