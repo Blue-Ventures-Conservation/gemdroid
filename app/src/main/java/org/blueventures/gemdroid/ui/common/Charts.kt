@@ -54,7 +54,10 @@ object Charts {
                     cartesian.animation(true)
                     cartesian.title(title)
 
-                    cartesian.yScale().minimum(0)
+                    if (data.isNotEmpty()) {
+                        val f = data.first().getValue("value").toString().toFloat()
+                        cartesian.yScale().minimum(((f - (f * 0.05))/100).toInt()*100)
+                    }
 
                     cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }")
 

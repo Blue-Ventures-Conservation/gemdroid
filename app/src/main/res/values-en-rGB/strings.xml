@@ -113,7 +113,7 @@
     <string name="use_a_shapefile">Import a Shapefile</string>
     <string name="select_shapefile">Select Shapefile</string>
     <string name="or_you_can_select_a_zip">Or you can select a .zip that contains these.</string>
-    <string name="you_should_select_all_of">\"You should select all of: \"</string>
+    <string name="you_should_select_all_of">You should select all of: </string>
     <string name="shp_file_extensions">.shp, .dbf, .shx, .prj</string>
     <string name="select_a_temporal_shapefile">Select a %s shapefile</string>
     <string name="reuse_a_previously_uploaded_shapefile">Re-use a previously uploaded shapefile</string>

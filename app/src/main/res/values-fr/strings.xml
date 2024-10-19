@@ -113,7 +113,7 @@
     <string name="use_a_shapefile">Importer un Shapefile</string>
     <string name="select_shapefile">Sélectionner un fichier de formes</string>
     <string name="or_you_can_select_a_zip">Ou vous pouvez sélectionner un .zip qui les contient.</string>
-    <string name="you_should_select_all_of">\"Vous devez sélectionner tous : \"</string>
+    <string name="you_should_select_all_of">Vous devez sélectionner tous : </string>
     <string name="shp_file_extensions">.shp, .dbf, .shx, .prj</string>
     <string name="select_a_temporal_shapefile">Sélectionnez un fichier de formes %s</string>
     <string name="reuse_a_previously_uploaded_shapefile">Réutiliser un fichier de formes précédemment téléchargé</string>

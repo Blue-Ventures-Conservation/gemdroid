@@ -53,7 +53,7 @@ object HistoricalMonths {
             title = { Text(text = stringResource(R.string.imagery)) },
             text = { Text(text = "$starts$but$imagery$warning") },
             confirmButton = {
-                Butt.Text(stringResource(R.string.dismiss), click = next)
+                Butt.Text(stringResource(android.R.string.ok), click = next)
             },
         )
     }
