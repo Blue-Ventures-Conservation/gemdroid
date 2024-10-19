@@ -13,6 +13,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 
@@ -75,19 +76,31 @@ object Roi {
 
                 var excludedPolygons = 0
                 var excludedArea = 0
+                var includeNetArea = true
                 for (region in excluded) {
-                    val excl = GeojsonMultiPolygon.toState(region)
+                    val pair = GeojsonMultiPolygon.toStateWithContainer(region, multi)
+                    val excl = pair.first
                     excludedPolygons += excl.size
                     excludedArea += PolygonDrawer.areaHectares(excl)
+
+                    if (!pair.second) {
+                        includeNetArea = false
+                    }
                 }
 
+                val polyArea = PolygonDrawer.areaHectares(multi)
                 OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
                 OverviewRow(stringResource(R.string.overview_contemporary_months), "$contMonthStart - $contMonthEnd")
                 OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
                 OverviewRow(stringResource(R.string.overview_historical_months), "$histMonthStart - $histMonthEnd")
-                OverviewRow(stringResource(R.string.overview_polygon_area), PolygonDrawer.areaStr(multi))
+                OverviewRow(stringResource(R.string.overview_polygon_area), hectares(polyArea))
                 OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedPolygons"))
-                OverviewRow(stringResource(R.string.overview_excluded_area), PolygonDrawer.hectares(excludedArea))
+                if (excludedPolygons > 0) {
+                    OverviewRow(stringResource(R.string.overview_excluded_area), hectares(excludedArea))
+                    if (includeNetArea) {
+                        OverviewRow(stringResource(R.string.overview_net_area), hectares(polyArea - excludedArea))
+                    }
+                }
                 OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
             }
             DashboardButton(buttonLabel, next)

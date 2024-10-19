@@ -148,6 +148,7 @@
     <string name="excluded_regions">Régions exclues</string>
     <string name="overview_excluded_regions">Régions exclues :</string>
     <string name="overview_excluded_area">Zone exclue :</string>
+    <string name="overview_net_area">Superficie nette :</string>
     <string name="polygons">Polygones</string>
     <string name="start_over">Recommencer</string>
     <string name="looks_good">Ça a l\'air bien</string>

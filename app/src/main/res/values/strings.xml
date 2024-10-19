@@ -148,6 +148,7 @@
     <string name="excluded_regions">Excluded Regions</string>
     <string name="overview_excluded_regions">Excluded Regions:</string>
     <string name="overview_excluded_area">Excluded Area:</string>
+    <string name="overview_net_area">Net Area:</string>
     <string name="polygons">Polygons</string>
     <string name="start_over">Start Over</string>
     <string name="looks_good">Looks Good</string>

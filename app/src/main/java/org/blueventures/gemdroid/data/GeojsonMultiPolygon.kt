@@ -10,13 +10,23 @@ data class GeojsonMultiPolygon(
 ) {
     companion object {
         fun toState(geo: GeojsonMultiPolygon): MultiPolyPts {
+            val pair = toStateWithContainer(geo)
+            return pair.first
+        }
+
+        fun toStateWithContainer(geo: GeojsonMultiPolygon, container: MultiPolyPts? = null): Pair<MultiPolyPts, Boolean> {
+            var contained = !container.isNullOrEmpty()
             val multi = mutableListOf<List<List<LatLng>>>()
             for (poly in geo.coordinates) {
-                val newPoly = GeojsonPolygon.toState(GeojsonPolygon(poly))
-                multi.add(newPoly)
+                val newPoly = GeojsonPolygon.toStateWithContainer(GeojsonPolygon(poly), container)
+                multi.add(newPoly.first)
+
+                if (!newPoly.second) {
+                    contained = false
+                }
             }
 
-            return multi
+            return Pair(multi, contained)
         }
 
         fun fromState(polys: MultiPolyPts): GeojsonMultiPolygon {
