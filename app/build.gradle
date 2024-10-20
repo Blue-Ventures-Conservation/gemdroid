@@ -57,7 +57,7 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'org.osmdroid:osmdroid-shape:6.1.14'
 
-    implementation platform('com.google.firebase:firebase-bom:32.6.0')
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-appcheck-debug'
     implementation 'com.google.android.play:integrity:1.4.0'
 
-    def nav_version = "2.8.0-rc01"
+    def nav_version = "2.8.3"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
@@ -73,9 +73,9 @@ dependencies {
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
     implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.fragment:fragment-ktx:1.8.2'
-    implementation 'androidx.activity:activity-ktx:1.9.1'
-    implementation 'androidx.activity:activity-compose:1.9.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.4'
+    implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'androidx.activity:activity-compose:1.9.3'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation "androidx.compose.foundation:foundation-layout:$compose_version"
     implementation "androidx.compose.runtime:runtime:$compose_version"
@@ -83,10 +83,10 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation "androidx.compose.ui:ui-viewbinding:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.2.1'
+    implementation 'androidx.compose.material3:material3:1.3.0'
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 
-    def lifecycle_version = "2.8.4"
+    def lifecycle_version = "2.8.6"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -106,11 +106,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
 
     implementation "com.chargemap.compose:numberpicker:1.0.3"
-
-    // added to resolve a warning from an earlier version
-    // this dependency is brought in by firebase I think, and should eventually
-    // be updated on their side, at which point this can be removed
-    implementation "com.google.android.recaptcha:recaptcha:18.6.0"
 
     implementation project(path: ':droidbones')
 
