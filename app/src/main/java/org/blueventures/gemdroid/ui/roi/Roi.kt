@@ -74,7 +74,7 @@ object Roi {
             viewModel.clearContemporaryMonths()
             nav.popBackStack()
         }) {
-            ContemporaryMonths.Screen(viewModel, appBar) {
+            ContemporaryMonths.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.historicalYears)
             }
         }
@@ -94,7 +94,7 @@ object Roi {
             viewModel.clearHistoricalMonths()
             nav.popBackStack()
         }) {
-            HistoricalMonths.Screen(viewModel, appBar) {
+            HistoricalMonths.Screen(viewModel, appBar, snack) {
                 if (viewModel.importedROI.isEmpty()) {
                     nav.navigate(Routes.coarse_polygon_purpose)
                 } else {

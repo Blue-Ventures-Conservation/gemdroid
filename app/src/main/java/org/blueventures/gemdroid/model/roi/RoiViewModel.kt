@@ -36,12 +36,10 @@ class RoiViewModel(
     var roiName: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
     var contemporaryYearEnd: Int = defaultContemporaryYearEnd
-    var contemporaryMonthStart: Int = defaultMonthStart
-    var contemporaryMonthEnd: Int = defaultMonthEnd
+    var contemporaryMonths: List<Int> = emptyList()
     var historicalYearStart: Int = defaultHistoricalYearStart
     var historicalYearEnd: Int = defaultHistoricalYearEnd
-    var historicalMonthStart: Int = defaultMonthStart
-    var historicalMonthEnd: Int = defaultMonthEnd
+    var historicalMonths: List<Int> = emptyList()
     var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
     var importedROI: MultiPolyPts = emptyList()
     var forceLS: Boolean = true
@@ -56,12 +54,10 @@ class RoiViewModel(
         roiName,
         contemporaryYearStart,
         contemporaryYearEnd,
-        contemporaryMonthStart,
-        contemporaryMonthEnd,
+        contemporaryMonths,
         historicalYearStart,
         historicalYearEnd,
-        historicalMonthStart,
-        historicalMonthEnd,
+        historicalMonths,
         multiPolyFromState(),
         polygons,
         regionUUID = roiUUID(),
@@ -79,12 +75,10 @@ class RoiViewModel(
         roiName = prefix + roi.name
         contemporaryYearStart = roi.contYearStart
         contemporaryYearEnd = roi.contYearEnd
-        contemporaryMonthStart = roi.contMonthStart
-        contemporaryMonthEnd = roi.contMonthEnd
+        contemporaryMonths = roi.contMonths ?: emptyList()
         historicalYearStart = roi.histYearStart
         historicalYearEnd = roi.histYearEnd
-        historicalMonthStart = roi.histMonthStart
-        historicalMonthEnd = roi.histMonthEnd
+        historicalMonths = roi.histMonths ?: emptyList()
         polygons.clear()
         polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) })
         if (roi.polygon.coordinates.size > 1) {
@@ -114,15 +108,15 @@ class RoiViewModel(
     fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
     fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
     fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
-    fun clearContemporaryMonths() { contemporaryMonthStart = defaultMonthStart; contemporaryMonthEnd = defaultMonthEnd}
+    fun clearContemporaryMonths() { contemporaryMonths = emptyList() }
     fun validateHistoricalYearsOrder() = validateDateIntsOrder(historicalYearStart, historicalYearEnd)
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
-    fun clearHistoricalMonths() { historicalMonthStart = defaultMonthStart; historicalMonthEnd = defaultMonthEnd}
+    fun clearHistoricalMonths() { historicalMonths = emptyList() }
     fun currentYear() = thisYear()
 
     fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, true, callback)
-    fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonthStart, historicalYearStart, historicalMonthStart)
+    fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonths, historicalYearStart, historicalMonths)
 
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have
@@ -202,8 +196,6 @@ class RoiViewModel(
         val defaultHistoricalYearStart = defaultHistoricalYearEnd - 1
         const val maxRoiArea = 5_000_000 // hectares
         const val maxYearGap = 4
-        const val defaultMonthStart = 6
-        const val defaultMonthEnd = 8
         const val oldestLandsatYear = 1973
 
         fun firstRing(multi: MultiPolyPts) =

@@ -26,7 +26,7 @@ object ScatterClasses {
                 return@AwaitSave
             }
 
-            Checklist.Screen(snack, stringResource(R.string.choose_classes), classes, true, 1) { checked ->
+            Checklist.Screen(snack, stringResource(R.string.choose_classes), classes, List(classes.size) {true}) { checked ->
                 viewModel.classes = checked
                 next()
             }

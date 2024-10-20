@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
+import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
@@ -40,17 +41,16 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromROI(roi: ROI, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, header: String, buttonLabel: String, next: Click) {
         OverviewFromState(
+            background,
             name = roi.name,
             contYearStart = roi.contYearStart,
             contYearEnd = roi.contYearEnd,
-            contMonthStart = roi.contMonthStart,
-            contMonthEnd = roi.contMonthEnd,
+            contMonths = roi.contMonths ?: emptyList(),
             histYearStart = roi.histYearStart,
             histYearEnd = roi.histYearEnd,
-            histMonthStart = roi.histMonthStart,
-            histMonthEnd = roi.histMonthEnd,
+            histMonths = roi.histMonths ?: emptyList(),
             multi = roi.boundaryPolyToState(),
             excluded = roi.excludedRegions,
             useS2 = roi.useS2(),
@@ -61,49 +61,56 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(name: String, contYearStart: Int, contYearEnd: Int, contMonthStart: Int, contMonthEnd: Int, histYearStart: Int, histYearEnd: Int, histMonthStart: Int, histMonthEnd: Int, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
-        Col.Col(scroll = true) {
-            Info.Block {
-                Info.Header(title = header)
-
-                val nameLabel = stringResource(R.string.overview_name)
-                val (overflowed, setOverflowed) = remember { mutableStateOf<Boolean?>(null) }
-                when(overflowed) {
-                    null -> MeasureName(nameLabel, name, setOverflowed)
-                    true -> WrappedName(name)
-                    false -> OverviewRow(nameLabel, name)
-                }
-
-                var excludedPolygons = 0
-                var excludedArea = 0
-                var includeNetArea = true
-                for (region in excluded) {
-                    val pair = GeojsonMultiPolygon.toStateWithContainer(region, multi)
-                    val excl = pair.first
-                    excludedPolygons += excl.size
-                    excludedArea += PolygonDrawer.areaHectares(excl)
-
-                    if (!pair.second) {
-                        includeNetArea = false
+    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
+        val (calcs, setCalcs) = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
+        when (calcs) {
+            null -> {
+                Progress()
+                background({
+                    var excludedPolygons = 0
+                    var excludedArea = 0
+                    var outsideHectares = 0
+                    for (region in excluded) {
+                        val pair = GeojsonMultiPolygon.toStateWithContainer(region, multi)
+                        val excl = pair.first
+                        excludedPolygons += excl.size
+                        excludedArea += PolygonDrawer.areaHectares(excl)
+                        outsideHectares += pair.second
                     }
-                }
 
-                val polyArea = PolygonDrawer.areaHectares(multi)
-                OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
-                OverviewRow(stringResource(R.string.overview_contemporary_months), "$contMonthStart - $contMonthEnd")
-                OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
-                OverviewRow(stringResource(R.string.overview_historical_months), "$histMonthStart - $histMonthEnd")
-                OverviewRow(stringResource(R.string.overview_polygon_area), hectares(polyArea))
-                OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("$excludedPolygons"))
-                if (excludedPolygons > 0) {
-                    OverviewRow(stringResource(R.string.overview_excluded_area), hectares(excludedArea))
-                    if (includeNetArea) {
-                        OverviewRow(stringResource(R.string.overview_net_area), hectares(polyArea - excludedArea))
-                    }
-                }
-                OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
+                    excludedArea -= outsideHectares
+                    val polyArea = PolygonDrawer.areaHectares(multi)
+                    Triple(polyArea, excludedPolygons, excludedArea)
+                }, setCalcs)
             }
-            DashboardButton(buttonLabel, next)
+            else -> {
+                Col.Col(scroll = true) {
+                    Info.Block {
+                        Info.Header(title = header)
+
+                        val nameLabel = stringResource(R.string.overview_name)
+                        val (overflowed, setOverflowed) = remember { mutableStateOf<Boolean?>(null) }
+                        when(overflowed) {
+                            null -> MeasureName(nameLabel, name, setOverflowed)
+                            true -> WrappedName(name)
+                            false -> OverviewRow(nameLabel, name)
+                        }
+
+                        OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
+                        OverviewRow(stringResource(R.string.overview_contemporary_months), contMonths.joinToString(separator = ", "))
+                        OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
+                        OverviewRow(stringResource(R.string.overview_historical_months), histMonths.joinToString(separator = ", "))
+                        OverviewRow(stringResource(R.string.overview_polygon_area), hectares(calcs.first))
+                        OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("${calcs.second}"))
+                        if (calcs.second > 0) {
+                            OverviewRow(stringResource(R.string.overview_excluded_area), hectares(calcs.third))
+                            OverviewRow(stringResource(R.string.overview_net_area), hectares(calcs.first - calcs.third))
+                        }
+                        OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
+                    }
+                    DashboardButton(buttonLabel, next)
+                }
+            }
         }
     }
 

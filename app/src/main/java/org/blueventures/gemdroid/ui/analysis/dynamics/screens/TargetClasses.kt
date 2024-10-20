@@ -26,7 +26,7 @@ object TargetClasses {
 
         when (classesChosen) {
             false -> {
-                Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes, initState = false, min = 1) { checked ->
+                Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes) { checked ->
                     viewModel.targetClasses = checked
                     setClassesChosen(true)
                 }

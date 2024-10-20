@@ -12,25 +12,22 @@ import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object HistoricalMonths {
     @Composable
-    fun Screen(viewModel: RoiViewModel, appBar: AppBar, next: Click) {
+    fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         val (forceLandsat, setForceLandsat) = remember { mutableStateOf<Boolean?>(null) }
         val ctx = LocalContext.current
 
         Months.Screen(
             object : Months.Selector {
-                override val initMonthStart: Int = viewModel.historicalMonthStart
-                override val initMonthEnd: Int = viewModel.historicalMonthEnd
-                override fun setMonthStart(month: Int) {
-                    viewModel.historicalMonthStart = month
-                }
+                override val selected = viewModel.historicalMonths
 
-                override fun setMonthEnd(month: Int) {
-                    viewModel.historicalMonthEnd = month
+                override fun setMonths(months: List<Int>) {
+                    viewModel.historicalMonths = months
                 }
-            }, stringResource(R.string.historical), appBar
+            }, stringResource(R.string.historical), appBar, snack
         ) {
             viewModel.getForceLandsat(ctx, setForceLandsat)
         }

@@ -2,7 +2,9 @@ package org.blueventures.gemdroid.data
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
 
 typealias PolyPts = List<List<LatLng>>
 data class GeojsonPolygon(
@@ -10,28 +12,47 @@ data class GeojsonPolygon(
     @Json(name = "type") val type: String = "Polygon",
 ) {
     companion object {
-        fun toStateWithContainer(geo: GeojsonPolygon, container: MultiPolyPts? = null): Pair<PolyPts, Boolean> {
+        fun toStateWithContainer(geo: GeojsonPolygon, container: MultiPolyPts? = null): Pair<PolyPts, Int> {
             val checkContainment = !container.isNullOrEmpty()
-            var contained = checkContainment
             val newPoly = mutableListOf<List<LatLng>>()
+
+            val uncontainedRing = mutableListOf<LatLng>()
+            var first = true
             for (ring in geo.coordinates) {
                 val newRing = mutableListOf<LatLng>()
                 for (pt in ring) {
                     val newPt = LatLng(pt[1], pt[0])
                     newRing.add(newPt)
 
-                    if (checkContainment) {
+                    if (checkContainment && first) {
+                        var ptContained = false
                         for (poly in container!!) {
-                            if (poly.isNotEmpty() && !PolyUtil.containsLocation(newPt, poly[0], true)) {
-                                contained = false
+                            if (PolyUtil.isClosedPolygon(poly[0]) && PolyUtil.containsLocation(newPt, poly[0], false)) {
+                                ptContained = true
+                                break
                             }
+                        }
+
+                        if (!ptContained) {
+                            uncontainedRing.add(newPt)
                         }
                     }
                 }
+                first = false
                 newPoly.add(newRing)
             }
 
-            return Pair(newPoly, contained)
+
+            // TODO: this should be just be a polygon difference, rather than building a diff polygon with the points that lie outside
+            // we will likely need to import the JST and do this work on a background thread to get a better calculation
+
+            var hectaresOutside = 0.0
+            if (uncontainedRing.size >= 3) {
+                // close the ring
+                uncontainedRing.add(uncontainedRing.first())
+                hectaresOutside = SphericalUtil.computeArea(uncontainedRing) / hectareInMeters
+            }
+            return Pair(newPoly, hectaresOutside.toInt())
         }
 
         fun fromState(poly: PolyPts): GeojsonPolygon {

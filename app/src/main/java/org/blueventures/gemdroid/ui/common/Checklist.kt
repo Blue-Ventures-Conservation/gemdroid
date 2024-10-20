@@ -9,11 +9,16 @@ import org.blueventures.gemdroid.R
 
 object Checklist {
     @Composable
-    fun Screen(snack: SnackFun, title: String, items: List<String>, initState: Boolean, min: Int, next: (List<String>) -> Unit) {
+    fun Screen(snack: SnackFun, title: String, items: List<String>, initState: List<Boolean> = List(items.size) {false}, min: Int = 1, next: (List<String>) -> Unit) {
         val pairs = mutableListOf<Pair<String, Boolean>>()
 
-        for (item in items) {
-            pairs.add(Pair(item, initState))
+        items.forEachIndexed { index, item ->
+            var init = false
+            if (initState.size > index) {
+                init = initState[index]
+            }
+
+            pairs.add(Pair(item, init))
         }
 
         val checkMap = remember { mutableStateMapOf(*pairs.toTypedArray()) }

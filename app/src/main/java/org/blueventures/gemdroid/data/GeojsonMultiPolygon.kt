@@ -14,19 +14,16 @@ data class GeojsonMultiPolygon(
             return pair.first
         }
 
-        fun toStateWithContainer(geo: GeojsonMultiPolygon, container: MultiPolyPts? = null): Pair<MultiPolyPts, Boolean> {
-            var contained = !container.isNullOrEmpty()
+        fun toStateWithContainer(geo: GeojsonMultiPolygon, container: MultiPolyPts? = null): Pair<MultiPolyPts, Int> {
+            var hectaresOutside = 0
             val multi = mutableListOf<List<List<LatLng>>>()
             for (poly in geo.coordinates) {
                 val newPoly = GeojsonPolygon.toStateWithContainer(GeojsonPolygon(poly), container)
                 multi.add(newPoly.first)
-
-                if (!newPoly.second) {
-                    contained = false
-                }
+                hectaresOutside += newPoly.second
             }
 
-            return Pair(multi, contained)
+            return Pair(multi, hectaresOutside)
         }
 
         fun fromState(polys: MultiPolyPts): GeojsonMultiPolygon {

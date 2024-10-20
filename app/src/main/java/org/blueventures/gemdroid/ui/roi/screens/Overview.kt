@@ -33,15 +33,14 @@ object Overview {
     fun OverviewDetails(viewModel: RoiViewModel, filesDir: File, snack: SnackFun, done: Click, saving: (Boolean) -> Unit) {
         val ctx = LocalContext.current
         OverviewFromState(
+            viewModel::background,
             viewModel.roiName,
             viewModel.contemporaryYearStart,
             viewModel.contemporaryYearEnd,
-            viewModel.contemporaryMonthStart,
-            viewModel.contemporaryMonthEnd,
+            viewModel.contemporaryMonths,
             viewModel.historicalYearStart,
             viewModel.historicalYearEnd,
-            viewModel.historicalMonthStart,
-            viewModel.historicalMonthEnd,
+            viewModel.historicalMonths,
             viewModel.multiPolyFromState(),
             viewModel.polygons.map { it.polygon },
             (!viewModel.forceLS && viewModel.shouldUseS2()),

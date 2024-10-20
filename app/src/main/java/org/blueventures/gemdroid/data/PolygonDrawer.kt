@@ -115,8 +115,9 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
                         continue
                     }
 
-                    // this should be just a subtraction of the intersection between
-                    // the outer ring and this inner ring, but alas it's too much work right now
+                    // TODO: this should be just a subtraction of the intersection between the outer ring and this inner ring
+                    // we will likely need to import the JST and do this work on a background thread to get a better calculation
+
                     total -= areaHectares(ring)
                 }
             }

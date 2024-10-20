@@ -15,23 +15,42 @@ data class ROI(
     @Json(name = "name") val name: String = "",
     @Json(name = "cont_year_start") val contYearStart: Int = 0,
     @Json(name = "cont_year_end") val contYearEnd: Int = 0,
-    @Json(name = "cont_month_start") val contMonthStart: Int = 0,
-    @Json(name = "cont_month_end") val contMonthEnd: Int = 0,
+    @Json(name = "cont_months") val contMonths: List<Int>? = null,
     @Json(name = "hist_year_start") val histYearStart: Int = 0,
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
-    @Json(name = "hist_month_start") val histMonthStart: Int = 0,
-    @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
+    @Json(name = "hist_months") val histMonths: List<Int>? = null,
     @Json(name = "polygon") val polygon: GeojsonMultiPolygon = GeojsonMultiPolygon(emptyList()),
     @Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,
     @Json(name = "region_uuid") val regionUUID: String? = null,
     @Json(name = "force_landsat") val forceLandsat: Boolean? = null,
+
+    // old and unused, kept for backwards compatibility
+    @Json(name = "cont_month_start") val contMonthStart: Int? = null,
+    @Json(name = "cont_month_end") val contMonthEnd: Int? = null,
+    @Json(name = "hist_month_start") val histMonthStart: Int? = null,
+    @Json(name = "hist_month_end") val histMonthEnd: Int? = null,
 ) {
     fun boundaryPolyToState() = if (polygon.coordinates.isNotEmpty()) GeojsonMultiPolygon.toState(polygon) else emptyList()
 
     fun appBarTitle(title: String) = "$name $title"
 
-    fun useS2() = !(forceLandsat ?: true) && shouldUseS2(contYearStart, contMonthStart, histYearStart, histMonthStart)
+    fun useS2(): Boolean {
+        val pair = roiMonths()
+        return !(forceLandsat ?: true) && shouldUseS2(contYearStart, pair.first, histYearStart, pair.second)
+    }
+
+    fun roiMonths(): Pair<List<Int>, List<Int>> {
+        if (contMonths != null && histMonths != null) {
+            return Pair(contMonths, histMonths)
+        }
+
+        if (contMonthStart != null && contMonthEnd != null && histMonthStart != null && histMonthEnd != null) {
+            return Pair(getMonthsFromRange(contMonthStart, contMonthEnd), getMonthsFromRange(histMonthStart, histMonthEnd))
+        }
+
+        return Pair(listOf(), listOf())
+    }
 
     companion object : Serializer<ROI>() {
         private val adapter = make<ROI>()
@@ -40,12 +59,10 @@ data class ROI(
             name: String,
             contYearStart: Int,
             contYearEnd: Int,
-            contMonthStart: Int,
-            contMonthEnd: Int,
+            contMonths: List<Int>,
             histYearStart: Int,
             histYearEnd: Int,
-            histMonthStart: Int,
-            histMonthEnd: Int,
+            histMonths: List<Int>,
             points: MultiPolyPts,
             excludes: List<PolygonDrawer.NamedPolygon>,
             buffDist: Int = -1,
@@ -57,12 +74,10 @@ data class ROI(
                 name,
                 contYearStart,
                 contYearEnd,
-                contMonthStart,
-                contMonthEnd,
+                contMonths,
                 histYearStart,
                 histYearEnd,
-                histMonthStart,
-                histMonthEnd,
+                histMonths,
                 GeojsonMultiPolygon.fromState(points),
                 excludes.map { it.polygon },
                 regionUUID = regionUUID,
@@ -73,18 +88,22 @@ data class ROI(
         override fun fromFile(file: File): Result<ROI> {
             val res = fromFile(adapter, file)
             return when {
-                res.isSuccess -> res
+                res.isSuccess -> {
+                    val mult = res.getOrNull()!!
+                    val pair = mult.roiMonths()
+                    Result.success(mult.copy(contMonths = pair.first, histMonths = pair.second))
+                }
                 else -> {
                     val singleRes = SinglePolyROI.fromFile(file)
                     when {
                         singleRes.isSuccess -> {
                             val single = singleRes.getOrNull()!!
-                            val multi = GeojsonMultiPolygon.toState(GeojsonMultiPolygon(listOf(single.polygon.coordinates)))
-                            val multiExcludes = mutableListOf<PolygonDrawer.NamedPolygon>()
+                            val multiExcludes = mutableListOf<GeojsonMultiPolygon>()
                             for (poly in single.excludedRegions) {
-                                multiExcludes.add(PolygonDrawer.NamedPolygon("", GeojsonMultiPolygon(listOf(poly.coordinates))))
+                                multiExcludes.add(GeojsonMultiPolygon(listOf(poly.coordinates)))
                             }
-                            Result.success(fromState(single.name, single.contYearStart, single.contYearEnd, single.contMonthStart, single.contMonthEnd, single.histYearStart, single.histYearEnd, single.histMonthStart, single.histMonthEnd, multi, multiExcludes, single.buffDist, single.regionUUID))
+
+                            Result.success(ROI(single.buffDist, single.name, single.contYearStart, single.contYearEnd, getMonthsFromRange(single.contMonthStart, single.contMonthEnd), single.histYearStart, single.histYearEnd, getMonthsFromRange(single.histMonthStart, single.histMonthEnd), GeojsonMultiPolygon(listOf(single.polygon.coordinates)), multiExcludes, regionUUID = single.regionUUID))
                         }
                         else -> res
                     }
@@ -93,6 +112,25 @@ data class ROI(
         }
 
         override fun toFile(file: File, data: ROI) = toFile(adapter, file, data)
+
+        fun getMonthsFromRange(monthStart: Int, monthEnd: Int): List<Int> {
+            val months = mutableListOf<Int>()
+            if (monthStart > monthEnd) {
+                for (x in 1..monthStart) {
+                    months.add(x)
+                }
+
+                for (y in monthEnd..12) {
+                    months.add(y)
+                }
+            } else {
+                for (n in monthStart..monthEnd) {
+                    months.add(n)
+                }
+            }
+
+            return months
+        }
     }
 }
 
