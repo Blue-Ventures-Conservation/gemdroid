@@ -110,16 +110,12 @@ object GetRemote {
             remoteResult is ApiResult.Error -> {
                 if (remoteResult.code == HttpURLConnection.HTTP_FORBIDDEN) {
                     BasicMessage(message = stringResource(R.string.access_email_rationale)) { context ->
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        context.startActivity(Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse("mailto:") // Only email apps handle this.
                             putExtra(Intent.EXTRA_EMAIL, arrayOf("bv.gemapp@gmail.com"))
                             putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.access_email_subject))
                             putExtra(Intent.EXTRA_TEXT, context.getString(R.string.access_email_body))
-                        }
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            val chooser = Intent.createChooser(intent, null)
-                            context.startActivity(chooser)
-                        }
+                        })
                     }
                 } else {
                     val p = errorHandler(LocalContext.current, remoteResult.code, remoteResult.message)

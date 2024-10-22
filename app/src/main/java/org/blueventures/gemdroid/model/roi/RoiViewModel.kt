@@ -115,7 +115,7 @@ class RoiViewModel(
     fun clearHistoricalMonths() { historicalMonths = emptyList() }
     fun currentYear() = thisYear()
 
-    fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, true, callback)
+    fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, forceLandsat.default, callback)
     fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonths, historicalYearStart, historicalMonths)
 
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,

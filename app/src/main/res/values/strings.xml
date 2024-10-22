@@ -272,4 +272,25 @@
     <string name="satellites">Satellites:</string>
     <string name="sentinel_2">Sentinel-2</string>
     <string name="landsat">Landsat</string>
+    <string name="expand_app_menu">expand app menu</string>
+    <string name="introduction">Introduction</string>
+    <string name="welcome_to_gem">Welcome to GEM!</string>
+    <string name="tagline">A mangrove mapping tool harnessing digital technology and cloud data analytics to map and monitor mangrove change and accelerate community-led blue carbon projects.</string>
+    <string name="bv_logo_context_description">the blue ventures logo, tap to visit our website</string>
+    <string name="from_blue_ventures_conservation">from Blue Ventures Conservation</string>
+    <string name="gem_resources">GEM Resources</string>
+    <string name="tap_to_open">Tap on the items below to open them in your browser</string>
+    <string name="user_manual">User Manual</string>
+    <string name="publication">Publication</string>
+    <string name="desktop_repo">Desktop Repository</string>
+    <string name="to_see_this_introduction_again">To see this introduction again:</string>
+    <string name="in_the_top_right_of_the_screen">In the top right of the screen </string>
+    <string name="arrow_to_the_top_right">arrow to the top right</string>
+    <string name="tap_on">Tap on </string>
+    <string name="to_expand_the_app_s_menu">to expand the app\'s menu.</string>
+    <string name="then_tap_on_settings">Then tap on Settings.</string>
+    <string name="from_the_settings_menu_tap_on">From the Settings menu, tap on</string>
+    <string name="show_introduction">[Show Introduction].</string>
+    <string name="it_s_time_to_create_your_first_project">It\'s time to create your first Project!</string>
+    <string name="go_to_my_projects">go to My Projects</string>
 </resources>

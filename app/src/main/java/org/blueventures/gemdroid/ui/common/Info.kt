@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -29,7 +30,11 @@ object Info {
     fun BlueLine() = HorizontalDivider(color = SkyBlue, thickness = 1.dp)
 
     @Composable
-    fun Space() = Spacer(modifier = Modifier.height(16.dp))
+    fun Space(spaces: Int = 1) {
+        for (i in 0 until spaces) {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
 
     @Composable
     fun Header(title: String, truncate: Boolean = true) {
@@ -55,17 +60,17 @@ object Info {
     }
 
     @Composable
-    fun Txt(text: String, fontSize: TextUnit = txtSize, truncate: Boolean = false) {
+    fun Txt(text: String, fontSize: TextUnit = txtSize, verticalPadding: Dp = 0.dp, textAlign: TextAlign? = null, truncate: Boolean = false) {
         val maxLines = if (truncate) 1 else Int.MAX_VALUE
-        Text(text, fontSize = fontSize, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+        Text(text, modifier = Modifier.padding(vertical = verticalPadding), fontSize = fontSize, textAlign = textAlign, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
     }
 
     @Composable
-    fun Row(verticalPadding: Dp = 4.dp, enabled: Boolean = false, click: Click = {}, content: @Composable RowScope.() -> Unit) {
+    fun Row(verticalPadding: Dp = 4.dp, enabled: Boolean = false, click: Click = {}, horizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween, content: @Composable RowScope.() -> Unit) {
         Row(modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = verticalPadding, bottom = verticalPadding)
             .fillMaxWidth().clickable(enabled = enabled, onClick = click),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = horizontalArrangement,
             verticalAlignment = Alignment.CenterVertically)
         {
             content()

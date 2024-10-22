@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +38,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.BasicActions
+import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.settings.AppSettings
@@ -46,6 +46,7 @@ import org.blueventures.gemdroid.ui.signin.SignIn
 import org.blueventures.gemdroid.ui.theme.GEMDroidTheme
 import org.blueventures.gemdroid.ui.theme.OffWhite
 import org.blueventures.gemdroid.ui.theme.SkyBlue
+import org.blueventures.gemdroid.ui.welcome.Welcome
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,15 +59,27 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GEMApp(activity: ComponentActivity) {
-    val settingsViewModel: SettingsViewModel by activity.viewModels()
+    val settingsModel: SettingsViewModel by activity.viewModels()
     val roiModel: RoiViewModel by activity.viewModels()
     val analysisModel: AnalysisViewModel by activity.viewModels()
     analysisModel.init(activity)
 
+    val (welcomeShown, setWelcomeShown) = remember { mutableStateOf<Boolean?>(null) }
+    when (welcomeShown) {
+        null -> {
+            settingsModel.getWelcomeShown(activity, setWelcomeShown)
+        }
+        else -> {
+            GEMTheme(activity, settingsModel, analysisModel, roiModel, welcomeShown)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GEMTheme(activity: ComponentActivity, settingsModel: SettingsViewModel, analysisModel: AnalysisViewModel, roiModel: RoiViewModel, welcomeShown: Boolean) {
     val nav = rememberNavController()
     val snackHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -107,12 +120,13 @@ fun GEMApp(activity: ComponentActivity) {
         ) { padding ->
             NavHost(
                 navController = nav,
-                startDestination = Roi.Routes.list,
+                startDestination = if (welcomeShown) Roi.Routes.list else Welcome.Routes.landing,
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
             ) {
-                AppSettings.screens(this, nav, activity, settingsViewModel, appBar, snack)
+                Welcome.screens(this, nav, activity, settingsModel, appBar)
+                AppSettings.screens(this, nav, settingsModel, appBar)
                 Roi.screens(this, nav, activity, roiModel, analysisModel, appBar, snack)
                 Analysis.screens(this, nav, analysisModel, appBar, snack)
             }

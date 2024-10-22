@@ -272,4 +272,25 @@
     <string name="satellites">Satellites :</string>
     <string name="sentinel_2">Sentinel-2</string>
     <string name="landsat">Landsat</string>
+    <string name="expand_app_menu">développer le menu de l\'application</string>
+    <string name="introduction">Introduction</string>
+    <string name="welcome_to_gem">Bienvenue chez GEM !</string>
+    <string name="tagline">Un outil de cartographie des mangroves exploitant la technologie numérique et l\'analyse des données cloud pour cartographier et surveiller les changements dans les mangroves et accélérer les projets de carbone bleu menés par les communautés.</string>
+    <string name="bv_logo_context_description">le logo bleu de Ventures, appuyez pour visiter notre site Web</string>
+    <string name="from_blue_ventures_conservation">de Blue Ventures Conservation</string>
+    <string name="gem_resources">Ressources GEM</string>
+    <string name="tap_to_open">Appuyez sur les éléments ci-dessous pour les ouvrir dans votre navigateur</string>
+    <string name="user_manual">Manuel d\'utilisation</string>
+    <string name="publication">Publication</string>
+    <string name="desktop_repo">Référentiel de bureau</string>
+    <string name="to_see_this_introduction_again">Pour revoir cette introduction :</string>
+    <string name="in_the_top_right_of_the_screen">En haut à droite de l\'écran </string>
+    <string name="arrow_to_the_top_right">flèche en haut à droite</string>
+    <string name="tap_on">Appuyez sur </string>
+    <string name="to_expand_the_app_s_menu">pour développer le menu de l\'application.</string>
+    <string name="then_tap_on_settings">Appuyez ensuite sur Paramètres.</string>
+    <string name="from_the_settings_menu_tap_on">Dans le menu Paramètres, appuyez sur</string>
+    <string name="show_introduction">[Afficher l\'introduction].</string>
+    <string name="it_s_time_to_create_your_first_project">Il est temps de créer votre premier projet !</string>
+    <string name="go_to_my_projects">allez dans Mes projets</string>
 </resources>

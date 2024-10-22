@@ -39,7 +39,7 @@ data class AppBarUpdate(
 fun BasicActions(settings: Click?, signOut: Click) {
     val (menu, setMenu) = remember { mutableStateOf(false) }
     IconButton(onClick = { setMenu(!menu) }) {
-        Icon(Icons.Filled.MoreVert, "")
+        Icon(Icons.Filled.MoreVert, stringResource(R.string.expand_app_menu))
     }
     DropdownMenu(expanded = menu, onDismissRequest = { setMenu(false) }, modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
         if (settings != null) {
