@@ -20,7 +20,8 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.once
-import org.blueventures.gemdroid.ui.theme.g2R2BHex
+import org.blueventures.gemdroid.ui.theme.makeColorPalette
+import org.blueventures.gemdroid.ui.theme.toHexString
 
 object ScatterPlot {
     @Composable
@@ -48,10 +49,10 @@ object ScatterPlot {
                 .fillMaxHeight(),
             update = { layout ->
                 var idx = 0
-                val size = classes.size
+                val pal = makeColorPalette(classes)
                 val entries = mutableListOf<DataEntry>()
                 for ((cls, pts) in data) {
-                    val color = g2R2BHex(idx, size)
+                    val color = pal[idx].toHexString()
                     for (pt in pts) {
                         entries.add(ScatterDataEntry(cls, color, pt.id, pt.x, pt.y))
                     }

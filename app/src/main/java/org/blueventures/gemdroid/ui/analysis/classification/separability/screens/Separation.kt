@@ -29,7 +29,8 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.once
-import org.blueventures.gemdroid.ui.theme.g2R2BHex
+import org.blueventures.gemdroid.ui.theme.makeColorPalette
+import org.blueventures.gemdroid.ui.theme.toHexString
 
 object Separation {
     @Composable
@@ -74,12 +75,12 @@ object Separation {
                     cartesian.title("")
                     cartesian.xAxis(0).staggerMode(true)
 
-                    val size = classes.size
                     val entries = mutableListOf<DataEntry>()
+                    val pal = makeColorPalette(classes)
                     for ((idx, cls) in classes.withIndex()) {
                         val cdat = data.second[cls] ?: continue
                         if (cdat.size < 5) continue
-                        entries.add(BoxDataEntry(cls, g2R2BHex(idx, size), cdat[0], cdat[1], cdat[2], cdat[3], cdat[4]))
+                        entries.add(BoxDataEntry(cls, pal[idx].toHexString(), cdat[0], cdat[1], cdat[2], cdat[3], cdat[4]))
                     }
 
                     val box = cartesian.box(entries)

@@ -20,7 +20,8 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationDat
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
-import org.blueventures.gemdroid.ui.theme.g2R2BHex
+import org.blueventures.gemdroid.ui.theme.makeColorPalette
+import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
 class ClassificationViewModel(
@@ -111,10 +112,10 @@ class ClassificationViewModel(
     }
 
     private fun makePalette(cra: CRA): List<String> {
+        val colors = makeColorPalette(cra.contemporaryCRA.stringClassValues)
         val pal = mutableListOf<String>()
-        val size = cra.contemporaryCRA.stringClassValues.size
-        for (i in 0 until size) {
-            pal.add(g2R2BHex(i, size))
+        for (c in colors) {
+            pal.add(c.toHexString())
         }
         return pal
     }

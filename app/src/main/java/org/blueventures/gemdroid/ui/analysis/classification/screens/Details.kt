@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.theme.g2R2B
+import org.blueventures.gemdroid.ui.theme.makeColorPalette
 
 object Details {
     @Composable
@@ -34,11 +34,11 @@ object Details {
 
     @Composable
     private fun Legend(urls: ClassificationURLs) {
-        val size = urls.classes.size
+        val pal = makeColorPalette(urls.classes)
         Info.Block {
             Info.Header(stringResource(R.string.legend))
             urls.classes.forEachIndexed { i, clz ->
-                LegendRow(clz, g2R2B(i, size))
+                LegendRow(clz, pal[i])
             }
         }
     }

@@ -20,7 +20,8 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.theme.g2R2BHex
+import org.blueventures.gemdroid.ui.theme.makeColorPalette
+import org.blueventures.gemdroid.ui.theme.toHexString
 import kotlin.math.round
 
 object Stats {
@@ -28,10 +29,15 @@ object Stats {
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar) {
         appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
 
-        val size = viewModel.analysisRegion.allClasses.size
         val classColors = mutableMapOf<String, String>()
-        for ((i, classDynamics) in viewModel.analysisRegion.allClasses.withIndex()) {
-            classColors[classDynamics.name] = g2R2BHex(i, size)
+        val classNames = mutableListOf<String>()
+        for (classDynamics in viewModel.analysisRegion.allClasses) {
+            classNames.add(classDynamics.name)
+        }
+
+        val pal = makeColorPalette(classNames)
+        for ((i, className) in classNames.withIndex()) {
+            classColors[className] = pal[i].toHexString()
         }
 
         Col.MidPad(arrange = Arrangement.Top, scroll = true) {
