@@ -48,10 +48,11 @@ data class Fields(
     val numerics: List<String>? = null,
     val strings: List<String>? = null,
     val stringValues: Map<String, List<String>>? = null,
+    val numericValues: Map<String, List<String>>? = null,
     val chosenNumeric: String? = null,
     val chosenString: String? = null,
     val chosenStringValues: List<String>? = null,
 ) {
-    fun parsedLocally() = numerics != null && strings != null && stringValues != null
+    fun parsedLocally() = numerics != null && strings != null && stringValues != null && numericValues != null
     fun complete() = chosenNumeric != null && chosenString != null && chosenStringValues != null
 }

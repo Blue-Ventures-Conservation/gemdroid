@@ -71,6 +71,7 @@ class CRADatasource(
         val numericsMap = mutableMapOf<String, OrderedField>()
         val stringsMap = mutableMapOf<String, OrderedField>()
         val stringValues = mutableMapOf<String, List<String>>()
+        val numericValues = mutableMapOf<String, List<String>>()
 
         val zipResult = Shapefile.file(crasDir, files, names, nameCheck = { shpName ->
             when {
@@ -124,6 +125,7 @@ class CRADatasource(
 
             if (matched) {
                 numerics.add(nf)
+                numericValues[nf] = nof.values.sorted()
             }
         }
 
@@ -137,7 +139,7 @@ class CRADatasource(
 
         return Result.success(CRAFile(
             localFile = zipFile,
-            fields = Fields(numerics, strings, stringValues))
+            fields = Fields(numerics, strings, stringValues, numericValues))
         )
     }
 
@@ -197,20 +199,31 @@ class CRADatasource(
                 val s2 = f2.strings!!
                 val sv1 = f1.stringValues!!
                 val sv2 = f2.stringValues!!
-                if (s1.containsAll(s2) && n1.containsAll(n2)) {
-                    var success = true
+                val nv1 = f1.numericValues!!
+                val nv2 = f2.numericValues!!
 
-                    for (entry in sv1) {
-                        if (sv2.contains(entry.key) && entry.value.containsAll(sv2[entry.key]!!)) {
-                            continue
+                val sx = s1.intersect(s2.toSet())
+                val nx = n1.intersect(n2.toSet())
+                if (sx.isNotEmpty() && nx.isNotEmpty()) {
+                    var matches = 0
+                    val svx = mutableMapOf<String, List<String>>()
+                    val nvx = mutableMapOf<String, List<String>>()
+
+                    for (s in sx) {
+                        if (sv1[s]!! == sv2[s]!!) {
+                            for (n in nx) {
+                                if (nv1[n]!! == nv2[n]!! && sv1[s]!!.size == nv1[n]!!.size) {
+                                    svx[s] = sv1[s]!!
+                                    nvx[n] = nv1[n]!!
+                                    matches++
+                                    break
+                                }
+                            }
                         }
-
-                        success = false
-                        break
                     }
 
-                    if (success) {
-                        Result.success(f1)
+                    if (matches > 0) {
+                        Result.success(Fields(nx.toList(), sx.toList(), svx, nvx))
                     } else {
                         Result.failure(mismatch)
                     }
