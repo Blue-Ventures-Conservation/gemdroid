@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.model.analysis.dynamics
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
@@ -47,6 +48,7 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.theme.Clear
 import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.SkyBlue
@@ -91,9 +93,10 @@ class DynamicsViewModel(
 
     override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return background({
+            val boundary = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(Poly.PolygonGroup(polygonTypePlural, polys))
+            listOf(boundary, Poly.PolygonGroup(polygonTypePlural, polys, Clear.toArgb(), 0x7FB4B4B4, true))
         }, callback)
     }
     override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)

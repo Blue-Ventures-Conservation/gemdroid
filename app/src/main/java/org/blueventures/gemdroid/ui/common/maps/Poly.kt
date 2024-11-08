@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.theme.blend3Way
 
 object Poly {
     data class NamedPoly(val name: String, val polygon: MultiPolyPts)
-    data class PolygonGroup(val menuTitle: Int, val polygons: List<NamedPoly>, val color: Int? = null, val startChecked: Boolean = true)
+    data class PolygonGroup(val menuTitle: Int, val polygons: List<NamedPoly>, val color: Int? = null, val strokeColor: Int = 0x7F000000, val dashes: Boolean = false, val startChecked: Boolean = true)
     data class NamedPolyOptions(val name: String, val options: List<PolygonOptions>)
     data class PolyOptionsGroup(val menuTitle: Int, val namedOptions: List<NamedPolyOptions>, val startChecked: Boolean = true)
 
@@ -29,7 +29,7 @@ object Poly {
                     val group = grps[gindex]
                     val opts = mutableListOf<NamedPolyOptions>()
                     group.polygons.forEachIndexed { _, poly ->
-                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, fill = group.color ?: blend3Way(LightGreen, MildRed, SkyBlue, gindex, grps.size, 0x7F))))
+                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, group.color ?: blend3Way(LightGreen, MildRed, SkyBlue, gindex, grps.size, 0x7F), group.strokeColor, group.dashes)))
                     }
                     groups.add(PolyOptionsGroup(group.menuTitle, opts, group.startChecked))
                 }

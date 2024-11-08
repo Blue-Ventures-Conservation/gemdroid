@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics.screens
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
@@ -28,7 +28,7 @@ object DynamicsMap {
             viewModel.urls = urls
 
             Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), floating = {
-                MapActionButton(details) { Icon(Icons.Filled.Info, stringResource(R.string.view_dynamics_details)) }
+                MapActionButton(details) { Icon(Icons.Filled.TableChart, stringResource(R.string.view_dynamics_details)) }
             }, layers = object : Layers.Model<DynamicsURLs>() {
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()

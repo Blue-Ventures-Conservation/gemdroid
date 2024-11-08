@@ -10,24 +10,22 @@ import androidx.compose.ui.platform.LocalContext
 
 object Orient {
     @Composable
-    fun Portrait() {
-        Lock(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-    }
+    fun Portrait() = Lock(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
 
     @Composable
-    fun Landscape() {
-        Lock(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    }
+    fun Landscape() = Lock(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+
+    @Composable
+    fun Unspecified() = Lock(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
 
     @Composable
     private fun Lock(orientation: Int) {
         val context = LocalContext.current
         DisposableEffect(orientation) {
             val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
-            val originalOrientation = activity.requestedOrientation
             activity.requestedOrientation = orientation
             onDispose {
-                activity.requestedOrientation = originalOrientation
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
     }

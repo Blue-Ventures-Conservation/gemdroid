@@ -1,5 +1,7 @@
 package org.blueventures.gemdroid.data
 
+import com.google.android.gms.maps.model.Dash
+import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.PolyUtil
@@ -126,10 +128,13 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
         fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
         fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters
 
-        fun opts(multi: MultiPolyPts, stroke: Float = 4f, fill: Int = 0x7F00FF00): List<PolygonOptions> {
+        fun opts(multi: MultiPolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, dashes: Boolean = false): List<PolygonOptions> {
+            val gap = Gap(20f)
+            val dash = Dash(20f)
+
             val opts = mutableListOf<PolygonOptions>()
             for (poly in multi) {
-                val opt = PolygonOptions().strokeWidth(stroke).fillColor(fill).zIndex(Float.MAX_VALUE)
+                val opt = PolygonOptions().strokeWidth(4f).strokeColor(strokeColor).fillColor(fill).strokePattern(if (dashes) listOf(gap, dash) else null).zIndex(Float.MAX_VALUE)
 
                 var first = true
                 for (ring in poly) {
@@ -147,12 +152,12 @@ class PolygonDrawer(override val maxPoints: Int = 100, private val points: Mutab
             return opts
         }
 
-        private fun ringOpts(points: List<LatLng>, stroke: Float = 4f, fill: Int = 0x7F00FF00): PolygonOptions? {
+        private fun ringOpts(points: List<LatLng>): PolygonOptions? {
             if (points.size < 3) {
                 return null
             }
 
-            val options = opts(listOf(listOf(points)), stroke, fill)
+            val options = opts(listOf(listOf(points)))
             if (options.isEmpty()) {
                 return null
             }
