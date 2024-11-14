@@ -8,4 +8,5 @@ class AnalysisRepository(
 ): ApiRepository(datasource) {
     fun getStage(roiDir: File) = goFlow { datasource.getStage(roiDir) }
     fun makeVisualizeTileDirs(roiDir: File) = goFlow { datasource.makeVisualizeTileDirs(roiDir) }
+    fun deleteComposites(roiDir: File) = goFlow { datasource.deleteComposites(roiDir) }
 }

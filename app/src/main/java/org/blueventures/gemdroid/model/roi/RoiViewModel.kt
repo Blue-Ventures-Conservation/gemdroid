@@ -42,6 +42,7 @@ class RoiViewModel(
     var historicalMonths: List<Int> = emptyList()
     var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
     var importedROI: MultiPolyPts = emptyList()
+    var importedBufferDist: Int = -1
     var forceLS: Boolean = true
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
@@ -60,6 +61,7 @@ class RoiViewModel(
         historicalMonths,
         multiPolyFromState(),
         polygons,
+        buffDist = importedBufferDist,
         regionUUID = roiUUID(),
         forceLandsat = forceLS
     )
@@ -79,6 +81,7 @@ class RoiViewModel(
         historicalYearStart = roi.histYearStart
         historicalYearEnd = roi.histYearEnd
         historicalMonths = roi.histMonths ?: emptyList()
+        importedBufferDist = roi.buffDist
         polygons.clear()
         polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) })
         if (roi.polygon.coordinates.size > 1) {

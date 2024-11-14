@@ -127,7 +127,7 @@ fun GEMTheme(activity: ComponentActivity, settingsModel: SettingsViewModel, anal
                 Welcome.screens(this, nav, activity, settingsModel, appBar)
                 AppSettings.screens(this, nav, settingsModel, appBar)
                 Roi.screens(this, nav, activity, roiModel, analysisModel, appBar, snack)
-                Analysis.screens(this, nav, analysisModel, appBar, snack)
+                Analysis.screens(this, nav, analysisModel, roiModel, appBar, snack)
             }
         }
     }

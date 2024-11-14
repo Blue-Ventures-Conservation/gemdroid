@@ -49,9 +49,7 @@ object Dashboard {
 
     @Composable
     fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
-        Roi.Loader(viewModel::getROI, snack, {
-            back()
-        }) {
+        Roi.Loader(viewModel::getROI, snack, back) {
             var roi = it
             if (it.regionUUID == null) {
                 roi = it.copy(regionUUID = roiUUID())

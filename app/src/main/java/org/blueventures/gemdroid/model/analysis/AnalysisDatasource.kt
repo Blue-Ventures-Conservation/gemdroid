@@ -40,6 +40,8 @@ class AnalysisDatasource(
         return Result.success(Unit)
     }
 
+    fun deleteComposites(roiDir: File) = FileService.deleteDir(visDir(roiDir))
+
     companion object {
         // Buffer
         private const val bufferFile = "buffer_dist.json"

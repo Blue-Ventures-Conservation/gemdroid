@@ -303,6 +303,9 @@
     <string name="exposed_areas_of_mudflats_in_between_mangroves">• Exposed areas of mudflats in between mangroves may appear more damp or even as water in the HOT composite.</string>
     <string name="water_in_river_channels">• Water in river channels and around estuaries may be a darker blue in the HOT composite (indicating deeper water), whilst a lighter grainier blue in the LOT composite (due to turbid water that is holding more coastal sediment).</string>
     <string name="there_are_no_missing_pixels">• There are no missing pixels present (a very small number of missing pixels in places where mangroves are unlikely to be is ok).</string>
-    <string name="do_your_composites_look_good">Do your composites look good?</string>
-    <string name="tap_here_to_confirm_the_composites_look_good">Tap here to confirm the composites look good</string>
+    <string name="tap_the_arrows_to_continue">Tap the Arrows When Finished</string>
+    <string name="tap_here_to_continue">Tap here to continue</string>
+    <string name="do_your_composites_look_fit_for_purpose">Do your composites look fit for purpose?</string>
+    <string name="yes_move_on_to_classification">Yes, move on to classification!</string>
+    <string name="no_let_me_edit_the_years_and_months">No, let me edit the years and months.</string>
 </resources>

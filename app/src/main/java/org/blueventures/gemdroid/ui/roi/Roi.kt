@@ -46,6 +46,7 @@ object Roi {
             }, activity.filesDir, appBar, snack, next = {
                 nav.navigate(Analysis.Routes.dashboard)
             }) {
+                viewModel.isAssessmentEditor = false
                 nav.navigate(Routes.name)
             }
         }
@@ -96,7 +97,9 @@ object Roi {
             nav.popBackStack()
         }) {
             HistoricalMonths.Screen(viewModel, appBar, snack) {
-                if (viewModel.importedROI.isEmpty()) {
+                if (viewModel.isAssessmentEditor) {
+                    nav.navigate(Routes.overview)
+                } else if (viewModel.importedROI.isEmpty()) {
                     nav.navigate(Routes.coarse_polygon_purpose)
                 } else {
                     nav.navigate(Routes.prefix+Polygons.Routes.option)

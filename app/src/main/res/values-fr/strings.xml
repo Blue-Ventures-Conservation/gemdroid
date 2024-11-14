@@ -303,6 +303,9 @@
     <string name="exposed_areas_of_mudflats_in_between_mangroves">• Les zones exposées de vasières entre les mangroves peuvent apparaître plus humides ou même sous forme d\'eau dans le composite HOT.</string>
     <string name="water_in_river_channels">• L\'eau dans les canaux fluviaux et autour des estuaires peut être d\'un bleu plus foncé dans le composite HOT (indiquant des eaux plus profondes), tandis qu\'un bleu plus clair et plus granuleux dans le composite LOT (en raison d\'une eau trouble qui retient davantage de sédiments côtiers).</string>
     <string name="there_are_no_missing_pixels">• Il n\'y a aucun pixel manquant (un très petit nombre de pixels manquants dans des endroits où il est peu probable qu\'il y ait des mangroves est acceptable).</string>
-    <string name="do_your_composites_look_good">Vos composites sont-ils beaux ?</string>
-    <string name="tap_here_to_confirm_the_composites_look_good">Appuyez ici pour confirmer que les composites semblent bons</string>
+    <string name="tap_the_arrows_to_continue">Flèches une fois terminé</string>
+    <string name="tap_here_to_continue">Appuyez ici pour continuer</string>
+    <string name="do_your_composites_look_fit_for_purpose">Vos composites semblent-ils adaptés à leur usage ?</string>
+    <string name="yes_move_on_to_classification">Oui, passez au classement !</string>
+    <string name="no_let_me_edit_the_years_and_months">Non, laissez-moi modifier les années et les mois.</string>
 </resources>

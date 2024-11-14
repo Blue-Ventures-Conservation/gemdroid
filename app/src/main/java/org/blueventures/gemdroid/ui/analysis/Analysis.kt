@@ -4,6 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
+import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.assess.Assess
 import org.blueventures.gemdroid.ui.analysis.assess.Assess.Routes.assess_description
@@ -47,11 +48,12 @@ object Analysis {
         }
     }
 
-    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun) {
+    fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, roiViewModel: RoiViewModel, appBar: AppBar, snack: SnackFun) {
         // Dashboard
         b.backHandler(Routes.dashboard, {
             nav.popClear(Roi.Routes.list)
         }) { back ->
+            roiViewModel.isAssessmentEditor = false
             Dashboard.Screen(viewModel, appBar, snack, back, next = {
                 Routes.dashboardNext(viewModel.stage)?.let { route ->
                     nav.navigate(route)
@@ -100,7 +102,7 @@ object Analysis {
         }
 
         // Composite Assessment
-        Assess.screens(b, nav, viewModel, appBar)
+        Assess.screens(b, nav, viewModel, roiViewModel, appBar, snack)
 
         // CRAs
         CRA.screens(b, nav, viewModel.craViewModel, appBar, snack)

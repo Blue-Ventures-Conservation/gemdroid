@@ -160,6 +160,7 @@ class AnalysisViewModel(
     }
 
     fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
+    fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
     fun excludedRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return if (roi.excludedRegions.isNotEmpty()) {
