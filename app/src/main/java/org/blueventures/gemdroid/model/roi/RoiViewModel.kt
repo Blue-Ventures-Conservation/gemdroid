@@ -127,6 +127,7 @@ class RoiViewModel(
 
     var filesDir: File = File("")
     override val named = false
+    override fun goBack() { importedROI = emptyList() }
     override val appBarTitleId = R.string.create_coarse_roi
     override fun appBarTitle(title: String) = title
     override var visualizer: Visualize.Visualizer? = null
@@ -205,6 +206,8 @@ class RoiViewModel(
                 multi.first().first().toMutableList()
             }
     }
+
+    var isAssessmentEditor = false
 
     val coarseModel: Polygon.Model = CoarsePolygonModel(this)
 }

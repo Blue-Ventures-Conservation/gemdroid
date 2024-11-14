@@ -5,6 +5,8 @@ import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
 import org.blueventures.gemdroid.popClear
+import org.blueventures.gemdroid.ui.analysis.assess.Assess
+import org.blueventures.gemdroid.ui.analysis.assess.Assess.Routes.assess_description
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
 import org.blueventures.gemdroid.ui.analysis.classification.Classification.Routes.map
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
@@ -37,6 +39,7 @@ object Analysis {
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
                 Stage.BUFFER -> buffer
+                Stage.COMPOSITES -> assess_description
                 Stage.CRAS -> purpose
                 Stage.CLASSIFICATION -> map
                 else -> null
@@ -95,6 +98,9 @@ object Analysis {
         b.backHandler(Routes.boundary, nav::popBackStack) {
             Boundary.Screen(viewModel, appBar)
         }
+
+        // Composite Assessment
+        Assess.screens(b, nav, viewModel, appBar)
 
         // CRAs
         CRA.screens(b, nav, viewModel.craViewModel, appBar, snack)

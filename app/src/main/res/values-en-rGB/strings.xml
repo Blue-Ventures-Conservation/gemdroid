@@ -28,7 +28,7 @@
     <string name="hist_high_tide">Historical High Tide</string>
     <string name="hist_low_tide">Historical Low Tide</string>
     <string name="unexpected_error">Something unexpected went wrong there! You can swipe down to try again.</string>
-    <string name="please_wait">Please Wait</string>
+    <string name="please_wait">Please leave this screen open</string>
     <string name="this_may_take_minutes">This may take a few minutes …</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="next_button">Next</string>
@@ -162,7 +162,7 @@
     <string name="unnamed">Unnamed</string>
     <string name="roi_buffer_title">ROI Buffer</string>
     <string name="select_buffer_distance">Select buffer distance:</string>
-    <string name="select_months_range">Month range (inclusive):</string>
+    <string name="select_months_range">Months:</string>
     <string name="select_bounding_years">Year range (inclusive):</string>
     <string name="please_select_years_within">Please select years less than %s years apart</string>
     <string name="year_compare_fail">Year on the left must be equal to or less than the one on right</string>
@@ -293,4 +293,16 @@
     <string name="show_introduction">[Show Introduction].</string>
     <string name="it_s_time_to_create_your_first_project">It\'s time to create your first Project!</string>
     <string name="go_to_my_projects">go to My Projects</string>
+    <string name="click_next_to_view_and_assess">Click next to view and assess whether your imagery is fit for purpose to be classified!</string>
+    <string name="assess_imagery">Assess Imagery</string>
+    <string name="you_will_assess">On the next screen you will assess whether your imagery is fit for purpose and ready to be classified.</string>
+    <string name="fit_for_purpose_if">Your 4 composites (contemporary and historical, for both highest observed tide (HOT) and lowest observed tide (LOT)) are fit for purpose if:</string>
+    <string name="difference_in_tide_levels">• There is visible difference in tide levels between high and low tide for both contemporary and historical composites.</string>
+    <string name="exposed_tidal_flats">• Look out for exposed tidal flats in the LOT composite, if any are present these should be smaller or fully inundated by the incoming tide in the HOT composite.</string>
+    <string name="the_coastline_may_have_shifted_inland">• The coastline may have shifted inland slightly in the HOT composite.</string>
+    <string name="exposed_areas_of_mudflats_in_between_mangroves">• Exposed areas of mudflats in between mangroves may appear more damp or even as water in the HOT composite.</string>
+    <string name="water_in_river_channels">• Water in river channels and around estuaries may be a darker blue in the HOT composite (indicating deeper water), whilst a lighter grainier blue in the LOT composite (due to turbid water that is holding more coastal sediment).</string>
+    <string name="there_are_no_missing_pixels">• There are no missing pixels present (a very small number of missing pixels in places where mangroves are unlikely to be is ok).</string>
+    <string name="do_your_composites_look_good">Do your composites look good?</string>
+    <string name="tap_here_to_confirm_the_composites_look_good">Tap here to confirm the composites look good</string>
 </resources>

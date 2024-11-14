@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.common.Info
 object Purpose {
     @Composable
     fun Screen(appBar: AppBar, next: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
         Col.Col(scroll = true) {
             Info.Txt(stringResource(R.string.you_will_import_cras))
             Info.Txt(stringResource(R.string.cras_simple_description))

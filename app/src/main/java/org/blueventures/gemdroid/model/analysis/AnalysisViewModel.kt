@@ -11,6 +11,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.analysis.Buffer
 import org.blueventures.gemdroid.data.analysis.Buffers
+import org.blueventures.gemdroid.data.analysis.CompositesAssessed
 import org.blueventures.gemdroid.data.analysis.ImageryExports
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
@@ -20,6 +21,7 @@ import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buf
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buffersFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.chotTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.clotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.compositesAssessedFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.exportsFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hhotTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hlotTileDir
@@ -156,6 +158,8 @@ class AnalysisViewModel(
         deleteFile(resultsFile(roiDir))
         deleteFile(exportsFile(roiDir))
     }
+
+    fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
 
     fun excludedRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         return if (roi.excludedRegions.isNotEmpty()) {

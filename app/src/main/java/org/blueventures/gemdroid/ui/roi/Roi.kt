@@ -8,6 +8,7 @@ import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
+import org.blueventures.gemdroid.ui.analysis.assess.Assess
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
@@ -121,7 +122,12 @@ object Roi {
         b.backHandler(Routes.overview, nav::popBackStack) {
             Overview.Screen(viewModel, activity.filesDir, appBar, snack) {
                 viewModel.clearState()
-                nav.popClear(Routes.list)
+
+                if (viewModel.isAssessmentEditor) {
+                    nav.popClear(Assess.Routes.assess_description)
+                } else {
+                    nav.popClear(Routes.list)
+                }
             }
         }
     }

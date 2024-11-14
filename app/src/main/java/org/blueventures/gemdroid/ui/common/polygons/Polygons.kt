@@ -16,6 +16,7 @@ import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeShapefile
 object Polygons {
     interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model, PolygonsOverview.Model {
         val named: Boolean
+        fun goBack()
     }
 
     interface AppBarTitler {
@@ -55,6 +56,7 @@ object Polygons {
         b.backHandler(routePolygonsOption, {
             model.polygons.clear()
             model.drawer.clear()
+            model.goBack()
             nav.popBackStack()
         }) { back ->
             PolygonsOption.Screen(model, appBar, snack, back, skip = {

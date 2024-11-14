@@ -33,7 +33,7 @@ fun PleaseWait() {
 @Composable
 fun TitledProgress(header: String, footer: String) {
     Col.MidPad {
-        Text(text = header, fontSize = 32.sp, textAlign = TextAlign.Center)
+        Text(text = header, fontSize = 24.sp, textAlign = TextAlign.Center)
         CircularProgressIndicator(modifier = Modifier.size(152.dp))
         Text(text = footer, fontSize = 24.sp, textAlign = TextAlign.Center)
     }

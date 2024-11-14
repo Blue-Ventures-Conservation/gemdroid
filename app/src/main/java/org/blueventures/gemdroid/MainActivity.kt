@@ -38,7 +38,6 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarState
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.BasicActions
-import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.roi.Roi
 import org.blueventures.gemdroid.ui.settings.AppSettings

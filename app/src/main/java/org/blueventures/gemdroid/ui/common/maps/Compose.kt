@@ -35,7 +35,6 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
@@ -58,7 +57,7 @@ import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 
 object Compose {
-    data class Checker(override val name: String, val state: Boolean, val setState: (Boolean) -> Unit): Named
+    data class Checker(val name: String, var state: Boolean = true, var setState: (Boolean) -> Unit = {})
 
     @Composable
     fun <T : URLs> Screen(
@@ -176,44 +175,60 @@ object Compose {
             val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
             val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
             var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType!!)) }
-            GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
-                touchState.value = pt
-            }) {
-                val checkers = mutableListOf<Checker>()
-                layers?.let {
-                    Tiles(layers, checkers)
+
+            val checkers = tileCheckers(layers)
+            val (pair, setPair) = remember { mutableStateOf<Pair<List<Checker>?, List<Poly.PolyOptionsGroup>?>?>(null) }
+            when (pair) {
+                null -> polygonCheckers(poly, setPair)
+                else -> {
+                    pair.first?.let {
+                        checkers.addAll(it)
+                    }
+
+                    var groups: List<Poly.PolyOptionsGroup> = emptyList()
+                    pair.second?.let {
+                        groups = it
+                    }
+
+                    GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
+                        touchState.value = pt
+                    }) {
+                        layers?.let {
+                            Tiles(layers, checkers)
+                        }
+
+                        poly?.let {
+                            Polygons(poly, groups, checkers, touchState)
+                        }
+
+                        if (checkers.isNotEmpty()) {
+                            appBar.Update(AppBarUpdate(
+                                title = title,
+                                actions = { LayersDropdown(checkers) }
+                            ))
+                        }
+
+                        draw?.let {
+                            DrawTouch(draw, clearState, drawState, removeState, touchState)
+                        }
+                    }
+
+                    MapActionButton({
+                        val values = MapType.values()
+                        val size = values.size
+
+                        var next = (values.indexOf(properties.mapType) + 1) % size
+                        if (next == MapType.NONE.value) {
+                            next = (next + 1) % size
+                        }
+                        val mt = values[next]
+
+                        properties = MapProperties(isMyLocationEnabled = gps, mapType = mt)
+                        storage?.setMapType(ctx, mt)
+                    }, Alignment.TopStart) {
+                        Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
+                    }
                 }
-
-                poly?.let {
-                    Polygons(poly, checkers, touchState)
-                }
-
-                if (checkers.isNotEmpty()) {
-                    appBar.Update(AppBarUpdate(
-                        title = title,
-                        actions = { LayersDropdown(checkers) }
-                    ))
-                }
-
-                draw?.let {
-                    DrawTouch(draw, clearState, drawState, removeState, touchState)
-                }
-            }
-
-            MapActionButton({
-                val values = MapType.values()
-                val size = values.size
-
-                var next = (values.indexOf(properties.mapType) + 1) % size
-                if (next == MapType.NONE.value) {
-                    next = (next + 1) % size
-                }
-                val mt = values[next]
-
-                properties = MapProperties(isMyLocationEnabled = gps, mapType = mt)
-                storage?.setMapType(ctx, mt)
-            }, Alignment.TopStart) {
-                Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
             }
         }
     }
@@ -308,7 +323,7 @@ object Compose {
 
     @Composable
     @GoogleMapComposable
-    private fun <T : URLs> Tiles(tiles: Layers.Model<T>, checkers: MutableList<Checker>) {
+    private fun <T : URLs> Tiles(tiles: Layers.Model<T>, checkers: List<Checker>) {
         val (urls, setUrls) = remember { mutableStateOf(tiles.initUrls) }
         if (staleCheck(urls)) {
             tiles.getRemote { result ->
@@ -321,52 +336,89 @@ object Compose {
         }
 
         tiles.layerNames.forEachIndexed { index, layer ->
-            val opts = tiles.tileOpts(index, urls)
-            opts.tileProvider?.let { provider ->
-                TileOverlay(layer, provider, opts.zIndex, checkers)
+            var checker: Checker? = null
+            for (c in checkers) {
+                if (c.name == layer) {
+                    checker = c
+                    break
+                }
+            }
+
+            checker?.let {
+                val opts = tiles.tileOpts(index, urls)
+                opts.tileProvider?.let { provider ->
+                    val (visible, setVisible) = remember { mutableStateOf(true) }
+                    it.state = visible
+                    it.setState = setVisible
+                    TileOverlay(provider, visible = it.state, zIndex = opts.zIndex)
+                }
             }
         }
     }
 
     @Composable
-    @GoogleMapComposable
-    private fun TileOverlay(name: String, provider: TileProvider, zIndex: Float, checkers: MutableList<Checker>) {
-        val (checked, setChecked) = remember { mutableStateOf(true) }
-        updateList(Checker(name, checked, setChecked), checkers)
-        TileOverlay(tileProvider = provider, visible = checked, zIndex = zIndex)
+    private fun <T : URLs> tileCheckers(tiles: Layers.Model<T>?): MutableList<Checker> {
+        val checkers = mutableListOf<Checker>()
+        tiles?.layerNames?.forEach { name ->
+            checkers.add(Checker(name))
+        }
+        return checkers
     }
 
     @Composable
     @GoogleMapComposable
-    private fun Polygons(pmodel: Poly.Model, checkers: MutableList<Checker>, lastTouch: MutableState<LatLng?>) {
-        val (groups, setGroups) = remember { mutableStateOf<List<Poly.PolyOptionsGroup>?>(null) }
-        when (groups) {
-            null -> {
-                pmodel.polygonOptions(setGroups)
+    private fun Polygons(pmodel: Poly.Model, groups: List<Poly.PolyOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>) {
+        val firstZ = Float.MAX_VALUE
+
+        val visibilityState = mutableListOf<Boolean>()
+        for (gindex in groups.indices) {
+            val zIndex = firstZ - gindex
+            val group = groups[gindex]
+
+            var checker: Checker? = null
+            for (c in checkers) {
+                if (c.name == stringResource(group.menuTitle)) {
+                    checker = c
+                    break
+                }
             }
-            else -> {
-                val firstZ = Float.MAX_VALUE
 
-                val visibilityState = mutableListOf<Boolean>()
-                for (gindex in groups.indices) {
-                    val zIndex = firstZ - gindex
-                    val group = groups[gindex]
-
-                    if (group.namedOptions.isNotEmpty()) {
-                        val (checked, setChecked) = remember { mutableStateOf(group.startChecked) }
-                        updateList(Checker(stringResource(group.menuTitle), checked, setChecked), checkers)
-                        visibilityState.add(checked)
-                        for (namedOptions in group.namedOptions) {
-                            for (opts in namedOptions.options) {
-                                Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, visible = checked, zIndex = zIndex)
-                            }
+            checker?.let {
+                if (group.namedOptions.isNotEmpty()) {
+                    for (namedOptions in group.namedOptions) {
+                        for (opts in namedOptions.options) {
+                            val (visible, setVisible) = remember { mutableStateOf(true) }
+                            it.state = visible
+                            it.setState = setVisible
+                            visibilityState.add(it.state)
+                            Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, visible = it.state, zIndex = zIndex)
                         }
                     }
                 }
+            }
+        }
 
-                if (pmodel.touchEnabled) {
-                    PolygonTouch(pmodel, groups, visibilityState, lastTouch)
+        if (pmodel.touchEnabled) {
+            PolygonTouch(pmodel, groups, visibilityState, lastTouch)
+        }
+    }
+
+    @Composable
+    private fun polygonCheckers(pmodel: Poly.Model?, callback: (Pair<MutableList<Checker>?, List<Poly.PolyOptionsGroup>?>) -> Unit) {
+        if (pmodel == null) {
+            callback(Pair(null, null))
+            return
+        }
+
+        val (groups, setGroups) = remember { mutableStateOf<List<Poly.PolyOptionsGroup>?>(null) }
+        when (groups) {
+            null -> pmodel.polygonOptions(setGroups)
+            else -> {
+                val checkers = mutableListOf<Checker>()
+                for (group in groups) {
+                    checkers.add(Checker(stringResource(group.menuTitle)))
                 }
+                callback(Pair(checkers, groups))
             }
         }
     }
@@ -420,29 +472,6 @@ object Compose {
                     markerOpts = opts
                 }
             }
-        }
-    }
-
-    interface Named {
-        val name: String
-    }
-
-    private fun <T : Named> updateList(named: T, nameds: MutableList<T>) {
-        var removeIndex = -1
-        var i = 0
-        nameds.removeIf {
-            val ret = named.name == it.name
-            if (ret) {
-                removeIndex = i
-            }
-            i++
-            ret
-        }
-
-        if (removeIndex > -1) {
-            nameds.add(removeIndex, named)
-        } else {
-            nameds.add(named)
         }
     }
 

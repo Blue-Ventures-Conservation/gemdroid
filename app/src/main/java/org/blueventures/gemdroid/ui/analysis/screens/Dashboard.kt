@@ -106,6 +106,10 @@ object Dashboard {
                             .verticalScroll(rememberScrollState())
                     ) {
                         when (stage) {
+                            Stage.COMPOSITES -> {
+                                SatelliteRow(falseColor)
+                                ReviewInputsRow(properties)
+                            }
                             Stage.CRAS -> {
                                 SatelliteRow(falseColor)
                                 ReviewInputsRow(properties)
@@ -125,8 +129,10 @@ object Dashboard {
                         }
                     }
 
-                    if (stage == Stage.CRAS) {
-                        BackgroundPrompt(stringResource(R.string.click_next_to_add_cras).format(roiName))
+                    when (stage) {
+                        Stage.COMPOSITES -> BackgroundPrompt(stringResource(R.string.click_next_to_view_and_assess))
+                        Stage.CRAS -> BackgroundPrompt(stringResource(R.string.click_next_to_add_cras).format(roiName))
+                        else -> {}
                     }
                 }
             }

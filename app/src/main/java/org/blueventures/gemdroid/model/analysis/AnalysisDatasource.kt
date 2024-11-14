@@ -15,7 +15,8 @@ class AnalysisDatasource(
         return try {
             when {
                 !File(roiDir, bufferFile).exists() -> Stage.BUFFER
-                !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists() -> Stage.CRAS
+                atCompositesStage(roiDir) -> Stage.COMPOSITES
+                atCRAsStage(roiDir) -> Stage.CRAS
                 !File(File(roiDir, ClassificationDatasource.classificationDir), ClassificationDatasource.classificationURLsFile).exists() -> Stage.CLASSIFICATION
                 else -> Stage.ALL
             }
@@ -23,6 +24,10 @@ class AnalysisDatasource(
             Stage.ERROR
         }
     }
+
+    // composites stage was added in 1.4.2, so we check that we're also at the CRAs stage
+    private fun atCompositesStage(roiDir: File) = !File(roiDir, compositeAssessedFile).exists() && atCRAsStage(roiDir)
+    private fun atCRAsStage(roiDir: File) = !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists()
 
     fun makeVisualizeTileDirs(roiDir: File): Result<Unit> {
         visualizeTileDirs.forEach { subdir ->
@@ -53,6 +58,9 @@ class AnalysisDatasource(
         private const val exportsFilename = "landsat_exports.json"
         private const val resultsFile = "results.json"
 
+        // Assessing Composites
+        private const val compositeAssessedFile = "assessed.txt"
+
         fun roiUUID() = RoiDatasource.roiUUID()
         fun roiFile(roiDir: File) = RoiDatasource.roiFile(roiDir)
         fun buffersFile(roiDir: File) = File(roiDir, buffersChartFile)
@@ -65,9 +73,10 @@ class AnalysisDatasource(
         fun clotTileDir(roiDir: File) = File(visDir(roiDir), clotTilesDir)
         fun hhotTileDir(roiDir: File) = File(visDir(roiDir), hhotTilesDir)
         fun hlotTileDir(roiDir: File) = File(visDir(roiDir), hlotTilesDir)
+        fun compositesAssessedFile(roiDir: File) = File(roiDir, compositeAssessedFile)
     }
 }
 
 enum class Stage {
-    ERROR, BUFFER, CRAS, CLASSIFICATION, ALL
+    ERROR, BUFFER, COMPOSITES, CRAS, CLASSIFICATION, ALL
 }

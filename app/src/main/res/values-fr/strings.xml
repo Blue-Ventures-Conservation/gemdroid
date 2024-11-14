@@ -28,7 +28,7 @@
     <string name="hist_high_tide">Marée haute historique</string>
     <string name="hist_low_tide">Marée basse historique</string>
     <string name="unexpected_error">Quelque chose d\'inattendu s\'est mal passé ! Vous pouvez faire glisser votre doigt vers le bas pour réessayer.</string>
-    <string name="please_wait">Veuillez patienter</string>
+    <string name="please_wait">Veuillez laisser cet écran ouvert</string>
     <string name="this_may_take_minutes">Cela peut prendre quelques minutes…</string>
     <string name="grant_permission">Accorder l\'autorisation</string>
     <string name="next_button">Suivant</string>
@@ -162,7 +162,7 @@
     <string name="unnamed">Sans nom</string>
     <string name="roi_buffer_title">Tampon ROI</string>
     <string name="select_buffer_distance">Sélectionnez la distance du tampon :</string>
-    <string name="select_months_range">Plage de mois (inclus) :</string>
+    <string name="select_months_range">Mois :</string>
     <string name="select_bounding_years">Plage d\'années (inclus) :</string>
     <string name="please_select_years_within">Veuillez sélectionner des années à moins de %s années d\'intervalle</string>
     <string name="year_compare_fail">L\'année à gauche doit être égale ou inférieure à celle de droite</string>
@@ -293,4 +293,16 @@
     <string name="show_introduction">[Afficher l\'introduction].</string>
     <string name="it_s_time_to_create_your_first_project">Il est temps de créer votre premier projet !</string>
     <string name="go_to_my_projects">allez dans Mes projets</string>
+    <string name="click_next_to_view_and_assess">Cliquez sur Suivant pour voir et évaluer si vos images sont adaptées à leur classification !</string>
+    <string name="assess_imagery">Évaluer les images</string>
+    <string name="you_will_assess">Sur l\'écran suivant, vous évaluerez si vos images sont adaptées à leur objectif et prêtes à être classées.</string>
+    <string name="fit_for_purpose_if">Vos 4 composites (contemporains et historiques, pour la marée la plus haute observée (HOT) et la marée la plus basse observée (LOT)) sont adaptés à l\'usage si :</string>
+    <string name="difference_in_tide_levels">• Il existe une différence visible dans les niveaux de marée entre la marée haute et la marée basse pour les composites contemporains et historiques.</string>
+    <string name="exposed_tidal_flats">• Faites attention aux battures exposées dans le composite LOT, le cas échéant, elles devraient être plus petites ou complètement inondées par la marée montante dans le composite HOT.</string>
+    <string name="the_coastline_may_have_shifted_inland">• Le littoral peut s\'être légèrement déplacé vers l\'intérieur des terres dans le composite HOT.</string>
+    <string name="exposed_areas_of_mudflats_in_between_mangroves">• Les zones exposées de vasières entre les mangroves peuvent apparaître plus humides ou même sous forme d\'eau dans le composite HOT.</string>
+    <string name="water_in_river_channels">• L\'eau dans les canaux fluviaux et autour des estuaires peut être d\'un bleu plus foncé dans le composite HOT (indiquant des eaux plus profondes), tandis qu\'un bleu plus clair et plus granuleux dans le composite LOT (en raison d\'une eau trouble qui retient davantage de sédiments côtiers).</string>
+    <string name="there_are_no_missing_pixels">• Il n\'y a aucun pixel manquant (un très petit nombre de pixels manquants dans des endroits où il est peu probable qu\'il y ait des mangroves est acceptable).</string>
+    <string name="do_your_composites_look_good">Vos composites sont-ils beaux ?</string>
+    <string name="tap_here_to_confirm_the_composites_look_good">Appuyez ici pour confirmer que les composites semblent bons</string>
 </resources>

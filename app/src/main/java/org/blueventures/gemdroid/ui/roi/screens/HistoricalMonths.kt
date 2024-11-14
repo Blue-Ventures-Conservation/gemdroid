@@ -29,7 +29,8 @@ object HistoricalMonths {
                 }
             }, stringResource(R.string.historical), appBar, snack
         ) {
-            viewModel.getForceLandsat(ctx, setForceLandsat)
+            // viewModel.getForceLandsat(ctx, setForceLandsat)
+            next()
         }
 
         forceLandsat?.let { force ->
