@@ -356,7 +356,9 @@ object Compose {
     }
 
     @Composable
+    @GoogleMapComposable
     // this function prevents layers from flickering when toggled
+    // by separating their contexts from each other
     private fun TileOverlay(provider: TileProvider, checker: Checker, opts: TileOverlayOptions) {
         val (visible, setVisible) = remember { mutableStateOf(true) }
         checker.state = visible
