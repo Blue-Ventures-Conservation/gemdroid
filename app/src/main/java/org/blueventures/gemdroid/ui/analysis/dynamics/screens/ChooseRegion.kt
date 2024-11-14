@@ -21,9 +21,9 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.theme.LightGreen
+import org.blueventures.gemdroid.ui.theme.BVGreen
+import org.blueventures.gemdroid.ui.theme.Chartreuse
 import org.blueventures.gemdroid.ui.theme.MildRed
-import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object ChooseRegion {
     @Composable
@@ -56,8 +56,8 @@ object ChooseRegion {
         Info.Block {
             Info.Header(stringResource(R.string.legend))
             LegendRow(stringResource(R.string.loss), MildRed)
-            LegendRow(stringResource(R.string.persistence), SkyBlue)
-            LegendRow(stringResource(R.string.gain), LightGreen)
+            LegendRow(stringResource(R.string.persistence), BVGreen)
+            LegendRow(stringResource(R.string.gain), Chartreuse)
         }
     }
 

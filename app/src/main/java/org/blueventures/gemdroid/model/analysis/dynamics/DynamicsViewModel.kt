@@ -48,10 +48,10 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.theme.BVGreen
+import org.blueventures.gemdroid.ui.theme.Chartreuse
 import org.blueventures.gemdroid.ui.theme.Clear
-import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.MildRed
-import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
@@ -251,8 +251,8 @@ class DynamicsViewModel(
         combinedName,
         polygons,
         MildRed.toHexString(),
-        LightGreen.toHexString(),
-        SkyBlue.toHexString(),
+        BVGreen.toHexString(),
+        Chartreuse.toHexString(),
         cra.contemporaryCRA.shapefileStorageKey,
         cra.historicalShp().shapefileStorageKey,
         cra.useContSpec(),

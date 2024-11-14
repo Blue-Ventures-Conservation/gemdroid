@@ -13,6 +13,7 @@ val MidnightBlue = Color(0xFF010135)
 val DarkSlate = Color(0xFF313B4C)
 val DarkGray = Color(0xFF222936)
 val OffWhite = Color(0xFFFFFBFE)
+val Chartreuse = Color(0xFFADFF2F)
 val Clear = Color(0x00000000)
 
 // BV class colors
