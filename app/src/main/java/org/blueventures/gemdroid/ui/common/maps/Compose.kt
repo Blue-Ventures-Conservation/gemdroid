@@ -35,6 +35,8 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.TileOverlayOptions
+import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
@@ -336,24 +338,30 @@ object Compose {
         }
 
         tiles.layerNames.forEachIndexed { index, layer ->
-            var checker: Checker? = null
+            var chk: Checker? = null
             for (c in checkers) {
                 if (c.name == layer) {
-                    checker = c
+                    chk = c
                     break
                 }
             }
 
-            checker?.let {
+            chk?.let { checker ->
                 val opts = tiles.tileOpts(index, urls)
                 opts.tileProvider?.let { provider ->
-                    val (visible, setVisible) = remember { mutableStateOf(true) }
-                    it.state = visible
-                    it.setState = setVisible
-                    TileOverlay(provider, visible = it.state, zIndex = opts.zIndex)
+                    TileOverlay(provider, checker, opts)
                 }
             }
         }
+    }
+
+    @Composable
+    // this function prevents layers from flickering when toggled
+    private fun TileOverlay(provider: TileProvider, checker: Checker, opts: TileOverlayOptions) {
+        val (visible, setVisible) = remember { mutableStateOf(true) }
+        checker.state = visible
+        checker.setState = setVisible
+        TileOverlay(provider, visible = checker.state, zIndex = opts.zIndex)
     }
 
     @Composable
@@ -410,16 +418,14 @@ object Compose {
             return
         }
 
-        val (groups, setGroups) = remember { mutableStateOf<List<Poly.PolyOptionsGroup>?>(null) }
-        when (groups) {
-            null -> pmodel.polygonOptions(setGroups)
-            else -> {
-                val checkers = mutableListOf<Checker>()
-                for (group in groups) {
-                    checkers.add(Checker(stringResource(group.menuTitle)))
-                }
-                callback(Pair(checkers, groups))
+        val ctx = LocalContext.current
+
+        pmodel.polygonOptions { groups ->
+            val checkers = mutableListOf<Checker>()
+            for (group in groups) {
+                checkers.add(Checker(ctx.getString(group.menuTitle)))
             }
+            callback(Pair(checkers, groups))
         }
     }
 
