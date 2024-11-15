@@ -88,7 +88,7 @@ object Roi {
                     Info.Block {
                         Info.Header(title = header)
 
-                        val nameLabel = stringResource(R.string.overview_name)
+                        val nameLabel = stringResource(R.string.overview_project_name)
                         val (overflowed, setOverflowed) = remember { mutableStateOf<Boolean?>(null) }
                         when(overflowed) {
                             null -> MeasureName(nameLabel, name, setOverflowed)
@@ -100,7 +100,7 @@ object Roi {
                         OverviewRow(stringResource(R.string.overview_contemporary_months), contMonths.joinToString(separator = ", "))
                         OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
                         OverviewRow(stringResource(R.string.overview_historical_months), histMonths.joinToString(separator = ", "))
-                        OverviewRow(stringResource(R.string.overview_polygon_area), hectares(calcs.first))
+                        OverviewRow(stringResource(R.string.overview_boundary_area), hectares(calcs.first))
                         OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("${calcs.second}"))
                         if (calcs.second > 0) {
                             OverviewRow(stringResource(R.string.overview_excluded_area), hectares(calcs.third))
@@ -128,7 +128,7 @@ object Roi {
     private fun WrappedName(name: String) {
         Info.Row(verticalPadding = 16.dp) {
             Column {
-                Info.Txt(stringResource(R.string.overview_name))
+                Info.Txt(stringResource(R.string.overview_project_name))
                 Info.Txt(name)
             }
         }

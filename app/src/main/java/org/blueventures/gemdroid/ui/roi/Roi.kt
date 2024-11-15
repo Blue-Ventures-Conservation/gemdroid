@@ -17,6 +17,7 @@ import org.blueventures.gemdroid.ui.common.polygons.Polygons
 import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
+import org.blueventures.gemdroid.ui.roi.screens.CopiedPolygon
 import org.blueventures.gemdroid.ui.roi.screens.HistoricalMonths
 import org.blueventures.gemdroid.ui.roi.screens.HistoricalYears
 import org.blueventures.gemdroid.ui.roi.screens.Name
@@ -34,6 +35,7 @@ object Roi {
         const val historicalYears = prefix + "hist_dates"
         const val historicalMonths = prefix + "hist_months"
         const val coarse_polygon_purpose = prefix + "coarse_polygon_purpose"
+        const val copied_polygon = prefix + "copied_polygon"
         const val overview = prefix + "overview"
     }
 
@@ -109,6 +111,23 @@ object Roi {
 
         b.backHandler(Routes.coarse_polygon_purpose, nav::popBackStack) {
             CoarsePolygonPurpose.Screen(appBar) {
+                var route = Routes.prefix+Polygon.Routes.draw_or_shapefile
+                if (viewModel.imported) {
+                    route = Routes.copied_polygon
+                }
+
+                nav.navigate(route) {
+                    popUpTo(Routes.historicalMonths)
+                }
+            }
+        }
+
+        b.backHandler(Routes.copied_polygon, nav::popBackStack) {
+            CopiedPolygon.Screen(appBar, {
+                nav.navigate(Routes.prefix+Polygons.Routes.option) {
+                    popUpTo(Routes.historicalMonths)
+                }
+            }) {
                 nav.navigate(Routes.prefix+Polygon.Routes.draw_or_shapefile) {
                     popUpTo(Routes.historicalMonths)
                 }

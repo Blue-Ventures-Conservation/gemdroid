@@ -19,7 +19,7 @@ import java.io.File
 object Overview {
     @Composable
     fun Screen(viewModel: RoiViewModel, filesDir: File, appBar: AppBar, snack: SnackFun, done: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_project)))
         val (saving, setSaving) = remember { mutableStateOf(false) }
 
         if (saving) {

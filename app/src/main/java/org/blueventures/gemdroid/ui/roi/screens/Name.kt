@@ -17,9 +17,9 @@ object Name {
     fun Screen(viewModel: RoiViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         viewModel.filesDir = LocalContext.current.filesDir
 
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_project)))
         val err = stringResource(R.string.please_enter_unique_non_special_name).format(maxNameCharLength.toString())
-        Collect.Text(header = stringResource(R.string.name_your_roi), label = stringResource(R.string.please_enter_name), initial = viewModel.roiName, snack, { name ->
+        Collect.Text(header = stringResource(R.string.name_your_project), label = stringResource(R.string.please_enter_name), initial = viewModel.roiName, snack, { name ->
             viewModel.roiName = name
             if (viewModel.notTooLong() && viewModel.notSpecial() && viewModel.isUnique()) null else err
         }, next)

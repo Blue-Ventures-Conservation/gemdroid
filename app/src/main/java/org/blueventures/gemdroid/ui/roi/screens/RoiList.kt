@@ -77,7 +77,7 @@ object RoiList {
 
     @Composable
     fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
-        appBar.Update(AppBarUpdate(title = stringResource(R.string.regions_of_interest)))
+        appBar.Update(AppBarUpdate(title = stringResource(R.string.my_projects)))
 
         val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
 
@@ -103,7 +103,7 @@ object RoiList {
                             .padding(24.dp)
                             .align(Alignment.BottomEnd)
                     ) {
-                        Icon(Icons.Filled.Add, stringResource(R.string.add_new_region))
+                        Icon(Icons.Filled.Add, stringResource(R.string.add_new_project))
                     }
                 }
             }
@@ -119,7 +119,7 @@ object RoiList {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.no_rois_yet),
+                    text = stringResource(R.string.no_projects_yet),
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(24.dp)
@@ -168,9 +168,11 @@ object RoiList {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             // weight here asks compose to measure the icon first, before doing layout of text, so that text overflow doesn't obscure the icon
-            Text(text = dir.name, fontSize = 24.sp, modifier = Modifier.padding(24.dp).weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = dir.name, fontSize = 24.sp, modifier = Modifier
+                .padding(24.dp)
+                .weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Icon(
-                Icons.Filled.MoreVert, stringResource(R.string.roi_options_menu), modifier = Modifier
+                Icons.Filled.MoreVert, stringResource(R.string.project_options_menu), modifier = Modifier
                     .padding(20.dp)
                     .size(32.dp)
                     .clickable { setShowSheet(dir) }
@@ -187,10 +189,10 @@ object RoiList {
             Text(dir.name, modifier = Modifier.fillMaxWidth(), fontSize = 16.sp, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
             SheetRow({
                 setDupeRoi(dir)
-            }, Icons.Filled.ContentCopy, R.string.copy_region, R.string.copy_roi)
+            }, Icons.Filled.ContentCopy, R.string.copy_project, R.string.copy_project)
             SheetRow({
                 setDeleteRoi(dir)
-            }, Icons.Filled.Delete, R.string.delete_region, R.string.delete_roi)
+            }, Icons.Filled.Delete, R.string.delete_region, R.string.delete_project)
             Spacer(modifier = Modifier.padding(64.dp))
         }
     }
@@ -215,7 +217,7 @@ object RoiList {
     fun DeleteDialog(viewModel: RoiViewModel, snack: SnackFun, toDelete: File, onDismiss: Click, onDelete: Click) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.delete_roi)) },
+            title = { Text(text = stringResource(R.string.delete_project)) },
             text = { Text(text = stringResource(R.string.really_delete).format(toDelete.name)) },
             confirmButton = {
                 val ctx = LocalContext.current

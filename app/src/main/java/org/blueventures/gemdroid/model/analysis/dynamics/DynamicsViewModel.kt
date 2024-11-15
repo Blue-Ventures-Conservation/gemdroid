@@ -146,6 +146,9 @@ class DynamicsViewModel(
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)
     override val polygonTypePlural = R.string.sub_regions
 
+    override fun edit() = false
+    override fun clearEdit() {}
+
     fun combinedNameNeeded() = !alreadyDownloaded && targetClasses.size > 1
     fun validateCombinedName(name: String): Boolean {
         if (name.length > maxNameLength || !Regexp.roiName.matches(name)) {

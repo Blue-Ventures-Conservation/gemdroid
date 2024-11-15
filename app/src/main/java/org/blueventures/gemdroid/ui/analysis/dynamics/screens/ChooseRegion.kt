@@ -40,11 +40,17 @@ object ChooseRegion {
                 Text(stringResource(R.string.choose_which_region_to_analyze), fontSize = 20.sp, textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.size(16.dp))
                 regions.forEach { region ->
-                    DashboardButton(region.name) {
+                    var label = region.name
+                    var space = 16.dp
+                    if (region.name == viewModel.roi.name) {
+                        label = stringResource(R.string.full_project_area)
+                        space = 48.dp
+                    }
+                    DashboardButton(label) {
                         viewModel.analysisRegion = region
                         next()
                     }
-                    Spacer(modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.size(space))
                 }
             }
             Downloads(downloads)

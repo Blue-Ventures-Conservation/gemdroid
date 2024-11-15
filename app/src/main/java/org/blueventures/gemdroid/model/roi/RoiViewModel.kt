@@ -43,6 +43,7 @@ class RoiViewModel(
     var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
     var importedROI: MultiPolyPts = emptyList()
     var importedBufferDist: Int = -1
+    var imported = false
     var forceLS: Boolean = true
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
@@ -74,6 +75,7 @@ class RoiViewModel(
     fun getROI(roiDir: File, callback: (Result<ROI>) -> Unit) = loadFile(RoiDatasource.roiFile(roiDir), ROI.Companion, callback)
 
     fun importROI(prefix: String, roi: ROI) {
+        imported = true
         roiName = prefix + roi.name
         contemporaryYearStart = roi.contYearStart
         contemporaryYearEnd = roi.contYearEnd
@@ -106,8 +108,9 @@ class RoiViewModel(
 
     fun notSpecial() = Regexp.roiName.matches(roiName)
 
+    fun clearImportedROI() { importedROI = emptyList() }
+    fun clearImported() { imported = false }
     fun clearName() { roiName = "" }
-    fun clearImport() { importedROI = emptyList() }
     fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
     fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
     fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
@@ -124,14 +127,14 @@ class RoiViewModel(
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have
     // that many view models? Do I want to have to think that much about how to pass state between them all? I do not.
-    fun clearState() { clearName(); clearImport(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear(); polygons.clear(); }
+    fun clearState() { clearName(); clearImportedROI(); clearImported(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear(); polygons.clear(); }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
     var filesDir: File = File("")
     override val named = false
     override fun goBack() { importedROI = emptyList() }
-    override val appBarTitleId = R.string.create_coarse_roi
+    override val appBarTitleId = R.string.create_coarse_boundary
     override fun appBarTitle(title: String) = title
     override var visualizer: Visualize.Visualizer? = null
     override val drawer = PolygonDrawer(background = ::background)
@@ -162,6 +165,9 @@ class RoiViewModel(
     override val polygonTypePlural = R.string.excluded_regions
     override val maxPolygons = maxExcludedRegions
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
+
+    override fun edit() = false
+    override fun clearEdit() {}
 
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job {
         callback(Result.failure(Exception()))
@@ -216,16 +222,20 @@ class RoiViewModel(
 }
 
 class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
-    override val appBarTitleId = R.string.create_coarse_roi
+    override val appBarTitleId = R.string.create_coarse_boundary
     override fun appBarTitle(title: String) = title
 
-    override val polygonType: Int = R.string.coarse_boundary
+    override val polygonType = R.string.coarse_boundary
     override var visualizer: Visualize.Visualizer? = null
     override val storage: Maps.Storage = viewModel.storage
     override val shpColor = null
     override val attemptGps = true
     override val drawer: PolygonDrawer
         get() = viewModel.roiDrawer
+
+    override fun edit() = viewModel.imported
+
+    override fun clearEdit() = viewModel.clearImported()
 
     override fun polygonDrawn() {}
 

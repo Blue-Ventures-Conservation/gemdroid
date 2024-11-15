@@ -17,10 +17,10 @@ import org.blueventures.gemdroid.ui.common.Info
 object CoarsePolygonPurpose {
     @Composable
     fun Screen(appBar: AppBar, next: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_boundary)))
         Col.Col(scroll = true) {
             Spacer(modifier = Modifier.height(0.dp))
-            Info.Txt(stringResource(R.string.you_will_create_coarse_roi))
+            Info.Txt(stringResource(R.string.you_will_create_coarse_boundary))
             Info.Txt(stringResource(R.string.buffered_from_coastline))
             Info.Txt(stringResource(R.string.maybe_sub_regions_later))
             Butt.Next(click = next)

@@ -27,7 +27,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 object Buffer {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.roi_buffer_title)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.coastal_buffer)))
 
         val (saving, setSaving) = remember { mutableStateOf(false) }
 

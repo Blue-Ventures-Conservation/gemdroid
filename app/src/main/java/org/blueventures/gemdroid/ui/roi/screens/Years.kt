@@ -41,7 +41,7 @@ object Years {
 
     @Composable
     fun Screen(selector: Selector, temporal: String, currentYear: Int, appBar: AppBar, snack: SnackFun, next: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_project)))
         Col.Col {
             Col.Col(start = 8.dp, top = 0.dp, end = 8.dp, bottom = 0.dp, fill = false) {
                 Text(temporal, textAlign = TextAlign.Center, fontSize = 24.sp)

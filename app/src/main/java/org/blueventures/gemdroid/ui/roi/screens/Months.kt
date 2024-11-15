@@ -19,7 +19,7 @@ object Months {
 
     @Composable
     fun Screen(selector: Selector, temporal: String, appBar: AppBar, snack: SnackFun, next: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.create_coarse_roi)))
+        appBar.Update(AppBarUpdate(stringResource(R.string.create_project)))
         val months = mutableListOf<String>()
         for (res in resources) {
             months.add(stringResource(res))

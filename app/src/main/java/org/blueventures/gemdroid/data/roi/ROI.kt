@@ -65,7 +65,7 @@ data class ROI(
             histMonths: List<Int>,
             points: MultiPolyPts,
             excludes: List<PolygonDrawer.NamedPolygon>,
-            buffDist: Int = -1,
+            buffDist: Int,
             regionUUID: String? = null,
             forceLandsat: Boolean? = null,
         ): ROI {
