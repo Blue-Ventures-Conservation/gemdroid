@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.common.polygons.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MultiPolyPts
@@ -25,7 +24,7 @@ object ShapefilePolygon {
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, next: Click) {
         appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
         Col.Col {
-            Shapefile.Screen(stringResource(R.string.select_a_shapefile), model::background, model::validateShapefile, { err ->
+            Shapefile.Screen(stringResource(R.string.upload_a_shapefile), model::background, model::validateShapefile, { err ->
                 snack(err)
             }) { points ->
                 model.shapefile = points

@@ -29,7 +29,7 @@ object DrawOrShapefile {
 
         var header = stringResource(R.string.draw_polygon_or_shapefile).format(polyType)
         var drawButton = stringResource(R.string.draw_a_polygon).format(polyType)
-        var shapefileButton = stringResource(R.string.use_a_shapefile)
+        var shapefileButton = stringResource(R.string.upload_a_shapefile)
         if (edit) {
             header = stringResource(R.string.edit_polygon_or_shapefile).format(polyType)
             drawButton = stringResource(R.string.edit_a_polygon).format(polyType)
