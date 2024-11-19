@@ -44,6 +44,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.TileOverlay
@@ -437,8 +438,7 @@ object Compose {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
             val state = MarkerState(it.position)
-            state.showInfoWindow()
-            Marker(state = state, title = it.title)
+            MarkerInfoWindow(state = state, title = it.title)
         }
 
         lastTouch.value?.let { pt ->
