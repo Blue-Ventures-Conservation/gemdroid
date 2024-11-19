@@ -114,7 +114,7 @@ object Shapefile {
         }
         Spacer(modifier = Modifier.height(0.dp))
         Butt.Text(stringResource(R.string.select_shapefile)) {
-            launcher.launch(arrayOf("*/*"))
+            launcher.launch(arrayOf("application/zip", "application/octet-stream", "x-gis/x-shapefile", "application/text"))
         }
     }
 
