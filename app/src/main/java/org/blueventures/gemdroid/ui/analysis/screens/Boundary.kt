@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.MarkerOptions
@@ -19,8 +20,8 @@ object Boundary {
             center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel),
             poly = object : Poly.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.excludedRegions { excludes ->
-                    viewModel.backgroundPolygon { coarseROI -> callback(mutableListOf(coarseROI).apply { addAll(excludes) }) }
+                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.excludedRegions(context) { excludes ->
+                    viewModel.backgroundPolygon(context) { coarseROI -> callback(mutableListOf(coarseROI).apply { addAll(excludes) }) }
                 }
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             }

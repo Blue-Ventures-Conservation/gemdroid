@@ -379,38 +379,45 @@ object Compose {
     @Composable
     @GoogleMapComposable
     private fun Polygons(pmodel: Poly.Model, groups: List<Poly.PolyOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>) {
-        val firstZ = Float.MAX_VALUE
+        val firstZ = 9999f
 
-        val visibilityState = mutableListOf<Boolean>()
+        val visibilities = mutableListOf<Boolean>()
         for (gindex in groups.indices) {
-            val zIndex = firstZ - gindex
             val group = groups[gindex]
+            val zIndex = firstZ - gindex
 
             var checker: Checker? = null
             for (c in checkers) {
-                if (c.name == stringResource(group.menuTitle)) {
+                if (c.name == group.menuTitle) {
                     checker = c
                     break
                 }
             }
 
             checker?.let {
-                if (group.namedOptions.isNotEmpty()) {
-                    for (namedOptions in group.namedOptions) {
-                        for (opts in namedOptions.options) {
-                            val (visible, setVisible) = remember { mutableStateOf(true) }
-                            it.state = visible
-                            it.setState = setVisible
-                            visibilityState.add(it.state)
-                            Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, visible = it.state, zIndex = zIndex)
-                        }
-                    }
-                }
+                visibilities.add(it.state)
+                MapPolygons(checker, zIndex, group)
             }
         }
 
         if (pmodel.touchEnabled) {
-            PolygonTouch(pmodel, groups, visibilityState, lastTouch)
+            PolygonTouch(pmodel, groups, visibilities, lastTouch)
+        }
+    }
+
+    @Composable
+    @GoogleMapComposable
+    fun MapPolygons(checker: Checker, zIndex: Float, group: Poly.PolyOptionsGroup) {
+        val (visible, setVisible) = remember { mutableStateOf(true) }
+        checker.state = visible
+        checker.setState = setVisible
+
+        if (group.namedOptions.isNotEmpty()) {
+            for (namedOptions in group.namedOptions) {
+                for (opts in namedOptions.options) {
+                    Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, visible = checker.state, zIndex = zIndex)
+                }
+            }
         }
     }
 
@@ -423,10 +430,10 @@ object Compose {
 
         val ctx = LocalContext.current
 
-        pmodel.polygonOptions { groups ->
+        pmodel.polygonOptions(ctx) { groups ->
             val checkers = mutableListOf<Checker>()
             for (group in groups) {
-                checkers.add(Checker(ctx.getString(group.menuTitle)))
+                checkers.add(Checker(group.menuTitle))
             }
             callback(Pair(checkers, groups))
         }

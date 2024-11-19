@@ -179,16 +179,17 @@ class RoiViewModel(
         content()
     }
 
-    override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun displayRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(Poly.PolygonGroup(polygonTypePlural, polys, MildRed.toArgb()), backgroundPolygon())
+            listOf(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()), backgroundPolygon(context))
         }, callback)
     }
-    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ backgroundPolygon() }, callback)
+    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = background({ backgroundPolygon(context) }, callback)
 
-    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points())))), startChecked = false)
+    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points())))), startChecked = false)
 
     override var shapefile: MultiPolyPts = emptyList()
     override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }
@@ -226,6 +227,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
     override fun appBarTitle(title: String) = title
 
     override val polygonType = R.string.coarse_boundary
+    override val polygonTypePlural = R.string.coarse_boundary
     override var visualizer: Visualize.Visualizer? = null
     override val storage: Maps.Storage = viewModel.storage
     override val shpColor = null
@@ -241,7 +243,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
 
     override fun center() = viewModel.center()
 
-    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = viewModel.background({ null }, callback)
+    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = viewModel.background({ null }, callback)
 
     override var shapefile: MultiPolyPts = emptyList()
 

@@ -199,7 +199,6 @@
     <string name="classification_downloads">Classification Downloads</string>
     <string name="dynamics_downloads">Dynamics Downloads</string>
     <string name="choose_classes">Choose classes:</string>
-    <string name="shapefile">Shapefile</string>
     <string name="copy_project">Copy Project</string>
     <string name="project_options_menu">Project options menu</string>
     <string name="copy_of">"Copy of "</string>

@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.dynamics
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -91,15 +92,17 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    override fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun displayRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        val coarseBoundaryTitle = context.getString(R.string.coarse_boundary)
+        val subRegionsTitle = context.getString(R.string.sub_regions)
         return background({
-            val boundary = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
+            val boundary = Poly.PolygonGroup(coarseBoundaryTitle, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(boundary, Poly.PolygonGroup(polygonTypePlural, polys, Clear.toArgb(), 0x7FB4B4B4, true))
+            listOf(boundary, Poly.PolygonGroup(subRegionsTitle, polys, Clear.toArgb(), 0x7FB4B4B4, true))
         }, callback)
     }
-    override fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)
+    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)
 
     fun loadClassificationFile(callback: (Result<ClassificationURLs>) -> Unit) = loadFile(ClassificationDatasource.urlsFile(roiDir), ClassificationURLs.Companion, callback)
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClasses)

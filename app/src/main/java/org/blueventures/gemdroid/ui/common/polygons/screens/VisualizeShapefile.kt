@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.polygons.screens
 
+import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -26,11 +27,12 @@ object VisualizeShapefile {
         var visualizer: Visualize.Visualizer?
         var shapefile: MultiPolyPts
 
+        val polygonTypePlural: Int
         val storage: Maps.Storage?
         val shpColor: Int?
 
         fun shapefileLooksGood()
-        fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit): Job
+        fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -51,9 +53,9 @@ object VisualizeShapefile {
                 override val touchEnabled = true
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
 
-                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
-                    return model.backgroundPolygon { bg ->
-                        val list = if (model.shapefile.isEmpty()) mutableListOf() else mutableListOf(Poly.PolygonGroup(R.string.shapefile, listOf(Poly.NamedPoly(model.polygonName, model.shapefile)), model.shpColor))
+                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+                    return model.backgroundPolygon(context) { bg ->
+                        val list = if (model.shapefile.isEmpty()) mutableListOf() else mutableListOf(Poly.PolygonGroup(context.getString(model.polygonTypePlural), listOf(Poly.NamedPoly(model.polygonName, model.shapefile)), model.shpColor))
                         if (bg != null) list.add(bg)
                         callback(list)
                     }

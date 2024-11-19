@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.polygons.screens
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.LatLng
@@ -26,7 +27,7 @@ object DrawPolygon {
 
         fun polygonDrawn()
         fun center(): LatLng?
-        fun backgroundPolygon(callback: (Poly.PolygonGroup?) -> Unit): Job
+        fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit): Job
     }
 
     @Composable
@@ -37,7 +38,7 @@ object DrawPolygon {
             next()
         }, poly = object : Poly.Model() {
             override val touchEnabled = false
-            override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.backgroundPolygon { if (it != null) callback(listOf(it)) else callback(emptyList()) }
+            override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = model.backgroundPolygon(context) { if (it != null) callback(listOf(it)) else callback(emptyList()) }
             override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
                 callback(null)
                 return Job()

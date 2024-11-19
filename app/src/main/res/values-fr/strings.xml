@@ -199,7 +199,6 @@
     <string name="classification_downloads">Téléchargements de classification</string>
     <string name="dynamics_downloads">Téléchargements Dynamics</string>
     <string name="choose_classes">Choisissez des classes :</string>
-    <string name="shapefile">Fichier de formes</string>
     <string name="copy_project">Copier le projet</string>
     <string name="project_options_menu">Menu d\'options du projet</string>
     <string name="copy_of">"Copie de "</string>

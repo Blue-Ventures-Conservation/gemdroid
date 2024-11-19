@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.polygons.screens
 
+import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -25,7 +26,7 @@ object PolygonsOverview {
         val polygonTypePlural: Int
 
         fun center(): LatLng?
-        fun displayRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job
+        fun displayRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -36,7 +37,7 @@ object PolygonsOverview {
 
             Visualize.Screen(model.visualizer, appBar, title, center = model.center(), storage = model.storage, poly = object : Poly.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(callback)
+                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = model.displayRegions(context, callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
             }) {
                 MapActionButton(ok) {

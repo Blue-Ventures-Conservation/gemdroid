@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
@@ -162,13 +163,14 @@ class AnalysisViewModel(
     fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
-    fun excludedRegions(callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    fun excludedRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Poly.NamedPoly>()
                 for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonMultiPolygon.toState(poly)))
-                listOf(Poly.PolygonGroup(R.string.excluded_regions, polys, MildRed.toArgb()))
+                listOf(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()))
             }, callback)
         } else {
             callback(emptyList())
@@ -176,7 +178,7 @@ class AnalysisViewModel(
         }
     }
 
-    fun backgroundPolygon(callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon() }, callback)
+    fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context) }, callback)
 
-    private fun backgroundPolygon() = Poly.PolygonGroup(R.string.coarse_boundary, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())))
+    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())))
 }
