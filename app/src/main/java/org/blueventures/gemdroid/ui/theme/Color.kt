@@ -62,7 +62,7 @@ fun blend3Way(from: Color, mid: Color, to: Color, index: Int, size: Int, alpha: 
     }, alpha)
 }
 
-private fun blend(from: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {
+fun blend(from: Color, to: Color, index: Int, size: Int, alpha: Int = 0xFF): Int {
     return ColorUtils.setAlphaComponent(when (size) {
         1 -> from.toArgb()
         else -> {
@@ -111,8 +111,8 @@ private enum class BVClass(val num: Int, val color: Color, val names: List<Strin
     OCMII(3, BVLimeGreen, listOf("Open-Canopy Mangrove II", "Open-Canopy Mangrove 2")),
     OCMIII(4, BVLightGreen, listOf("Open-Canopy Mangrove III", "Open-Canopy Mangrove 3")),
     TF(5, BVRed, listOf("Terrestrial Forest")),
-    OTV(6, BVOrange, listOf("Other Vegetation", "Other Vegetation I", "Other Vegetation 1")),
-    OV(7, BVBurlywood, listOf("Freshwater Vegetation", "Other Vegetation II", "Other Vegetation 2")),
+    OTV(6, BVOrange, listOf("Other Vegetation", "Other Vegetation I", "Other Vegetation 1", "Other Terrestrial Vegetation", "Other Terrestrial Vegetation I", "Other Terrestrial Vegetation 1")),
+    OV(7, BVBurlywood, listOf("Freshwater Vegetation", "Other Vegetation II", "Other Vegetation 2", "Other Terrestrial Vegetation II", "Other Terrestrial Vegetation 2")),
     BE(8, BVYellow, listOf("Barren Exposed", "Barren/Exposed")),
     RW(9, BVDarkBlue, listOf("Residual Water"));
 

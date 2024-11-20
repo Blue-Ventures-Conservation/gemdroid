@@ -40,7 +40,7 @@ object DynamicsMap {
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
             }, poly = object : Poly.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.displayRegions(context, callback)
+                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.polygonGroups(context, callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             })
         }

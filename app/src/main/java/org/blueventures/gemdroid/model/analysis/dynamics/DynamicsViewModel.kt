@@ -53,6 +53,7 @@ import org.blueventures.gemdroid.ui.theme.BVGreen
 import org.blueventures.gemdroid.ui.theme.Chartreuse
 import org.blueventures.gemdroid.ui.theme.Clear
 import org.blueventures.gemdroid.ui.theme.MildRed
+import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
@@ -92,7 +93,7 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    override fun displayRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         val coarseBoundaryTitle = context.getString(R.string.coarse_boundary)
         val subRegionsTitle = context.getString(R.string.sub_regions)
         return background({
@@ -102,7 +103,6 @@ class DynamicsViewModel(
             listOf(boundary, Poly.PolygonGroup(subRegionsTitle, polys, Clear.toArgb(), 0x7FB4B4B4, true))
         }, callback)
     }
-    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = background({ null }, callback)
 
     fun loadClassificationFile(callback: (Result<ClassificationURLs>) -> Unit) = loadFile(ClassificationDatasource.urlsFile(roiDir), ClassificationURLs.Companion, callback)
     fun classDir() = DynamicsDatasource.classDir(roiDir, targetClasses)
@@ -139,7 +139,7 @@ class DynamicsViewModel(
 
     override fun center() = Bounds.centerFromMultiPoly(roi.boundaryPolyToState())
     override val storage = Maps.Storage.fromViewModel(this)
-    override val shpColor = null
+    override val shpColor = SkyBlue.toArgb()
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics
     override val maxNameLength = maxNameCharLength

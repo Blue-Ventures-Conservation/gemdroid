@@ -1,15 +1,15 @@
 package org.blueventures.gemdroid.ui.common.maps
 
 import android.content.Context
+import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.theme.LightGreen
-import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.SkyBlue
-import org.blueventures.gemdroid.ui.theme.blend3Way
+import org.blueventures.gemdroid.ui.theme.blend
 
 object Poly {
     data class NamedPoly(val name: String, val polygon: MultiPolyPts)
@@ -23,19 +23,27 @@ object Poly {
         abstract fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job
 
         fun polygonOptions(context: Context, callback: (List<PolyOptionsGroup>) -> Unit) {
-            polygonGroups(context) { grps ->
-                val groups = mutableListOf<PolyOptionsGroup>()
+            polygonGroups(context) { polyGroups ->
+                val optGroups = mutableListOf<PolyOptionsGroup>()
 
-                for (gindex in grps.indices) {
-                    val group = grps[gindex]
+                var groupOffset = 0
+                for (groupIndex in polyGroups.indices) {
+                    val group = polyGroups[groupIndex]
                     val opts = mutableListOf<NamedPolyOptions>()
-                    group.polygons.forEachIndexed { _, poly ->
-                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, group.color ?: blend3Way(LightGreen, MildRed, SkyBlue, gindex, grps.size, 0x7F), group.strokeColor, group.dashes)))
+
+                    val groupColor = if (group.color == null) {
+                        blend(SkyBlue, LightGreen, groupIndex - groupOffset, polyGroups.size, 0x7F)
+                    } else {
+                        groupOffset += 1
+                        ColorUtils.setAlphaComponent(group.color, 0x7F)
                     }
-                    groups.add(PolyOptionsGroup(group.menuTitle, opts, group.startChecked))
+                    group.polygons.forEach { poly ->
+                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, groupColor, group.strokeColor, group.dashes)))
+                    }
+                    optGroups.add(PolyOptionsGroup(group.menuTitle, opts, group.startChecked))
                 }
 
-                callback(groups)
+                callback(optGroups)
             }
         }
     }

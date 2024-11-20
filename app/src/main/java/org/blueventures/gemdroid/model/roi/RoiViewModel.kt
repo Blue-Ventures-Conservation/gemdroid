@@ -179,15 +179,19 @@ class RoiViewModel(
         content()
     }
 
-    override fun displayRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return background({
             val polys = mutableListOf<Poly.NamedPoly>()
             for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()), backgroundPolygon(context))
+            val list = mutableListOf<Poly.PolygonGroup>()
+            if (polys.isNotEmpty()) {
+                list.add(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()))
+            }
+            list.add(backgroundPolygon(context))
+            list
         }, callback)
     }
-    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = background({ backgroundPolygon(context) }, callback)
 
     private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points())))), startChecked = false)
 
@@ -243,7 +247,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
 
     override fun center() = viewModel.center()
 
-    override fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit) = viewModel.background({ null }, callback)
+    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.background({ emptyList() }, callback)
 
     override var shapefile: MultiPolyPts = emptyList()
 

@@ -9,12 +9,11 @@ import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.NamePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.PolygonsOption
-import org.blueventures.gemdroid.ui.common.polygons.screens.PolygonsOverview
 import org.blueventures.gemdroid.ui.common.polygons.screens.ShapefilePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeShapefile
 
 object Polygons {
-    interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model, PolygonsOverview.Model {
+    interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model {
         val named: Boolean
         fun goBack()
     }
@@ -31,7 +30,6 @@ object Polygons {
         const val drawn = "polygons_drawn"
         const val shapefile = "polygons_shapefile"
         const val visualize_shapefile = "polygons_visualize_shapefile"
-        const val overview = "polygons_overview"
     }
 
     fun screens(
@@ -51,7 +49,6 @@ object Polygons {
         val routeDrawnPolygon = addPrefix(Routes.drawn)
         val routeShpPolygon = addPrefix(Routes.shapefile)
         val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
-        val routePolygonsOverview = addPrefix(Routes.overview)
 
         b.backHandler(routePolygonsOption, {
             model.polygons.clear()
@@ -70,12 +67,7 @@ object Polygons {
                 }
                 nav.navigate(route)
             }, no = {
-                var route = nextRoute
-                if (model.polygons.size > 1) {
-                    route = routePolygonsOverview
-                }
-
-                nav.navigate(route)
+                nav.navigate(nextRoute)
             })
         }
 
@@ -116,16 +108,6 @@ object Polygons {
         }) {
             VisualizeShapefile.Screen(model, appBar) {
                 nav.popBackStack(routePolygonsOption, false)
-            }
-        }
-
-        b.backHandler(routePolygonsOverview, {
-            model.polygons.clear()
-            model.drawer.clear()
-            nav.popBackStack(routePolygonsOption, false)
-        }) {
-            PolygonsOverview.Screen(model, appBar) {
-                nav.navigate(nextRoute)
             }
         }
     }

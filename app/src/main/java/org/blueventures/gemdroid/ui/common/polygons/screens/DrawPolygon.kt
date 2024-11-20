@@ -27,7 +27,7 @@ object DrawPolygon {
 
         fun polygonDrawn()
         fun center(): LatLng?
-        fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup?) -> Unit): Job
+        fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job
     }
 
     @Composable
@@ -38,7 +38,7 @@ object DrawPolygon {
             next()
         }, poly = object : Poly.Model() {
             override val touchEnabled = false
-            override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = model.backgroundPolygon(context) { if (it != null) callback(listOf(it)) else callback(emptyList()) }
+            override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = model.polygonGroups(context, callback)
             override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
                 callback(null)
                 return Job()
