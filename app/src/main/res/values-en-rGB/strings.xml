@@ -312,4 +312,5 @@
     <string name="would_you_like_to_keep_the_copied_boundary">Would you like to keep the copied boundary?</string>
     <string name="keep_the_copied_boundary">Keep the Copied Boundary</string>
     <string name="edit_replace_the_boundary">Edit/Replace the Boundary</string>
+    <string name="user">Current user:</string>
 </resources>

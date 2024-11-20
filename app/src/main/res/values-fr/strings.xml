@@ -312,4 +312,5 @@
     <string name="would_you_like_to_keep_the_copied_boundary">Souhaitez-vous conserver la limite copiée ?</string>
     <string name="keep_the_copied_boundary">Conserver la limite copiée</string>
     <string name="edit_replace_the_boundary">Modifier/Remplacer la limite</string>
+    <string name="user">Utilisateur actuel :</string>
 </resources>

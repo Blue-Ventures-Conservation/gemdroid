@@ -4,16 +4,19 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.versionString
 import org.blueventures.gemdroid.model.settings.SettingsViewModel
@@ -60,7 +63,14 @@ object Settings {
                         }, Arrangement.SpaceAround) {}
                     }
 
-                    Info.Txt("${stringResource(R.string.app_version)} $versionString")
+                    Column(Modifier.fillMaxWidth(), Arrangement.SpaceAround, Alignment.CenterHorizontally) {
+                        Firebase.auth.currentUser?.email?.let { email ->
+                            Info.Txt(stringResource(R.string.user))
+                            Info.Txt(email)
+                            Info.Space()
+                        }
+                        Info.Txt("${stringResource(R.string.app_version)} $versionString")
+                    }
                 }
             }
         }
