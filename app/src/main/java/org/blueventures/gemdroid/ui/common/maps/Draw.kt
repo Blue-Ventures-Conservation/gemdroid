@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -15,11 +14,9 @@ object Draw {
 
     interface Data {
         val maxPoints: Int
-        fun points(): MutableList<LatLng>
+        var points: List<LatLng>
         fun clear()
         fun polygonOptions(): PolygonOptions?
-        fun addPoint(point: LatLng, callback: (Int?) -> Unit): Job
-        fun removePrev(callback: (Int?) -> Unit): Job
 
         /** validation funcs */
         fun validatePolygon(): Boolean

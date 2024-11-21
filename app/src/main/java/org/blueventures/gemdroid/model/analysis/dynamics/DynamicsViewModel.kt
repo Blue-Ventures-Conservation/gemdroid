@@ -73,7 +73,7 @@ class DynamicsViewModel(
     var combinedName: String? = null
 
     override var polygonName = ""
-    override var drawer = PolygonDrawer(background = ::background)
+    override var drawer = PolygonDrawer()
     override var shapefile: List<List<List<LatLng>>> = emptyList()
 
     override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
@@ -126,7 +126,7 @@ class DynamicsViewModel(
     override fun goBack() {}
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points())))))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points)))))
         drawer.clear()
         polygonName = ""
     }

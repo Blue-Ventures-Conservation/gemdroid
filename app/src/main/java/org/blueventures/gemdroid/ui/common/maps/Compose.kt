@@ -1,5 +1,8 @@
 package org.blueventures.gemdroid.ui.common.maps
 
+import android.graphics.Point
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -8,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
@@ -21,13 +23,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -38,12 +45,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
@@ -58,6 +65,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
+import kotlin.math.roundToInt
 
 object Compose {
     data class Checker(val name: String, var state: Boolean = true, var setState: (Boolean) -> Unit = {})
@@ -93,11 +101,13 @@ object Compose {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val clearState = remember { mutableStateOf<Boolean?>(null) }
+            val clearState = remember { mutableStateOf(false) }
+            val drawState = remember { mutableStateOf(false) }
             draw?.let { draw ->
                 Info.Row {
                     Butt.Text(stringResource(R.string.clear)) {
                         clearState.value = true
+                        drawState.value = false
                     }
                     val pleaseDraw = stringResource(R.string.please_create_polygon)
                     val tooBig = stringResource(R.string.polygon_sizing)
@@ -120,23 +130,29 @@ object Compose {
             }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                val drawState = remember { mutableStateOf(false) }
-                val removeState = remember { mutableStateOf<Boolean?>(null) }
                 val touchState = remember { mutableStateOf<LatLng?>(null) }
+                var screenPoints by remember { mutableStateOf(listOf<Point>()) }
 
-                Zoom(appBar, title, gps, center, storage, layers, poly, draw, clearState, drawState, removeState, touchState)
+                ZoomToMap(appBar, title, gps, center, storage, layers, poly, draw, clearState, touchState, screenPoints)
+                if (drawState.value) {
+                    MapDrawer {
+                        screenPoints = it
+                    }
+                } else {
+                    screenPoints = emptyList()
+                }
 
                 if (draw == null) {
                     floating()
                 } else {
-                    DrawButton(drawState, removeState, touchState)
+                    DrawButton(drawState)
                 }
             }
         }
     }
 
     @Composable
-    private fun <T: URLs> BoxScope.Zoom(
+    private fun <T: URLs> BoxScope.ZoomToMap(
         appBar: AppBar,
         title: String,
         gps: Boolean,
@@ -145,14 +161,13 @@ object Compose {
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        clearState: MutableState<Boolean?>,
-        drawState: MutableState<Boolean>,
-        removeState: MutableState<Boolean?>,
-        touchState: MutableState<LatLng?>
+        clearState: MutableState<Boolean>,
+        touchState: MutableState<LatLng?>,
+        screenPoints: List<Point>
     ) {
         val target = zoomOrDraw(center, draw)
         val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (target == null) 0f else 9f)
-        Map(appBar, title, gps, storage, layers, poly, draw, clearState, drawState, removeState, touchState, position)
+        Map(appBar, title, gps, storage, layers, poly, draw, clearState, touchState, screenPoints, position)
     }
 
     @Composable
@@ -164,10 +179,9 @@ object Compose {
         layers: Layers.Model<T>?,
         poly: Poly.Model?,
         draw: Draw.Model?,
-        clearState: MutableState<Boolean?>,
-        drawState: MutableState<Boolean>,
-        removeState: MutableState<Boolean?>,
+        clearState: MutableState<Boolean>,
         touchState: MutableState<LatLng?>,
+        screenPoints: List<Point>,
         position: CameraPosition
     ) {
         val ctx = LocalContext.current
@@ -209,10 +223,12 @@ object Compose {
                                 title = title,
                                 actions = { LayersDropdown(checkers) }
                             ))
+                        } else {
+                            appBar.Update(AppBarUpdate(title))
                         }
 
                         draw?.let {
-                            DrawTouch(draw, clearState, drawState, removeState, touchState)
+                            DoDrawing(draw, screenPoints, cameraPositionState, clearState)
                         }
                     }
 
@@ -238,7 +254,7 @@ object Compose {
 
     private fun zoomOrDraw(center: LatLng?, draw: Draw.Model?): LatLng? {
         return if (draw != null) {
-            val pts = draw.points()
+            val pts = draw.points
             if (pts.isNotEmpty()) {
                 centerFromRing(pts)
             } else {
@@ -250,12 +266,8 @@ object Compose {
     }
 
     @Composable
-    private fun BoxScope.DrawButton(draw: MutableState<Boolean>, remove: MutableState<Boolean?>, touchState: MutableState<LatLng?>) {
-        MapActionButton({ remove.value = true }, Alignment.BottomStart) {
-            Icon(Icons.AutoMirrored.Filled.Backspace, stringResource(R.string.delete_the_previous_point))
-        }
+    private fun BoxScope.DrawButton(draw: MutableState<Boolean>) {
         MapActionButton({
-            touchState.value = null
             draw.value = !draw.value
         }) {
             if (draw.value) {
@@ -266,61 +278,100 @@ object Compose {
         }
     }
 
+    enum class MotionEvent { IDLE, DOWN, UP, MOVE }
+    data class MapPolygonState(
+        val currentPosition: Offset = Offset.Unspecified,
+        val event: MotionEvent = MotionEvent.IDLE
+    )
+
+    @Composable
+    fun MapDrawer(onDrawingEnd : (List<Point>) -> Unit) {
+        var state by remember { mutableStateOf(MapPolygonState()) }
+        val brush = remember { SolidColor(Color.Green) }
+        var path = remember { Path() }
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val screenPoints = mutableListOf<Point>()
+                        awaitPointerEvent().changes
+                            .first()
+                            .also { changes ->
+                                val position = changes.position
+                                screenPoints.add(position.toPoint())
+                                state = state.copy(
+                                    currentPosition = position,
+                                    event = MotionEvent.DOWN
+                                )
+                            }
+                        do {
+                            val event: PointerEvent = awaitPointerEvent()
+                            event.changes.forEach { changes ->
+                                val position = changes.position
+                                screenPoints.add(position.toPoint())
+                                state = state.copy(
+                                    currentPosition = position,
+                                    event = MotionEvent.MOVE
+                                )
+                            }
+                        } while (event.changes.any { it.pressed })
+
+                        currentEvent.changes
+                            .first()
+                            .also { change ->
+                                state = state.copy(
+                                    currentPosition = change.position,
+                                    event = MotionEvent.UP
+                                )
+                                screenPoints.add(change.position.toPoint())
+                            }
+                        val next = Path()
+                        next.moveTo(state.currentPosition.x, state.currentPosition.y)
+                        path = next
+                        onDrawingEnd(screenPoints)
+                    }
+                },
+            onDraw = {
+                when (state.event) {
+                    MotionEvent.IDLE -> Unit
+                    MotionEvent.UP, MotionEvent.MOVE -> path.lineTo(
+                        state.currentPosition.x,
+                        state.currentPosition.y
+                    )
+
+                    MotionEvent.DOWN -> path.moveTo(
+                        state.currentPosition.x,
+                        state.currentPosition.y
+                    )
+                }
+                drawPath(
+                    path = path,
+                    brush = brush,
+                    style = Stroke(width = 8f)
+                )
+            }
+        )
+    }
+
     @Composable
     @GoogleMapComposable
-    private fun DrawTouch(draw: Draw.Model, clearState: MutableState<Boolean?>, drawState: MutableState<Boolean>, removeState: MutableState<Boolean?>, lastTouch: MutableState<LatLng?>) {
-        val points = draw.points()
-        var pointCount by remember { mutableIntStateOf(points.size) }
-        if (pointCount > 0) {
-            for (point in points) {
-                Marker(state = MarkerState(point))
+    private fun DoDrawing(draw: Draw.Model, screenPoints: List<Point>, camera: CameraPositionState, clearState: MutableState<Boolean>) {
+        if (screenPoints.isNotEmpty()) {
+            camera.projection?.let {  proj ->
+                draw.points = screenPoints.map {
+                    proj.fromScreenLocation(it)
+                }
             }
         }
 
-        val (polyOpts, setPolyOpts) = remember { mutableStateOf(draw.polygonOptions()) }
-        polyOpts?.let { opt ->
+        draw.polygonOptions()?.let { opt ->
             Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 100f)
         }
 
-        val resetLocalState = {
-            pointCount = points.size
-            setPolyOpts(draw.polygonOptions())
-        }
-
-        if (clearState.value != null) {
+        if (clearState.value) {
             draw.clear()
-            clearState.value = null
-            lastTouch.value = null
-            resetLocalState()
-        } else {
-            if (removeState.value != null) {
-                draw.removePrev { didRemove ->
-                    if (didRemove != null) {
-                        resetLocalState()
-                        lastTouch.value = null
-                    }
-
-                    removeState.value = null
-                }
-            } else {
-                if (drawState.value) {
-                    lastTouch.value?.let { pt ->
-                        if (points.isEmpty() || points.last() != pt) {
-                            val ctx = LocalContext.current
-                            draw.addPoint(pt) { err ->
-                                if (err != null) {
-                                    draw.snack(ctx.getString(err).format(draw.maxPoints.toString()))
-                                } else {
-                                    resetLocalState()
-                                }
-                                lastTouch.value = null
-                            }
-                        }
-                    }
-                } else {
-                    lastTouch.value = null
-                }
-            }
+            clearState.value = false
         }
     }
 
@@ -512,4 +563,8 @@ object Compose {
             }
         }
     }
+}
+
+private fun Offset.toPoint(): Point {
+    return Point(x.roundToInt(), y.roundToInt())
 }

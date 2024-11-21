@@ -40,7 +40,7 @@ class RoiViewModel(
     var historicalYearStart: Int = defaultHistoricalYearStart
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonths: List<Int> = emptyList()
-    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea, background = ::background)
+    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea)
     var importedROI: MultiPolyPts = emptyList()
     var importedBufferDist: Int = -1
     var imported = false
@@ -68,7 +68,7 @@ class RoiViewModel(
     )
 
     fun multiPolyFromState() = importedROI.ifEmpty {
-        listOf(listOf(roiDrawer.points()))
+        listOf(listOf(roiDrawer.points))
     }
 
     fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
@@ -90,7 +90,7 @@ class RoiViewModel(
             // there's more than one polygon, so it likely came in via shapefile
             importedROI = GeojsonMultiPolygon.toState(roi.polygon)
         } else {
-            roiDrawer = PolygonDrawer(points = firstRing(GeojsonMultiPolygon.toState(roi.polygon)), maxArea = maxRoiArea, background = ::background)
+            roiDrawer = PolygonDrawer(points = firstRing(GeojsonMultiPolygon.toState(roi.polygon)), maxArea = maxRoiArea)
         }
     }
 
@@ -137,15 +137,15 @@ class RoiViewModel(
     override val appBarTitleId = R.string.create_coarse_boundary
     override fun appBarTitle(title: String) = title
     override var visualizer: Visualize.Visualizer? = null
-    override val drawer = PolygonDrawer(background = ::background)
+    override val drawer = PolygonDrawer()
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points())))))
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points)))))
         drawer.clear()
         polygonName = ""
     }
 
-    override fun center() = Bounds.centerFromRing(roiDrawer.points())
+    override fun center() = Bounds.centerFromRing(roiDrawer.points)
     override val storage = Maps.Storage.fromViewModel(this)
     override val shpColor = MildRed.toArgb()
     override fun validatePolygonName(): Boolean {
@@ -193,7 +193,7 @@ class RoiViewModel(
         }, callback)
     }
 
-    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points())))), startChecked = false)
+    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points)))), startChecked = false)
 
     override var shapefile: MultiPolyPts = emptyList()
     override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }
@@ -260,7 +260,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
     override fun shapefileLooksGood() {
         viewModel.importedROI = shapefile
         if (shapefile.size == 1) {
-            viewModel.roiDrawer = PolygonDrawer(points = RoiViewModel.firstRing(shapefile), maxArea = RoiViewModel.maxRoiArea, background = ::background)
+            viewModel.roiDrawer = PolygonDrawer(points = RoiViewModel.firstRing(shapefile), maxArea = RoiViewModel.maxRoiArea)
         }
     }
 }
