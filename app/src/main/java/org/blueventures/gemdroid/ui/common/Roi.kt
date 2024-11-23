@@ -45,12 +45,12 @@ object Roi {
         OverviewFromState(
             background,
             name = roi.name,
-            contYearStart = roi.contYearStart,
-            contYearEnd = roi.contYearEnd,
-            contMonths = roi.contMonths ?: emptyList(),
             histYearStart = roi.histYearStart,
             histYearEnd = roi.histYearEnd,
             histMonths = roi.histMonths ?: emptyList(),
+            contYearStart = roi.contYearStart,
+            contYearEnd = roi.contYearEnd,
+            contMonths = roi.contMonths ?: emptyList(),
             multi = roi.boundaryPolyToState(),
             excluded = roi.excludedRegions,
             useS2 = roi.useS2(),
@@ -61,7 +61,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
         val (calcs, setCalcs) = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
         when (calcs) {
             null -> {
@@ -96,10 +96,10 @@ object Roi {
                             false -> OverviewRow(nameLabel, name)
                         }
 
-                        OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
-                        OverviewRow(stringResource(R.string.overview_contemporary_months), contMonths.joinToString(separator = ", "))
                         OverviewRow(stringResource(R.string.overview_historical_years), "$histYearStart - $histYearEnd")
                         OverviewRow(stringResource(R.string.overview_historical_months), histMonths.joinToString(separator = ", "))
+                        OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
+                        OverviewRow(stringResource(R.string.overview_contemporary_months), contMonths.joinToString(separator = ", "))
                         OverviewRow(stringResource(R.string.overview_boundary_area), hectares(calcs.first))
                         OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("${calcs.second}"))
                         if (calcs.second > 0) {

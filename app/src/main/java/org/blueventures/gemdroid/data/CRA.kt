@@ -14,8 +14,8 @@ import java.io.File
  * A CRA file is saved on device to keep track of the CRAs in use for an ROI.
  */
 data class CRA(
-    @Json(name = "cont_shp") val contemporaryCRA: Shapefile,
     @Json(name = "hist_shp") val historicalCRA: Shapefile? = null,
+    @Json(name = "cont_shp") val contemporaryCRA: Shapefile,
 ) {
     companion object {
         private val adapter = FileService.adapter<CRA>()

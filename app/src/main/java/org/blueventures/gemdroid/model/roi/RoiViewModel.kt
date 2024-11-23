@@ -54,12 +54,12 @@ class RoiViewModel(
 
     private fun roiFromState() = ROI.fromState(
         roiName,
-        contemporaryYearStart,
-        contemporaryYearEnd,
-        contemporaryMonths,
         historicalYearStart,
         historicalYearEnd,
         historicalMonths,
+        contemporaryYearStart,
+        contemporaryYearEnd,
+        contemporaryMonths,
         multiPolyFromState(),
         polygons,
         buffDist = importedBufferDist,
@@ -111,18 +111,18 @@ class RoiViewModel(
     fun clearImportedROI() { importedROI = emptyList() }
     fun clearImported() { imported = false }
     fun clearName() { roiName = "" }
-    fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
-    fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
-    fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
-    fun clearContemporaryMonths() { contemporaryMonths = emptyList() }
     fun validateHistoricalYearsOrder() = validateDateIntsOrder(historicalYearStart, historicalYearEnd)
     fun validateHistoricalYearsGap() = validateYearGap(historicalYearStart, historicalYearEnd)
     fun clearHistoricalYears() { historicalYearStart = defaultHistoricalYearStart; historicalYearEnd = defaultHistoricalYearEnd}
     fun clearHistoricalMonths() { historicalMonths = emptyList() }
+    fun validateContemporaryYearsOrder() = validateDateIntsOrder(contemporaryYearStart, contemporaryYearEnd)
+    fun validateContemporaryYearsGap() = validateYearGap(contemporaryYearStart, contemporaryYearEnd)
+    fun clearContemporaryYears() { contemporaryYearStart = defaultContemporaryYearStart; contemporaryYearEnd = defaultContemporaryYearEnd }
+    fun clearContemporaryMonths() { contemporaryMonths = emptyList() }
     fun currentYear() = thisYear()
 
     fun getForceLandsat(context: Context, callback: (Boolean) -> Unit) = read(context, forceLandsat.key, forceLandsat.default, callback)
-    fun shouldUseS2() = RoiDatasource.shouldUseS2(contemporaryYearStart, contemporaryMonths, historicalYearStart, historicalMonths)
+    fun shouldUseS2() = RoiDatasource.shouldUseS2(historicalYearStart, historicalMonths, contemporaryYearStart, contemporaryMonths)
 
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have

@@ -118,7 +118,7 @@ class RoiDatasource(
 
         private const val s2StartYear = 2018;
         private const val s2StartMonth = 12;
-        fun shouldUseS2(contemporaryYearStart: Int, contemporaryMonths: List<Int>, historicalYearStart: Int, historicalMonths: List<Int>) = fitsS2Range(contemporaryYearStart, contemporaryMonths) && fitsS2Range(historicalYearStart, historicalMonths)
+        fun shouldUseS2(historicalYearStart: Int, historicalMonths: List<Int>, contemporaryYearStart: Int, contemporaryMonths: List<Int>) = fitsS2Range(historicalYearStart, historicalMonths) && fitsS2Range(contemporaryYearStart, contemporaryMonths)
         fun fitsS2Range(startYear: Int, months: List<Int>): Boolean {
             val finalYearMaxLen = 13 - s2StartMonth
             return (startYear > s2StartYear) || (startYear == s2StartYear  && (months.size >= finalYearMaxLen && months[0] >= s2StartMonth))

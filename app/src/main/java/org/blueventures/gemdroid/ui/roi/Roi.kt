@@ -59,26 +59,6 @@ object Roi {
             nav.popBackStack()
         }) {
             Name.Screen(viewModel, appBar, snack) {
-                nav.navigate(Routes.contemporaryYears)
-            }
-        }
-
-        // ROI contemporary years selection
-        b.backHandler(Routes.contemporaryYears, {
-            viewModel.clearContemporaryYears()
-            nav.popBackStack()
-        }) {
-            ContemporaryYears.Screen(viewModel, appBar, snack) {
-                nav.navigate(Routes.contemporaryMonths)
-            }
-        }
-
-        // ROI contemporary months selection
-        b.backHandler(Routes.contemporaryMonths, {
-            viewModel.clearContemporaryMonths()
-            nav.popBackStack()
-        }) {
-            ContemporaryMonths.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.historicalYears)
             }
         }
@@ -99,6 +79,26 @@ object Roi {
             nav.popBackStack()
         }) {
             HistoricalMonths.Screen(viewModel, appBar, snack) {
+                nav.navigate(Routes.contemporaryYears)
+            }
+        }
+
+        // ROI contemporary years selection
+        b.backHandler(Routes.contemporaryYears, {
+            viewModel.clearContemporaryYears()
+            nav.popBackStack()
+        }) {
+            ContemporaryYears.Screen(viewModel, appBar, snack) {
+                nav.navigate(Routes.contemporaryMonths)
+            }
+        }
+
+        // ROI contemporary months selection
+        b.backHandler(Routes.contemporaryMonths, {
+            viewModel.clearContemporaryMonths()
+            nav.popBackStack()
+        }) {
+            ContemporaryMonths.Screen(viewModel, appBar, snack) {
                 if (viewModel.isAssessmentEditor) {
                     nav.navigate(Routes.overview)
                 } else if (viewModel.importedROI.isEmpty()) {

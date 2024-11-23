@@ -31,21 +31,13 @@ object CRA {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
         b.backHandler(Routes.purpose, nav::popBackStack) {
             Purpose.Screen(appBar) {
-                nav.navigate(Routes.cont_cra)
-            }
-        }
-
-        b.backHandler(Routes.cont_cra, {
-            nav.popBackStack(Analysis.Routes.dashboard, false)
-        }) {
-            ContemporaryCRA.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.hist_choice)
             }
         }
 
         b.backHandler(Routes.hist_choice, {
             viewModel.clearHistoricalChoice()
-            nav.popBackStack()
+            nav.popBackStack(Analysis.Routes.dashboard, false)
         }) {
             ChooseHistorical.Screen(viewModel, appBar) {
                 when (viewModel.historicalChoice) {
@@ -53,7 +45,7 @@ object CRA {
                         nav.navigate(Routes.hist_cra)
                     }
                     else -> {
-                        nav.navigate(Routes.cra_fields)
+                        nav.navigate(Routes.cont_cra)
                     }
                 }
             }
@@ -61,6 +53,12 @@ object CRA {
 
         b.backHandler(Routes.hist_cra, nav::popBackStack) {
             HistoricalCRA.Screen(viewModel, appBar, snack) {
+                nav.navigate(Routes.cont_cra)
+            }
+        }
+
+        b.backHandler(Routes.cont_cra, nav::popBackStack) {
+            ContemporaryCRA.Screen(viewModel, appBar, snack) {
                 nav.navigate(Routes.cra_fields)
             }
         }

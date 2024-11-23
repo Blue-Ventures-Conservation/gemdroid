@@ -13,12 +13,12 @@ import java.io.File
 data class ROI(
     @Json(name = "buff_dist") val buffDist: Int = 0,
     @Json(name = "name") val name: String = "",
-    @Json(name = "cont_year_start") val contYearStart: Int = 0,
-    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
-    @Json(name = "cont_months") val contMonths: List<Int>? = null,
     @Json(name = "hist_year_start") val histYearStart: Int = 0,
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
     @Json(name = "hist_months") val histMonths: List<Int>? = null,
+    @Json(name = "cont_year_start") val contYearStart: Int = 0,
+    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @Json(name = "cont_months") val contMonths: List<Int>? = null,
     @Json(name = "polygon") val polygon: GeojsonMultiPolygon = GeojsonMultiPolygon(emptyList()),
     @Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,
@@ -37,16 +37,16 @@ data class ROI(
 
     fun useS2(): Boolean {
         val pair = roiMonths()
-        return !(forceLandsat ?: true) && shouldUseS2(contYearStart, pair.first, histYearStart, pair.second)
+        return !(forceLandsat ?: true) && shouldUseS2(histYearStart, pair.first, contYearStart, pair.second)
     }
 
     fun roiMonths(): Pair<List<Int>, List<Int>> {
-        if (contMonths != null && histMonths != null) {
-            return Pair(contMonths, histMonths)
+        if (histMonths != null && contMonths != null) {
+            return Pair(histMonths, contMonths)
         }
 
-        if (contMonthStart != null && contMonthEnd != null && histMonthStart != null && histMonthEnd != null) {
-            return Pair(getMonthsFromRange(contMonthStart, contMonthEnd), getMonthsFromRange(histMonthStart, histMonthEnd))
+        if (histMonthStart != null && histMonthEnd != null && contMonthStart != null && contMonthEnd != null) {
+            return Pair(getMonthsFromRange(histMonthStart, histMonthEnd), getMonthsFromRange(contMonthStart, contMonthEnd))
         }
 
         return Pair(listOf(), listOf())
@@ -57,12 +57,12 @@ data class ROI(
 
         fun fromState(
             name: String,
-            contYearStart: Int,
-            contYearEnd: Int,
-            contMonths: List<Int>,
             histYearStart: Int,
             histYearEnd: Int,
             histMonths: List<Int>,
+            contYearStart: Int,
+            contYearEnd: Int,
+            contMonths: List<Int>,
             points: MultiPolyPts,
             excludes: List<PolygonDrawer.NamedPolygon>,
             buffDist: Int,
@@ -72,12 +72,12 @@ data class ROI(
             return ROI(
                 buffDist,
                 name,
-                contYearStart,
-                contYearEnd,
-                contMonths,
                 histYearStart,
                 histYearEnd,
                 histMonths,
+                contYearStart,
+                contYearEnd,
+                contMonths,
                 GeojsonMultiPolygon.fromState(points),
                 excludes.map { it.polygon },
                 regionUUID = regionUUID,
@@ -91,7 +91,7 @@ data class ROI(
                 res.isSuccess -> {
                     val mult = res.getOrNull()!!
                     val pair = mult.roiMonths()
-                    Result.success(mult.copy(contMonths = pair.first, histMonths = pair.second))
+                    Result.success(mult.copy(histMonths = pair.first, contMonths = pair.second))
                 }
                 else -> {
                     val singleRes = SinglePolyROI.fromFile(file)
@@ -103,7 +103,7 @@ data class ROI(
                                 multiExcludes.add(GeojsonMultiPolygon(listOf(poly.coordinates)))
                             }
 
-                            Result.success(ROI(single.buffDist, single.name, single.contYearStart, single.contYearEnd, getMonthsFromRange(single.contMonthStart, single.contMonthEnd), single.histYearStart, single.histYearEnd, getMonthsFromRange(single.histMonthStart, single.histMonthEnd), GeojsonMultiPolygon(listOf(single.polygon.coordinates)), multiExcludes, regionUUID = single.regionUUID))
+                            Result.success(ROI(single.buffDist, single.name, single.histYearStart, single.histYearEnd, getMonthsFromRange(single.histMonthStart, single.histMonthEnd), single.contYearStart, single.contYearEnd, getMonthsFromRange(single.contMonthStart, single.contMonthEnd), GeojsonMultiPolygon(listOf(single.polygon.coordinates)), multiExcludes, regionUUID = single.regionUUID))
                         }
                         else -> res
                     }
@@ -144,14 +144,14 @@ data class ROI(
 data class SinglePolyROI(
     @Json(name = "buff_dist") val buffDist: Int = 0,
     @Json(name = "name") val name: String = "",
-    @Json(name = "cont_year_start") val contYearStart: Int = 0,
-    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
-    @Json(name = "cont_month_start") val contMonthStart: Int = 0,
-    @Json(name = "cont_month_end") val contMonthEnd: Int = 0,
     @Json(name = "hist_year_start") val histYearStart: Int = 0,
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,
     @Json(name = "hist_month_start") val histMonthStart: Int = 0,
     @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
+    @Json(name = "cont_year_start") val contYearStart: Int = 0,
+    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @Json(name = "cont_month_start") val contMonthStart: Int = 0,
+    @Json(name = "cont_month_end") val contMonthEnd: Int = 0,
     @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
     @Json(name = "excludes") val excludedRegions: List<GeojsonPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,

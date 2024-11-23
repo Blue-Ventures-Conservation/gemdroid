@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -273,7 +273,7 @@ object Compose {
             if (draw.value) {
                 Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
             } else {
-                Icon(Icons.Filled.Place, stringResource(R.string.place_polygon_corner))
+                Icon(Icons.Filled.Draw, stringResource(R.string.start_drawing_polygon))
             }
         }
     }

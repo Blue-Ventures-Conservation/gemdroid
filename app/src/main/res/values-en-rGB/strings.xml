@@ -80,7 +80,7 @@
     <string name="contemporary_classification">Contemporary Classification</string>
     <string name="historical_classification">Historical Classification</string>
     <string name="stop_drawing_polygon">Stop drawing a polygon</string>
-    <string name="place_polygon_corner">Place polygon corner</string>
+    <string name="start_drawing_polygon">Start drawing a polygon</string>
     <string name="view_classifications_details">View classification details</string>
     <string name="classifier_training_failed">Make sure your CRAs have multiple classes within your project\'s boundaries!</string>
     <string name="legend">Legend</string>
@@ -210,7 +210,7 @@
     <string name="historical_choice_no">No, try to classify the historical imagery by training only with the contemporary data.</string>
     <string name="historical_choice_not_necessary">Not needed! The reference areas haven\'t changed between historical and contemporary time periods. Just use the contemporary CRAs for historical imagery.</string>
     <string name="is_a_historical_cra">Is a historical CRA shapefile available/necessary?</string>
-    <string name="fields_must_match">(Fields must match contemporary shapefile)</string>
+    <string name="fields_must_match">(Fields must match between historical and contemporary shapefiles)</string>
     <string name="coarse_boundary">Coarse Boundary</string>
     <string name="review_inputs">Review Inputs</string>
     <string name="this_is_optional">Downloading imagery is optional! You might want to download these images for use outside the app.</string>

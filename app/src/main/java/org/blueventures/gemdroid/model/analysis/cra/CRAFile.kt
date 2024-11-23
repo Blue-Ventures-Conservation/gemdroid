@@ -25,13 +25,6 @@ data class CRAFile(
 
     companion object {
         fun toCRA(cont: CRAFile, hist: CRAFile?): CRA {
-            val contShp = Shapefile(
-                cont.key(),
-                cont.eeUploadName!!,
-                cont.fields.chosenNumeric!!,
-                cont.fields.chosenString!!,
-                cont.fields.chosenStringValues!!
-            )
             val histShp = if (hist == null) null else Shapefile(
                 hist.key(),
                 hist.eeUploadName!!,
@@ -39,7 +32,14 @@ data class CRAFile(
                 hist.fields.chosenString!!,
                 hist.fields.chosenStringValues!!
             )
-            return CRA(contShp, histShp)
+            val contShp = Shapefile(
+                cont.key(),
+                cont.eeUploadName!!,
+                cont.fields.chosenNumeric!!,
+                cont.fields.chosenString!!,
+                cont.fields.chosenStringValues!!
+            )
+            return CRA(histShp, contShp)
         }
     }
 }

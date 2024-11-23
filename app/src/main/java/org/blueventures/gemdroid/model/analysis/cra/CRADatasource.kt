@@ -395,8 +395,8 @@ class CRADatasource(
     }
 
     suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Unit> {
-        val cont = cra.contemporaryCRA
         val hist = cra.historicalCRA
+        val cont = cra.contemporaryCRA
 
         var contResult: ApiResult<Success>? = null
         var histResult: ApiResult<Success>? = null

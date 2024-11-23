@@ -80,7 +80,7 @@
     <string name="contemporary_classification">Classification contemporaine</string>
     <string name="historical_classification">Classification historique</string>
     <string name="stop_drawing_polygon">Arrêter de dessiner un polygone</string>
-    <string name="place_polygon_corner">Placer le coin du polygone</string>
+    <string name="start_drawing_polygon">Commencez à dessiner un polygone</string>
     <string name="view_classifications_details">Afficher les détails de la classification</string>
     <string name="classifier_training_failed">Assurez-vous que vos ARC ont plusieurs classes dans votre région d\'intérêt !</string>
     <string name="legend">Légende</string>
@@ -210,7 +210,7 @@
     <string name="historical_choice_no">Non, essayez de classer l\'imagerie historique en vous entraînant uniquement avec les données contemporaines.</string>
     <string name="historical_choice_not_necessary">Pas nécessaire ! Les zones de référence n\'ont pas changé entre les périodes historiques et contemporaines. Utilisez simplement les ARC contemporaines pour les images historiques.</string>
     <string name="is_a_historical_cra">Un fichier de formes CRA historique est-il disponible/nécessaire ?</string>
-    <string name="fields_must_match">(Les champs doivent correspondre au fichier de formes contemporain)</string>
+    <string name="fields_must_match">(Les champs doivent correspondre entre les fichiers de formes historiques et contemporains)</string>
     <string name="coarse_boundary">Limite grossière</string>
     <string name="review_inputs">Examiner les entrées</string>
     <string name="this_is_optional">Le téléchargement des images est facultatif ! Vous souhaiterez peut-être télécharger ces images pour les utiliser en dehors de l\'application.</string>
