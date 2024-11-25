@@ -14,7 +14,6 @@ class AnalysisDatasource(
     fun getStage(roiDir: File): Stage {
         return try {
             when {
-                !File(roiDir, bufferFile).exists() -> Stage.BUFFER
                 atCompositesStage(roiDir) -> Stage.COMPOSITES
                 atCRAsStage(roiDir) -> Stage.CRAS
                 !File(File(roiDir, ClassificationDatasource.classificationDir), ClassificationDatasource.classificationURLsFile).exists() -> Stage.CLASSIFICATION
@@ -43,10 +42,6 @@ class AnalysisDatasource(
     fun deleteComposites(roiDir: File) = FileService.deleteDir(visDir(roiDir))
 
     companion object {
-        // Buffer
-        private const val bufferFile = "buffer_dist.json"
-        private const val buffersChartFile = "buffers_chart.json"
-
         // Visualize
         private const val visualizeURLsFile = "urls.json"
         private const val visualizeDir = "visualize"
@@ -65,8 +60,6 @@ class AnalysisDatasource(
 
         fun roiUUID() = RoiDatasource.roiUUID()
         fun roiFile(roiDir: File) = RoiDatasource.roiFile(roiDir)
-        fun buffersFile(roiDir: File) = File(roiDir, buffersChartFile)
-        fun buffDistFile(roiDir: File) = File(roiDir, bufferFile)
         fun urlsFile(roiDir: File) = File(visDir(roiDir), visualizeURLsFile)
         fun exportsFile(roiDir: File) = File(visDir(roiDir), exportsFilename)
         fun resultsFile(roiDir: File) = File(visDir(roiDir), resultsFile)
@@ -80,5 +73,5 @@ class AnalysisDatasource(
 }
 
 enum class Stage {
-    ERROR, BUFFER, COMPOSITES, CRAS, CLASSIFICATION, ALL
+    ERROR, COMPOSITES, CRAS, CLASSIFICATION, ALL
 }

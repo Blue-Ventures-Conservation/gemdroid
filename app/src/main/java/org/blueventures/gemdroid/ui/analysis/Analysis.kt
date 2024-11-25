@@ -14,7 +14,6 @@ import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.purpose
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.analysis.screens.Boundary
-import org.blueventures.gemdroid.ui.analysis.screens.Buffer
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColorDescription
@@ -30,7 +29,6 @@ object Analysis {
     object Routes {
         const val prefix = "analysis_"
         const val dashboard = prefix + "dashboard"
-        const val buffer = prefix + "buffer"
         const val visualize = prefix + "visualize"
         const val imagery_description = prefix + "imagery_description"
         const val imagery_downloads = prefix + "imagery_downloads"
@@ -39,7 +37,6 @@ object Analysis {
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
-                Stage.BUFFER -> buffer
                 Stage.COMPOSITES -> assess_description
                 Stage.CRAS -> purpose
                 Stage.CLASSIFICATION -> map
@@ -67,11 +64,6 @@ object Analysis {
             }, dyn = {
                 nav.navigate(Dynamics.Routes.prefix + Polygons.Routes.option)
             })
-        }
-
-        // Buffer selection
-        b.backHandler(Routes.buffer, nav::popBackStack, true) { back ->
-            Buffer.Screen(viewModel, appBar, snack, back)
         }
 
         // Visualization

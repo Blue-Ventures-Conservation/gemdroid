@@ -10,16 +10,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
-import org.blueventures.gemdroid.data.analysis.Buffer
-import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.CompositesAssessed
 import org.blueventures.gemdroid.data.analysis.ImageryExports
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buffDistFile
-import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.buffersFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.chotTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.clotTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.compositesAssessedFile
@@ -61,7 +57,7 @@ class AnalysisViewModel(
             dynamicsViewModel.roi = value
         }
 
-    var stage = Stage.BUFFER
+    var stage = Stage.COMPOSITES
     override var visualize = true
 
     fun init(activity: ComponentActivity) {
@@ -72,7 +68,6 @@ class AnalysisViewModel(
         dynamicsViewModel.init(craViewModel, this)
     }
 
-    private var buffersJob: Job? = null
     private var visualizeURLsJob: Job? = null
     private var exportsJob: Job? = null
     private var statusJob: Job? = null
@@ -87,25 +82,6 @@ class AnalysisViewModel(
     fun getROI(callback: (Result<ROI>) -> Unit) = loadFile(roiFile(roiDir), ROI.Companion, callback)
     fun saveROI(roi: ROI) = saveFile(roiFile(roiDir), roi, ROI.Companion)
 
-    fun saveBuffersFile(buffers: Buffers) = saveFile(buffersFile(roiDir), buffers, Buffers.Companion)
-    fun loadBuffersFile(callback: (Result<Buffers>) -> Unit) = loadFile(buffersFile(roiDir), Buffers.Companion, callback)
-    fun getBuffers(callback: (ApiResult<Buffers>) -> Unit) {
-        buffersJob = getRemote(buffersJob, roi, callback) { api, roi ->
-            api.getBuffers(roi)
-        }
-    }
-
-    fun saveBuffer(buffer: Int, callback: (Result<Unit>) -> Unit) {
-        roi = roi.copy(buffDist = buffer)
-        saveFile(roiFile(roiDir), roi, ROI.Companion) { result ->
-            if (result.isFailure) {
-                callback(result)
-            } else {
-                saveFile(buffDistFile(roiDir), Buffer(buffer), Buffer.Companion, callback)
-            }
-        }
-    }
-
     override fun parentDir() = roiDir
     override fun tileDir(i: Int) = tileDirs()[i]
 
@@ -115,7 +91,17 @@ class AnalysisViewModel(
     }
     override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = loadFile(urlsFile(roiDir), VisualizeURLs.Companion, callback)
     override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
-        visualizeURLsJob = getRemote(visualizeURLsJob, roi, callback) { api, roi ->
+        visualizeURLsJob = getRemote(visualizeURLsJob, roi, { apiResult ->
+            if (apiResult is ApiResult.Success) {
+                val buffer = apiResult.data!!.buffDist
+                roi = roi.copy(buffDist = buffer)
+                saveFile(roiFile(roiDir), roi, ROI.Companion) {
+                    callback(apiResult)
+                }
+            } else {
+                callback(apiResult)
+            }
+        }) { api, roi ->
             api.getVisualizeURLs(roi)
         }
     }

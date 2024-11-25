@@ -11,7 +11,7 @@ import java.io.File
 
 // Saved on device based on user input when creating an ROI
 data class ROI(
-    @Json(name = "buff_dist") val buffDist: Int = 0,
+    @Json(name = "buff_dist") val buffDist: Int = -1,
     @Json(name = "name") val name: String = "",
     @Json(name = "hist_year_start") val histYearStart: Int = 0,
     @Json(name = "hist_year_end") val histYearEnd: Int = 0,

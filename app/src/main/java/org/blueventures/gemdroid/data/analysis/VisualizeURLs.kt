@@ -11,6 +11,7 @@ data class VisualizeURLs(
     @Json(name = "clot_url") val clotURL: String,
     @Json(name = "hhot_url") val hhotURL: String,
     @Json(name = "hlot_url") val hlotURL: String,
+    @Json(name = "buff_dist") val buffDist: Int,
     @Json(name = "created_at") override val createdAt: Int, // seconds
     @Json(name = "timeout") override val timeout: Int, // seconds
 ): URLs {

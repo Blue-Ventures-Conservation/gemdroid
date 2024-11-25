@@ -4,7 +4,6 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.BaseApi
 import com.github.zibnix.droidbones.api.TokenInterceptor
 import org.blueventures.gemdroid.BuildConfig
-import org.blueventures.gemdroid.data.analysis.Buffers
 import org.blueventures.gemdroid.data.analysis.ImageryExports
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
@@ -35,9 +34,6 @@ object Api {
     }
 
     interface Backend {
-        @POST("/area_chart")
-        suspend fun getBuffers(@Body roi: ROI): ApiResult<Buffers>
-
         @POST("/get_imagery")
         suspend fun getVisualizeURLs(@Body roi: ROI): ApiResult<VisualizeURLs>
 
