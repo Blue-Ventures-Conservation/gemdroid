@@ -17,6 +17,12 @@ import java.io.FileInputStream
 import java.io.InputStream
 import kotlin.math.abs
 
+data class ClassCount(
+    @Json(name = "class_name") val className: String,
+    @Json(name = "class_number") var classNumber: Int,
+    @Json(name = "cra_count") var craCount: Int,
+)
+
 // Saved in Cloud Storage alongside the zip to keep track of
 // the parsed/selected fields used for analysis
 data class Shapefile(
@@ -25,6 +31,7 @@ data class Shapefile(
     @Json(name = "numeric_class_field") val numericClassField: String,
     @Json(name = "string_class_field") val stringClassField: String,
     @Json(name = "string_class_field_values") val stringClassValues: List<String>,
+    @Json(name = "class_cra_counts") val classCounts: List<ClassCount>?
 ) {
     companion object {
         private const val maxVerts = 100_000

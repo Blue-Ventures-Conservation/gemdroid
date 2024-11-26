@@ -44,6 +44,7 @@ object Overview {
             viewModel.multiPolyFromState(),
             viewModel.polygons.map { it.polygon },
             (!viewModel.forceLS && viewModel.shouldUseS2()),
+            null,
             stringResource(id = R.string.overview),
             stringResource(id = R.string.done_button),
         ) {

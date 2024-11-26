@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.ui.common.once
 object SubRegionsOption {
     @Composable
     fun Screen(viewModel: DynamicsViewModel, snack: SnackFun, back: Click, content: @Composable () -> Unit) {
-        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras).format(stringResource(R.string.dynamics)), viewModel.craAwaiter) { cra ->
+        Await.CRAOrGoBack(snack, back, stringResource(R.string.could_not_verify_cras).format(stringResource(R.string.dynamics)), viewModel.craAwaiter) { cra ->
             viewModel.cra = cra
 
             GetRemote.Save(

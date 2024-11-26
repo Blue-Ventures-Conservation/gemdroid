@@ -77,7 +77,7 @@ object Common {
                     val ctx = LocalContext.current
                     Effect.Once {
                         when {
-                            craFile.isSuccess ->  {
+                            craFile.isSuccess -> {
                                 setLocal(craFile.getOrNull()!!)
                                 next()
                             }

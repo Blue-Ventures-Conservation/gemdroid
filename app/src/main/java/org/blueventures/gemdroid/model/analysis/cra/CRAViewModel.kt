@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import java.io.File
@@ -15,8 +16,8 @@ class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Await.CRAAwaiter, ApiViewModel(repo) {
     var roiDir = File("")
-    var contemporaryCRA = CRAFile()
     var historicalCRA: CRAFile? = null
+    var contemporaryCRA = CRAFile()
     var historicalChoice = HistoricalChoice.SEPARATE
         set(choice) {
             field = choice
@@ -35,10 +36,12 @@ class CRAViewModel(
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)
     fun clearHistoricalChoice() { historicalChoice = HistoricalChoice.SEPARATE }
 
-    fun getCRAFields(callback: (Result<Fields>) -> Unit) = scoped{ repo.getCRAFields(contemporaryCRA, historicalCRA).collect(callback) }
-    fun setFields(fields: Fields) {
-        contemporaryCRA.fields = fields
-        historicalCRA?.fields = fields
+    fun getCRAFields(callback: (Result<BothFieldsCounted>) -> Unit) = scoped{ repo.getCRAFields(historicalCRA, contemporaryCRA).collect(callback) }
+    fun setFields(both: BothFieldsCounted) {
+        historicalCRA?.counted?.fields = both.fields
+        historicalCRA?.counted?.counts = both.histCounts
+        contemporaryCRA.counted.fields = both.fields
+        contemporaryCRA.counted.counts = both.contCounts
     }
 
     fun saveCRAs(callback: (Result<Unit>) -> Unit) {
@@ -123,6 +126,67 @@ class CRAViewModel(
     }
 
     fun clearState() { clearHistoricalChoice() }
+
+    fun handleLocalCounts(counts: StringsNumerics, chosenString: String, chosenStrings: List<String>, chosenNumeric: String, chosenNumerics: List<String>): Pair<List<ClassCount>, Int?> {
+        val zipped = chosenNumerics.map { it.toInt() }.zip(chosenStrings)
+        val strAssociated = zipped.associateByTo(mutableMapOf(), {
+            it.second
+        }) {
+            it.first
+        }
+
+        val numAssociated = chosenNumerics.associateByTo(mutableMapOf(), {
+            it
+        }) {
+            it.toInt()
+        }
+
+        val strs = counts.stringCounts.getChosen(chosenString, strAssociated)
+        val nums = counts.numericCounts.getChosen(chosenNumeric, numAssociated)
+        compareFields(strs, nums)?.let { msg ->
+            return Pair(emptyList(), msg)
+        }
+
+        return Pair(strs, null)
+    }
+
+    fun compareCRAs(histStrings: List<ClassCount>, contStrings: List<ClassCount>): Int? {
+        val histPairs = histStrings.associateByTo(mutableMapOf(), {
+            it.classNumber
+        }) {
+            it.className
+        }
+        val contPairs = contStrings.associateByTo(mutableMapOf(), {
+            it.classNumber
+        }) {
+            it.className
+        }
+
+        var errMsg: Int? = null
+        for (entry in histPairs.entries) {
+            val c = contPairs[entry.key]
+            if (c == null || c != entry.value) {
+                errMsg = R.string.class_names_and_values_do_not_match
+            }
+        }
+
+        return errMsg
+    }
+
+    private fun compareFields(strings: List<ClassCount>, numerics: List<ClassCount>): Int? {
+        for (sc in strings) {
+            for (nc in numerics) {
+                if (sc.classNumber == nc.classNumber) {
+                    if (sc.craCount != nc.craCount) {
+                        return R.string.mismatched_class_name_and_class_value
+                    }
+                    break
+                }
+            }
+        }
+
+        return null
+    }
 
     /**
      * Following functions below are intended to be used by other packages for getting CRAs.

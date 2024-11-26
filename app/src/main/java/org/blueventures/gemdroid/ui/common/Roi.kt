@@ -11,11 +11,13 @@ import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 
 object Roi {
@@ -41,7 +43,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, cra: CRA?, header: String, buttonLabel: String, next: Click) {
         OverviewFromState(
             background,
             name = roi.name,
@@ -54,6 +56,7 @@ object Roi {
             multi = roi.boundaryPolyToState(),
             excluded = roi.excludedRegions,
             useS2 = roi.useS2(),
+            cra = cra,
             header = header,
             buttonLabel = buttonLabel,
             next = next,
@@ -61,7 +64,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, cra: CRA?, header: String, buttonLabel: String, next: Click) {
         val (calcs, setCalcs) = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
         when (calcs) {
             null -> {
@@ -108,8 +111,34 @@ object Roi {
                         }
                         OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
                     }
+                    cra?.let {
+                        if (it.historicalCRA != null) {
+                                CRAOverview(stringResource(R.string.historical_cras), it.historicalCRA)
+                        }
+                        CRAOverview(stringResource(R.string.contemporary_cras), it.contemporaryCRA)
+                    }
                     DashboardButton(buttonLabel, next)
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun CRAOverview(header: String, shp: Shapefile) {
+        if (shp.classCounts?.isNotEmpty() == true) {
+            Info.Block {
+                Info.Header(header)
+
+                val counts = shp.classCounts
+                for (cc in counts) {
+                    OverviewRow("${cc.classNumber} - ${cc.className}:", "${cc.craCount}")
+                }
+
+                var total = 0
+                for (cc in counts) {
+                    total += cc.craCount
+                }
+                OverviewRow(stringResource(R.string.total), "$total")
             }
         }
     }

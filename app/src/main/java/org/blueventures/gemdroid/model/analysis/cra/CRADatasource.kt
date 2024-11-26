@@ -20,6 +20,7 @@ import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
+import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
@@ -35,7 +36,7 @@ class CRADatasource(
     private val auth: FirebaseAuth = Firebase.auth,
     private val storage: FirebaseStorage = Firebase.storage,
 ): ApiDatasource(api, auth, storage) {
-    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { cont ->
+    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { resumer ->
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()
                 .addOnSuccessListener { result ->
@@ -45,13 +46,13 @@ class CRADatasource(
                             files.add(it.name.substringBeforeLast("."))
                         }
                     }
-                    cont.resume(Result.success(files))
+                    resumer.resume(Result.success(files))
                 }
                 .addOnFailureListener {
-                    cont.resume(Result.failure(NoStack(R.string.could_not_reach_storage)))
+                    resumer.resume(Result.failure(NoStack(R.string.could_not_reach_storage)))
                 }
         } ?: run {
-            cont.resume(Result.failure(SignIn.not))
+            resumer.resume(Result.failure(SignIn.not))
         }
     }
 
@@ -66,11 +67,12 @@ class CRADatasource(
     }
 
     private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
-        val numerics = mutableListOf<String>()
         val strings = mutableListOf<String>()
-        val numericsMap = mutableMapOf<String, OrderedField>()
         val stringsMap = mutableMapOf<String, OrderedField>()
         val stringValues = mutableMapOf<String, List<String>>()
+
+        val numerics = mutableListOf<String>()
+        val numericsMap = mutableMapOf<String, OrderedField>()
         val numericValues = mutableMapOf<String, List<String>>()
 
         val zipResult = Shapefile.file(crasDir, files, names, nameCheck = { shpName ->
@@ -125,7 +127,7 @@ class CRADatasource(
 
             if (matched) {
                 numerics.add(nf)
-                numericValues[nf] = nof.values.sorted()
+                numericValues[nf] = nof.values.sortedBy { it.toInt() }
             }
         }
 
@@ -137,9 +139,15 @@ class CRADatasource(
             return Result.failure(NoStack(R.string.shp_no_candidate_char))
         }
 
+        val stringCounts = toClassCounts(stringsMap)
+        val numericCounts = toClassCounts(numericsMap)
+
         return Result.success(CRAFile(
             localFile = zipFile,
-            fields = Fields(numerics, strings, stringValues, numericValues))
+            counted = FieldsCounts(
+                Fields(numerics, strings, stringValues, numericValues),
+                StringsNumerics(ClassCounts(stringCounts), ClassCounts(numericCounts))
+            ))
         )
     }
 
@@ -159,48 +167,76 @@ class CRADatasource(
         }
     }
 
-    suspend fun getCRAFields(cont: CRAFile, hist: CRAFile?): Result<Fields> {
-        if (hist == null || cont.equivalent(hist)) return craFields(cont)
-        val contRes = craFields(cont)
-        val histRes = craFields(hist)
-        val err = resultCheck(contRes, histRes)
-        if (err != null) return Result.failure(err)
-        return mergeFields(contRes.getOrNull()!!, histRes.getOrNull()!!)
+    private fun toClassCounts(m: MutableMap<String, OrderedField>): Map<String, List<ClassCount>> {
+        return m.entries.associateByTo(mutableMapOf(), { entry ->
+            entry.key
+        }) { entry ->
+            val counts = mutableListOf<ClassCount>()
+            for ((i, fieldValue) in entry.value.values.withIndex()) {
+                counts.add(ClassCount(
+                    fieldValue,
+                    -1,
+                    craCount = entry.value.counts[i]
+                ))
+            }
+            counts.toList()
+        }
     }
 
-    private fun mergeFields(f1: Fields, f2: Fields): Result<Fields> {
+    suspend fun getCRAFields(hist: CRAFile?, cont: CRAFile): Result<BothFieldsCounted> {
+        if (hist == null || cont.equivalent(hist)) {
+            val res = craFields(cont)
+            if (res.isFailure) return Result.failure(res.exceptionOrNull()!!)
+            val fieldsCounts = res.getOrNull()!!
+            return Result.success(BothFieldsCounted(fieldsCounts.fields, fieldsCounts.counts, fieldsCounts.counts))
+        }
+        val histRes = craFields(hist)
+        val contRes = craFields(cont)
+        val err = resultCheck(histRes, contRes)
+        if (err != null) return Result.failure(err)
+
+        val histFieldsCounts = histRes.getOrNull()!!
+        val contFieldsCounts = contRes.getOrNull()!!
+        val mergeResult = mergeFields(histFieldsCounts.fields, contFieldsCounts.fields)
+        if (mergeResult.isFailure) return Result.failure(mergeResult.exceptionOrNull()!!)
+        val finalFields = mergeResult.getOrNull()!!
+
+        return Result.success(BothFieldsCounted(finalFields, histFieldsCounts.counts, contFieldsCounts.counts))
+    }
+
+    private fun mergeFields(hist: Fields, cont: Fields): Result<Fields> {
         val mismatch = NoStack(R.string.shps_must_match_fields)
         return when {
-            f1.complete() && f2.complete() -> {
-                if (f1.chosenNumeric == f2.chosenNumeric && f1.chosenString == f2.chosenString && f1.chosenStringValues!!.containsAll(f2.chosenStringValues!!)) {
-                    Result.success(f1)
+            hist.complete() && cont.complete() -> {
+                if (hist.chosenNumeric == cont.chosenNumeric && hist.chosenString == cont.chosenString && hist.chosenStringValues!!.containsAll(cont.chosenStringValues!!)) {
+                    Result.success(hist)
                 } else {
                     Result.failure(mismatch)
                 }
             }
-            f1.complete() && !f2.complete() -> {
-                if (f2.numerics!!.contains(f1.chosenNumeric) && f2.strings!!.contains(f1.chosenString) && f2.stringValues!![f1.chosenString]!!.containsAll(f1.chosenStringValues!!)) {
-                    Result.success(f1)
+            hist.complete() && !cont.complete() -> {
+                if (cont.numerics!!.contains(hist.chosenNumeric) && cont.strings!!.contains(hist.chosenString) && cont.stringValues!![hist.chosenString]!!.containsAll(hist.chosenStringValues!!)) {
+                    Result.success(hist)
                 } else {
                     Result.failure(mismatch)
                 }
             }
-            f2.complete() && !f1.complete() -> {
-                if (f1.numerics!!.contains(f2.chosenNumeric) && f1.strings!!.contains(f2.chosenString) && f1.stringValues!![f2.chosenString]!!.containsAll(f2.chosenStringValues!!)) {
-                    Result.success(f2)
+            cont.complete() && !hist.complete() -> {
+                if (hist.numerics!!.contains(cont.chosenNumeric) && hist.strings!!.contains(cont.chosenString) && hist.stringValues!![cont.chosenString]!!.containsAll(cont.chosenStringValues!!)) {
+                    Result.success(cont)
                 } else {
                     Result.failure(mismatch)
                 }
             }
-            !f1.complete() && !f2.complete() -> {
-                val n1 = f1.numerics!!
-                val n2 = f2.numerics!!
-                val s1 = f1.strings!!
-                val s2 = f2.strings!!
-                val sv1 = f1.stringValues!!
-                val sv2 = f2.stringValues!!
-                val nv1 = f1.numericValues!!
-                val nv2 = f2.numericValues!!
+            !hist.complete() && !cont.complete() -> {
+                val n1 = hist.numerics!!
+                val n2 = cont.numerics!!
+                val s1 = hist.strings!!
+                val s2 = cont.strings!!
+                val sv1 = hist.stringValues!!
+                val sv2 = cont.stringValues!!
+                val nv1 = hist.numericValues!!
+                val nv2 = cont.numericValues!!
 
                 val sx = s1.intersect(s2.toSet())
                 val nx = n1.intersect(n2.toSet())
@@ -238,8 +274,8 @@ class CRADatasource(
         }
     }
 
-    private suspend fun craFields(cra: CRAFile): Result<Fields> {
-        if (cra.fields.parsedLocally() || cra.fields.complete()) return Result.success(cra.fields)
+    private suspend fun craFields(cra: CRAFile): Result<FieldsCounts> {
+        if (cra.counted.parsedLocally() || cra.counted.complete()) return Result.success(cra.counted)
         if (cra.storageKey == null) return Result.failure(NoStack(R.string.internal_storage_key_err))
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
         val uid = auth.currentUser!!.uid
@@ -251,7 +287,7 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<Fields> = suspendCoroutine { cont ->
+    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<FieldsCounts> = suspendCoroutine { cont ->
         val tmp = File.createTempFile("cras", "json")
         tmp.deleteOnExit()
         storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
@@ -262,10 +298,13 @@ class CRADatasource(
                 val shp = shpRes.getOrNull()!!
                 cra.eeUploadName = shp.tableUploadOperationName
                 cont.resume(
-                    Result.success(Fields(
-                        chosenNumeric = shp.numericClassField,
-                        chosenString = shp.stringClassField,
-                        chosenStringValues = shp.stringClassValues,
+                    Result.success(FieldsCounts(
+                        Fields(
+                            chosenNumeric = shp.numericClassField,
+                            chosenString = shp.stringClassField,
+                            chosenStringValues = shp.stringClassValues,
+                        ),
+                        StringsNumerics(ClassCounts(chosenCounts = shp.classCounts ?: emptyList()))
                     ))
                 )
             }
@@ -285,7 +324,7 @@ class CRADatasource(
     }
 
     suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
-        if (cra.localFile == null || !cra.fields.complete()) {
+        if (cra.localFile == null || !cra.counted.complete()) {
             return Result.failure(NoStack(R.string.internal_sho_err))
         }
 
@@ -362,9 +401,10 @@ class CRADatasource(
             Shapefile(
                 key,
                 cra.eeUploadName!!,
-                cra.fields.chosenNumeric!!,
-                cra.fields.chosenString!!,
-                cra.fields.chosenStringValues!!
+                cra.counted.fields.chosenNumeric!!,
+                cra.counted.fields.chosenString!!,
+                cra.counted.fields.chosenStringValues!!,
+                cra.counted.counts.stringCounts.chosenCounts
             )
         )
 

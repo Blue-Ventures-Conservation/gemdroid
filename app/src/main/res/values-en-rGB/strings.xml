@@ -313,4 +313,10 @@
     <string name="keep_the_copied_boundary">Keep the Copied Boundary</string>
     <string name="edit_replace_the_boundary">Edit/Replace the Boundary</string>
     <string name="user">Current user:</string>
+    <string name="no_matching_numbers_of_classes">These fields do not have matching numbers of classes</string>
+    <string name="mismatched_class_name_and_class_value">%s CRA polygon has mismatched class name and class value</string>
+    <string name="class_names_and_values_do_not_match">Class names and values do not match between historical and contemporary CRAs</string>
+    <string name="historical_cras">Historical CRAs</string>
+    <string name="contemporary_cras">Contemporary CRAs</string>
+    <string name="total">Total:</string>
 </resources>

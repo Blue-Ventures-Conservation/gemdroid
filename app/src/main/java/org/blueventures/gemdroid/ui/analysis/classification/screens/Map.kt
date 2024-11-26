@@ -24,7 +24,7 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 object Map {
     @Composable
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun, back: Click, details: Click) {
-        Await.CRA(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
+        Await.CRAOrGoBack(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cra ->
             viewModel.cra = cra
             Classify(viewModel, appBar, details)
         }

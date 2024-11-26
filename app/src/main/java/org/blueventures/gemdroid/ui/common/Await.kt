@@ -16,12 +16,31 @@ object Await {
     }
 
     @Composable
-    fun CRA(
+    fun CRAOrGoBack(
         snack: SnackFun,
         back: Click,
         notVerified: String,
         awaiter: CRAAwaiter,
         content: @Composable (CRA) -> Unit,
+    ) {
+        CRA(notVerified, awaiter) { cra, msg ->
+            msg?.let {
+                snack.once(it)
+            }
+
+            cra?.let {
+                content(it)
+            } ?: run {
+                back.once()
+            }
+        }
+    }
+
+    @Composable
+    fun CRA(
+        notVerified: String,
+        awaiter: CRAAwaiter,
+        content: @Composable (CRA?, String?) -> Unit,
     ) {
         val (cras, setCRAs) = remember { mutableStateOf<Result<CRA>?>(null) }
         val (should, setShould) = remember { mutableStateOf<Result<Boolean>?>(null) }
@@ -33,8 +52,7 @@ object Await {
             }
             cras.isFailure -> {
                 val msg = cras.exceptionOrNull()!!.localized(LocalContext.current)
-                snack.once(msg)
-                back.once()
+                content(null, msg)
             }
             should == null -> {
                 awaiter.shouldAwaitCRAs(setShould)
@@ -44,11 +62,12 @@ object Await {
                 awaiter.awaitCRAs(cras.getOrNull()!!, setAwaited)
             }
             else -> {
+                var msg: String? = null
                 if (awaited != null && awaited.isFailure) {
-                    snack.once(notVerified)
+                    msg = notVerified
                 }
 
-                content(cras.getOrNull()!!)
+                content(cras.getOrNull()!!, msg)
             }
         }
     }

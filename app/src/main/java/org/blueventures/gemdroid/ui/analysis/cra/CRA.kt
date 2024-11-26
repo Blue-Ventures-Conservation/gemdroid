@@ -64,10 +64,11 @@ object CRA {
         }
 
         b.backHandler(Routes.cra_fields, nav::popBackStack) {
-            CRAFields.Screen(viewModel, appBar, snack, nav::popBackStack) {
+            val exit = {
                 viewModel.clearState()
                 nav.popClear(Analysis.Routes.dashboard)
             }
+            CRAFields.Screen(viewModel, appBar, snack, nav::popBackStack, exit, exit)
         }
     }
 

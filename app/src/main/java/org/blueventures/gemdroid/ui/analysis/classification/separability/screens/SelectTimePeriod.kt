@@ -23,7 +23,7 @@ object SelectTimePeriod {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         appBar.Update(AppBarUpdate(stringResource(R.string.spectral_separability)))
 
-        Await.CRA(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
+        Await.CRAOrGoBack(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
             val cont = cra.contemporaryCRA
             val hist = cra.historicalShp()
             val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }

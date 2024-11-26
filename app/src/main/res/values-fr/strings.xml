@@ -313,4 +313,10 @@
     <string name="keep_the_copied_boundary">Conserver la limite copiée</string>
     <string name="edit_replace_the_boundary">Modifier/Remplacer la limite</string>
     <string name="user">Utilisateur actuel :</string>
+    <string name="no_matching_numbers_of_classes">Ces champs n\'ont pas de numéros de classes correspondants</string>
+    <string name="mismatched_class_name_and_class_value">Le nom et la valeur du polygone CRA %s ne correspondent pas</string>
+    <string name="class_names_and_values_do_not_match">Les noms et valeurs des classes ne correspondent pas entre les ARC historiques et contemporaines</string>
+    <string name="historical_cras">CRAs historiques</string>
+    <string name="contemporary_cras">CRAs contemporaines</string>
+    <string name="total">Total :</string>
 </resources>
