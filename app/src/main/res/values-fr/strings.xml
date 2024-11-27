@@ -82,7 +82,7 @@
     <string name="stop_drawing_polygon">Arrêter de dessiner un polygone</string>
     <string name="start_drawing_polygon">Commencez à dessiner un polygone</string>
     <string name="view_classifications_details">Afficher les détails de la classification</string>
-    <string name="classifier_training_failed">Assurez-vous que vos ARC ont plusieurs classes dans votre région d\'intérêt !</string>
+    <string name="classifier_training_failed">Assurez-vous que vos CRA ont plusieurs classes dans votre région d\'intérêt !</string>
     <string name="legend">Légende</string>
     <string name="accuracy">Précision</string>
     <string name="resubstitution">Resubstitution :</string>
@@ -206,9 +206,9 @@
     <string name="polygons_look_good">les polygones ont l\'air bien</string>
     <string name="click_next_to_start_s_analysis">Cliquez sur Suivant pour démarrer l\'analyse %s !</string>
     <string name="click_next_to_add_cras">Cliquez sur Suivant pour ajouter des zones de référence de classification (CRA) et passez à Classification et dynamique pour %s !</string>
-    <string name="historical_choice_yes">Oui, j\'ai un fichier de formes distinct pour les ARC historiques.</string>
+    <string name="historical_choice_yes">Oui, j\'ai un fichier de formes distinct pour les CRA historiques.</string>
     <string name="historical_choice_no">Non, essayez de classer l\'imagerie historique en vous entraînant uniquement avec les données contemporaines.</string>
-    <string name="historical_choice_not_necessary">Pas nécessaire ! Les zones de référence n\'ont pas changé entre les périodes historiques et contemporaines. Utilisez simplement les ARC contemporaines pour les images historiques.</string>
+    <string name="historical_choice_not_necessary">Pas nécessaire ! Les zones de référence n\'ont pas changé entre les périodes historiques et contemporaines. Utilisez simplement les CRA contemporaines pour les images historiques.</string>
     <string name="is_a_historical_cra">Un fichier de formes CRA historique est-il disponible/nécessaire ?</string>
     <string name="fields_must_match">(Les champs doivent correspondre entre les fichiers de formes historiques et contemporains)</string>
     <string name="coarse_boundary">Limite grossière</string>
@@ -232,7 +232,7 @@
     </string>
     <string name="you_will_import_cras">Sur les prochains écrans, il vous sera demandé d\'importer des zones de référence de classification (CRA) à utiliser pour entraîner le modèle qui classe les images.</string>
     <string name="cras_simple_description">\n\nLes CRA contiennent les emplacements des zones qui ont une classification connue.</string>
-    <string name="we_will_add_feature">\n\nNous allons ajouter une fonctionnalité à cette application pour vous aider à créer des ARC simples/temporaires à la volée, mais pour l\'instant, il s\'agirait d\'un processus manuel, idéalement avec une vérification sur le terrain robuste.</string>
+    <string name="we_will_add_feature">\n\nNous allons ajouter une fonctionnalité à cette application pour vous aider à créer des CRA simples/temporaires à la volée, mais pour l\'instant, il s\'agirait d\'un processus manuel, idéalement avec une vérification sur le terrain robuste.</string>
     <string name="poly_too_big">Veuillez créer un polygone avec moins de %s points !</string>
     <string name="next_base_map">type de carte de base suivant (satellite, hybride, etc.)</string>
     <string name="expand_layers_options_menu">développer le menu d\'options des calques</string>
@@ -315,8 +315,12 @@
     <string name="user">Utilisateur actuel :</string>
     <string name="no_matching_numbers_of_classes">Ces champs n\'ont pas de numéros de classes correspondants</string>
     <string name="mismatched_class_name_and_class_value">Le nom et la valeur du polygone CRA %s ne correspondent pas</string>
-    <string name="class_names_and_values_do_not_match">Les noms et valeurs des classes ne correspondent pas entre les ARC historiques et contemporaines</string>
+    <string name="class_names_and_values_do_not_match">Les noms et valeurs des classes ne correspondent pas entre les CRA historiques et contemporaines</string>
     <string name="historical_cras">CRAs historiques</string>
     <string name="contemporary_cras">CRAs contemporaines</string>
     <string name="total">Total :</string>
+    <string name="overwrite">ÉCRASER</string>
+    <string name="overwrite_saved_cra">Écraser l\'CRA enregistré ?</string>
+    <string name="overwrite_the_existing_cra_fmt">Écraser l\'CRA \'%s\' existant ?</string>
+    <string name="error_while_deleting_existing_cra">Erreur lors de la tentative de suppression de l\'CRA existante</string>
 </resources>

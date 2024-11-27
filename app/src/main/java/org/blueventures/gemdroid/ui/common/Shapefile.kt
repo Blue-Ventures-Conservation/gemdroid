@@ -1,8 +1,6 @@
 package org.blueventures.gemdroid.ui.common
 
-import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -20,17 +18,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import java.io.InputStream
 
-typealias StreamValidator<T> = (Shapefile.Streams, (Result<T>) -> Unit) -> Job
+typealias StreamValidator<T> = (List<Uri>, (Result<T>) -> Unit) -> Unit
 
 object Shapefile {
     data class Streams(val streams: List<InputStream?>, val names: List<String?>)
 
     @Composable
-    fun <T> Screen(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
+    fun <T> Screen(title: String, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
         val ctx = LocalContext.current
         val resultHandler: (Result<T>?) -> Unit = { result ->
             if (result != null) {
@@ -41,39 +38,28 @@ object Shapefile {
             }
         }
 
-        Result(title, background, validator, resultHandler) {}
+        Result(title, validator, resultHandler) {}
     }
 
     @Composable
-    fun <T> Result(title: String, background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
+    fun <T> Result(title: String, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
         when (uris) {
             null -> GetUris(title, setUris)
-            else -> Validation(background, validator, uris, result, setUris, progress)
+            else -> Validation(validator, uris, result, setUris, progress)
         }
     }
 
     @Composable
-    fun <T> Validation(background: (() -> Streams, (Streams) -> Unit) -> Unit, validator: StreamValidator<T>, uris: List<Uri>, result: (Result<T>) -> Unit, setUris: (List<Uri>?) -> Unit, progress: () -> Unit = {}) {
+    fun <T> Validation(validator: StreamValidator<T>, uris: List<Uri>, result: (Result<T>) -> Unit, setUris: (List<Uri>?) -> Unit, progress: () -> Unit = {}) {
         Progress()
-        val context = LocalContext.current
         Effect.Once {
-            background({
-                val strms = mutableListOf<InputStream?>()
-                val names = mutableListOf<String?>()
-                uris.forEach { uri ->
-                    strms.add(context.contentResolver.openInputStream(uri))
-                    names.add(contentDisplayName(context, uri))
+            validator(uris) { res ->
+                if (res.isFailure) {
+                    setUris(null)
                 }
-                Streams(strms, names)
-            }) {
-                validator(it) { res ->
-                    if (res.isFailure) {
-                        setUris(null)
-                    }
-                    result(res)
-                }
+                result(res)
             }
             progress()
         }
@@ -116,20 +102,5 @@ object Shapefile {
         Butt.Text(stringResource(R.string.select_shapefile)) {
             launcher.launch(arrayOf("application/zip", "application/octet-stream", "x-gis/x-shapefile", "application/text"))
         }
-    }
-
-    private fun contentDisplayName(context: Context, uri: Uri): String? {
-        var name: String? = null
-
-        if (uri.scheme == "content") {
-            context.contentResolver.query(uri, null, null, null, null)?.let { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.moveToFirst()
-                name = cursor.getString(nameIndex)
-                cursor.close()
-            }
-        }
-
-        return name
     }
 }

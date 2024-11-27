@@ -319,4 +319,8 @@
     <string name="historical_cras">Historical CRAs</string>
     <string name="contemporary_cras">Contemporary CRAs</string>
     <string name="total">Total:</string>
+    <string name="overwrite">OVERWRITE</string>
+    <string name="overwrite_saved_cra">Overwrite saved CRA?</string>
+    <string name="overwrite_the_existing_cra_fmt">Overwrite the existing CRA \'%s\'?</string>
+    <string name="error_while_deleting_existing_cra">Error while attempting to delete existing CRA</string>
 </resources>

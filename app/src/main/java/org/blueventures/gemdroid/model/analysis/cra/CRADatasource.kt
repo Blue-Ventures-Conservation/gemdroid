@@ -25,6 +25,7 @@ import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
+import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -56,9 +57,9 @@ class CRADatasource(
         }
     }
 
-    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<CRAFile> {
         val crasDir = File(roiDir, crasDir)
-        return validateShapes(crasDir, files, names, remoteCRAs, previous)
+        return validateShapes(crasDir, files, names, remoteCRAs, previous, overwrite)
     }
 
     private data class OrderedField(val values: MutableList<String>, val counts: MutableList<Int>) {
@@ -66,7 +67,7 @@ class CRADatasource(
         fun indexOf(field: String) = values.indexOf(field)
     }
 
-    private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?): Result<CRAFile> {
+    private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<CRAFile> {
         val strings = mutableListOf<String>()
         val stringsMap = mutableMapOf<String, OrderedField>()
         val stringValues = mutableMapOf<String, List<String>>()
@@ -78,7 +79,7 @@ class CRADatasource(
         val zipResult = Shapefile.file(crasDir, files, names, nameCheck = { shpName ->
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
-                remoteCRAs.contains(shpName) -> NoStack(R.string.please_reuse_shp)
+                remoteCRAs.contains(shpName) && !overwrite -> Common.BadName(shpName)
                 !Regexp.assetName.matches(shpName) -> NoStack(R.string.shp_name_alphanumeric)
                 else -> null
             }
@@ -356,7 +357,7 @@ class CRADatasource(
         val needed = ingestNeeded(cra.eeUploadName, key)
         if (needed.isFailure) return Result.failure(needed.exceptionOrNull()!!)
         if (!needed.getOrNull()!!) return Result.success(Unit)
-        val result = api.ingestCRA(CRAKey(key))
+        val result = api.ingestCRA(CRAKey(key, cra.overwrite))
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         val data = result.data!!

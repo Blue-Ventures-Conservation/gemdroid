@@ -9,6 +9,7 @@ import java.io.File
 data class CRAFile(
     val storageKey: String? = null,
     var eeUploadName: String? = null,
+    var overwrite: Boolean = false,
     val localFile: File? = null,
     val counted: FieldsCounts = FieldsCounts(),
 ) {

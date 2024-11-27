@@ -29,8 +29,8 @@ class CRAViewModel(
     private var uploadJob: Job? = null
 
     fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = scoped { repo.getRemoteCRAs().collect(callback) }
-    fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, callback: (Result<CRAFile>) -> Unit) = scoped {
-        repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous).collect(callback)
+    fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean, callback: (Result<CRAFile>) -> Unit) = scoped {
+        repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous, overwrite).collect(callback)
     }
 
     fun getHistoricalChoices() = listOf(HistoricalChoice.SEPARATE, HistoricalChoice.NONE, HistoricalChoice.CONTEMPORARY)

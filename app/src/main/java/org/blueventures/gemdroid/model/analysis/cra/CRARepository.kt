@@ -9,7 +9,7 @@ class CRARepository(
     private val datasource: CRADatasource = CRADatasource(),
 ): ApiRepository(datasource) {
     fun getRemoteCRAs() = goFlow { datasource.getRemoteCRAs() }
-    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?) = goFlow { datasource.validateLocalCRA(roiDir, files, names, remoteCRAs, previous) }
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean) = goFlow { datasource.validateLocalCRA(roiDir, files, names, remoteCRAs, previous, overwrite) }
     fun getCRAFields(hist: CRAFile?, cont: CRAFile) = goFlow { datasource.getCRAFields(hist, cont) }
     fun uploadCRA(cra: CRAFile) = goFlow { datasource.uploadCRA(cra) }
     fun uploadCRAs(c1: CRAFile, c2: CRAFile) = goFlow { datasource.uploadCRAs(c1, c2) }

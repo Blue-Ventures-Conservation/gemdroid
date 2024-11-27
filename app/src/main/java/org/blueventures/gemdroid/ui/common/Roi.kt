@@ -129,15 +129,15 @@ object Roi {
             Info.Block {
                 Info.Header(header)
 
+                OverviewRow(stringResource(R.string.name), shp.shapefileStorageKey)
+
+                var total = 0
                 val counts = shp.classCounts
                 for (cc in counts) {
+                    total += cc.craCount
                     OverviewRow("${cc.classNumber} - ${cc.className}:", "${cc.craCount}")
                 }
 
-                var total = 0
-                for (cc in counts) {
-                    total += cc.craCount
-                }
                 OverviewRow(stringResource(R.string.total), "$total")
             }
         }
