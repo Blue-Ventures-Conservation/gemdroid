@@ -323,4 +323,6 @@
     <string name="overwrite_saved_cra">Overwrite saved CRA?</string>
     <string name="overwrite_the_existing_cra_fmt">Overwrite the existing CRA \'%s\'?</string>
     <string name="error_while_deleting_existing_cra">Error while attempting to delete existing CRA</string>
+    <string name="too_few_historical_images">Too few historical images found, please try widening your year/month ranges</string>
+    <string name="too_few_contemporary_images">Too few contemporary images found, please try widening your year/month ranges</string>
 </resources>

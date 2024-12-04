@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.maps
 
+import android.content.Context
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
@@ -11,6 +12,7 @@ import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.GetRemote
 import java.io.File
+import java.net.HttpURLConnection
 
 object Visualize {
     interface Visualizer {
@@ -34,7 +36,7 @@ object Visualize {
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (visualizer != null) {
-            GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile) { urls ->
+            GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
                 Maps.Screen(appBar, title, attemptGps, center, storage, object : Layers.Model<VisualizeURLs>() {
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
@@ -48,5 +50,23 @@ object Visualize {
         } else {
             Maps.NoLayers(appBar, title, attemptGps, center, storage, draw, poly, floating)
         }
+    }
+
+    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
+        if (code == HttpURLConnection.HTTP_BAD_REQUEST) {
+            message?.let { msg ->
+                return when {
+                    msg.contains("no historical images") -> {
+                        Pair(ctx.getString(R.string.too_few_historical_images), false)
+                    }
+                    msg.contains("no contemporary images") -> {
+                        Pair(ctx.getString(R.string.too_few_contemporary_images), false)
+                    }
+                    else -> Pair(null, true)
+                }
+            }
+        }
+        
+        return Pair(null, true)
     }
 }
