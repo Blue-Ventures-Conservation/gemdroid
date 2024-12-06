@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.ui.analysis.cra.screens
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -239,7 +238,6 @@ object Common {
 
     @Composable
     fun OverwriteDialog(shpName: String, onDismiss: Click, onOverwrite: Click) {
-        Log.e("derp", "OverwriteDialog")
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(stringResource(R.string.overwrite_saved_cra)) },

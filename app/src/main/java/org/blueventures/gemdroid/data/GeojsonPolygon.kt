@@ -27,7 +27,7 @@ data class GeojsonPolygon(
                     if (checkContainment && first) {
                         var ptContained = false
                         for (poly in container!!) {
-                            if (PolyUtil.isClosedPolygon(poly[0]) && PolyUtil.containsLocation(newPt, poly[0], false)) {
+                            if (PolyUtil.containsLocation(newPt, poly[0], true)) {
                                 ptContained = true
                                 break
                             }
@@ -41,7 +41,6 @@ data class GeojsonPolygon(
                 first = false
                 newPoly.add(newRing)
             }
-
 
             // TODO: this should be just be a polygon difference, rather than building a diff polygon with the points that lie outside
             // we will likely need to import the JST and do this work on a background thread to get a better calculation

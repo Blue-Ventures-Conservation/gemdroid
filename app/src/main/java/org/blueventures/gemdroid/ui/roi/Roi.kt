@@ -117,7 +117,7 @@ object Roi {
                 }
 
                 nav.navigate(route) {
-                    popUpTo(Routes.historicalMonths)
+                    popUpTo(Routes.contemporaryMonths)
                 }
             }
         }
@@ -125,11 +125,11 @@ object Roi {
         b.backHandler(Routes.copied_polygon, nav::popBackStack) {
             CopiedPolygon.Screen(appBar, {
                 nav.navigate(Routes.prefix+Polygons.Routes.option) {
-                    popUpTo(Routes.historicalMonths)
+                    popUpTo(Routes.contemporaryMonths)
                 }
             }) {
                 nav.navigate(Routes.prefix+Polygon.Routes.draw_or_shapefile) {
-                    popUpTo(Routes.historicalMonths)
+                    popUpTo(Routes.contemporaryMonths)
                 }
             }
         }

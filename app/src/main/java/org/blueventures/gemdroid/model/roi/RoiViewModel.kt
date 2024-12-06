@@ -211,7 +211,7 @@ class RoiViewModel(
         val defaultHistoricalYearStart = defaultHistoricalYearEnd - 1
         const val maxRoiArea = 5_000_000 // hectares
         const val maxYearGap = 4
-        const val oldestLandsatYear = 1973
+        const val oldestLandsatYear = 1982
 
         fun firstRing(multi: MultiPolyPts) =
             if (multi.isEmpty() || multi.first().isEmpty()) {
