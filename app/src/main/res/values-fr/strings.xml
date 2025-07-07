@@ -325,4 +325,6 @@
     <string name="error_while_deleting_existing_cra">Erreur lors de la tentative de suppression de l\'CRA existante</string>
     <string name="too_few_historical_images">Trop peu d\'images historiques trouvées. Veuillez essayer d\'élargir vos plages année/mois.</string>
     <string name="too_few_contemporary_images">Trop peu d\'images contemporaines trouvées. Veuillez essayer d\'élargir vos plages année/mois.</string>
+    <string name="are_there_rivers_inland">Existe-t-il des rivières bordées de mangroves intérieures dans votre ROI ?</string>
+    <string name="yes_optional">Oui :</string>
 </resources>

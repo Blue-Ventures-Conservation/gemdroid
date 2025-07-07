@@ -25,6 +25,7 @@ object DrawPolygon {
         val drawer: PolygonDrawer
         val attemptGps: Boolean
 
+        fun <T> background(work: () -> T, callback: (T) -> Unit): Job
         fun polygonDrawn()
         fun center(): LatLng?
         fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job
@@ -40,8 +41,7 @@ object DrawPolygon {
             override val touchEnabled = false
             override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = model.polygonGroups(context, callback)
             override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
-                callback(null)
-                return Job()
+                return model.background({ null }, callback)
             }
         })
     }

@@ -159,8 +159,7 @@ class AnalysisViewModel(
                 listOf(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()))
             }, callback)
         } else {
-            callback(emptyList())
-            Job()
+            background({ emptyList() }, callback)
         }
     }
 

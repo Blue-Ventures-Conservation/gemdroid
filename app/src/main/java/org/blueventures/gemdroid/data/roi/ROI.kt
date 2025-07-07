@@ -20,6 +20,7 @@ data class ROI(
     @Json(name = "cont_year_end") val contYearEnd: Int = 0,
     @Json(name = "cont_months") val contMonths: List<Int>? = null,
     @Json(name = "polygon") val polygon: GeojsonMultiPolygon = GeojsonMultiPolygon(emptyList()),
+    @Json(name = "inland_mang") val inlandMang: Boolean = false,
     @Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
     @Json(name = "visualize") val visualize: Boolean = true,
     @Json(name = "region_uuid") val regionUUID: String? = null,
@@ -64,6 +65,7 @@ data class ROI(
             contYearEnd: Int,
             contMonths: List<Int>,
             points: MultiPolyPts,
+            inlandMang: Boolean,
             excludes: List<PolygonDrawer.NamedPolygon>,
             buffDist: Int,
             regionUUID: String? = null,
@@ -79,6 +81,7 @@ data class ROI(
                 contYearEnd,
                 contMonths,
                 GeojsonMultiPolygon.fromState(points),
+                inlandMang,
                 excludes.map { it.polygon },
                 regionUUID = regionUUID,
                 forceLandsat = forceLandsat,
@@ -103,7 +106,7 @@ data class ROI(
                                 multiExcludes.add(GeojsonMultiPolygon(listOf(poly.coordinates)))
                             }
 
-                            Result.success(ROI(single.buffDist, single.name, single.histYearStart, single.histYearEnd, getMonthsFromRange(single.histMonthStart, single.histMonthEnd), single.contYearStart, single.contYearEnd, getMonthsFromRange(single.contMonthStart, single.contMonthEnd), GeojsonMultiPolygon(listOf(single.polygon.coordinates)), multiExcludes, regionUUID = single.regionUUID))
+                            Result.success(ROI(single.buffDist, single.name, single.histYearStart, single.histYearEnd, getMonthsFromRange(single.histMonthStart, single.histMonthEnd), single.contYearStart, single.contYearEnd, getMonthsFromRange(single.contMonthStart, single.contMonthEnd), GeojsonMultiPolygon(listOf(single.polygon.coordinates)), false, multiExcludes, regionUUID = single.regionUUID))
                         }
                         else -> res
                     }

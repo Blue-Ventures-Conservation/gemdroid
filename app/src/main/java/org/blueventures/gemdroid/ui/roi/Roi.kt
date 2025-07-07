@@ -20,6 +20,7 @@ import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
 import org.blueventures.gemdroid.ui.roi.screens.CopiedPolygon
 import org.blueventures.gemdroid.ui.roi.screens.HistoricalMonths
 import org.blueventures.gemdroid.ui.roi.screens.HistoricalYears
+import org.blueventures.gemdroid.ui.roi.screens.InlandMang
 import org.blueventures.gemdroid.ui.roi.screens.Name
 import org.blueventures.gemdroid.ui.roi.screens.Overview
 import org.blueventures.gemdroid.ui.roi.screens.RoiList
@@ -36,6 +37,7 @@ object Roi {
         const val historicalMonths = prefix + "hist_months"
         const val coarse_polygon_purpose = prefix + "coarse_polygon_purpose"
         const val copied_polygon = prefix + "copied_polygon"
+        const val inland_mang = prefix + "inland_mang"
         const val overview = prefix + "overview"
     }
 
@@ -135,7 +137,13 @@ object Roi {
         }
 
         // Coarse ROI boundary creation
-        Polygon.screens(b, nav, Routes.prefix, Routes.prefix+Polygons.Routes.option, appBar, snack, viewModel.coarseModel)
+        Polygon.screens(b, nav, Routes.prefix, Routes.inland_mang, appBar, snack, viewModel.coarseModel)
+
+        b.backHandler(Routes.inland_mang, nav::popBackStack) {
+            InlandMang.Screen(viewModel, appBar) {
+                nav.navigate(Routes.prefix+Polygons.Routes.option)
+            }
+        }
 
         // Sub-Regions
         Polygons.screens(b, nav, Routes.prefix, Routes.prefix+Polygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, viewModel)

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,15 +44,15 @@ object Settings {
             else -> {
                 Col.MidPad(scroll = true) {
                     Info.Block {
-//                        val (lsOnly, setLSOnly) = remember { mutableStateOf(state.forceLandsat) }
-//                        SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description), {
-//                            setLSOnly(!lsOnly)
-//                        }) {
-//                            Checkbox(lsOnly, onCheckedChange = { check ->
-//                                setLSOnly(check)
-//                                viewModel.setForceLandsat(context, check)
-//                            })
-//                        }
+                        val (lsOnly, setLSOnly) = remember { mutableStateOf(state.forceLandsat) }
+                        SettingsItem(label = stringResource(R.string.landsat_only), description = stringResource(R.string.landsat_only_description), {
+                            setLSOnly(!lsOnly)
+                        }) {
+                            Checkbox(lsOnly, onCheckedChange = { check ->
+                                setLSOnly(check)
+                                viewModel.setForceLandsat(context, check)
+                            })
+                        }
                         Info.Space(3)
                         SettingsItem(label = "Show Introduction", "", welcome, Arrangement.SpaceAround) {}
                         Info.Space()

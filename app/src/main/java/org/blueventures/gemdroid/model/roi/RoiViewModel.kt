@@ -41,6 +41,7 @@ class RoiViewModel(
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonths: List<Int> = emptyList()
     var roiDrawer = PolygonDrawer(maxArea = maxRoiArea)
+    var inlandMang = false
     var importedROI: MultiPolyPts = emptyList()
     var importedBufferDist: Int = -1
     var imported = false
@@ -61,6 +62,7 @@ class RoiViewModel(
         contemporaryYearEnd,
         contemporaryMonths,
         multiPolyFromState(),
+        inlandMang,
         polygons,
         buffDist = importedBufferDist,
         regionUUID = roiUUID(),
@@ -170,8 +172,9 @@ class RoiViewModel(
     override fun clearEdit() {}
 
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job {
-        callback(Result.failure(Exception()))
-        return Job()
+        return background({
+            Result.failure(Throwable("pass"))
+        }, callback)
     }
 
     @Composable

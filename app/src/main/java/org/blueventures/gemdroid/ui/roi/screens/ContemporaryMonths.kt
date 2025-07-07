@@ -29,8 +29,7 @@ object ContemporaryMonths {
                 }
             }, stringResource(R.string.contemporary), appBar, snack
         ) {
-            // viewModel.getForceLandsat(ctx, setForceLandsat)
-            next()
+            viewModel.getForceLandsat(ctx, setForceLandsat)
         }
 
         forceLandsat?.let { force ->
