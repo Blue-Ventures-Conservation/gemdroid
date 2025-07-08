@@ -23,7 +23,7 @@ object InlandMang {
     fun Screen(viewModel: RoiViewModel, appBar: AppBar, next: Click) {
         appBar.Update(AppBarUpdate(stringResource(R.string.create_project)))
 
-        val (checked, setChecked) = remember { mutableStateOf(false) }
+        val (checked, setChecked) = remember { mutableStateOf(viewModel.inlandMang) }
 
         Col.MidPad {
             Info.Txt(text = stringResource(R.string.are_there_rivers_inland))

@@ -126,7 +126,7 @@ object Roi {
 
         b.backHandler(Routes.copied_polygon, nav::popBackStack) {
             CopiedPolygon.Screen(appBar, {
-                nav.navigate(Routes.prefix+Polygons.Routes.option) {
+                nav.navigate(Routes.inland_mang) {
                     popUpTo(Routes.contemporaryMonths)
                 }
             }) {

@@ -94,6 +94,7 @@ class RoiViewModel(
         } else {
             roiDrawer = PolygonDrawer(points = firstRing(GeojsonMultiPolygon.toState(roi.polygon)), maxArea = maxRoiArea)
         }
+        inlandMang = roi.inlandMang
     }
 
     fun notTooLong() = roiName.length <= maxNameCharLength
