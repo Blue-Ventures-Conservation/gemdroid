@@ -107,7 +107,7 @@ private fun getBVPalette(classes: List<String>): List<Color>? {
 
 private enum class BVClass(val num: Int, val color: Color, val names: List<String>) {
     CCM(1, BVDarkGreen, listOf("Closed-Canopy Mangrove")),
-    OCMI(2, BVGreen, listOf("Open-Canopy Mangrove I", "Open-Canopy Mangrove 1")),
+    OCMI(2, BVGreen, listOf("Open-Canopy Mangrove", "Open-Canopy Mangrove I", "Open-Canopy Mangrove 1")),
     OCMII(3, BVLimeGreen, listOf("Open-Canopy Mangrove II", "Open-Canopy Mangrove 2")),
     OCMIII(4, BVLightGreen, listOf("Open-Canopy Mangrove III", "Open-Canopy Mangrove 3")),
     TF(5, BVRed, listOf("Terrestrial Forest")),
