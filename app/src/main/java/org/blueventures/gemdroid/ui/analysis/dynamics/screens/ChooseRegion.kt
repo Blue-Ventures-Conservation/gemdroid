@@ -21,8 +21,8 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Info
+import org.blueventures.gemdroid.ui.theme.BVDarkBlue
 import org.blueventures.gemdroid.ui.theme.BVGreen
-import org.blueventures.gemdroid.ui.theme.Chartreuse
 import org.blueventures.gemdroid.ui.theme.MildRed
 
 object ChooseRegion {
@@ -63,7 +63,7 @@ object ChooseRegion {
             Info.Header(stringResource(R.string.legend))
             LegendRow(stringResource(R.string.loss), MildRed)
             LegendRow(stringResource(R.string.persistence), BVGreen)
-            LegendRow(stringResource(R.string.gain), Chartreuse)
+            LegendRow(stringResource(R.string.gain), BVDarkBlue)
         }
     }
 
