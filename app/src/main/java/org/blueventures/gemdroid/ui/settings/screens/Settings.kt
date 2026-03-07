@@ -54,9 +54,9 @@ object Settings {
                             })
                         }
                         Info.Space(3)
-                        SettingsItem(label = "Show Introduction", "", welcome, Arrangement.SpaceAround) {}
+                        SettingsItem(label = stringResource(R.string.settings_show_introduction), "", welcome, Arrangement.SpaceAround) {}
                         Info.Space()
-                        SettingsItem(label = "Contact Us", "", {
+                        SettingsItem(label = stringResource(R.string.contact_us), "", {
                             context.startActivity(Intent(Intent.ACTION_SENDTO).apply {
                                 data = Uri.parse("mailto:") // Only email apps handle this.
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf("gem@blueventures.org"))

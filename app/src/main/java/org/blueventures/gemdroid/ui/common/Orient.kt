@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 
 object Orient {
     @Composable
-    fun Portrait() = Lock(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+    fun Portrait() = Lock(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
     @Composable
     fun Landscape() = Lock(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)

@@ -327,4 +327,6 @@
     <string name="too_few_contemporary_images">Trop peu d\'images contemporaines trouvées. Veuillez essayer d\'élargir vos plages année/mois.</string>
     <string name="are_there_rivers_inland">Existe-t-il des rivières bordées de mangroves intérieures dans votre ROI ?</string>
     <string name="yes_optional">Oui :</string>
+    <string name="contact_us">Contactez-nous</string>
+    <string name="settings_show_introduction">Afficher l\'introduction</string>
 </resources>

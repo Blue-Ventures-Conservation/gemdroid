@@ -83,10 +83,7 @@ object GetRemote {
         val (localResult, setLocalResult) = remember { mutableStateOf<Result<T>?>(null) }
         val (remoteResult, setRemoteResult) = remember { mutableStateOf<ApiResult<T>?>(null) }
 
-        // rotation resend these requests, because this is poor design with compose
-        // and yet, I should be free to automatically schedule things on other threads
-        // that ultimately affect the UI without the user's constant interaction, so here we are
-        Orient.Portrait()
+        Orient.Unspecified()
 
         when {
             localResult == null -> {
@@ -102,6 +99,16 @@ object GetRemote {
                 }
             }
             remoteResult == null -> {
+                // Forcing portrait here is a cheap hack to prevent resending these request on screen rotation.
+                // Really the model should keep requests alive across screen rotations.
+                // That would mean no longer canceling the coroutine job in ApiViewModel.
+                // It would also likely require reestablishing the connection to the UI by calling the latest
+                // callback function which would have to be provided to the model after rotation, possibly as
+                // a property on the viewmodel.
+                // In addition, showing the correct screen state (spinner) after rotation might require a bit
+                // more tracking of state indicating the request is outstanding and active.
+                Orient.Portrait()
+
                 PleaseWait()
                 Effect.Once {
                     getRemote(setRemoteResult)
@@ -133,7 +140,9 @@ object GetRemote {
                 }
             }
             else -> {
-                setRemote(remoteResult.data!!)
+                val data = remoteResult.data!!
+                setLocalResult(Result.success(data))
+                setRemote(data)
             }
         }
     }

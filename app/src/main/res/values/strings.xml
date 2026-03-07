@@ -327,4 +327,6 @@
     <string name="too_few_contemporary_images">Too few contemporary images found, please try widening your year/month ranges</string>
     <string name="are_there_rivers_inland">Are there rivers with inland fringing mangrove in your ROI?</string>
     <string name="yes_optional">Yes:</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="settings_show_introduction">Show Introduction</string>
 </resources>

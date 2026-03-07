@@ -44,6 +44,9 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    kotlinOptions {
+        freeCompilerArgs = ['-XXLanguage:+PropertyParamAnnotationDefaultTargetMode']
+    }
 }
 
 dependencies {
@@ -52,7 +55,7 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'org.osmdroid:osmdroid-shape:6.1.20'
 
-    implementation platform('com.google.firebase:firebase-bom:34.9.0')
+    implementation platform('com.google.firebase:firebase-bom:34.10.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
@@ -89,12 +92,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
 
     implementation 'androidx.datastore:datastore-preferences:1.2.0'
-    implementation 'com.google.maps.android:maps-compose:8.1.0'
+    implementation 'com.google.maps.android:maps-compose:8.2.0'
     implementation 'com.google.android.gms:play-services-maps:20.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:4.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:4.1.0'
     implementation 'com.google.maps.android:maps-utils-ktx:6.0.0'
     implementation 'com.google.android.material:material:1.13.0'
-    implementation 'com.google.android.gms:play-services-auth:21.5.0'
+    implementation 'com.google.android.gms:play-services-auth:21.5.1'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.2'
     implementation 'com.squareup.retrofit2:converter-moshi:3.0.0'
