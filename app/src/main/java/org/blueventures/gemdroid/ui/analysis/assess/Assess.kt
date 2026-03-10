@@ -41,7 +41,7 @@ object Assess {
             FitForPurpose.Screen(viewModel, roiViewModel, appBar, {
                 nav.popClear(Analysis.Routes.dashboard)
             }) {
-                nav.navigate(Roi.Routes.contemporaryYears)
+                nav.navigate(Roi.Routes.historicalYears)
             }
         }
     }

@@ -27,7 +27,7 @@ object GetRemote {
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T) -> Unit,
         checkExpires: Boolean = false,
-        // returns a message to display and whether or not the request should be retried
+        // returns a message to display and whether the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         screen: @Composable (T) -> Unit) {
         Display(getLocal, getRemote, checkExpires, errorHandler, screen) { dat ->
@@ -42,7 +42,7 @@ object GetRemote {
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T, (Result<Unit>) -> Unit) -> Unit,
         checkExpires: Boolean = false,
-        // returns a message to display and whether or not the request should be retried
+        // returns a message to display and whether the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         saveFail: ((T) -> Unit)? = null,
         screen: @Composable (T) -> Unit
@@ -75,7 +75,7 @@ object GetRemote {
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         checkExpires: Boolean = false,
-        // returns a message to display and whether or not the request should be retried
+        // returns a message to display and whether the request should be retried
         errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
         setLocal: @Composable (T) -> Unit,
         setRemote: @Composable (T) -> Unit,

@@ -39,6 +39,7 @@ class AnalysisDatasource(
         return Result.success(Unit)
     }
 
+    // removes cached tile imagery and the urls.json returned from the server with lifetime info etc
     fun deleteComposites(roiDir: File) = FileService.deleteDir(visDir(roiDir))
 
     companion object {

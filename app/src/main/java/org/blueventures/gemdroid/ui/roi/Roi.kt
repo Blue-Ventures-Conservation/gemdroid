@@ -75,7 +75,7 @@ object Roi {
             }
         }
 
-        // ROI months range selection
+        // ROI historical months selection
         b.backHandler(Routes.historicalMonths, {
             viewModel.clearHistoricalMonths()
             nav.popBackStack()
