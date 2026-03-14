@@ -59,6 +59,7 @@
     <string name="could_not_open_zip">Impossible d\'ouvrir le fichier .zip sélectionné pour validation</string>
     <string name="shp_missing_files">Votre fichier de formes doit inclure un .shp, un .shx, un .dbf et un .prj</string>
     <string name="shps_names_must_match">Les fichiers Shape doivent tous avoir le même nom.</string>
+    <string name="prj_must_be_wgs_84">Veuillez utiliser un fichier de formes WGS84 (EPSG:4326) sans projection.</string>
     <string name="shps_must_differ">Veuillez sélectionner deux fichiers de formes différents.</string>
     <string name="please_reuse_shp">Veuillez utiliser le fichier de formes précédemment téléchargé portant ce nom.</string>
     <string name="internal_cra_err">Erreur de données interne de l\'ARC, désolé !</string>

@@ -12,9 +12,12 @@ import org.blueventures.gemdroid.data.PolyPts
 import org.nocrala.tools.gis.data.esri.shapefile.shape.AbstractShape
 import org.nocrala.tools.gis.data.esri.shapefile.shape.ShapeType
 import org.nocrala.tools.gis.data.esri.shapefile.shape.shapes.AbstractPolyShape
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 import kotlin.math.abs
 
 data class ClassCount(
@@ -193,6 +196,21 @@ data class Shapefile(
             var dr: DbfReader? = null
 
             try {
+                val prjBuilder = StringBuilder()
+                val prjReader = BufferedReader(InputStreamReader(FileInputStream(prj)))
+
+                var c = prjReader.read()
+                while (c != -1) {
+                    prjBuilder.append(c.toChar())
+                    c = prjReader.read()
+                }
+
+                val prjContents = prjBuilder.toString()
+
+                if (prjContents.contains("PROJCS", true) || !prjContents.contains("GCS_WGS_1984", true)) {
+                    return Result.failure(NoStack(R.string.prj_must_be_wgs_84))
+                }
+
                 // these constructors will inspect the file header
                 shpStream = FileInputStream(shp)
                 val sr = BVShapeFileReader(shpStream)

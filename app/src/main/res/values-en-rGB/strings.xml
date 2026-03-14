@@ -59,6 +59,7 @@
     <string name="could_not_open_zip">Could not open selected .zip for validation</string>
     <string name="shp_missing_files">Your shapefile must include a .shp, .shx, .dbf and .prj</string>
     <string name="shps_names_must_match">Shapefiles should all have the same name.</string>
+    <string name="prj_must_be_wgs_84">Please use a WGS84 (EPSG:4326) shapefile without a projection.</string>
     <string name="shps_must_differ">Please select two different shapefiles.</string>
     <string name="please_reuse_shp">Please use the previously uploaded shapefile by that name.</string>
     <string name="internal_cra_err">Internal CRA data error, sorry!</string>
