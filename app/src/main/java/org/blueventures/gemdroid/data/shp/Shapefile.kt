@@ -17,7 +17,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.nio.charset.StandardCharsets
 import kotlin.math.abs
 
 data class ClassCount(
@@ -45,7 +44,7 @@ data class Shapefile(
         fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }): Result<MultiPolyPts> {
             val polys = mutableListOf<List<List<LatLng>>>()
 
-            val zipResult = file(workDir, files, names, maxVertices, nameCheck, recordf) { pts ->
+            val zipResult = file(workDir, files, names, maxVertices, true, nameCheck, recordf) { pts ->
                 polys.add(pts)
             }
             if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
@@ -54,12 +53,12 @@ data class Shapefile(
             return Result.success(polys)
         }
 
-        fun file(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (PolyPts) -> Unit = {}): Result<File> {
+        fun file(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, mustBeWGS84: Boolean = false, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (PolyPts) -> Unit = {}): Result<File> {
             val unzipDir = File(workDir, "shapes_unzip_polygons")
 
             var atLeastOne = false
             val zipResult = try {
-                inspectAndZip(workDir, unzipOrCopy(unzipDir, files, names), nameCheck, { shape, record ->
+                inspectAndZip(workDir, unzipOrCopy(unzipDir, files, names), mustBeWGS84, nameCheck, { shape, record ->
                     var vertexCount = 0
                     var tooManyVertices = false
                     if (shape.shapeType == ShapeType.POLYGON || shape.shapeType == ShapeType.POLYGON_Z || shape.shapeType == ShapeType.POLYGON_M) {
@@ -136,7 +135,7 @@ data class Shapefile(
             }
         }
 
-        fun inspectAndZip(workDir: File, pathsResult: Result<List<String>>, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Int?, finalize: () -> Int?): Result<File> {
+        private fun inspectAndZip(workDir: File, pathsResult: Result<List<String>>, mustBeWGS84: Boolean, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Int?, finalize: () -> Int?): Result<File> {
             if (pathsResult.isFailure) {
                 return Result.failure(pathsResult.exceptionOrNull()!!)
             }
@@ -207,7 +206,7 @@ data class Shapefile(
 
                 val prjContents = prjBuilder.toString()
 
-                if (prjContents.contains("PROJCS", true) || !prjContents.contains("GCS_WGS_1984", true)) {
+                if (mustBeWGS84 && (prjContents.contains("PROJCS", true) || !prjContents.contains("GCS_WGS_1984", true))) {
                     return Result.failure(NoStack(R.string.prj_must_be_wgs_84))
                 }
 
