@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
-object DrawOrShapefile {
+object DrawOrUpload {
     interface Model: Polygons.AppBarTitler {
         val polygonType: Int
         fun edit(): Boolean
@@ -27,13 +27,13 @@ object DrawOrShapefile {
 
         val edit by remember { mutableStateOf(model.edit()) }
 
-        var header = stringResource(R.string.draw_polygon_or_shapefile).format(polyType)
+        var header = stringResource(R.string.draw_polygon_or_upload).format(polyType)
         var drawButton = stringResource(R.string.draw_a_polygon).format(polyType)
-        var shapefileButton = stringResource(R.string.upload_a_shapefile)
+        var shapefileButton = stringResource(R.string.upload_a_poly_file)
         if (edit) {
-            header = stringResource(R.string.edit_polygon_or_shapefile).format(polyType)
+            header = stringResource(R.string.edit_polygon_or_replace).format(polyType)
             drawButton = stringResource(R.string.edit_a_polygon).format(polyType)
-            shapefileButton = stringResource(R.string.replace_with_a_shapefile)
+            shapefileButton = stringResource(R.string.replace_with_a_polygon_file)
         }
 
         model.clearEdit()

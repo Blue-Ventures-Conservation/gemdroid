@@ -7,8 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MD5
+import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import java.io.File
 import java.io.InputStream
@@ -107,7 +107,7 @@ class RoiDatasource(
 
     fun deleteRoi(dir: File) = FileService.deleteDir(dir)
 
-    fun validateShapefile(roiDir: File, files: List<InputStream?>, names: List<String?>) = Shapefile.polygons(roiDir, files, names)
+    fun validatePolygonFile(roiDir: File, files: List<InputStream?>, names: List<String?>) = PolyFile.polygons(roiDir, files, names)
 
     companion object {
         const val filename = "roi.json"

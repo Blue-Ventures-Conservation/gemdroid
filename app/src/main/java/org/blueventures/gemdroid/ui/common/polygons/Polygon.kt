@@ -5,13 +5,13 @@ import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
+import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrUpload
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
-import org.blueventures.gemdroid.ui.common.polygons.screens.ShapefilePolygon
-import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeShapefile
+import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
+import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeFilePoly
 
 object Polygon {
-    interface Model: Polygons.AppBarTitler, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model
+    interface Model: Polygons.AppBarTitler, DrawOrUpload.Model, DrawPolygon.Model, FilePolygon.Model, VisualizeFilePoly.Model
 
     object Routes {
         const val draw_or_shapefile = "polygon_draw_or_shapefile"
@@ -36,7 +36,7 @@ object Polygon {
         val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
 
         b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
-            DrawOrShapefile.Screen(model, appBar, draw = {
+            DrawOrUpload.Screen(model, appBar, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
@@ -53,7 +53,7 @@ object Polygon {
         }
 
         b.backHandler(routeShpPolygon, nav::popBackStack) {
-            ShapefilePolygon.Screen(model, appBar, snack) {
+            FilePolygon.Screen(model, appBar, snack) {
                 nav.navigate(routeVisualizeShp)
             }
         }
@@ -62,7 +62,7 @@ object Polygon {
             model.drawer.clear()
             nav.popBackStack(routePolygonDrawOrShp, false)
         }) {
-            VisualizeShapefile.Screen(model, appBar) {
+            VisualizeFilePoly.Screen(model, appBar) {
                 nav.navigate(nextRoute)
             }
         }

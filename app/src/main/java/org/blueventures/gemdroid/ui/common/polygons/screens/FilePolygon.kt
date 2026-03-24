@@ -11,15 +11,15 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Shapefile
+import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
 
-object ShapefilePolygon {
+object FilePolygon {
     interface Model: Polygons.AppBarTitler {
-        var shapefile: MultiPolyPts
+        var filePoly: MultiPolyPts
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
-        fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
+        fun validatePolygonFile(streams: PolygonFile.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
     }
 
     @Composable
@@ -28,14 +28,14 @@ object ShapefilePolygon {
 
         val context = LocalContext.current
         Col.Col {
-            Shapefile.Screen(stringResource(R.string.upload_a_shapefile), { uris, callback ->
+            PolygonFile.Screen(stringResource(R.string.upload_a_poly_file), { uris, callback ->
                 Common.makeStreams(context, model::background, uris) { streams ->
-                    model.validateShapefile(streams, callback)
+                    model.validatePolygonFile(streams, callback)
                 }
             }, { err ->
                 snack(err)
             }) { points ->
-                model.shapefile = points
+                model.filePoly = points
                 next()
             }
         }

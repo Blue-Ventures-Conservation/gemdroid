@@ -20,6 +20,7 @@ import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
+import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
@@ -76,7 +77,10 @@ class CRADatasource(
         val numericsMap = mutableMapOf<String, OrderedField>()
         val numericValues = mutableMapOf<String, List<String>>()
 
-        val zipResult = Shapefile.file(crasDir, files, names, nameCheck = { shpName ->
+        val pathsResult = PolyFile.unzipOrCopy(crasDir, files, names)
+        if (pathsResult.isFailure) return Result.failure(pathsResult.exceptionOrNull()!!)
+
+        val zipResult = Shapefile.file(crasDir, pathsResult.getOrNull()!!, nameCheck = { shpName ->
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
                 remoteCRAs.contains(shpName) && !overwrite -> Common.BadName(shpName)

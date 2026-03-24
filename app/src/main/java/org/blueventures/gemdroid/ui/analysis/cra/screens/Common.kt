@@ -31,7 +31,7 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
-import org.blueventures.gemdroid.ui.common.Shapefile
+import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.once
 import java.io.InputStream
@@ -156,7 +156,7 @@ object Common {
                 OverwriteDialog(state.shpName.value, onDismiss = {
                     state.overwrite.value = false
                     state.askOverwrite.value = false
-                    setLocal(Result.failure(NoStack(R.string.please_reuse_shp)))
+                    setLocal(Result.failure(NoStack(R.string.please_reuse_poly_file)))
                 }) {
                     state.overwrite.value = true
                     state.askOverwrite.value = false
@@ -178,7 +178,7 @@ object Common {
                 setProgress(true)
             }
             else -> {
-                Shapefile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { uris, callback ->
+                PolygonFile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { uris, callback ->
                     makeStreams(context, viewModel::background, uris) { streams ->
                         viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, false) { result ->
                             if (result.isFailure) {
@@ -207,7 +207,7 @@ object Common {
         }
     }
 
-    fun makeStreams(context: Context, background: (() -> Shapefile.Streams, (Shapefile.Streams) -> Unit) -> Unit, uris: List<Uri>, callback: (Shapefile.Streams) -> Unit) {
+    fun makeStreams(context: Context, background: (() -> PolygonFile.Streams, (PolygonFile.Streams) -> Unit) -> Unit, uris: List<Uri>, callback: (PolygonFile.Streams) -> Unit) {
         background({
             val strms = mutableListOf<InputStream?>()
             val names = mutableListOf<String?>()
@@ -215,7 +215,7 @@ object Common {
                 strms.add(context.contentResolver.openInputStream(uri))
                 names.add(contentDisplayName(context, uri))
             }
-            Shapefile.Streams(strms, names)
+            PolygonFile.Streams(strms, names)
         }) { streams ->
             callback(streams)
         }

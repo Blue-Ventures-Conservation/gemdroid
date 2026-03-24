@@ -11,5 +11,5 @@ class RoiRepository(
     fun getRois(filesDir: File) = goFlow { datasource.getRois(filesDir) }
     fun saveRoi(filesDir: File, roi: ROI) = goFlow { datasource.saveRoi(filesDir, roi) }
     fun deleteRoi(dir: File) = goFlow { datasource.deleteRoi(dir) }
-    fun validateShapefile(roiDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validateShapefile(roiDir, files, names) }
+    fun validatePolygonFile(roiDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validatePolygonFile(roiDir, files, names) }
 }

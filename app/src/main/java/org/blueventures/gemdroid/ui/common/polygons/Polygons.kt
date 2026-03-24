@@ -5,15 +5,15 @@ import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrShapefile
+import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrUpload
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.NamePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.PolygonsOption
-import org.blueventures.gemdroid.ui.common.polygons.screens.ShapefilePolygon
-import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeShapefile
+import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
+import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeFilePoly
 
 object Polygons {
-    interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrShapefile.Model, DrawPolygon.Model, ShapefilePolygon.Model, VisualizeShapefile.Model {
+    interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrUpload.Model, DrawPolygon.Model, FilePolygon.Model, VisualizeFilePoly.Model {
         val named: Boolean
         fun goBack()
     }
@@ -81,7 +81,7 @@ object Polygons {
         }
 
         b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
-            DrawOrShapefile.Screen(model, appBar, draw = {
+            DrawOrUpload.Screen(model, appBar, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
@@ -98,7 +98,7 @@ object Polygons {
         }
 
         b.backHandler(routeShpPolygon, nav::popBackStack) {
-            ShapefilePolygon.Screen(model, appBar, snack) {
+            FilePolygon.Screen(model, appBar, snack) {
                 nav.navigate(routeVisualizeShp)
             }
         }
@@ -106,7 +106,7 @@ object Polygons {
         b.backHandler(routeVisualizeShp, {
             nav.popBackStack(routePolygonDrawOrShp, false)
         }) {
-            VisualizeShapefile.Screen(model, appBar) {
+            VisualizeFilePoly.Screen(model, appBar) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }

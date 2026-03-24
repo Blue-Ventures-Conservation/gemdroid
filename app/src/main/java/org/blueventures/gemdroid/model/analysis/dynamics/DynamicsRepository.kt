@@ -7,5 +7,5 @@ import java.io.InputStream
 class DynamicsRepository(
     private val datasource: DynamicsDatasource = DynamicsDatasource(),
 ): ApiRepository(datasource) {
-    fun validateShapefile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validateShapefile(dynamicsDir, files, names) }
+    fun validatePolygonFile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = goFlow { datasource.validatePolygonFile(dynamicsDir, files, names) }
 }

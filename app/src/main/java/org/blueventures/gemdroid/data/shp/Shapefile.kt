@@ -9,13 +9,13 @@ import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolyPts
+import org.blueventures.gemdroid.data.polyfile.PolyFile.MAX_VERTICES
 import org.nocrala.tools.gis.data.esri.shapefile.shape.AbstractShape
 import org.nocrala.tools.gis.data.esri.shapefile.shape.ShapeType
 import org.nocrala.tools.gis.data.esri.shapefile.shape.shapes.AbstractPolyShape
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.io.InputStreamReader
 import kotlin.math.abs
 
@@ -36,15 +36,14 @@ data class Shapefile(
     @Json(name = "class_cra_counts") val classCounts: List<ClassCount>?
 ) {
     companion object {
-        private const val maxVerts = 100_000
         private val adapter = FileService.adapter<Shapefile>()
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
         fun toFile(file: File, shp: Shapefile) = FileService.toFile(file, shp, adapter)
 
-        fun polygons(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }): Result<MultiPolyPts> {
+        fun polygons(workDir: File, paths: List<String>): Result<MultiPolyPts> {
             val polys = mutableListOf<List<List<LatLng>>>()
 
-            val zipResult = file(workDir, files, names, maxVertices, true, nameCheck, recordf) { pts ->
+            val zipResult = file(workDir, paths, MAX_VERTICES, true, {null}, {null}) { pts ->
                 polys.add(pts)
             }
             if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
@@ -53,12 +52,10 @@ data class Shapefile(
             return Result.success(polys)
         }
 
-        fun file(workDir: File, files: List<InputStream?>, names: List<String?>, maxVertices: Int = maxVerts, mustBeWGS84: Boolean = false, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (PolyPts) -> Unit = {}): Result<File> {
-            val unzipDir = File(workDir, "shapes_unzip_polygons")
-
-            var atLeastOne = false
-            val zipResult = try {
-                inspectAndZip(workDir, unzipOrCopy(unzipDir, files, names), mustBeWGS84, nameCheck, { shape, record ->
+        // this function is exposed primarily for inspecting CRAs
+        fun file(workDir: File, paths: List<String>, maxVertices: Int = MAX_VERTICES, mustBeWGS84: Boolean = false, nameCheck: (String) -> Throwable? = { null }, recordf: (DbfRecord) -> Int? = { null }, polyReceiver: (PolyPts) -> Unit = {}): Result<File> {
+            return try {
+                inspectAndZip(workDir, paths, mustBeWGS84, nameCheck, { shape, record ->
                     var vertexCount = 0
                     var tooManyVertices = false
                     if (shape.shapeType == ShapeType.POLYGON || shape.shapeType == ShapeType.POLYGON_Z || shape.shapeType == ShapeType.POLYGON_M) {
@@ -70,7 +67,6 @@ data class Shapefile(
                             for (i in 0 until pShape.numberOfParts) {
                                 val pts = mutableListOf<LatLng>()
                                 val shapePts = pShape.getPointsOfPart(i)
-                                atLeastOne = true
                                 vertexCount += shapePts.size
 
                                 if (vertexCount > maxVertices) {
@@ -93,7 +89,7 @@ data class Shapefile(
                             }
 
                             if (tooManyVertices) {
-                                R.string.please_use_smaller_shp
+                                R.string.please_use_smaller_poly_file
                             } else {
                                 if (poly.isNotEmpty()) {
                                     polyReceiver(poly)
@@ -104,44 +100,17 @@ data class Shapefile(
                             recordErr
                         }
                     } else {
-                        R.string.please_use_only_polygons_shp
+                        R.string.please_use_only_polygons_poly_file
                     }
-                }) {
-                    if (!atLeastOne) R.string.please_use_polygon_shp else null
+                }) { atLeastOne ->
+                    if (!atLeastOne) R.string.please_use_polygon_poly_file else null
                 }
             } catch (e: Exception) {
                 Result.failure(e)
             }
-
-            FileService.deleteDir(unzipDir)
-
-            return zipResult
         }
 
-        fun unzipOrCopy(workDir: File, files: List<InputStream?>, names: List<String?>): Result<List<String>> {
-            if (files.isEmpty()) return Result.failure(NoStack(R.string.no_file_selected))
-
-            val unzipDirRes = FileService.createDir(workDir)
-            if (unzipDirRes.isFailure) {
-                return Result.failure(unzipDirRes.exceptionOrNull()!!)
-            }
-
-            val unzipDir = unzipDirRes.getOrNull()!!
-
-            return if (files.size == 1) {
-                unzip(unzipDir, files[0], names[0])
-            } else {
-                copyShapes(unzipDir, files, names)
-            }
-        }
-
-        private fun inspectAndZip(workDir: File, pathsResult: Result<List<String>>, mustBeWGS84: Boolean, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Int?, finalize: () -> Int?): Result<File> {
-            if (pathsResult.isFailure) {
-                return Result.failure(pathsResult.exceptionOrNull()!!)
-            }
-
-            val paths = pathsResult.getOrNull()!!
-
+        private fun inspectAndZip(workDir: File, paths: List<String>, mustBeWGS84: Boolean, nameCheck: (String) -> Throwable?, mapf: (AbstractShape, DbfRecord) -> Int?, finalize: (Boolean) -> Int?): Result<File> {
             val badShape = NoStack(R.string.shp_missing_files)
             if (paths.size < 4) {
                 return Result.failure(badShape)
@@ -217,6 +186,7 @@ data class Shapefile(
 
                 var count = 0
                 var s = sr.next()
+                var atLeastOne = false
                 while(s != null) {
                     count++
 
@@ -225,11 +195,12 @@ data class Shapefile(
                     if (errId != null) {
                         break
                     }
+                    atLeastOne = true
                     s = sr.next()
                 }
 
                 if (errId == null) {
-                    errId = finalize()
+                    errId = finalize(atLeastOne)
                 }
             } catch (e: Exception) {
                 return Result.failure(e)
@@ -250,41 +221,6 @@ data class Shapefile(
             }
 
             return Result.success(zipFile)
-        }
-
-        private fun copyShapes(dir: File, shps: List<InputStream?>, names: List<String?>): Result<List<String>> {
-            val paths = mutableListOf<String>()
-            shps.forEachIndexed { i, shp ->
-                if (shp == null || names[i] == null) {
-                    return Result.failure(NoStack(R.string.could_not_read_shps))
-                }
-                val path = File(dir, names[i]!!).path
-                val streamRes = FileService.streamToFile(shp, path)
-                if (streamRes.isFailure) {
-                    return Result.failure(streamRes.exceptionOrNull()!!)
-                }
-
-                paths.add(path)
-            }
-
-            return Result.success(paths)
-        }
-
-        private fun unzip(dir: File, zip: InputStream?, name: String?): Result<List<String>> {
-            val notZip = NoStack(R.string.extract_must_be_zip)
-            if (name?.substringAfterLast(".")?.lowercase() != "zip") {
-                return Result.failure(notZip)
-            }
-
-            if (zip == null) {
-                return Result.failure(NoStack(R.string.could_not_open_zip))
-            }
-
-            val pathsRes = FileService.unzip(zip, dir.path)
-            if (pathsRes.isFailure) {
-                return Result.failure(pathsRes.exceptionOrNull()!!)
-            }
-            return Result.success(pathsRes.getOrNull()!!)
         }
 
         private fun toLatLng(x: Double, y: Double): LatLng {

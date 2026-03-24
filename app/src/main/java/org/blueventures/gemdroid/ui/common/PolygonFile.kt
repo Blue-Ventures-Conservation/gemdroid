@@ -23,7 +23,7 @@ import java.io.InputStream
 
 typealias StreamValidator<T> = (List<Uri>, (Result<T>) -> Unit) -> Unit
 
-object Shapefile {
+object PolygonFile {
     data class Streams(val streams: List<InputStream?>, val names: List<String?>)
 
     @Composable
@@ -99,7 +99,7 @@ object Shapefile {
             )
         }
         Spacer(modifier = Modifier.height(0.dp))
-        Butt.Text(stringResource(R.string.select_shapefile)) {
+        Butt.Text(stringResource(R.string.select_polygon_file)) {
             launcher.launch(arrayOf("application/zip", "application/octet-stream", "x-gis/x-shapefile", "application/text"))
         }
     }

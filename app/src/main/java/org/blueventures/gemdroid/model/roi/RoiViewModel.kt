@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLe
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.roiUUID
 import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.forceLandsat
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Shapefile
+import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
@@ -199,11 +199,11 @@ class RoiViewModel(
 
     private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points)))), startChecked = false)
 
-    override var shapefile: MultiPolyPts = emptyList()
-    override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validateShapefile(filesDir, streams.streams, streams.names).collect(callback) }
+    override var filePoly: MultiPolyPts = emptyList()
+    override fun validatePolygonFile(streams: PolygonFile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(shapefile)))
-        shapefile = emptyList()
+        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
+        filePoly = emptyList()
         polygonName = ""
     }
 
@@ -253,18 +253,18 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
 
     override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.background({ emptyList() }, callback)
 
-    override var shapefile: MultiPolyPts = emptyList()
+    override var filePoly: MultiPolyPts = emptyList()
 
     override fun <T> background(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
 
-    override fun validateShapefile(streams: Shapefile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = viewModel.validateShapefile(streams, callback)
+    override fun validatePolygonFile(streams: PolygonFile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = viewModel.validatePolygonFile(streams, callback)
 
     override var polygonName: String = viewModel.roiName
 
     override fun shapefileLooksGood() {
-        viewModel.importedROI = shapefile
-        if (shapefile.size == 1) {
-            viewModel.roiDrawer = PolygonDrawer(points = RoiViewModel.firstRing(shapefile), maxArea = RoiViewModel.maxRoiArea)
+        viewModel.importedROI = filePoly
+        if (filePoly.size == 1) {
+            viewModel.roiDrawer = PolygonDrawer(points = RoiViewModel.firstRing(filePoly), maxArea = RoiViewModel.maxRoiArea)
         }
     }
 }

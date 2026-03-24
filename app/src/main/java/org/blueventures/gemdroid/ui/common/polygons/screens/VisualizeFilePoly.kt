@@ -21,11 +21,11 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 
-object VisualizeShapefile {
+object VisualizeFilePoly {
     interface Model {
         var polygonName: String
         var visualizer: Visualize.Visualizer?
-        var shapefile: MultiPolyPts
+        var filePoly: MultiPolyPts
 
         val polygonTypePlural: Int
         val storage: Maps.Storage?
@@ -42,13 +42,13 @@ object VisualizeShapefile {
         val (center, setCenter) = remember { mutableStateOf<LatLng?>(null) }
         if (!gotCenter) {
             model.background({
-                Bounds.centerFromMultiPoly(model.shapefile)
+                Bounds.centerFromMultiPoly(model.filePoly)
             }) { cent ->
                 setGotCenter(true)
                 setCenter(cent)
             }
         } else {
-            val title = stringResource(R.string.visualize_shp)
+            val title = stringResource(R.string.visualize_polygon)
             Visualize.Screen(model.visualizer, appBar, title, false, center = center, storage = model.storage, poly = object : Poly.Model() {
                 override val touchEnabled = true
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
@@ -57,9 +57,9 @@ object VisualizeShapefile {
                     return model.polygonGroups(context) { groups ->
                         val list = mutableListOf<Poly.PolygonGroup>()
 
-                        if (model.shapefile.isNotEmpty()) {
+                        if (model.filePoly.isNotEmpty()) {
                             val newGroupTitle = context.getString(model.polygonTypePlural)
-                            val newGroupPoly = Poly.NamedPoly(model.polygonName, model.shapefile)
+                            val newGroupPoly = Poly.NamedPoly(model.polygonName, model.filePoly)
 
                             var match = false
                             for (group in groups) {
@@ -89,7 +89,7 @@ object VisualizeShapefile {
                 MapActionButton({
                     model.shapefileLooksGood()
                     next()
-                }) { Icon(Icons.Filled.Check, stringResource(R.string.shp_looks_good)) }
+                }) { Icon(Icons.Filled.Check, stringResource(R.string.polygon_looks_good)) }
             })
         }
     }

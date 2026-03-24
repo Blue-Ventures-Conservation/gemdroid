@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.model.analysis.dynamics
 
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.MD5
-import org.blueventures.gemdroid.data.shp.Shapefile.Companion.polygons
+import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import java.io.File
 import java.io.InputStream
@@ -10,7 +10,7 @@ import java.io.InputStream
 class DynamicsDatasource(
     api: Api.Service = Api.Service.instance(),
 ): ApiDatasource(api) {
-    fun validateShapefile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = polygons(dynamicsDir, files, names)
+    fun validatePolygonFile(dynamicsDir: File, files: List<InputStream?>, names: List<String?>) = PolyFile.polygons(dynamicsDir, files, names)
 
     companion object {
         private const val dynamicsDir = "dynamics"
