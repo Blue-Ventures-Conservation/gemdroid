@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Tsy afaka namaky shapefiles</string>
-    <string name="extract_must_be_zip">Raha misy rakitra voafantina, dia tsy maintsy .zip izany</string>
+    <string name="unrecognized_single_file">Raha misy rakitra voafantina, dia tsy maintsy .zip izany</string>
     <string name="could_not_open_archive">Tsy afaka nanokatra ny .zip voafantina ho an\'ny fanamarinana</string>
     <string name="shp_missing_files">Tsy maintsy misy .shp ny shapefile-nao, .shx, .dbf ary .prj</string>
     <string name="shps_names_must_match">Tokony hitovy anarana avokoa ny rakitra endrika.</string>

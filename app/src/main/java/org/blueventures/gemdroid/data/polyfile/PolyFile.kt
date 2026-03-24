@@ -62,7 +62,13 @@ object PolyFile {
         val unzipDir = unzipDirRes.getOrNull()!!
 
         return if (files.size == 1) {
-            unzip(unzipDir, files[0], names[0])
+            val fileExt = names[0]?.substringAfterLast(".")?.lowercase()
+            when(fileExt) {
+                "zip" -> unzip(unzipDir, files[0])
+                "kmz" -> unzip(unzipDir, files[0])
+                "kml" -> copyShapes(unzipDir, files, names)
+                else ->Result.failure(NoStack(R.string.unrecognized_single_file))
+            }
         } else {
             copyShapes(unzipDir, files, names)
         }
@@ -86,13 +92,7 @@ object PolyFile {
         return Result.success(paths)
     }
 
-    private fun unzip(dir: File, zip: InputStream?, name: String?): Result<List<String>> {
-        val notZip = NoStack(R.string.extract_must_be_zip)
-        val fileExt = name?.substringAfterLast(".")?.lowercase()
-        if (fileExt != "zip" && fileExt != "kmz") {
-            return Result.failure(notZip)
-        }
-
+    private fun unzip(dir: File, zip: InputStream?): Result<List<String>> {
         if (zip == null) {
             return Result.failure(NoStack(R.string.could_not_open_archive))
         }

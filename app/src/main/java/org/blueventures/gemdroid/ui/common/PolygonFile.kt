@@ -100,7 +100,7 @@ object PolygonFile {
         }
         Spacer(modifier = Modifier.height(0.dp))
         Butt.Text(stringResource(R.string.select_polygon_file)) {
-            launcher.launch(arrayOf("application/zip", "application/octet-stream", "x-gis/x-shapefile", "application/text"))
+            launcher.launch(arrayOf("*/*"))
         }
     }
 }

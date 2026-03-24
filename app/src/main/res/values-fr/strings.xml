@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Impossible de lire les fichiers de formes</string>
-    <string name="extract_must_be_zip">Si un fichier est sélectionné, il doit s\'agir d\'un .zip</string>
+    <string name="unrecognized_single_file">Si un fichier est sélectionné, il doit s\'agir d\'un .zip</string>
     <string name="could_not_open_archive">Impossible d\'ouvrir le fichier .zip sélectionné pour validation</string>
     <string name="shp_missing_files">Votre fichier de formes doit inclure un .shp, un .shx, un .dbf et un .prj</string>
     <string name="shps_names_must_match">Les fichiers Shape doivent tous avoir le même nom.</string>

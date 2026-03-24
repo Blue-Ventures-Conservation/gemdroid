@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Gagal membaca shapefile</string>
-    <string name="extract_must_be_zip">Jika hanya satu file yang dipilih, file tersebut harus berformat .zip</string>
+    <string name="unrecognized_single_file">Jika hanya satu file yang dipilih, file tersebut harus berformat .zip</string>
     <string name="could_not_open_archive">Gagal membuka file .zip yang dipilih untuk validasi</string>
     <string name="shp_missing_files">Shapefile Anda harus menyertakan file .shp, .shx, .dbf, dan .prj</string>
     <string name="shps_names_must_match">Semua shapefile harus memiliki nama yang sama.</string>

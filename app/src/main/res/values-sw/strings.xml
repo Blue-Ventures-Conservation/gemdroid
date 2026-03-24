@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Haikuweza kusoma faili za umbo</string>
-    <string name="extract_must_be_zip">Ikiwa faili moja imechaguliwa, lazima iwe .zip</string>
+    <string name="unrecognized_single_file">Ikiwa faili moja imechaguliwa, lazima iwe .zip</string>
     <string name="could_not_open_archive">Haikuweza kufungua .zip iliyochaguliwa kwa ajili ya uthibitisho</string>
     <string name="shp_missing_files">Faili yako ya umbo lazima iwe na .shp, .shx, .dbf na .prj</string>
     <string name="shps_names_must_match">Faili za umbo zote zinapaswa kuwa na jina moja.</string>

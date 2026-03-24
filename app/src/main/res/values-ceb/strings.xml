@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Dili makabasa sa mga shapefile</string>
-    <string name="extract_must_be_zip">Kon usa ka file ang napili, kinahanglan kini usa ka .zip</string>
+    <string name="unrecognized_single_file">Kon usa ka file ang napili, kinahanglan kini usa ka .zip</string>
     <string name="could_not_open_archive">Dili maablihan ang napili nga .zip para sa validation</string>
     <string name="shp_missing_files">Ang imong shapefile kinahanglan maglakip sa usa ka .shp, .shx, .dbf ug .prj</string>
     <string name="shps_names_must_match">Ang mga Shapefile kinahanglan nga parehas og ngalan.</string>

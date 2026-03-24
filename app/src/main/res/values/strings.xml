@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Could not read polygon files</string>
-    <string name="extract_must_be_zip">If one file is selected, it must be a .zip or .kmz</string>
+    <string name="unrecognized_single_file">If one file is selected, it must be a .zip, .kml or .kmz</string>
     <string name="could_not_open_archive">Could not open selected archive for validation</string>
     <string name="shp_missing_files">Your shapefile must include a .shp, .shx, .dbf and .prj</string>
     <string name="shps_names_must_match">Shapefiles should all have the same name.</string>
@@ -119,7 +119,7 @@
     <string name="replace_with_a_polygon_file">Replace with a KML/Shapefile</string>
     <string name="select_polygon_file">Upload KML/Shapefile</string>
     <string name="or_you_can_select_a_zip">Or you can upload a .zip that contains all required files.</string>
-    <string name="you_should_select_all_of">You should select all of: </string>
+    <string name="you_should_select_all_of">For a shapefile, you should select all of: </string>
     <string name="shp_file_extensions">.shp, .dbf, .shx, .prj</string>
     <string name="select_a_temporal_shapefile">Select %s Shapefile</string>
     <string name="reuse_a_previously_uploaded_shapefile">Re-use a previously uploaded shapefile</string>

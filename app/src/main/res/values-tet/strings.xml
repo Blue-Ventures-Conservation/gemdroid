@@ -57,7 +57,7 @@
     <string name="unrecognized_file_type">Please select a KML/Shapefile.</string>
     <string name="missing_kml_file">No KML found</string>
     <string name="could_not_read_poly_files">Labele lee shapefiles</string>
-    <string name="extract_must_be_zip">Se arkivu ida maka hili, ida-ne\'e tenke .zip</string>
+    <string name="unrecognized_single_file">Se arkivu ida maka hili, ida-ne\'e tenke .zip</string>
     <string name="could_not_open_archive">Labele loke .zip ne\'ebé hili ona ba validasaun</string>
     <string name="shp_missing_files">Ita-boot nia shapefile tenke inklui .shp, .shx, .dbf no .prj</string>
     <string name="shps_names_must_match">Shapefile sira hotu tenke iha naran hanesan.</string>
