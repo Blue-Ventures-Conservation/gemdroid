@@ -211,7 +211,7 @@ class RoiViewModel(
         fun thisYear() = Calendar.getInstance().get(Calendar.YEAR)
         val defaultContemporaryYearEnd = thisYear()
         val defaultContemporaryYearStart = defaultContemporaryYearEnd - 1
-        val defaultHistoricalYearEnd = defaultContemporaryYearEnd - 10
+        val defaultHistoricalYearEnd = defaultContemporaryYearEnd - 5
         val defaultHistoricalYearStart = defaultHistoricalYearEnd - 1
         const val maxRoiArea = 5_000_000 // hectares
         const val maxYearGap = 4
