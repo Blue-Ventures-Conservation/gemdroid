@@ -209,10 +209,10 @@ class RoiViewModel(
 
     companion object {
         fun thisYear() = Calendar.getInstance().get(Calendar.YEAR)
-        val defaultContemporaryYearEnd = thisYear()
-        val defaultContemporaryYearStart = defaultContemporaryYearEnd - 1
+        val defaultContemporaryYearEnd = thisYear() - 1
+        val defaultContemporaryYearStart = defaultContemporaryYearEnd
         val defaultHistoricalYearEnd = defaultContemporaryYearEnd - 5
-        val defaultHistoricalYearStart = defaultHistoricalYearEnd - 1
+        val defaultHistoricalYearStart = defaultHistoricalYearEnd
         const val maxRoiArea = 5_000_000 // hectares
         const val maxYearGap = 4
         const val oldestLandsatYear = 1982
