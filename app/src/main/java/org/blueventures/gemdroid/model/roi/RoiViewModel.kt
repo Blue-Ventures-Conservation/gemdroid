@@ -45,7 +45,7 @@ class RoiViewModel(
     var importedROI: MultiPolyPts = emptyList()
     var importedBufferDist: Int = -1
     var imported = false
-    var forceLS: Boolean = true
+    var forceLS: Boolean = false
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 

@@ -8,7 +8,7 @@ import org.blueventures.gemdroid.model.api.KeyValue
 class SettingsDatasource: ApiDatasource() {
     companion object {
         private val forceLandsatKey = booleanPreferencesKey("force_landsat_key")
-        private const val forceLandsatDefault = true
+        private const val forceLandsatDefault = false
         val forceLandsat = KeyValue(forceLandsatKey, forceLandsatDefault)
 
         private val welcomeShownKey = booleanPreferencesKey("welcome_shown_key")
