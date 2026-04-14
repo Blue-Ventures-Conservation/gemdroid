@@ -12,6 +12,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
+import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
@@ -43,7 +44,6 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLe
 import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
@@ -110,7 +110,7 @@ class DynamicsViewModel(
 
     private fun loadSubRegionsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadFile(subRegionsFile(roiDir), DrawnPolygonsFile.Companion, callback)
     fun saveSubRegionsFile() = saveFile(subRegionsFile(roiDir), DrawnPolygonsFile(polygons), DrawnPolygonsFile.Companion)
-    override fun validatePolygonFile(streams: PolygonFile.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
+    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {

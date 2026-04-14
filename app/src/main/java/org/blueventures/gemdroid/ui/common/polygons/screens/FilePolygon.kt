@@ -5,8 +5,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
@@ -19,7 +19,7 @@ object FilePolygon {
     interface Model: Polygons.AppBarTitler {
         var filePoly: MultiPolyPts
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
-        fun validatePolygonFile(streams: PolygonFile.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
+        fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
     }
 
     @Composable
@@ -29,7 +29,7 @@ object FilePolygon {
         val context = LocalContext.current
         Col.Col {
             PolygonFile.Screen(stringResource(R.string.upload_a_poly_file), { uris, callback ->
-                Common.makeStreams(context, model::background, uris) { streams ->
+                FileStream.makeStreams(context, model::background, uris) { streams ->
                     model.validatePolygonFile(streams, callback)
                 }
             }, { err ->

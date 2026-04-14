@@ -1,8 +1,6 @@
 package org.blueventures.gemdroid.ui.analysis.cra.screens
 
-import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.model.analysis.cra.CRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.Butt
@@ -30,11 +29,10 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
-import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.PolygonFile
+import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.once
-import java.io.InputStream
 
 object Common {
     @Composable
@@ -163,7 +161,7 @@ object Common {
                 }
             }
             state.overwrite.value -> {
-                makeStreams(context, viewModel::background, state.craUris.value) { streams ->
+                FileStream.makeStreams(context, viewModel::background, state.craUris.value) { streams ->
                     viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, true) { craResult ->
                         if (craResult.isSuccess) {
                             val crafile = craResult.getOrNull()!!
@@ -179,7 +177,7 @@ object Common {
             }
             else -> {
                 PolygonFile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { uris, callback ->
-                    makeStreams(context, viewModel::background, uris) { streams ->
+                    FileStream.makeStreams(context, viewModel::background, uris) { streams ->
                         viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, false) { result ->
                             if (result.isFailure) {
                                 val exception = result.exceptionOrNull()!!
@@ -205,35 +203,6 @@ object Common {
                 })
             }
         }
-    }
-
-    fun makeStreams(context: Context, background: (() -> PolygonFile.Streams, (PolygonFile.Streams) -> Unit) -> Unit, uris: List<Uri>, callback: (PolygonFile.Streams) -> Unit) {
-        background({
-            val strms = mutableListOf<InputStream?>()
-            val names = mutableListOf<String?>()
-            uris.forEach { uri ->
-                strms.add(context.contentResolver.openInputStream(uri))
-                names.add(contentDisplayName(context, uri))
-            }
-            PolygonFile.Streams(strms, names)
-        }) { streams ->
-            callback(streams)
-        }
-    }
-
-    private fun contentDisplayName(context: Context, uri: Uri): String? {
-        var name: String? = null
-
-        if (uri.scheme == "content") {
-            context.contentResolver.query(uri, null, null, null, null)?.let { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                cursor.moveToFirst()
-                name = cursor.getString(nameIndex)
-                cursor.close()
-            }
-        }
-
-        return name
     }
 
     @Composable

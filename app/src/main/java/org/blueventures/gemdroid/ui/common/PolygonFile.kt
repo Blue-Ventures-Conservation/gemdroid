@@ -19,13 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
-import java.io.InputStream
 
 typealias StreamValidator<T> = (List<Uri>, (Result<T>) -> Unit) -> Unit
 
 object PolygonFile {
-    data class Streams(val streams: List<InputStream?>, val names: List<String?>)
-
     @Composable
     fun <T> Screen(title: String, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
         val ctx = LocalContext.current
@@ -100,7 +97,18 @@ object PolygonFile {
         }
         Spacer(modifier = Modifier.height(0.dp))
         Butt.Text(stringResource(R.string.select_polygon_file)) {
-            launcher.launch(arrayOf("*/*"))
+            launcher.launch(arrayOf(
+                "application/zip",
+                "application/octet-stream",
+                "x-gis/x-shapefile",
+                "application/vnd.google-earth.kml+xml",
+                "application/vnd.google-earth.kmz",
+                "application/kml",
+                "application/kmz",
+                "application/xml",
+                "text/xml",
+                "application/text"
+            ))
         }
     }
 }
