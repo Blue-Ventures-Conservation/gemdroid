@@ -213,7 +213,7 @@ class RoiViewModel(
         val defaultContemporaryYearStart = defaultContemporaryYearEnd
         val defaultHistoricalYearEnd = defaultContemporaryYearEnd - 5
         val defaultHistoricalYearStart = defaultHistoricalYearEnd
-        const val maxRoiArea = 5_000_000 // hectares
+        const val maxRoiArea = 2_500_000 // hectares
         const val maxYearGap = 4
         const val oldestLandsatYear = 1982
 

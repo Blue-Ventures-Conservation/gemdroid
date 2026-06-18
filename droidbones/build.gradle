@@ -1,16 +1,16 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 android {
     namespace 'com.github.zibnix.droidbones'
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk 24
+        targetSdk 37
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -23,8 +23,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     buildFeatures {
         buildConfig true
@@ -32,35 +32,35 @@ android {
         compose true
     }
     lint {
-        targetSdk 36
+        targetSdk 37
     }
     testOptions {
-        targetSdk = 36
+        targetSdk = 37
     }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.compose.foundation:foundation-layout:1.10.6'
-    implementation "androidx.compose.runtime:runtime:1.10.6"
+    implementation 'androidx.compose.foundation:foundation-layout:1.11.3'
+    implementation "androidx.compose.runtime:runtime:1.11.3"
     implementation 'androidx.compose.material3:material3:1.4.0'
 
-    def lifecycle_version = "2.10.0"
+    def lifecycle_version = "2.11.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.2'
     implementation 'com.squareup.retrofit2:converter-moshi:3.0.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.4.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.23.0'
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"

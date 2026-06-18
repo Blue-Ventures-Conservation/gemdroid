@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
     id 'org.jetbrains.kotlin.plugin.compose'
@@ -8,12 +7,12 @@ plugins {
 
 android {
     namespace 'org.blueventures.gemdroid'
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId "org.blueventures.gemdroid"
         minSdk 24
-        targetSdk 36
+        targetSdk 37
         versionCode 41
         versionName "2.0.2"
 
@@ -31,8 +30,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     buildFeatures {
         buildConfig true
@@ -44,9 +43,6 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-    kotlinOptions {
-        freeCompilerArgs = ['-XXLanguage:+PropertyParamAnnotationDefaultTargetMode']
-    }
 }
 
 dependencies {
@@ -55,7 +51,7 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'org.osmdroid:osmdroid-shape:6.1.20'
 
-    implementation platform('com.google.firebase:firebase-bom:34.12.0')
+    implementation platform('com.google.firebase:firebase-bom:34.15.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
@@ -63,14 +59,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-appcheck-debug'
     implementation 'com.google.android.play:integrity:1.6.0'
 
-    def nav_version = "2.9.7"
+    def nav_version = "2.9.8"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
-    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.activity:activity-compose:1.13.0'
@@ -84,7 +80,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.4.0'
     implementation 'com.google.accompanist:accompanist-permissions:0.37.3'
 
-    def lifecycle_version = "2.10.0"
+    def lifecycle_version = "2.11.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -94,22 +90,22 @@ dependencies {
     implementation 'androidx.datastore:datastore-preferences:1.2.1'
     implementation 'com.google.maps.android:maps-compose:8.3.0'
     implementation 'com.google.android.gms:play-services-maps:20.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:4.1.1'
+    implementation 'com.google.maps.android:android-maps-utils:4.5.0'
     implementation 'com.google.maps.android:maps-utils-ktx:6.0.1'
-    implementation 'com.google.android.material:material:1.13.0'
-    implementation 'com.google.android.gms:play-services-auth:21.5.1'
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'com.google.android.gms:play-services-auth:21.6.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.2'
     implementation 'com.squareup.retrofit2:converter-moshi:3.0.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.4.0'
 
     implementation "com.chargemap.compose:numberpicker:1.0.3"
 
     implementation project(path: ':droidbones')
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2'
-    testImplementation 'io.mockk:mockk:1.14.9'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0'
+    testImplementation 'io.mockk:mockk:1.14.11'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
