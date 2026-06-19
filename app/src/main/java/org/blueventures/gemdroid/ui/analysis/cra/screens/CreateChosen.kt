@@ -12,11 +12,11 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
 
-object Purpose {
+object CreateChosen {
     @Composable
     fun Screen(next: Click) {
         Col.Col(scroll = true) {
-            Info.Txt(stringResource(R.string.it_is_time_to_import_or_create_cras))
+            Info.Txt(stringResource(R.string.you_will_create_cras))
             Spacer(modifier = Modifier.height(32.dp))
             Butt.Next(click = next)
         }

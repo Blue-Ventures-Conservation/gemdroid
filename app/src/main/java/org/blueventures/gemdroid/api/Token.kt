@@ -1,12 +1,12 @@
 package org.blueventures.gemdroid.api
 
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.blueventures.gemdroid.model.SignIn
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 object Token {
-    suspend fun get(auth: FirebaseAuth, api: Api.Service): Result<Unit> = suspendCoroutine { cont ->
+    suspend fun get(auth: FirebaseAuth, api: Api.Service): Result<Unit> = suspendCancellableCoroutine { cont ->
         auth.currentUser?.let { user ->
             user.getIdToken(false).addOnSuccessListener { result ->
                 api.setToken(result.token!!)

@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.ui.analysis.cra
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.R
@@ -11,10 +12,14 @@ import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.cra.screens.CRAFields
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateChosen
+import org.blueventures.gemdroid.ui.analysis.cra.screens.Creation
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Purpose
+import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadChosen
 import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadOrCreate
 import org.blueventures.gemdroid.ui.common.AppBar
+import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
 import java.net.HttpURLConnection
@@ -22,35 +27,56 @@ import java.net.HttpURLConnection
 object CRA {
     object Routes {
         const val prefix = "analysis_cra_"
-        const val upload_or_create = prefix + "upload_or_create"
         const val purpose = prefix + "purpose"
-        const val cont_cra = prefix + "cont"
+        const val upload_or_create = prefix + "upload_or_create"
+        const val create_chosen = prefix + "create_chosen"
+        const val upload_chosen = prefix + "upload_chosen"
+        const val creation = prefix + "creation"
         const val hist_choice = prefix + "hist_choice"
         const val hist_cra = prefix + "hist"
+        const val cont_cra = prefix + "cont"
         const val cra_fields = prefix + "fields"
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
-        b.backHandler(Routes.upload_or_create, nav::popBackStack) {
-            UploadOrCreate.Screen(appBar, {
-                nav.navigate(Routes.purpose)
-            }) {
-                // TODO: navigate to creation map screen with floating polygon, satellite basemap, false colour composite layer
-                // TODO: and option for changing the size of the central polygon (3x3, 2x2, 4x1 etc)
+        b.craBackHandler(Routes.purpose, appBar, nav::popBackStack) {
+            Purpose.Screen {
+                nav.navigate(Routes.upload_or_create)
             }
         }
 
-        b.backHandler(Routes.purpose, nav::popBackStack) {
-            Purpose.Screen(appBar) {
+        b.craBackHandler(Routes.upload_or_create, appBar, nav::popBackStack) {
+            UploadOrCreate.Screen({
+                nav.navigate(Routes.upload_chosen)
+            }) {
+                nav.navigate(Routes.create_chosen)
+            }
+        }
+
+        b.craBackHandler(Routes.upload_chosen, appBar, nav::popBackStack) {
+            UploadChosen.Screen {
                 nav.navigate(Routes.hist_choice)
             }
         }
 
-        b.backHandler(Routes.hist_choice, {
+        b.craBackHandler(Routes.create_chosen, appBar, nav::popBackStack) {
+            CreateChosen.Screen {
+                nav.navigate(Routes.creation)
+            }
+        }
+
+        b.craBackHandler(Routes.creation, appBar, nav::popBackStack) {
+            Creation.Screen(viewModel) {
+                viewModel.clearState()
+                nav.popClear(Analysis.Routes.dashboard)
+            }
+        }
+
+        b.craBackHandler(Routes.hist_choice, appBar, {
             viewModel.clearHistoricalChoice()
             nav.popBackStack(Analysis.Routes.dashboard, false)
         }) {
-            ChooseHistorical.Screen(viewModel, appBar) {
+            ChooseHistorical.Screen(viewModel) {
                 when (viewModel.historicalChoice) {
                     HistoricalChoice.SEPARATE -> {
                         nav.navigate(Routes.hist_cra)
@@ -62,24 +88,31 @@ object CRA {
             }
         }
 
-        b.backHandler(Routes.hist_cra, nav::popBackStack) {
-            HistoricalCRA.Screen(viewModel, appBar, snack) {
+        b.craBackHandler(Routes.hist_cra, appBar, nav::popBackStack) {
+            HistoricalCRA.Screen(viewModel, snack) {
                 nav.navigate(Routes.cont_cra)
             }
         }
 
-        b.backHandler(Routes.cont_cra, nav::popBackStack) {
-            ContemporaryCRA.Screen(viewModel, appBar, snack) {
+        b.craBackHandler(Routes.cont_cra, appBar, nav::popBackStack) {
+            ContemporaryCRA.Screen(viewModel, snack) {
                 nav.navigate(Routes.cra_fields)
             }
         }
 
-        b.backHandler(Routes.cra_fields, nav::popBackStack) {
+        b.craBackHandler(Routes.cra_fields, appBar, nav::popBackStack) {
             val exit = {
                 viewModel.clearState()
                 nav.popClear(Analysis.Routes.dashboard)
             }
-            CRAFields.Screen(viewModel, appBar, snack, nav::popBackStack, exit, exit)
+            CRAFields.Screen(viewModel, snack, nav::popBackStack, exit, exit)
+        }
+    }
+
+    fun NavGraphBuilder.craBackHandler(route: String, appBar: AppBar, back: Click, portrait: Boolean = false, content: @Composable (Click) -> Unit) {
+        backHandler(route, back, portrait) { back ->
+            appBar.Title(R.string.classification_reference_areas)
+            content(back)
         }
     }
 

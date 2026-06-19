@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
@@ -16,6 +17,7 @@ class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Await.CRAAwaiter, ApiViewModel(repo) {
     var roiDir = File("")
+    var roi: ROI = ROI()
     var historicalCRA: CRAFile? = null
     var contemporaryCRA = CRAFile()
     var historicalChoice = HistoricalChoice.SEPARATE

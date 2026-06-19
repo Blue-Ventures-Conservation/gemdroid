@@ -53,6 +53,7 @@ class AnalysisViewModel(
     var roi = ROI()
         set(value) {
             field = value
+            craViewModel.roi = value
             classViewModel.roi = value
             dynamicsViewModel.roi = value
         }

@@ -8,16 +8,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
-import org.blueventures.gemdroid.ui.common.AppBar
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Rad
 
 object ChooseHistorical {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBar, next: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+    fun Screen(viewModel: CRAViewModel, next: Click) {
         val choices = viewModel.getHistoricalChoices()
 
         Col.Col(bottom = 24.dp) {

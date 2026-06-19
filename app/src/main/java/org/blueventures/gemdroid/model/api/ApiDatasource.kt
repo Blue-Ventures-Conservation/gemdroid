@@ -12,12 +12,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.api.Token
 import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -28,7 +28,7 @@ open class ApiDatasource(
 ) {
     suspend fun getIdToken() = Token.get(auth, api)
 
-    suspend fun uriFromStorage(path: String): Result<Uri> = suspendCoroutine { cont ->
+    suspend fun uriFromStorage(path: String): Result<Uri> = suspendCancellableCoroutine { cont ->
         storage.reference.child(path).downloadUrl.addOnSuccessListener {
             cont.resume(Result.success(it))
         }.addOnFailureListener {

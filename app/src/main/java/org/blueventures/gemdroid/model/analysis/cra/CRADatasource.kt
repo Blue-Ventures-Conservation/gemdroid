@@ -12,6 +12,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
@@ -31,14 +32,13 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class CRADatasource(
     private val api: Api.Service = Api.Service.instance(),
     private val auth: FirebaseAuth = Firebase.auth,
     private val storage: FirebaseStorage = Firebase.storage,
 ): ApiDatasource(api, auth, storage) {
-    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCoroutine { resumer ->
+    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCancellableCoroutine { resumer ->
         auth.currentUser?.uid?.let { uid ->
             storage.reference.child("users/$uid/shps").listAll()
                 .addOnSuccessListener { result ->
@@ -292,7 +292,7 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<FieldsCounts> = suspendCoroutine { cont ->
+    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<FieldsCounts> = suspendCancellableCoroutine { cont ->
         val tmp = File.createTempFile("cras", "json")
         tmp.deleteOnExit()
         storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
@@ -303,14 +303,16 @@ class CRADatasource(
                 val shp = shpRes.getOrNull()!!
                 cra.eeUploadName = shp.tableUploadOperationName
                 cont.resume(
-                    Result.success(FieldsCounts(
-                        Fields(
-                            chosenNumeric = shp.numericClassField,
-                            chosenString = shp.stringClassField,
-                            chosenStringValues = shp.stringClassValues,
-                        ),
-                        StringsNumerics(ClassCounts(chosenCounts = shp.classCounts ?: emptyList()))
-                    ))
+                    Result.success(
+                        FieldsCounts(
+                            Fields(
+                                chosenNumeric = shp.numericClassField,
+                                chosenString = shp.stringClassField,
+                                chosenStringValues = shp.stringClassValues,
+                            ),
+                            StringsNumerics(ClassCounts(chosenCounts = shp.classCounts ?: emptyList()))
+                        )
+                    )
                 )
             }
         }.addOnFailureListener {
@@ -338,7 +340,7 @@ class CRADatasource(
         return uploadShapefile(cra.key(), auth.currentUser!!.uid, cra.localFile)
     }
 
-    private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCoroutine { cont ->
+    private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCancellableCoroutine { cont ->
         storage.reference.child("users/$uid/shps/$key.zip").putFile(Uri.fromFile(zip))
             .addOnSuccessListener {
                 cont.resume(Result.success(Unit))
@@ -398,11 +400,12 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun uploadFields(cra: CRAFile, uid: String): Result<Unit>  = suspendCoroutine { cont ->
+    private suspend fun uploadFields(cra: CRAFile, uid: String): Result<Unit>  = suspendCancellableCoroutine { cont ->
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
-        val shpRes = Shapefile.toFile(tmp,
+        val shpRes = Shapefile.toFile(
+            tmp,
             Shapefile(
                 key,
                 cra.eeUploadName!!,

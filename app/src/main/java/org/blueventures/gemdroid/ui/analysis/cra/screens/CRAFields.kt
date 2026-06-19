@@ -14,8 +14,6 @@ import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.ClassCounts
 import org.blueventures.gemdroid.model.analysis.cra.Fields
 import org.blueventures.gemdroid.model.analysis.cra.StringsNumerics
-import org.blueventures.gemdroid.ui.common.AppBar
-import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
@@ -28,8 +26,7 @@ import org.blueventures.gemdroid.ui.common.once
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun, back: Click, done: Click, giveUp: Click) {
-        appBar.Update(AppBarUpdate(stringResource(R.string.classification_reference_areas)))
+    fun Screen(viewModel: CRAViewModel, snack: SnackFun, back: Click, done: Click, giveUp: Click) {
         val (saving, setSaving) = remember{ mutableStateOf(false) }
 
         if (saving) {
