@@ -197,7 +197,7 @@ class RoiViewModel(
         }, callback)
     }
 
-    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points)))), startChecked = false)
+    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points)))))
 
     override var filePoly: MultiPolyPts = emptyList()
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }

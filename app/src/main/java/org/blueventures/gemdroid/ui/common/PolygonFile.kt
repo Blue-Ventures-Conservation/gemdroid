@@ -12,32 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 
 typealias StreamValidator<T> = (List<Uri>, (Result<T>) -> Unit) -> Unit
 
 object PolygonFile {
-    @Composable
-    fun <T> Screen(title: String, validator: StreamValidator<T>, failure: (String) -> Unit, success: (T) -> Unit) {
-        val ctx = LocalContext.current
-        val resultHandler: (Result<T>?) -> Unit = { result ->
-            if (result != null) {
-                when {
-                    result.isSuccess -> success(result.getOrNull()!!)
-                    else -> failure(result.exceptionOrNull()!!.localized(ctx))
-                }
-            }
-        }
-
-        Result(title, validator, resultHandler) {}
-    }
-
     @Composable
     fun <T> Result(title: String, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }

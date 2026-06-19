@@ -233,7 +233,7 @@ object Compose {
                     }
 
                     MapActionButton({
-                        val values = MapType.values()
+                        val values = MapType.entries.toTypedArray()
                         val size = values.size
 
                         var next = (values.indexOf(properties.mapType) + 1) % size
@@ -459,7 +459,7 @@ object Compose {
     @Composable
     @GoogleMapComposable
     fun MapPolygons(checker: Checker, zIndex: Float, group: Poly.PolyOptionsGroup) {
-        val (visible, setVisible) = remember { mutableStateOf(true) }
+        val (visible, setVisible) = remember { mutableStateOf(group.startVisible) }
         checker.state = visible
         checker.setState = setVisible
 
@@ -495,7 +495,7 @@ object Compose {
     private fun PolygonTouch(poly: Poly.Model, optGroups: List<Poly.PolyOptionsGroup>, visibility: List<Boolean>, lastTouch: MutableState<LatLng?>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {
-            val state = MarkerState(it.position)
+            val state by remember { mutableStateOf(MarkerState(it.position)) }
             MarkerInfoWindow(state = state, title = it.title)
         }
 

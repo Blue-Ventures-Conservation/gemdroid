@@ -149,21 +149,21 @@ class AnalysisViewModel(
     fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
-    fun excludedRegions(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    fun excludedRegions(context: Context, startVisible: Boolean = true, callback: (Poly.PolygonGroup?) -> Unit): Job {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Poly.NamedPoly>()
                 for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonMultiPolygon.toState(poly)))
-                listOf(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()))
+                Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb(), startVisible = startVisible)
             }, callback)
         } else {
-            background({ emptyList() }, callback)
+            background({ null }, callback)
         }
     }
 
-    fun backgroundPolygon(context: Context, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context) }, callback)
+    fun backgroundPolygon(context: Context, startVisible: Boolean = true, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context, startVisible) }, callback)
 
-    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())))
+    private fun backgroundPolygon(context: Context, startVisible: Boolean = true) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), startVisible = startVisible)
 }

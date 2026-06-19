@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.ui.common.polygons.screens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.FileStream
@@ -28,16 +29,19 @@ object FilePolygon {
 
         val context = LocalContext.current
         Col.Col {
-            PolygonFile.Screen(stringResource(R.string.upload_a_poly_file), { uris, callback ->
+            PolygonFile.Result(stringResource(R.string.upload_a_poly_file), { uris, callback ->
                 FileStream.makeStreams(context, model::background, uris) { streams ->
                     model.validatePolygonFile(streams, callback)
                 }
-            }, { err ->
-                snack(err)
-            }) { points ->
-                model.filePoly = points
-                next()
-            }
+            }, { result ->
+                when {
+                    result.isSuccess -> {
+                        model.filePoly = result.getOrNull()!!
+                        next()
+                    }
+                    else -> snack(result.exceptionOrNull()!!.localized(context))
+                }
+            }, {})
         }
     }
 }

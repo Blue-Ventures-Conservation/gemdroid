@@ -13,9 +13,9 @@ import org.blueventures.gemdroid.ui.theme.blend
 
 object Poly {
     data class NamedPoly(val name: String, val polygon: MultiPolyPts)
-    data class PolygonGroup(val menuTitle: String, val polygons: List<NamedPoly>, val color: Int? = null, val strokeColor: Int = 0x7F000000, val dashes: Boolean = false, val startChecked: Boolean = true)
+    data class PolygonGroup(val menuTitle: String, val polygons: List<NamedPoly>, val color: Int? = null, val strokeColor: Int = 0x7F000000, val dashes: Boolean = false, val startVisible: Boolean = true)
     data class NamedPolyOptions(val name: String, val options: List<PolygonOptions>)
-    data class PolyOptionsGroup(val menuTitle: String, val namedOptions: List<NamedPolyOptions>, val startChecked: Boolean = true)
+    data class PolyOptionsGroup(val menuTitle: String, val namedOptions: List<NamedPolyOptions>, val startVisible: Boolean = true)
 
     abstract class Model {
         abstract val touchEnabled: Boolean
@@ -40,7 +40,7 @@ object Poly {
                     group.polygons.forEach { poly ->
                         opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, groupColor, group.strokeColor, group.dashes)))
                     }
-                    optGroups.add(PolyOptionsGroup(group.menuTitle, opts, group.startChecked))
+                    optGroups.add(PolyOptionsGroup(group.menuTitle, opts, group.startVisible))
                 }
 
                 callback(optGroups)
