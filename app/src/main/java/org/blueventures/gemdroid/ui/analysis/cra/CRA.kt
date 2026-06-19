@@ -13,6 +13,7 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Purpose
+import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadOrCreate
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
@@ -21,6 +22,7 @@ import java.net.HttpURLConnection
 object CRA {
     object Routes {
         const val prefix = "analysis_cra_"
+        const val upload_or_create = prefix + "upload_or_create"
         const val purpose = prefix + "purpose"
         const val cont_cra = prefix + "cont"
         const val hist_choice = prefix + "hist_choice"
@@ -29,6 +31,15 @@ object CRA {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun) {
+        b.backHandler(Routes.upload_or_create, nav::popBackStack) {
+            UploadOrCreate.Screen(appBar, {
+                nav.navigate(Routes.purpose)
+            }) {
+                // TODO: navigate to creation map screen with floating polygon, satellite basemap, false colour composite layer
+                // TODO: and option for changing the size of the central polygon (3x3, 2x2, 4x1 etc)
+            }
+        }
+
         b.backHandler(Routes.purpose, nav::popBackStack) {
             Purpose.Screen(appBar) {
                 nav.navigate(Routes.hist_choice)

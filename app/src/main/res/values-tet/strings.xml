@@ -332,4 +332,7 @@
     <string name="please_use_smaller_poly_file">Favor uza KML/Shapefile ida ho pontu total menus husi 100,000.</string>
     <string name="please_use_polygon_poly_file">Favór uza KML/Shapefile ida ho pelumenus polígonu ida.</string>
     <string name="please_use_only_polygons_poly_file">Favór uza KML/Shapefile ne\'ebé kontein de\'it polígonu sira.</string>
+    <string name="do_you_have_classification_reference_area_shapefiles">Do you have Classification Reference Area (CRA) shapefiles to upload (or uploaded already)?</string>
+    <string name="yes_i_already_have_cra_shapefile_s">Yes, I already have CRA shapefile(s).</string>
+    <string name="no_and_i_d_like_to_create_my_cras_using_this_app">No, and I\'d like to create my CRAs using this App.</string>
 </resources>

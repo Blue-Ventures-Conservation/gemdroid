@@ -332,4 +332,7 @@
     <string name="please_use_smaller_poly_file">Palihug gamit og KML/Shapefile nga adunay ubos sa 100,000 ka kinatibuk-ang puntos.</string>
     <string name="please_use_polygon_poly_file">Palihug gamit og KML/Shapefile nga adunay labing menos usa ka polygon.</string>
     <string name="please_use_only_polygons_poly_file">Palihug gamita ang KML/Shapefile nga adunay mga polygon lamang.</string>
+    <string name="do_you_have_classification_reference_area_shapefiles">Do you have Classification Reference Area (CRA) shapefiles to upload (or uploaded already)?</string>
+    <string name="yes_i_already_have_cra_shapefile_s">Yes, I already have CRA shapefile(s).</string>
+    <string name="no_and_i_d_like_to_create_my_cras_using_this_app">No, and I\'d like to create my CRAs using this App.</string>
 </resources>

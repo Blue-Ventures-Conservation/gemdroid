@@ -332,4 +332,7 @@
     <string name="please_use_smaller_poly_file">Por favor, utilize um KML/Shapefile com menos de 100.000 pontos no total.</string>
     <string name="please_use_polygon_poly_file">Por favor, utilize um KML/Shapefile com pelo menos um polígono.</string>
     <string name="please_use_only_polygons_poly_file">Por favor, utilize um KML/Shapefile que contenha apenas polígonos.</string>
+    <string name="do_you_have_classification_reference_area_shapefiles">Do you have Classification Reference Area (CRA) shapefiles to upload (or uploaded already)?</string>
+    <string name="yes_i_already_have_cra_shapefile_s">Yes, I already have CRA shapefile(s).</string>
+    <string name="no_and_i_d_like_to_create_my_cras_using_this_app">No, and I\'d like to create my CRAs using this App.</string>
 </resources>

@@ -21,7 +21,10 @@ object Purpose {
         Col.Col(scroll = true) {
             Info.Txt(stringResource(R.string.you_will_import_cras))
             Info.Txt(stringResource(R.string.cras_simple_description))
+            // TODO: update the string below, CRA sizes can be much smaller for Sentinel-2 plots,
+            // TODO: and verify that this string works in other languages
             Info.Txt(stringResource(R.string.cras_format))
+            // TODO: remove the string below
             Info.Txt(stringResource(R.string.we_will_add_feature))
             Spacer(modifier = Modifier.height(32.dp))
             Butt.Next(click = next)
