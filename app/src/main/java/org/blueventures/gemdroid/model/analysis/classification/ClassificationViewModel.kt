@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
@@ -20,7 +21,6 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationDat
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
-import org.blueventures.gemdroid.ui.theme.makeColorPalette
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 

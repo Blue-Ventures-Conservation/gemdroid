@@ -17,6 +17,9 @@ import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.Regexp
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVDarkBlue
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVGreen
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVRed
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
@@ -49,10 +52,7 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Poly
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.Polygons
-import org.blueventures.gemdroid.ui.theme.BVDarkBlue
-import org.blueventures.gemdroid.ui.theme.BVGreen
 import org.blueventures.gemdroid.ui.theme.Clear
-import org.blueventures.gemdroid.ui.theme.MildRed
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
@@ -256,7 +256,7 @@ class DynamicsViewModel(
         targetClasses,
         combinedName,
         polygons,
-        MildRed.toHexString(),
+        BVRed.toHexString(),
         BVGreen.toHexString(),
         BVDarkBlue.toHexString(),
         cra.contemporaryCRA.shapefileStorageKey,

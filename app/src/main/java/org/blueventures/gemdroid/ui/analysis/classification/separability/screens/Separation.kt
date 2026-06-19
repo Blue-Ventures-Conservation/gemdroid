@@ -18,6 +18,7 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Cartesian
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
@@ -29,7 +30,6 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.once
-import org.blueventures.gemdroid.ui.theme.makeColorPalette
 import org.blueventures.gemdroid.ui.theme.toHexString
 
 object Separation {

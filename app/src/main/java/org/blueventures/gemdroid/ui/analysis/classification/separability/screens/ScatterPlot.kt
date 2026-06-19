@@ -11,6 +11,7 @@ import com.anychart.AnyChartView
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Scatter
 import com.anychart.enums.MarkerType
+import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
@@ -20,7 +21,6 @@ import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.once
-import org.blueventures.gemdroid.ui.theme.makeColorPalette
 import org.blueventures.gemdroid.ui.theme.toHexString
 
 object ScatterPlot {

@@ -14,6 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVDarkBlue
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVGreen
+import org.blueventures.gemdroid.data.analysis.BVClassColors.BVRed
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
@@ -21,9 +24,6 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.theme.BVDarkBlue
-import org.blueventures.gemdroid.ui.theme.BVGreen
-import org.blueventures.gemdroid.ui.theme.MildRed
 
 object ChooseRegion {
     @Composable
@@ -61,7 +61,7 @@ object ChooseRegion {
     private fun Legend() {
         Info.Block {
             Info.Header(stringResource(R.string.legend))
-            LegendRow(stringResource(R.string.loss), MildRed)
+            LegendRow(stringResource(R.string.loss), BVRed)
             LegendRow(stringResource(R.string.persistence), BVGreen)
             LegendRow(stringResource(R.string.gain), BVDarkBlue)
         }

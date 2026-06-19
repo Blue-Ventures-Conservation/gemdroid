@@ -12,6 +12,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
+import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.Conversion
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
@@ -20,7 +21,6 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.theme.makeColorPalette
 import org.blueventures.gemdroid.ui.theme.toHexString
 import kotlin.math.round
 
