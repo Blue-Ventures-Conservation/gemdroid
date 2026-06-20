@@ -66,7 +66,7 @@ object CRA {
         }
 
         b.craBackHandler(Routes.creation, appBar, nav::popBackStack) {
-            Creation.Screen(viewModel) {
+            Creation.Screen(viewModel, appBar) {
                 viewModel.clearState()
                 nav.popClear(Analysis.Routes.dashboard)
             }
