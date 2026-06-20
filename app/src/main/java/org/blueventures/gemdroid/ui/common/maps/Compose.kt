@@ -21,11 +21,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -45,6 +47,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
@@ -56,8 +59,12 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.time.debounce
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds.centerFromRing
+import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -65,6 +72,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
+import java.time.Duration
 import kotlin.math.roundToInt
 
 object Compose {
@@ -170,6 +178,7 @@ object Compose {
         Map(appBar, title, gps, storage, layers, poly, draw, clearState, touchState, screenPoints, position)
     }
 
+    @OptIn(FlowPreview::class)
     @Composable
     private fun <T : URLs> BoxScope.Map(
         appBar: AppBar,
@@ -189,7 +198,12 @@ object Compose {
         if (mapType == null && storage != null) {
             storage.getMapType(ctx, setMapType)
         } else {
+            var currentLatLng: LatLng? by remember { mutableStateOf(null) }
             val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
+            LaunchedEffect(cameraPositionState) {
+                snapshotFlow { cameraPositionState.position.target }
+                    .collect { currentLatLng = it }
+            }
             val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
             var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType!!)) }
 
@@ -210,6 +224,11 @@ object Compose {
                     GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
                         touchState.value = pt
                     }) {
+                        currentLatLng?.let {
+                            val opt = PolygonDrawer.square(it, 30.0)
+                            Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 1000f)
+                        }
+
                         layers?.let {
                             Tiles(layers, checkers)
                         }

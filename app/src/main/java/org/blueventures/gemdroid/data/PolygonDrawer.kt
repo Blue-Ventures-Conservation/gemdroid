@@ -57,19 +57,19 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
         fun hectares(ha: Int) = "${"%,d".format(ha)} ha"
         fun areaHectares(points: List<LatLng>) = SphericalUtil.computeArea(points)/hectareInMeters
 
-        fun opts(multi: MultiPolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, dashes: Boolean = false): List<PolygonOptions> {
+        fun opts(multi: MultiPolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, strokeWidth: Float = 4f, dashes: Boolean = false): List<PolygonOptions> {
             val opts = mutableListOf<PolygonOptions>()
             for (poly in multi) {
-                opts.add(opt(poly, fill, strokeColor, dashes))
+                opts.add(opt(poly, fill, strokeColor, strokeWidth, dashes))
             }
             return opts
         }
 
-        private fun opt(poly: PolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, dashes: Boolean = false): PolygonOptions {
+        private fun opt(poly: PolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, strokeWidth: Float = 4f, dashes: Boolean = false): PolygonOptions {
             val gap = Gap(20f)
             val dash = Dash(20f)
 
-            val opt = PolygonOptions().strokeWidth(4f).strokeColor(strokeColor).fillColor(fill).strokePattern(if (dashes) listOf(gap, dash) else null).zIndex(Float.MAX_VALUE)
+            val opt = PolygonOptions().strokeWidth(strokeWidth).strokeColor(strokeColor).fillColor(fill).strokePattern(if (dashes) listOf(gap, dash) else null).zIndex(Float.MAX_VALUE)
 
             var first = true
             for (ring in poly) {
@@ -102,7 +102,7 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
                 add(LatLng(northeast.latitude, southwest.longitude)) // northwest
                 add(northeast) // closed ring
             }
-            return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), 0x7F))
+            return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), 0x7F), 12f)
         }
 
         private fun hypotenuse(a: Double, b: Double): Double {

@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.common.Checklist
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object ScatterClasses {
     @Composable
@@ -22,7 +22,7 @@ object ScatterClasses {
             val classes = JSONMap.classes(json)
 
             if (classes == null) {
-                back.once()
+                back.Once()
                 return@AwaitSave
             }
 

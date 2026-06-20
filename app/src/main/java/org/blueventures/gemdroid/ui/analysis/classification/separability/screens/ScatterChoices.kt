@@ -15,7 +15,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object ScatterChoices {
     @Composable
@@ -26,7 +26,7 @@ object ScatterChoices {
             val bands = JSONMap.bands(json)
 
             if (bands == null) {
-                back.once()
+                back.Once()
                 return@AwaitSave
             }
 

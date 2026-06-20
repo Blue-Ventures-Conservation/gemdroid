@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object Dashboard {
     @Composable
@@ -36,7 +36,7 @@ object Dashboard {
         val msg = JSONMap.separabilityMessage(LocalContext.current, viewModel.timePeriod, json)
 
         if (msg == null) {
-            back.once()
+            back.Once()
             return
         }
 

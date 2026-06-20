@@ -12,7 +12,7 @@ object Effect {
 }
 
 @Composable
-fun Click.once() {
+fun Click.Once() {
     val click = this
     Effect.Once {
         click()
@@ -20,7 +20,7 @@ fun Click.once() {
 }
 
 @Composable
-fun SnackFun.once(msg: String) {
+fun SnackFun.Once(msg: String) {
     val snack = this
     Effect.Once {
         snack(msg)

@@ -38,7 +38,7 @@ object Poly {
                         ColorUtils.setAlphaComponent(group.color, 0x7F)
                     }
                     group.polygons.forEach { poly ->
-                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, groupColor, group.strokeColor, group.dashes)))
+                        opts.add(NamedPolyOptions(poly.name, PolygonDrawer.opts(poly.polygon, groupColor, group.strokeColor, dashes = group.dashes)))
                     }
                     optGroups.add(PolyOptionsGroup(group.menuTitle, opts, group.startVisible))
                 }

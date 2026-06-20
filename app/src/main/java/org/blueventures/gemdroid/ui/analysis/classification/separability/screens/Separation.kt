@@ -29,7 +29,7 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.theme.toHexString
 
 object Separation {
@@ -47,7 +47,7 @@ object Separation {
         val bandsAndClasses = JSONMap.bandsAndClasses(json)
 
         if (bandsAndClasses == null) {
-            back.once()
+            back.Once()
             return
         }
 

@@ -35,7 +35,7 @@ import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
@@ -88,8 +88,8 @@ object Dashboard {
             when (stage) {
                 Stage.ERROR -> {
                     val msg = stringResource(R.string.could_not_read_fs)
-                    snack.once(msg)
-                    back.once()
+                    snack.Once(msg)
+                    back.Once()
                 }
                 else -> {
                     Column(

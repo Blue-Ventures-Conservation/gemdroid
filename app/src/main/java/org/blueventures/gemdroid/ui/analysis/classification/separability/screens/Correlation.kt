@@ -25,7 +25,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.theme.Caution
 import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.LightGrey
@@ -41,7 +41,7 @@ object Correlation {
             val corrs = JSONMap.correlationChartInfo(json)
 
             if (corrs == null) {
-                back.once()
+                back.Once()
                 return@Save
             }
 

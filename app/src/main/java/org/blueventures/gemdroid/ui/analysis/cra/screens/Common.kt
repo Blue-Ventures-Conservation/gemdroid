@@ -32,7 +32,7 @@ import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object Common {
     @Composable
@@ -49,8 +49,8 @@ object Common {
             remoteCRAs.isFailure -> {
                 Progress()
                 val msg = remoteCRAs.exceptionOrNull()!!.localized(LocalContext.current)
-                snack.once(msg)
-                back.once()
+                snack.Once(msg)
+                back.Once()
             }
             else -> {
                 val remotes = remoteCRAs.getOrNull()!!.toMutableList()

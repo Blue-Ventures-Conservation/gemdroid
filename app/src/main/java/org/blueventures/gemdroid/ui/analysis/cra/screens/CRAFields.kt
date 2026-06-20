@@ -22,7 +22,7 @@ import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object CRAFields {
     @Composable
@@ -50,7 +50,7 @@ object CRAFields {
             bothFields.isFailure -> {
                 Progress()
                 val msg = bothFields.exceptionOrNull()!!.localized(LocalContext.current)
-                snack.once(msg)
+                snack.Once(msg)
                 giveUp()
             }
             else -> {

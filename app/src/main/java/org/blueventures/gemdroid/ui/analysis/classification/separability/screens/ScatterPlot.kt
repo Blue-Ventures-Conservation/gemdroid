@@ -20,7 +20,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Charts
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.theme.toHexString
 
 object ScatterPlot {
@@ -32,7 +32,7 @@ object ScatterPlot {
             val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
 
             if (data == null) {
-                back.once()
+                back.Once()
             } else {
                 Chart(data, viewModel.classes, viewModel.bandX, viewModel.bandY)
             }

@@ -9,7 +9,7 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 
 object SubRegionsOption {
     @Composable
@@ -26,8 +26,8 @@ object SubRegionsOption {
                 when {
                     resp.isReady() -> content()
                     else -> {
-                        snack.once(stringResource(R.string.please_wait_the_classification_is_being_saved))
-                        back.once()
+                        snack.Once(stringResource(R.string.please_wait_the_classification_is_being_saved))
+                        back.Once()
                     }
                 }
             }

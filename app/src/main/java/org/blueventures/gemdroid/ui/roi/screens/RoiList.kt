@@ -51,7 +51,7 @@ import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.once
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.io.File
 
@@ -87,7 +87,7 @@ object RoiList {
                 viewModel.refreshRois(filesDir, setRois)
             }
             rois.isFailure -> {
-                snack.once(rois.exceptionOrNull()!!.localized(LocalContext.current))
+                snack.Once(rois.exceptionOrNull()!!.localized(LocalContext.current))
             }
             else -> {
                 val list = rois.getOrNull()!!

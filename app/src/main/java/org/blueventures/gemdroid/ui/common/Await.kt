@@ -25,13 +25,13 @@ object Await {
     ) {
         CRA(notVerified, awaiter) { cra, msg ->
             msg?.let {
-                snack.once(it)
+                snack.Once(it)
             }
 
             cra?.let {
                 content(it)
             } ?: run {
-                back.once()
+                back.Once()
             }
         }
     }
