@@ -20,9 +20,7 @@ object Boundary {
             center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel),
             poly = object : Poly.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.excludedRegions(context) { excludes ->
-                    viewModel.backgroundPolygon(context) { coarseROI -> callback(mutableListOf(coarseROI).apply { if (excludes != null) add(excludes) }) }
-                }
+                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.polygonGroups(context, true, callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
             }
         )

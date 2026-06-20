@@ -37,7 +37,7 @@ import java.io.File
 
 class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
-): Visualize.Visualizer, Downloads.VisualizeHolder, ApiViewModel(repo) {
+): PolygonGrouper, Visualize.Visualizer, Downloads.VisualizeHolder, ApiViewModel(repo) {
     lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
     lateinit var dynamicsViewModel: DynamicsViewModel
@@ -63,6 +63,7 @@ class AnalysisViewModel(
 
     fun init(activity: ComponentActivity) {
         craViewModel = activity.viewModels<CRAViewModel>().value
+        craViewModel.init(this, this)
         classViewModel = activity.viewModels<ClassificationViewModel>().value
         classViewModel.init(activity, craViewModel)
         dynamicsViewModel = activity.viewModels<DynamicsViewModel>().value
@@ -150,7 +151,15 @@ class AnalysisViewModel(
     fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
-    fun excludedRegions(context: Context, startVisible: Boolean = true, callback: (Poly.PolygonGroup?) -> Unit): Job {
+    override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+        return excludedRegions(context, startVisible) { excludes ->
+            backgroundPolygon(context, startVisible) { coarseROI ->
+                callback(mutableListOf(coarseROI).apply { if (excludes != null) add(excludes) })
+            }
+        }
+    }
+
+    fun excludedRegions(context: Context, startVisible: Boolean, callback: (Poly.PolygonGroup?) -> Unit): Job {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
@@ -164,7 +173,11 @@ class AnalysisViewModel(
         }
     }
 
-    fun backgroundPolygon(context: Context, startVisible: Boolean = true, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context, startVisible) }, callback)
+    fun backgroundPolygon(context: Context, startVisible: Boolean, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context, startVisible) }, callback)
 
-    private fun backgroundPolygon(context: Context, startVisible: Boolean = true) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), startVisible = startVisible)
+    private fun backgroundPolygon(context: Context, startVisible: Boolean) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), startVisible = startVisible)
+}
+
+interface PolygonGrouper {
+    fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Poly.PolygonGroup>) -> Unit): Job
 }

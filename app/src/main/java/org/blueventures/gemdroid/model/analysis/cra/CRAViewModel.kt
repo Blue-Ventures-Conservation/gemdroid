@@ -8,16 +8,21 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.CRA
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.ClassCount
+import org.blueventures.gemdroid.model.analysis.PolygonGrouper
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
+import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 import java.io.InputStream
 
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Await.CRAAwaiter, ApiViewModel(repo) {
+    lateinit var grouper: PolygonGrouper
+
     var roiDir = File("")
     var roi: ROI = ROI()
+    var visualizer: Visualize.Visualizer? = null
     var historicalCRA: CRAFile? = null
     var contemporaryCRA = CRAFile()
     var historicalChoice = HistoricalChoice.SEPARATE
@@ -27,6 +32,11 @@ class CRAViewModel(
             if (choice == HistoricalChoice.CONTEMPORARY) hist = contemporaryCRA
             historicalCRA = hist
         }
+
+    fun init(visualizer: Visualize.Visualizer, grouper: PolygonGrouper) {
+        this.visualizer = visualizer
+        this.grouper = grouper
+    }
 
     private var uploadJob: Job? = null
 
