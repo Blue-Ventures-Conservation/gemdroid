@@ -134,8 +134,8 @@ object RoiList {
             toDupe?.let {
                 Roi.Loader({ callback ->
                     viewModel.getROI(it, callback)
-                }, snack, {}) {
-                    viewModel.importROI(stringResource(R.string.copy_of), it)
+                }, snack, {}) { roi ->
+                    viewModel.importROI(stringResource(R.string.copy_of), roi)
                     floating()
                 }
             } ?: run {
@@ -198,14 +198,14 @@ object RoiList {
     }
 
     @Composable
-    fun SheetRow(click: Click, icon: ImageVector, @StringRes descrip: Int, @StringRes label: Int) {
+    fun SheetRow(click: Click, icon: ImageVector, @StringRes description: Int, @StringRes label: Int) {
         Row(modifier = Modifier
             .padding(start = 4.dp, top = 4.dp)
             .clickable(onClick = click),
             verticalAlignment = Alignment.CenterVertically)
         {
             Icon(
-                icon, stringResource(descrip), modifier = Modifier
+                icon, stringResource(description), modifier = Modifier
                     .padding(12.dp)
                     .size(24.dp)
             )

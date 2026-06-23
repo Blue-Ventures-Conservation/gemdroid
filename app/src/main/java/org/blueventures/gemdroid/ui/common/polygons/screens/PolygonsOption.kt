@@ -29,14 +29,14 @@ object PolygonsOption {
 
         fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job
         @Composable
-        fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit)
+        fun OptionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit)
     }
 
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
         appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
         model.polygonName = ""
-        model.optionsInit(snack, back) {
+        model.OptionsInit(snack, back) {
             Choice(model, snack, skip, yes, no)
         }
     }

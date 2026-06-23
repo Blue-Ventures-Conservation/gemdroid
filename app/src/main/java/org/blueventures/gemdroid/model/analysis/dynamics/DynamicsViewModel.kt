@@ -170,7 +170,7 @@ class DynamicsViewModel(
     private var contOp: String? = null
     private var histOp: String? = null
     @Composable
-    override fun optionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
+    override fun OptionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit) {
         contOp = null
         histOp = null
 

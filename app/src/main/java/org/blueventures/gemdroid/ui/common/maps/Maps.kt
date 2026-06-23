@@ -36,7 +36,7 @@ object Maps {
             }
 
             private fun convert(from: Int): MapType {
-                for (t in MapType.values()) {
+                for (t in MapType.entries) {
                     if (t.value == from) {
                         return t
                     }

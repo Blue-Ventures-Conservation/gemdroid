@@ -11,7 +11,6 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Downloads
-import org.blueventures.gemdroid.ui.common.Nav
 
 object Downloads {
     @Composable

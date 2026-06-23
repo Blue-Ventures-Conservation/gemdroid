@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.analysis.classification.separability
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Correlation
 import org.blueventures.gemdroid.ui.analysis.classification.separability.screens.Dashboard

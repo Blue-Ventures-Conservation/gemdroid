@@ -57,7 +57,7 @@ object CRAFields {
                 val both = bothFields.getOrNull()!!
                 if (both.complete()) {
                     PleaseWait()
-                    val ctx = LocalContext.current
+                    val ctx = LocalContext.current.applicationContext
                     Effect.Once {
                         var gaveUp = false
 
@@ -132,7 +132,7 @@ object CRAFields {
                 chosenNumeric = numerics[i]
             }
 
-            val ctx = LocalContext.current
+            val ctx = LocalContext.current.applicationContext
             Butt.Done(chosenNumeric.isNotEmpty() && chosenString.isNotEmpty()) {
                 val chosenStrings = stringValues[chosenString]!!
                 val chosenNumerics = numericValues[chosenNumeric]!!

@@ -56,12 +56,12 @@ object Stats {
 
     @Composable
     fun ClassBlock(className: String, cd: ClassDynamics) {
-        StatsRow(ClassLabel(R.string.total_hist_area, className), cd.histArea)
-        StatsRow(ClassLabel(R.string.total_cont_area, className), cd.contArea)
-        DetailsRow(ClassLabel(R.string.percent_change_of, className), percentChange(cd.contArea, cd.histArea))
-        PercentRow(ClassLabel(R.string.loss_fmt, className), cd.loss, cd.histArea)
-        PercentRow(ClassLabel(R.string.persistence_fmt, className), cd.persistence, cd.histArea)
-        PercentRow(ClassLabel(R.string.gain_fmt, className), cd.gain, cd.histArea)
+        StatsRow(classLabel(R.string.total_hist_area, className), cd.histArea)
+        StatsRow(classLabel(R.string.total_cont_area, className), cd.contArea)
+        DetailsRow(classLabel(R.string.percent_change_of, className), percentChange(cd.contArea, cd.histArea))
+        PercentRow(classLabel(R.string.loss_fmt, className), cd.loss, cd.histArea)
+        PercentRow(classLabel(R.string.persistence_fmt, className), cd.persistence, cd.histArea)
+        PercentRow(classLabel(R.string.gain_fmt, className), cd.gain, cd.histArea)
     }
 
     @Composable
@@ -89,7 +89,7 @@ object Stats {
     }
 
     @Composable
-    private fun ClassLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
+    private fun classLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
 
     private fun toHectares(meters: Double) = (meters/hectareInMeters).toInt()
 
