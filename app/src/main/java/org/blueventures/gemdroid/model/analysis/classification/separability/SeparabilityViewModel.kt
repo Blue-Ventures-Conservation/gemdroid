@@ -2,10 +2,10 @@ package org.blueventures.gemdroid.model.analysis.classification.separability
 
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.shp.Shapefile
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.correlationFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.scatterFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.separationFile
@@ -19,7 +19,7 @@ class SeparabilityViewModel(
     lateinit var craAwaiter: Await.CRAAwaiter
 
     lateinit var timePeriod: SeparabilityDatasource.TimePeriod
-    lateinit var toAnalyze: Shapefile
+    lateinit var toAnalyze: RemoteCRAFileInfo
     lateinit var title: String
     lateinit var classes: List<String>
     lateinit var bandX: String
@@ -59,6 +59,6 @@ class SeparabilityViewModel(
     fun loadCorrelationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(correlationFile(roiDir, timePeriod), JSONMap, callback)
 
     private fun makeCraROI(timePeriod: Int): CraROI {
-        return CraROI(timePeriod, toAnalyze.shapefileStorageKey, toAnalyze.numericClassField, toAnalyze.stringClassField, roi)
+        return CraROI(timePeriod, toAnalyze.storageKey(), toAnalyze.numericClassField, toAnalyze.stringClassField, roi)
     }
 }

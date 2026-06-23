@@ -17,7 +17,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.HeatMap
 import com.anychart.enums.SelectionMode
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -38,7 +38,7 @@ object Correlation {
         appBar.Update(AppBarUpdate(viewModel.title))
 
         GetRemote.Save(viewModel::loadCorrelationFile, viewModel::getCorrelation, viewModel::saveCorrelationFile, errorHandler = CRA::errHandler) { json ->
-            val corrs = JSONMap.correlationChartInfo(json)
+            val corrs = SeparabilityJSON.correlationChartInfo(json)
 
             if (corrs == null) {
                 back.Once()
@@ -50,7 +50,7 @@ object Correlation {
     }
 
     @Composable
-    fun Chart(correlations: JSONMap.Correlations) {
+    fun Chart(correlations: SeparabilityJSON.Correlations) {
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -116,17 +116,17 @@ object Correlation {
         }
     }
 
-    private fun cellTitle(x: String, y: String, correlation: JSONMap.Correlation): String {
+    private fun cellTitle(x: String, y: String, correlation: SeparabilityJSON.Correlation): String {
         if (x == y) return "x"
         return correlation.name.lowercase().replaceFirstChar { it.uppercase() }
     }
 
-    private fun cellColor(x: String, y: String, correlation: JSONMap.Correlation): String {
+    private fun cellColor(x: String, y: String, correlation: SeparabilityJSON.Correlation): String {
         if (x == y) return LightGrey.toHexString()
         return when(correlation) {
-            JSONMap.Correlation.NONE -> LightGreen.toHexString()
-            JSONMap.Correlation.MODERATE -> Caution.toHexString()
-            JSONMap.Correlation.HIGH -> MildRed.toHexString()
+            SeparabilityJSON.Correlation.NONE -> LightGreen.toHexString()
+            SeparabilityJSON.Correlation.MODERATE -> Caution.toHexString()
+            SeparabilityJSON.Correlation.HIGH -> MildRed.toHexString()
         }
     }
 

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -33,7 +33,7 @@ object Dashboard {
 
     @Composable
     fun Layout(viewModel: SeparabilityViewModel, json: Map<String, Any>, back: Click, separation: Click, scatter: Click, correlation: Click) {
-        val msg = JSONMap.separabilityMessage(LocalContext.current, viewModel.timePeriod, json)
+        val msg = SeparabilityJSON.separabilityMessage(LocalContext.current, viewModel.timePeriod, json)
 
         if (msg == null) {
             back.Once()

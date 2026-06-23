@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -23,7 +23,7 @@ object ScatterChoices {
         appBar.Update(AppBarUpdate(viewModel.title))
 
         GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
-            val bands = JSONMap.bands(json)
+            val bands = SeparabilityJSON.bands(json)
 
             if (bands == null) {
                 back.Once()

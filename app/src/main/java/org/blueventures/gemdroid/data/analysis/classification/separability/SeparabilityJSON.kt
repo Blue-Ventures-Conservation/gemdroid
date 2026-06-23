@@ -1,19 +1,14 @@
 package org.blueventures.gemdroid.data.analysis.classification.separability
 
 import android.content.Context
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.checkItemsAre
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.TimePeriod
-import java.io.File
 import kotlin.math.abs
 
 // A collection of functions related to unpacking (semi-)unstructured JSON
-object JSONMap : Serializer<Map<String, Any>>() {
+// related to separability API responses.
+object SeparabilityJSON {
     fun bandsAndClasses(m: Map<String, Any>): Pair<List<String>, List<String>>? {
         val b = bands(m) ?: return null
         val c = classes(m) ?: return null
@@ -243,14 +238,5 @@ object JSONMap : Serializer<Map<String, Any>>() {
             cpy.remove("moderately_correlated") as? Double ?: return null,
             (cpy as? Map<*, *>)?.checkItemsAre() ?: return null
         )
-    }
-
-    private val adapter = adapter()
-    override fun fromFile(file: File) = fromFile(adapter, file)
-    override fun toFile(file: File, data: Map<String, Any>) = toFile(adapter, file, data)
-
-    private fun adapter(): JsonAdapter<Map<String, Any>> {
-        val type = Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
-        return Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(type)
     }
 }

@@ -20,7 +20,7 @@ object TargetClasses {
     fun Screen(viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun, next: Click) {
         viewModel.combinedName = null
         appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
-        val classes = viewModel.cra.contemporaryCRA.stringClassValues
+        val classes = viewModel.cras.contemporaryCRA.stringClassValues
         val (classesChosen, setClassesChosen) = remember { mutableStateOf(false) }
         val (dynamicsResult, setDynamicsResult) = remember { mutableStateOf<Result<DynamicsURLs>?>(null) }
 

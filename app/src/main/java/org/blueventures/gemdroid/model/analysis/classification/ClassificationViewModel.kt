@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
@@ -29,7 +29,7 @@ class ClassificationViewModel(
 ): ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
     lateinit var craAwaiter: Await.CRAAwaiter
-    lateinit var cra: CRA
+    lateinit var cras: ContemporaryAndHistoricalCRAs
 
     var roiDir = File("")
         set(value) {
@@ -82,12 +82,12 @@ class ClassificationViewModel(
     }
 
     private fun makeClassificationROI() = ClassificationROI(
-        cra.contemporaryCRA.shapefileStorageKey,
-        cra.historicalShp().shapefileStorageKey,
-        cra.useContSpec(),
-        cra.contemporaryCRA.numericClassField,
-        cra.contemporaryCRA.stringClassField,
-        makePalette(cra),
+        cras.contemporaryCRA.storageKey(),
+        cras.historicalShp().storageKey(),
+        cras.useContSpec(),
+        cras.contemporaryCRA.numericClassField,
+        cras.contemporaryCRA.stringClassField,
+        makePalette(cras),
         roi,
     )
 
@@ -111,8 +111,8 @@ class ClassificationViewModel(
         deleteFile(exportsFile(roiDir))
     }
 
-    private fun makePalette(cra: CRA): List<String> {
-        val colors = makeColorPalette(cra.contemporaryCRA.stringClassValues)
+    private fun makePalette(cras: ContemporaryAndHistoricalCRAs): List<String> {
+        val colors = makeColorPalette(cras.contemporaryCRA.stringClassValues)
         val pal = mutableListOf<String>()
         for (c in colors) {
             pal.add(c.toHexString())

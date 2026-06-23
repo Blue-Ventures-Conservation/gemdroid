@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
@@ -62,7 +62,7 @@ class DynamicsViewModel(
 ): ApiViewModel(repo), Polygons.Model {
     override var visualizer: Visualize.Visualizer? = null
     lateinit var craAwaiter: Await.CRAAwaiter
-    lateinit var cra: CRA
+    lateinit var cras: ContemporaryAndHistoricalCRAs
     lateinit var targetClasses: List<String>
     lateinit var roiDir: File
     lateinit var roi: ROI
@@ -158,7 +158,7 @@ class DynamicsViewModel(
             return false
         }
 
-        for (className in cra.contemporaryCRA.stringClassValues) {
+        for (className in cras.contemporaryCRA.stringClassValues) {
             if (name == className) {
                 return false
             }
@@ -244,11 +244,11 @@ class DynamicsViewModel(
     private fun makeDynamicsReady(contOp: String, histOp: String) = DynamicsReady(
         contOp,
         histOp,
-        cra.contemporaryCRA.shapefileStorageKey,
-        cra.historicalShp().shapefileStorageKey,
-        cra.useContSpec(),
-        cra.contemporaryCRA.numericClassField,
-        cra.contemporaryCRA.stringClassField,
+        cras.contemporaryCRA.storageKey(),
+        cras.historicalShp().storageKey(),
+        cras.useContSpec(),
+        cras.contemporaryCRA.numericClassField,
+        cras.contemporaryCRA.stringClassField,
         roi,
     )
 
@@ -259,11 +259,11 @@ class DynamicsViewModel(
         BVRed.toHexString(),
         BVGreen.toHexString(),
         BVDarkBlue.toHexString(),
-        cra.contemporaryCRA.shapefileStorageKey,
-        cra.historicalShp().shapefileStorageKey,
-        cra.useContSpec(),
-        cra.contemporaryCRA.numericClassField,
-        cra.contemporaryCRA.stringClassField,
+        cras.contemporaryCRA.storageKey(),
+        cras.historicalShp().storageKey(),
+        cras.useContSpec(),
+        cras.contemporaryCRA.numericClassField,
+        cras.contemporaryCRA.stringClassField,
         roi,
     )
 

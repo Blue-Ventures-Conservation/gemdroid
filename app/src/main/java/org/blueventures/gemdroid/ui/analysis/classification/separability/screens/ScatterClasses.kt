@@ -3,7 +3,7 @@ package org.blueventures.gemdroid.ui.analysis.classification.separability.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -19,7 +19,7 @@ object ScatterClasses {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         appBar.Update(AppBarUpdate(viewModel.title))
         GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
-            val classes = JSONMap.classes(json)
+            val classes = SeparabilityJSON.classes(json)
 
             if (classes == null) {
                 back.Once()

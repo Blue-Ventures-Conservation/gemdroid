@@ -3,7 +3,7 @@ package org.blueventures.gemdroid.ui.analysis.classification.separability.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryHighTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.ContemporaryLowTide
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.HistoricalHighTide
@@ -26,9 +26,9 @@ object SelectTimePeriod {
         Await.CRAOrGoBack(snack, next, stringResource(R.string.could_not_verify_cras_charts), viewModel.craAwaiter) { cra ->
             val cont = cra.contemporaryCRA
             val hist = cra.historicalShp()
-            val setShp: (Shapefile) -> Unit = { viewModel.toAnalyze = it }
-            val setCont = { setShp(cont) }
-            val setHist = { setShp(hist) }
+            val setCRAInfo: (RemoteCRAFileInfo) -> Unit = { viewModel.toAnalyze = it }
+            val setCont = { setCRAInfo(cont) }
+            val setHist = { setCRAInfo(hist) }
             Dashboard(viewModel, { setCont(); next() }, { setCont(); next() }, { setHist(); next() }) { setHist(); next() }
         }
     }

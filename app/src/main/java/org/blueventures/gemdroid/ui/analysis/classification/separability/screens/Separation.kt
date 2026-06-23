@@ -19,7 +19,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Cartesian
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -44,7 +44,7 @@ object Separation {
 
     @Composable
     fun Layout(json: Map<String, Any>, back: Click) {
-        val bandsAndClasses = JSONMap.bandsAndClasses(json)
+        val bandsAndClasses = SeparabilityJSON.bandsAndClasses(json)
 
         if (bandsAndClasses == null) {
             back.Once()
@@ -96,7 +96,7 @@ object Separation {
         val ctx = LocalContext.current
         Dropdown(title = stringResource(R.string.select_band), labels = bands) { i ->
             val band = bands[i]
-            setData(JSONMap.boxChartBandInfo(ctx, json, band, classes))
+            setData(SeparabilityJSON.boxChartBandInfo(ctx, json, band, classes))
         }
     }
 

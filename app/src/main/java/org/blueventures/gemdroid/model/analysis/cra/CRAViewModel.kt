@@ -5,7 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
@@ -206,12 +206,12 @@ class CRAViewModel(
 
     private var awaitCRAsJob: Job? = null
 
-    override fun loadCRAs(callback: (Result<CRA>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
+    override fun loadCRAs(callback: (Result<ContemporaryAndHistoricalCRAs>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
 
     override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
 
-    override fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit) {
-        awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cra), callback)
+    override fun awaitCRAs(cras: ContemporaryAndHistoricalCRAs, callback: (Result<Unit>) -> Unit) {
+        awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cras), callback)
     }
 }
 

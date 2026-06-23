@@ -47,7 +47,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.PolyUtil
-import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
@@ -60,8 +59,6 @@ import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.TileOverlay
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.time.debounce
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds.centerFromRing
 import org.blueventures.gemdroid.data.PolygonDrawer
@@ -72,7 +69,6 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
-import java.time.Duration
 import kotlin.math.roundToInt
 
 object Compose {
@@ -84,13 +80,15 @@ object Compose {
         title: String,
         gps: Boolean,
         center: LatLng?,
+        initialZoom: Float?,
         storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
+        capture: Capture.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        DrawingControls(appBar, title, gps, center, storage, layers, draw, poly, floating)
+        DrawingControls(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, floating)
     }
 
     @Composable
@@ -99,10 +97,12 @@ object Compose {
         title: String,
         gps: Boolean,
         center: LatLng?,
+        initialZoom: Float?,
         storage: Maps.Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Poly.Model?,
+        capture: Capture.Model?,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         Column(
@@ -141,7 +141,7 @@ object Compose {
                 val touchState = remember { mutableStateOf<LatLng?>(null) }
                 var screenPoints by remember { mutableStateOf(listOf<Point>()) }
 
-                ZoomToMap(appBar, title, gps, center, storage, layers, poly, draw, clearState, touchState, screenPoints)
+                ZoomToMap(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, clearState, touchState, screenPoints)
                 if (drawState.value) {
                     MapDrawer {
                         screenPoints = it
@@ -165,17 +165,19 @@ object Compose {
         title: String,
         gps: Boolean,
         center: LatLng?,
+        initialZoom: Float?,
         storage: Maps.Storage?,
         layers: Layers.Model<T>?,
-        poly: Poly.Model?,
         draw: Draw.Model?,
+        poly: Poly.Model?,
+        capture: Capture.Model?,
         clearState: MutableState<Boolean>,
         touchState: MutableState<LatLng?>,
         screenPoints: List<Point>
     ) {
         val target = zoomOrDraw(center, draw)
-        val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (target == null) 0f else 9f)
-        Map(appBar, title, gps, storage, layers, poly, draw, clearState, touchState, screenPoints, position)
+        val position = CameraPosition.fromLatLngZoom(target ?: LatLng(0.0, 0.0), if (target == null) 0f else initialZoom ?: 9f)
+        Map(appBar, title, gps, storage, layers, draw, poly, capture, clearState, touchState, screenPoints, position)
     }
 
     @OptIn(FlowPreview::class)
@@ -186,8 +188,9 @@ object Compose {
         gps: Boolean,
         storage: Maps.Storage?,
         layers: Layers.Model<T>?,
-        poly: Poly.Model?,
         draw: Draw.Model?,
+        poly: Poly.Model?,
+        capture: Capture.Model?,
         clearState: MutableState<Boolean>,
         touchState: MutableState<LatLng?>,
         screenPoints: List<Point>,
@@ -198,12 +201,15 @@ object Compose {
         if (mapType == null && storage != null) {
             storage.getMapType(ctx, setMapType)
         } else {
-            var currentLatLng: LatLng? by remember { mutableStateOf(null) }
             val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
-            LaunchedEffect(cameraPositionState) {
-                snapshotFlow { cameraPositionState.position.target }
-                    .collect { currentLatLng = it }
+            var currentLatLng: LatLng? by remember { mutableStateOf(null) }
+            if (capture != null) {
+                LaunchedEffect(cameraPositionState) {
+                    snapshotFlow { cameraPositionState.position.target }
+                        .collect { currentLatLng = it }
+                }
             }
+
             val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
             var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType!!)) }
 
@@ -224,9 +230,11 @@ object Compose {
                     GoogleMap(modifier = Modifier.fillMaxSize(), cameraPositionState = cameraPositionState, properties = properties, uiSettings = uiSettings, onMapClick = { pt ->
                         touchState.value = pt
                     }) {
-                        currentLatLng?.let {
-                            val opt = PolygonDrawer.square(it, 30.0)
-                            Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 1000f)
+                        if (capture != null) {
+                            currentLatLng?.let {
+                                val opt = PolygonDrawer.square(it, 30.0)
+                                Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 1000f)
+                            }
                         }
 
                         layers?.let {

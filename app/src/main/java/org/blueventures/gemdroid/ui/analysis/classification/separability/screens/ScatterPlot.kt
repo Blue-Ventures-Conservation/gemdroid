@@ -12,7 +12,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.charts.Scatter
 import com.anychart.enums.MarkerType
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
-import org.blueventures.gemdroid.data.analysis.classification.separability.JSONMap
+import org.blueventures.gemdroid.data.analysis.classification.separability.SeparabilityJSON
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -29,7 +29,7 @@ object ScatterPlot {
         appBar.Update(AppBarUpdate(viewModel.title))
 
         val screen: @Composable (Map<String, Any>) -> Unit = { json ->
-            val data = JSONMap.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
+            val data = SeparabilityJSON.scatterChartInfo(json, viewModel.classes, viewModel.bandX, viewModel.bandY)
 
             if (data == null) {
                 back.Once()
@@ -42,7 +42,7 @@ object ScatterPlot {
     }
 
     @Composable
-    fun Chart(data: Map<String, List<JSONMap.ScatterPoint>>, classes: List<String>, bandX: String, bandY: String) {
+    fun Chart(data: Map<String, List<SeparabilityJSON.ScatterPoint>>, classes: List<String>, bandX: String, bandY: String) {
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()

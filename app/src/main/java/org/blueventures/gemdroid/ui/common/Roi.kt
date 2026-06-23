@@ -11,13 +11,13 @@ import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 
 object Roi {
@@ -43,7 +43,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, cra: CRA?, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
         OverviewFromState(
             background,
             name = roi.name,
@@ -56,7 +56,7 @@ object Roi {
             multi = roi.boundaryPolyToState(),
             excluded = roi.excludedRegions,
             useS2 = roi.useS2(),
-            cra = cra,
+            cras = cras,
             header = header,
             buttonLabel = buttonLabel,
             next = next,
@@ -64,7 +64,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, cra: CRA?, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
         val (calcs, setCalcs) = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
         when (calcs) {
             null -> {
@@ -111,7 +111,7 @@ object Roi {
                         }
                         OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
                     }
-                    cra?.let {
+                    cras?.let {
                         if (it.historicalCRA != null) {
                                 CRAOverview(stringResource(R.string.historical_cras), it.historicalCRA)
                         }
@@ -124,15 +124,15 @@ object Roi {
     }
 
     @Composable
-    private fun CRAOverview(header: String, shp: Shapefile) {
-        if (shp.classCounts?.isNotEmpty() == true) {
+    private fun CRAOverview(header: String, info: RemoteCRAFileInfo) {
+        if (info.classCounts?.isNotEmpty() == true) {
             Info.Block {
                 Info.Header(header)
 
-                OverviewRow(stringResource(R.string.name), shp.shapefileStorageKey)
+                OverviewRow(stringResource(R.string.name), info.storageKey())
 
                 var total = 0
-                val counts = shp.classCounts
+                val counts = info.classCounts
                 for (cc in counts) {
                     total += cc.craCount
                     OverviewRow("${cc.classNumber} - ${cc.className}:", "${cc.craCount}")

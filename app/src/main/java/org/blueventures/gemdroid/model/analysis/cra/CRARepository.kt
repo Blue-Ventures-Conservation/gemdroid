@@ -1,6 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 import java.io.InputStream
@@ -17,8 +17,8 @@ class CRARepository(
     fun ingestCRAs(roiDir: File, c1: CRAFile, c2: CRAFile) = goFlow { datasource.ingestCRAs(roiDir, c1, c2) }
     fun uploadFields(cra: CRAFile) = goFlow { datasource.uploadFields(cra) }
     fun uploadFields(c1: CRAFile, c2: CRAFile) = goFlow { datasource.uploadFields(c1, c2) }
-    fun saveCRAs(roiDir: File, cra: CRA) = goFlow { datasource.saveCRAs(roiDir, cra) }
+    fun saveCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs) = goFlow { datasource.saveCRAs(roiDir, cras) }
     fun loadCRAs(roiDir: File) = goFlow { datasource.loadCRAs(roiDir) }
     fun shouldAwaitCRAs(roiDir: File) = goFlow { datasource.shouldAwaitCRAs(roiDir) }
-    fun awaitCRAs(roiDir: File, cra: CRA) = goFlow { datasource.awaitCRAs(roiDir, cra) }
+    fun awaitCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs) = goFlow { datasource.awaitCRAs(roiDir, cras) }
 }

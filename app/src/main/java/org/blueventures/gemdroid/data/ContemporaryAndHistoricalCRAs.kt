@@ -2,7 +2,7 @@ package org.blueventures.gemdroid.data
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import java.io.File
 
 /**
@@ -13,14 +13,14 @@ import java.io.File
  *
  * A CRA file is saved on device to keep track of the CRAs in use for an ROI.
  */
-data class CRA(
-    @Json(name = "hist_shp") val historicalCRA: Shapefile? = null,
-    @Json(name = "cont_shp") val contemporaryCRA: Shapefile,
+data class ContemporaryAndHistoricalCRAs(
+    @Json(name = "hist_shp") val historicalCRA: RemoteCRAFileInfo? = null,
+    @Json(name = "cont_shp") val contemporaryCRA: RemoteCRAFileInfo,
 ) {
     companion object {
-        private val adapter = FileService.adapter<CRA>()
+        private val adapter = FileService.adapter<ContemporaryAndHistoricalCRAs>()
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, cra: CRA) = FileService.toFile(file, cra, adapter)
+        fun toFile(file: File, cras: ContemporaryAndHistoricalCRAs) = FileService.toFile(file, cras, adapter)
     }
 
     fun historicalShp() = historicalCRA ?: contemporaryCRA

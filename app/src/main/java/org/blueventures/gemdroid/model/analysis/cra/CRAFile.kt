@@ -1,15 +1,17 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.shp.ClassCount
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import java.io.File
 
+// This class holds data that may come from local parsing or from fetching details from remote.
 data class CRAFile(
-    val storageKey: String? = null,
+    var isShapefile: Boolean = true,
     var eeUploadName: String? = null,
     var overwrite: Boolean = false,
+    val storageKey: String? = null,
     val localFile: File? = null,
     val counted: FieldsCounts = FieldsCounts(),
 ) {
@@ -20,30 +22,35 @@ data class CRAFile(
     }
 
     fun key() = storageKey ?: localFile?.path?.substringAfterLast(sep)?.substringBeforeLast(".") ?: ""
+    fun shpKey() = if (isShapefile) key() else  null
+    fun jsonKey() = if (!isShapefile) key() else null
+
     fun readyToUpload() = isLocal() && counted.complete()
     fun isLocal() = localFile != null && storageKey == null
     fun isRemote() = localFile == null && storageKey != null
     fun badFinalState() = (!isRemote() && !readyToUpload()) || (isRemote() && !counted.complete())
 
     companion object {
-        fun toCRA(cont: CRAFile, hist: CRAFile?): CRA {
-            val histShp = if (hist == null) null else Shapefile(
-                hist.key(),
+        fun toCRA(cont: CRAFile, hist: CRAFile?): ContemporaryAndHistoricalCRAs {
+            val histShp = if (hist == null) null else RemoteCRAFileInfo(
+                hist.shpKey(),
+                hist.jsonKey(),
                 hist.eeUploadName!!,
                 hist.counted.fields.chosenNumeric!!,
                 hist.counted.fields.chosenString!!,
                 hist.counted.fields.chosenStringValues!!,
                 hist.counted.counts.stringCounts.chosenCounts
             )
-            val contShp = Shapefile(
-                cont.key(),
+            val contShp = RemoteCRAFileInfo(
+                cont.shpKey(),
+                cont.jsonKey(),
                 cont.eeUploadName!!,
                 cont.counted.fields.chosenNumeric!!,
                 cont.counted.fields.chosenString!!,
                 cont.counted.fields.chosenStringValues!!,
                 cont.counted.counts.stringCounts.chosenCounts
             )
-            return CRA(histShp, contShp)
+            return ContemporaryAndHistoricalCRAs(histShp, contShp)
         }
     }
 }

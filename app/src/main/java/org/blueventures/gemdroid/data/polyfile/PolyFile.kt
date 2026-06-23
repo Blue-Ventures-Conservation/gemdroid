@@ -5,7 +5,7 @@ import com.github.zibnix.droidbones.mvvm.FileService
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.kml.KML
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import java.io.File
 import java.io.InputStream
 
@@ -28,7 +28,7 @@ object PolyFile {
 
         val polyResult = when(typeResult.getOrNull()!!) {
             PolygonFileType.KML -> KML.polygons(paths)
-            PolygonFileType.SHAPEFILE -> Shapefile.polygons(workDir, paths)
+            PolygonFileType.SHAPEFILE -> RemoteCRAFileInfo.polygons(workDir, paths)
         }
 
         FileService.deleteDir(unzipDir)

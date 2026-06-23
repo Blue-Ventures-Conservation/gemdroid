@@ -37,7 +37,7 @@ object Visualize {
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
-                Maps.Screen(appBar, title, attemptGps, center, storage, object : Layers.Model<VisualizeURLs>() {
+                Maps.Screen(appBar, title, attemptGps, center, storage = storage, layers = object : Layers.Model<VisualizeURLs>() {
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                     override val parentDir = visualizer.parentDir()
@@ -45,10 +45,10 @@ object Visualize {
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                     override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)
-                }, draw, poly, floating)
+                }, draw = draw, poly = poly, floating = floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, attemptGps, center, storage, draw, poly, floating)
+            Maps.NoLayers(appBar, title, attemptGps, center, storage = storage, draw = draw, poly = poly, floating = floating)
         }
     }
 

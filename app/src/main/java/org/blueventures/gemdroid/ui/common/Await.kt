@@ -6,13 +6,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 
 object Await {
     interface CRAAwaiter {
-        fun loadCRAs(callback: (Result<CRA>) -> Unit): Job
+        fun loadCRAs(callback: (Result<ContemporaryAndHistoricalCRAs>) -> Unit): Job
         fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
-        fun awaitCRAs(cra: CRA, callback: (Result<Unit>) -> Unit)
+        fun awaitCRAs(cras: ContemporaryAndHistoricalCRAs, callback: (Result<Unit>) -> Unit)
     }
 
     @Composable
@@ -21,7 +21,7 @@ object Await {
         back: Click,
         notVerified: String,
         awaiter: CRAAwaiter,
-        content: @Composable (CRA) -> Unit,
+        content: @Composable (ContemporaryAndHistoricalCRAs) -> Unit,
     ) {
         CRA(notVerified, awaiter) { cra, msg ->
             msg?.let {
@@ -40,9 +40,9 @@ object Await {
     fun CRA(
         notVerified: String,
         awaiter: CRAAwaiter,
-        content: @Composable (CRA?, String?) -> Unit,
+        content: @Composable (ContemporaryAndHistoricalCRAs?, String?) -> Unit,
     ) {
-        val (cras, setCRAs) = remember { mutableStateOf<Result<CRA>?>(null) }
+        val (cras, setCRAs) = remember { mutableStateOf<Result<ContemporaryAndHistoricalCRAs>?>(null) }
         val (should, setShould) = remember { mutableStateOf<Result<Boolean>?>(null) }
         val (awaited, setAwaited) = remember { mutableStateOf<Result<Unit>?>(null) }
 

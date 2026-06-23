@@ -16,14 +16,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.CRA
+import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.data.shp.ClassCount
-import org.blueventures.gemdroid.data.shp.Shapefile
+import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
@@ -33,6 +33,7 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.coroutines.resume
 
+// TODO: go through this file and anywhere that accesses /shps for a user, make sure it knows how to handle that alternate json path as well
 class CRADatasource(
     private val api: Api.Service = Api.Service.instance(),
     private val auth: FirebaseAuth = Firebase.auth,
@@ -80,7 +81,7 @@ class CRADatasource(
         val pathsResult = PolyFile.unzipOrCopy(crasDir, files, names)
         if (pathsResult.isFailure) return Result.failure(pathsResult.exceptionOrNull()!!)
 
-        val zipResult = Shapefile.file(crasDir, pathsResult.getOrNull()!!, nameCheck = { shpName ->
+        val zipResult = RemoteCRAFileInfo.file(crasDir, pathsResult.getOrNull()!!, nameCheck = { shpName ->
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
                 remoteCRAs.contains(shpName) && !overwrite -> Common.BadName(shpName)
@@ -136,11 +137,11 @@ class CRADatasource(
             }
         }
 
-        if (numerics.size <= 0) {
+        if (numerics.isEmpty()) {
             return Result.failure(NoStack(R.string.shp_no_candidate_num))
         }
 
-        if (strings.size <= 0) {
+        if (strings.isEmpty()) {
             return Result.failure(NoStack(R.string.shp_no_candidate_char))
         }
 
@@ -296,7 +297,7 @@ class CRADatasource(
         val tmp = File.createTempFile("cras", "json")
         tmp.deleteOnExit()
         storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
-            val shpRes = Shapefile.fromFile(tmp)
+            val shpRes = RemoteCRAFileInfo.fromFile(tmp)
             if (shpRes.isFailure) {
                 cont.resume(Result.failure(shpRes.exceptionOrNull()!!))
             } else {
@@ -404,10 +405,11 @@ class CRADatasource(
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
-        val shpRes = Shapefile.toFile(
+        val shpRes = RemoteCRAFileInfo.toFile(
             tmp,
-            Shapefile(
-                key,
+            RemoteCRAFileInfo(
+                cra.shpKey(),
+                cra.jsonKey(),
                 cra.eeUploadName!!,
                 cra.counted.fields.chosenNumeric!!,
                 cra.counted.fields.chosenString!!,
@@ -428,11 +430,11 @@ class CRADatasource(
         }
     }
 
-    fun saveCRAs(roiDir: File, cra: CRA): Result<Unit> {
-        return CRA.toFile(File(File(roiDir, crasDir), crasFile), cra)
+    fun saveCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs): Result<Unit> {
+        return ContemporaryAndHistoricalCRAs.toFile(File(File(roiDir, crasDir), crasFile), cras)
     }
 
-    fun loadCRAs(roiDir: File) = CRA.fromFile(File(File(roiDir, crasDir), crasFile))
+    fun loadCRAs(roiDir: File) = ContemporaryAndHistoricalCRAs.fromFile(File(File(roiDir, crasDir), crasFile))
 
     fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {
         return try {
@@ -442,9 +444,9 @@ class CRADatasource(
         }
     }
 
-    suspend fun awaitCRAs(roiDir: File, cra: CRA): Result<Unit> {
-        val hist = cra.historicalCRA
-        val cont = cra.contemporaryCRA
+    suspend fun awaitCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs): Result<Unit> {
+        val hist = cras.historicalCRA
+        val cont = cras.contemporaryCRA
 
         var contResult: ApiResult<Success>? = null
         var histResult: ApiResult<Success>? = null
@@ -452,9 +454,9 @@ class CRADatasource(
         // returns when all children coroutines are complete
         coroutineScope {
             if (hist != null && cont != hist) {
-                launch { histResult = awaitCRAIngestion(hist.tableUploadOperationName, hist.shapefileStorageKey) }
+                launch { histResult = awaitCRAIngestion(hist.tableUploadOperationName, hist.storageKey()) }
             }
-            launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.shapefileStorageKey) }
+            launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.storageKey()) }
         }
 
         val err = apiResultCheck(contResult, histResult)

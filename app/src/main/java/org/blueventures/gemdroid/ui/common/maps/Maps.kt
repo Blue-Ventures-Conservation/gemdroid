@@ -53,12 +53,14 @@ object Maps {
         title: String,
         attemptGps: Boolean = false,
         center: LatLng? = null,
+        initialZoom: Float? = null,
         storage: Storage? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
+        capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        Screen<URLs>(appBar, title, attemptGps, center, storage, null, draw, poly, floating)
+        Screen<URLs>(appBar, title, attemptGps, center, initialZoom, storage, null, draw, poly, capture, floating)
     }
 
     /**
@@ -71,10 +73,12 @@ object Maps {
         title: String,
         attemptGps: Boolean = false,
         center: LatLng? = null,
+        initialZoom: Float? = null,
         storage: Storage? = null,
         layers: Layers.Model<T>? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
+        capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (attemptGps) {
@@ -84,10 +88,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                Compose.Screen(appBar, title, granted, center, storage, layers, draw, poly, floating)
+                Compose.Screen(appBar, title, granted, center, initialZoom, storage, layers, draw, poly, capture, floating)
             }
         } else {
-            Compose.Screen(appBar, title, false, center, storage, layers, draw, poly, floating)
+            Compose.Screen(appBar, title, false, center, initialZoom, storage, layers, draw, poly, capture, floating)
         }
     }
 
