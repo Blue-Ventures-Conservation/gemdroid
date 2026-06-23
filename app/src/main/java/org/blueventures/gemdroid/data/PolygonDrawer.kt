@@ -31,6 +31,9 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
         return area > 0 && area <= max
     }
 
+    // height and width in meters
+    data class Rectangle(val height: Double, val width: Double)
+
     companion object {
         const val hectareInMeters = 10_000
 
@@ -86,12 +89,11 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
         }
 
         // side length in meters
-        fun square(center: LatLng, side: Double) = rectangle(center, side, side)
+        fun square(center: LatLng, side: Double) = rectangle(center, Rectangle(side, side))
 
-        // height and width length in meters
-        fun rectangle(center: LatLng, height: Double, width: Double): PolygonOptions {
-            val distToSide = width/2.0
-            val distToTopBot = height/2.0
+        fun rectangle(center: LatLng, rect: Rectangle): PolygonOptions {
+            val distToSide = rect.width/2.0
+            val distToTopBot = rect.height/2.0
             val hyp = hypotenuse(distToSide, distToTopBot)
             val northeast = SphericalUtil.computeOffset(center, hyp, 45.0)
             val southwest = SphericalUtil.computeOffset(center, hyp, 225.0)

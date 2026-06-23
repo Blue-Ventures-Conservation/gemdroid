@@ -216,7 +216,7 @@ object Compose {
             val checkers = tileCheckers(layers)
             val (pair, setPair) = remember { mutableStateOf<Pair<List<Checker>?, List<Poly.PolyOptionsGroup>?>?>(null) }
             when (pair) {
-                null -> polygonCheckers(poly, setPair)
+                null -> PolygonCheckers(poly, setPair)
                 else -> {
                     pair.first?.let {
                         checkers.addAll(it)
@@ -500,15 +500,15 @@ object Compose {
     }
 
     @Composable
-    private fun polygonCheckers(pmodel: Poly.Model?, callback: (Pair<MutableList<Checker>?, List<Poly.PolyOptionsGroup>?>) -> Unit) {
-        if (pmodel == null) {
+    private fun PolygonCheckers(polyModel: Poly.Model?, callback: (Pair<MutableList<Checker>?, List<Poly.PolyOptionsGroup>?>) -> Unit) {
+        if (polyModel == null) {
             callback(Pair(null, null))
             return
         }
 
         val ctx = LocalContext.current
 
-        pmodel.polygonOptions(ctx) { groups ->
+        polyModel.polygonOptions(ctx) { groups ->
             val checkers = mutableListOf<Checker>()
             for (group in groups) {
                 checkers.add(Checker(group.menuTitle))

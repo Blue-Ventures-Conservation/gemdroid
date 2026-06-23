@@ -33,6 +33,7 @@ object Visualize {
         storage: Maps.Storage? = null,
         draw: Draw.Model? = null,
         poly: Poly.Model? = null,
+        capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (visualizer != null) {
@@ -45,10 +46,10 @@ object Visualize {
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                     override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)
-                }, draw = draw, poly = poly, floating = floating)
+                }, draw = draw, poly = poly, capture = capture, floating = floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, attemptGps, center, storage = storage, draw = draw, poly = poly, floating = floating)
+            Maps.NoLayers(appBar, title, attemptGps, center, storage = storage, draw = draw, poly = poly, capture = capture, floating = floating)
         }
     }
 
@@ -68,5 +69,20 @@ object Visualize {
         }
         
         return Pair(null, true)
+    }
+
+    @Composable
+    fun Capture(
+        visualizer: Visualizer?,
+        appBar: AppBar,
+        title: String,
+        attemptGps: Boolean = true,
+        center: LatLng? = null,
+        storage: Maps.Storage? = null,
+        poly: Poly.Model? = null,
+        capture: Capture.Model? = null,
+        floating: @Composable BoxScope.() -> Unit = {},
+    ) {
+        Screen(visualizer, appBar, title, attemptGps, center, storage, null, poly, capture, floating)
     }
 }

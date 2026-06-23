@@ -140,7 +140,7 @@ data class ROI(
 /**
  * This was split off in prep of release 1.1.5 when support for multi-polygons was added.
  *
- * Probably a less verbose way of dealing with the overlap here.
+ * There is probably a less verbose way of dealing with the overlap here, but this is simple.
  *
  * This class provides backwards compatibility with version 1.1.4 and earlier.
  */
@@ -161,8 +161,8 @@ data class SinglePolyROI(
     @Json(name = "region_uuid") val regionUUID: String? = null,
 ) {
     companion object : Serializer<SinglePolyROI>() {
-        private val adapter = SinglePolyROI.make<SinglePolyROI>()
-        override fun fromFile(file: File) = SinglePolyROI.fromFile(adapter, file)
-        override fun toFile(file: File, data: SinglePolyROI) = SinglePolyROI.toFile(adapter, file, data)
+        private val adapter = make<SinglePolyROI>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: SinglePolyROI) = toFile(adapter, file, data)
     }
 }
