@@ -16,7 +16,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 object Creation {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBar, done: Click) {
-        Visualize.Screen(viewModel.visualizer, appBar, stringResource(R.string.classification_reference_areas),
+        Visualize.Capture(viewModel.visualizer, appBar, stringResource(R.string.classification_reference_areas),
             true, Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), Maps.Storage.fromViewModel(viewModel),
             poly = object : Poly.Model() {
                 override val touchEnabled = true

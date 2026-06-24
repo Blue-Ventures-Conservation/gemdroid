@@ -31,9 +31,6 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
         return area > 0 && area <= max
     }
 
-    // height and width in meters
-    data class Rectangle(val height: Double, val width: Double)
-
     companion object {
         const val hectareInMeters = 10_000
 
@@ -68,7 +65,7 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
             return opts
         }
 
-        private fun opt(poly: PolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, strokeWidth: Float = 4f, dashes: Boolean = false): PolygonOptions {
+        fun opt(poly: PolyPts, fill: Int = 0x7F00FF00, strokeColor: Int = 0x7F000000, strokeWidth: Float = 4f, dashes: Boolean = false): PolygonOptions {
             val gap = Gap(20f)
             val dash = Dash(20f)
 
@@ -86,29 +83,6 @@ class PolygonDrawer(override var points: List<LatLng> = emptyList(), override va
             }
 
             return opt
-        }
-
-        // side length in meters
-        fun square(center: LatLng, side: Double) = rectangle(center, Rectangle(side, side))
-
-        fun rectangle(center: LatLng, rect: Rectangle): PolygonOptions {
-            val distToSide = rect.width/2.0
-            val distToTopBot = rect.height/2.0
-            val hyp = hypotenuse(distToSide, distToTopBot)
-            val northeast = SphericalUtil.computeOffset(center, hyp, 45.0)
-            val southwest = SphericalUtil.computeOffset(center, hyp, 225.0)
-            val points = mutableListOf<LatLng>().apply {
-                add(northeast)
-                add(LatLng(southwest.latitude, northeast.longitude)) // southeast
-                add(southwest)
-                add(LatLng(northeast.latitude, southwest.longitude)) // northwest
-                add(northeast) // closed ring
-            }
-            return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), 0x7F), 12f)
-        }
-
-        private fun hypotenuse(a: Double, b: Double): Double {
-            return sqrt((a * a) + (b * b))
         }
 
         private fun ringOpts(points: List<LatLng>): PolygonOptions? {

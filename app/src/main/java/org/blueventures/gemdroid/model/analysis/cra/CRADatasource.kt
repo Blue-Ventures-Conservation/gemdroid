@@ -493,6 +493,9 @@ class CRADatasource(
         const val crasFile = "cras.json"
         const val crasIngestedFile = "ingested.json"
 
+        const val classNamePropertyKey = "classname"
+        const val classNumberPropertyKey = "classnumber"
+
         private const val addedFieldShapeLen = "shape_len"
         private const val addedFieldShapeArea = "shape_area"
         private val ignoreFields = arrayOf(addedFieldShapeLen, addedFieldShapeArea)

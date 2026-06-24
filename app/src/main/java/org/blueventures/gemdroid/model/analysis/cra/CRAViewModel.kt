@@ -1,23 +1,31 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
 import com.github.zibnix.droidbones.NoStack
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.GeojsonPolygon
+import org.blueventures.gemdroid.data.GeojsonPolygonFeature
+import org.blueventures.gemdroid.data.Rectangle
+import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
+import org.blueventures.gemdroid.ui.common.maps.Capture
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 import java.io.InputStream
 
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
-): Await.CRAAwaiter, ApiViewModel(repo) {
+): Capture.Data, Await.CRAAwaiter, ApiViewModel(repo) {
     lateinit var grouper: PolygonGrouper
 
     var roiDir = File("")
@@ -212,6 +220,31 @@ class CRAViewModel(
 
     override fun awaitCRAs(cras: ContemporaryAndHistoricalCRAs, callback: (Result<Unit>) -> Unit) {
         awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cras), callback)
+    }
+
+    override val scale = if (roi.useS2()) 10.0 else 30.0
+    override val classes = BVClass.entries
+    override val shapes = listOf(
+        Rectangle(scale*3, scale*3),
+        Rectangle(scale*2, scale*2),
+        Rectangle(scale*3, scale*2),
+        Rectangle(scale*2, scale*3),
+        Rectangle(scale*4, scale*2),
+        Rectangle(scale*2, scale*4),
+        Rectangle(scale*5, scale*1),
+        Rectangle(scale*1, scale*5),
+    )
+
+    private val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
+
+    override fun capture(craClass: BVClass, polygon: List<LatLng>) {
+        capturedFeatures.add(GeojsonPolygonFeature(
+            geometry = GeojsonPolygon.fromState(listOf(polygon)),
+            properties = mapOf(
+                classNamePropertyKey to craClass.names.first(),
+                classNumberPropertyKey to craClass.number,
+            )
+        ))
     }
 }
 
