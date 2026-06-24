@@ -12,8 +12,8 @@ import org.blueventures.gemdroid.ui.analysis.assess.Assess
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import org.blueventures.gemdroid.ui.common.polygons.Polygon
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygon
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryMonths
 import org.blueventures.gemdroid.ui.roi.screens.ContemporaryYears
@@ -106,14 +106,14 @@ object Roi {
                 } else if (viewModel.importedROI.isEmpty()) {
                     nav.navigate(Routes.coarse_polygon_purpose)
                 } else {
-                    nav.navigate(Routes.prefix+Polygons.Routes.option)
+                    nav.navigate(Routes.prefix+CollectPolygons.Routes.option)
                 }
             }
         }
 
         b.backHandler(Routes.coarse_polygon_purpose, nav::popBackStack) {
             CoarsePolygonPurpose.Screen(appBar) {
-                var route = Routes.prefix+Polygon.Routes.draw_or_shapefile
+                var route = Routes.prefix+CollectPolygon.Routes.draw_or_shapefile
                 if (viewModel.imported) {
                     route = Routes.copied_polygon
                 }
@@ -130,23 +130,23 @@ object Roi {
                     popUpTo(Routes.contemporaryMonths)
                 }
             }) {
-                nav.navigate(Routes.prefix+Polygon.Routes.draw_or_shapefile) {
+                nav.navigate(Routes.prefix+CollectPolygon.Routes.draw_or_shapefile) {
                     popUpTo(Routes.contemporaryMonths)
                 }
             }
         }
 
         // Coarse ROI boundary creation
-        Polygon.screens(b, nav, Routes.prefix, Routes.inland_mang, appBar, snack, viewModel.coarseModel)
+        CollectPolygon.screens(b, nav, Routes.prefix, Routes.inland_mang, appBar, snack, viewModel.coarseModel)
 
         b.backHandler(Routes.inland_mang, nav::popBackStack) {
             InlandMang.Screen(viewModel, appBar) {
-                nav.navigate(Routes.prefix+Polygons.Routes.option)
+                nav.navigate(Routes.prefix+CollectPolygons.Routes.option)
             }
         }
 
         // Sub-Regions
-        Polygons.screens(b, nav, Routes.prefix, Routes.prefix+Polygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, viewModel)
+        CollectPolygons.screens(b, nav, Routes.prefix, Routes.prefix+CollectPolygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, viewModel)
 
         // ROI overview
         b.backHandler(Routes.overview, nav::popBackStack) {

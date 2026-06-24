@@ -10,8 +10,8 @@ import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeFilePoly
 
-object Polygon {
-    interface Model: Polygons.AppBarTitler, DrawOrUpload.Model, DrawPolygon.Model, FilePolygon.Model, VisualizeFilePoly.Model
+object CollectPolygon {
+    interface Model: CollectPolygons.AppBarTitler, DrawOrUpload.Model, DrawPolygon.Model, FilePolygon.Model, VisualizeFilePoly.Model
 
     object Routes {
         const val draw_or_shapefile = "polygon_draw_or_shapefile"

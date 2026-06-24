@@ -21,17 +21,17 @@ import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.for
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
-import org.blueventures.gemdroid.ui.common.polygons.Polygon
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygon
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 import java.util.Calendar
 
 class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
-): ApiViewModel(repo), Polygons.Model {
+): ApiViewModel(repo), CollectPolygons.Model {
     var rois: List<File> = emptyList()
     var roiName: String = ""
     var contemporaryYearStart: Int = defaultContemporaryYearStart
@@ -183,21 +183,21 @@ class RoiViewModel(
         content()
     }
 
-    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return background({
-            val polys = mutableListOf<Poly.NamedPoly>()
-            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            val list = mutableListOf<Poly.PolygonGroup>()
+            val polys = mutableListOf<Polygons.Named>()
+            for (poly in polygons) polys.add(Polygons.Named(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
+            val list = mutableListOf<Polygons.Group>()
             if (polys.isNotEmpty()) {
-                list.add(Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb()))
+                list.add(Polygons.Group(excludedRegionsTitle, polys, MildRed.toArgb()))
             }
             list.add(backgroundPolygon(context))
             list
         }, callback)
     }
 
-    private fun backgroundPolygon(context: Context) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roiName, listOf(listOf(roiDrawer.points)))))
+    private fun backgroundPolygon(context: Context) = Polygons.Group(context.getString(R.string.coarse_boundary), listOf(Polygons.Named(roiName, listOf(listOf(roiDrawer.points)))))
 
     override var filePoly: MultiPolyPts = emptyList()
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }
@@ -227,10 +227,10 @@ class RoiViewModel(
 
     var isAssessmentEditor = false
 
-    val coarseModel: Polygon.Model = CoarsePolygonModel(this)
+    val coarseModel: CollectPolygon.Model = CoarsePolygonModel(this)
 }
 
-class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
+class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Model {
     override val appBarTitleId = R.string.create_coarse_boundary
     override fun appBarTitle(title: String) = title
 
@@ -251,7 +251,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): Polygon.Model {
 
     override fun center() = viewModel.center()
 
-    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.background({ emptyList() }, callback)
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.background({ emptyList() }, callback)
 
     override var filePoly: MultiPolyPts = emptyList()
 

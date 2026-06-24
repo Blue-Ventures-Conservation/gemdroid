@@ -30,15 +30,16 @@ object Visualize {
         title: String,
         attemptGps: Boolean = false,
         center: LatLng? = null,
+        initialZoom: Float? = null,
         storage: Maps.Storage? = null,
         draw: Draw.Model? = null,
-        poly: Poly.Model? = null,
+        poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
-                Maps.Screen(appBar, title, attemptGps, center, storage = storage, layers = object : Layers.Model<VisualizeURLs>() {
+                Maps.Screen(appBar, title, attemptGps, center, initialZoom, storage, object : Layers.Model<VisualizeURLs>() {
                     override val initUrls = urls
                     override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
                     override val parentDir = visualizer.parentDir()
@@ -46,10 +47,10 @@ object Visualize {
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                     override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)
-                }, draw = draw, poly = poly, capture = capture, floating = floating)
+                }, draw, poly, capture, floating)
             }
         } else {
-            Maps.NoLayers(appBar, title, attemptGps, center, storage = storage, draw = draw, poly = poly, capture = capture, floating = floating)
+            Maps.NoLayers(appBar, title, attemptGps, center, initialZoom, storage, draw, poly, capture, floating)
         }
     }
 
@@ -78,11 +79,12 @@ object Visualize {
         title: String,
         attemptGps: Boolean = true,
         center: LatLng? = null,
+        initialZoom: Float? = null,
         storage: Maps.Storage? = null,
-        poly: Poly.Model? = null,
+        poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        Screen(visualizer, appBar, title, attemptGps, center, storage, null, poly, capture, floating)
+        Screen(visualizer, appBar, title, attemptGps, center, initialZoom, storage, null, poly, capture, floating)
     }
 }

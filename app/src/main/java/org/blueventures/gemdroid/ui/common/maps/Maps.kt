@@ -2,7 +2,9 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.RequestPermission
 
+data class ClickContent(val click: Click, val content: @Composable () -> Unit)
 object Maps {
     interface Storage {
         fun getMapType(context: Context, callback: (MapType) -> Unit): Job
@@ -56,7 +59,7 @@ object Maps {
         initialZoom: Float? = null,
         storage: Storage? = null,
         draw: Draw.Model? = null,
-        poly: Poly.Model? = null,
+        poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
@@ -77,7 +80,7 @@ object Maps {
         storage: Storage? = null,
         layers: Layers.Model<T>? = null,
         draw: Draw.Model? = null,
-        poly: Poly.Model? = null,
+        poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         floating: @Composable BoxScope.() -> Unit = {},
     ) {
@@ -102,5 +105,17 @@ object Maps {
             .align(align),
             content = content,
         )
+    }
+
+    @Composable
+    fun BoxScope.MultiMapActionButtons(vararg clickContents: ClickContent) {
+        Column(Modifier
+            .padding(12.dp, 12.dp, 12.dp, 48.dp)
+            .align(Alignment.BottomEnd),
+            Arrangement.spacedBy(12.dp, Alignment.Bottom)) {
+            for (clickContent in clickContents) {
+                FloatingActionButton(clickContent.click, content = clickContent.content)
+            }
+        }
     }
 }

@@ -11,10 +11,10 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 
 object DrawOrUpload {
-    interface Model: Polygons.AppBarTitler {
+    interface Model: CollectPolygons.AppBarTitler {
         val polygonType: Int
         fun edit(): Boolean
         fun clearEdit()

@@ -10,12 +10,12 @@ import org.blueventures.gemdroid.ui.theme.Chartreuse
 import kotlin.math.sqrt
 
 // height and width in meters
-data class Rectangle(val height: Double, val width: Double)  {
+open class Rectangle(open val width: Double, open val height: Double)  {
    companion object {
        // side length in meters
-       fun square(center: LatLng, side: Double) = rectangle(center, Rectangle(side, side))
+       fun square(center: LatLng, side: Double) = toPolygon(center, Rectangle(side, side))
 
-       fun rectangle(center: LatLng, rect: Rectangle): PolygonOptions {
+       fun toPolygon(center: LatLng, rect: Rectangle): PolygonOptions {
            val distToSide = rect.width/2.0
            val distToTopBot = rect.height/2.0
            val hyp = hypotenuse(distToSide, distToTopBot)

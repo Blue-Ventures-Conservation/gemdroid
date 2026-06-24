@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 
 object VisualizeFilePoly {
@@ -32,7 +32,7 @@ object VisualizeFilePoly {
         val shpColor: Int?
 
         fun shapefileLooksGood()
-        fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job
+        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
     }
 
@@ -49,23 +49,23 @@ object VisualizeFilePoly {
             }
         } else {
             val title = stringResource(R.string.visualize_polygon)
-            Visualize.Screen(model.visualizer, appBar, title, false, center = center, storage = model.storage, poly = object : Poly.Model() {
+            Visualize.Screen(model.visualizer, appBar, title, false, center = center, storage = model.storage, poly = object : Polygons.Model() {
                 override val touchEnabled = true
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
 
-                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
                     return model.polygonGroups(context) { groups ->
-                        val list = mutableListOf<Poly.PolygonGroup>()
+                        val list = mutableListOf<Polygons.Group>()
 
                         if (model.filePoly.isNotEmpty()) {
                             val newGroupTitle = context.getString(model.polygonTypePlural)
-                            val newGroupPoly = Poly.NamedPoly(model.polygonName, model.filePoly)
+                            val newGroupPoly = Polygons.Named(model.polygonName, model.filePoly)
 
                             var match = false
                             for (group in groups) {
                                 if (group.menuTitle == newGroupTitle) {
                                     match = true
-                                    list.add(Poly.PolygonGroup(group.menuTitle, mutableListOf(newGroupPoly).apply {
+                                    list.add(Polygons.Group(group.menuTitle, mutableListOf(newGroupPoly).apply {
                                         addAll(group.polygons)
                                     }, group.color))
                                 } else {
@@ -76,7 +76,7 @@ object VisualizeFilePoly {
                             if (match) {
                                 callback(list)
                             } else {
-                                callback(mutableListOf(Poly.PolygonGroup(newGroupTitle, listOf(newGroupPoly), model.shpColor)).apply {
+                                callback(mutableListOf(Polygons.Group(newGroupTitle, listOf(newGroupPoly), model.shpColor)).apply {
                                     addAll(groups)
                                 })
                             }
@@ -85,12 +85,12 @@ object VisualizeFilePoly {
                         }
                     }
                 }
-            }, floating = {
+            }) {
                 MapActionButton({
                     model.shapefileLooksGood()
                     next()
                 }) { Icon(Icons.Filled.Check, stringResource(R.string.polygon_looks_good)) }
-            })
+            }
         }
     }
 }

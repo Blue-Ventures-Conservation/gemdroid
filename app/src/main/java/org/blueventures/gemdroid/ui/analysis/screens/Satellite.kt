@@ -18,9 +18,8 @@ object Satellite {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, imageryDescription: Click) {
         Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(stringResource(R.string.visualize_imagery_title)),
-            center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel), floating = {
-                MapActionButton(imageryDescription) { Icon(Icons.Filled.Info, stringResource(R.string.false_color_imagery_description)) }
-            }
-        )
+            center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel)) {
+            MapActionButton(imageryDescription) { Icon(Icons.Filled.Info, stringResource(R.string.false_color_imagery_description)) }
+        }
     }
 }

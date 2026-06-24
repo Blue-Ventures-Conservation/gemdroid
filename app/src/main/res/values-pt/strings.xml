@@ -338,4 +338,22 @@
     <string name="it_is_time_to_import_or_create_cras">It is time to import or create Classification Reference Areas (CRAs)!\n\nThese are polygons within which are a small number of pixels that represent a land cover class (Closed Canopy Mangrove, Open Canopy Mangrove, Terrestrial Forest, Exposed Water etc.).\n\nThese polygons are then uploaded to Google Earth Engine and used to train a classifier that can then classify all the pixels in the imagery from your AOI. It typically requires 20-30 or more example CRAs per class to get good results from the classifier, although this app makes currently sets no hard requirement.\n\nEven CRA is typically a 3x3 square containing 9 pixels from your imagery. This means for Sentinel-2, the square is approximately 30x30m, and for Landsat 90x90.</string>
     <string name="you_will_import_cras_or_reuse">On the next few screens you will be asked to import CRAs or reuse pre-existing CRAs you have imported in the past.</string>
     <string name="you_will_create_cras">On the next screen you will be able to create CRAs by panning and zooming a map that has both satellite imagery and false color composite layers.\n\nIn the center of the screen will be a polygon of an appropriate size, although it may be quite small when you zoom out.\n\nPosition this polygon over an area representing Mangrove (Closed/Open), Terrestrial Forest, Other Vegetation, Freshwater Vegetation, Barren Exposed land or Residual Water. Tap the plus button in the lower right to select the area inside the polygon as one of your CRAs and you will be asked to choose the land cover class.\n\nWhen you have finished choosing CRAs, you can select the checkmark button in the lower right to submit these CRAs and move on to the classification.\n\nYou can change the shape of the polygon in the center of the screen by tapping the polygon button in the lower right.</string>
+    <string name="modify_polygon_shape">modify the shape of the central polygon for capturing CRAs</string>
+    <string name="finished_creating_cras">finished creating CRAs</string>
+    <string name="capture_the_current_area">capture the current area under the central polygon as a CRA</string>
+    <string name="using_s_polygon">Using %s polygon.</string>
+    <string name="capture">Capture</string>
+    <string name="choose_a_cra_class">Choose a CRA Class:</string>
+    <string name="finish_and_upload_your_cras">Finish and upload your CRAs?</string>
+    <string name="if_you_are_all_done_click_the_finish_button_below">If you are all done, click the Finish button below!</string>
+    <string name="finished">Finished</string>
+    <string name="closed_canopy_mangrove">Closed-Canopy Mangrove</string>
+    <string name="open_canopy_mangrove">Open-Canopy Mangrove</string>
+    <string name="open_canopy_mangrove_ii">Open-Canopy Mangrove II</string>
+    <string name="open_canopy_mangrove_iii">Open-Canopy Mangrove III</string>
+    <string name="terrestrial_forest">Terrestrial Forest</string>
+    <string name="other_vegetation">Other Vegetation</string>
+    <string name="freshwater_vegetation">Freshwater Vegetation</string>
+    <string name="barren_exposed">Barren Exposed</string>
+    <string name="residual_water">Residual Water</string>
 </resources>

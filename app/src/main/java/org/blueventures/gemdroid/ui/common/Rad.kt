@@ -23,7 +23,16 @@ object Rad {
     @Composable
     fun <T> Io(choices: List<T>, default: T?, textGetter: (T) -> Int, onClick: (T) -> Unit) {
         val (choice, setChoice) = remember { mutableStateOf(default) }
+        InnerIo(choices, choice, setChoice, textGetter)
+        Spacer(modifier = Modifier.height(0.dp))
+        Butt.Next(choice != null) { choice?.let { onClick(it) } }
+    }
 
+    /**
+     * Provided for when the button exists in a different composable.
+     */
+    @Composable
+    fun <T> InnerIo(choices: List<T>, choice: T?, setChoice: (T?) -> Unit, textGetter: (T) -> Int) {
         choices.forEach { option ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -38,7 +47,5 @@ object Rad {
                 Text(text = stringResource(textGetter(option)), modifier = Modifier.padding(start = 16.dp))
             }
         }
-        Spacer(modifier = Modifier.height(0.dp))
-        Butt.Next(choice != null) { choice?.let { onClick(it) } }
     }
 }

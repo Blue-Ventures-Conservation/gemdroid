@@ -18,9 +18,8 @@ object Composites {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, confirm: Click) {
         Visualize.Screen(viewModel, appBar, stringResource(R.string.tap_the_arrows_to_continue),
-            center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel), floating = {
-                MapActionButton(confirm) { Icon(Icons.Filled.DoubleArrow, stringResource(R.string.tap_here_to_continue)) }
-            }
-        )
+            center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel)) {
+            MapActionButton(confirm) { Icon(Icons.Filled.DoubleArrow, stringResource(R.string.tap_here_to_continue)) }
+        }
     }
 }

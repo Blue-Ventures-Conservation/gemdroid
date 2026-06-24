@@ -16,10 +16,10 @@ import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 
 object PolygonsOption {
-    interface Model: Polygons.AppBarTitler {
+    interface Model: CollectPolygons.AppBarTitler {
         var polygonName: String
 
         val polygonType: Int

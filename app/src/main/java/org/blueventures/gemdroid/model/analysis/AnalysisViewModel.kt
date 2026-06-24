@@ -30,7 +30,7 @@ import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Downloads
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
@@ -151,7 +151,7 @@ class AnalysisViewModel(
     fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
-    override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit): Job {
         return excludedRegions(context, startVisible) { excludes ->
             backgroundPolygon(context, startVisible) { coarseROI ->
                 callback(mutableListOf(coarseROI).apply { if (excludes != null) add(excludes) })
@@ -159,25 +159,25 @@ class AnalysisViewModel(
         }
     }
 
-    fun excludedRegions(context: Context, startVisible: Boolean, callback: (Poly.PolygonGroup?) -> Unit): Job {
+    fun excludedRegions(context: Context, startVisible: Boolean, callback: (Polygons.Group?) -> Unit): Job {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
         return if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
             background({
-                val polys = mutableListOf<Poly.NamedPoly>()
-                for (poly in excludes) polys.add(Poly.NamedPoly("", GeojsonMultiPolygon.toState(poly)))
-                Poly.PolygonGroup(excludedRegionsTitle, polys, MildRed.toArgb(), startVisible = startVisible)
+                val polys = mutableListOf<Polygons.Named>()
+                for (poly in excludes) polys.add(Polygons.Named("", GeojsonMultiPolygon.toState(poly)))
+                Polygons.Group(excludedRegionsTitle, polys, MildRed.toArgb(), startVisible = startVisible)
             }, callback)
         } else {
             background({ null }, callback)
         }
     }
 
-    fun backgroundPolygon(context: Context, startVisible: Boolean, callback: (Poly.PolygonGroup) -> Unit) = background({ backgroundPolygon(context, startVisible) }, callback)
+    fun backgroundPolygon(context: Context, startVisible: Boolean, callback: (Polygons.Group) -> Unit) = background({ backgroundPolygon(context, startVisible) }, callback)
 
-    private fun backgroundPolygon(context: Context, startVisible: Boolean) = Poly.PolygonGroup(context.getString(R.string.coarse_boundary), listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), startVisible = startVisible)
+    private fun backgroundPolygon(context: Context, startVisible: Boolean) = Polygons.Group(context.getString(R.string.coarse_boundary), listOf(Polygons.Named(roi.name, roi.boundaryPolyToState())), startVisible = startVisible)
 }
 
 interface PolygonGrouper {
-    fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Poly.PolygonGroup>) -> Unit): Job
+    fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit): Job
 }

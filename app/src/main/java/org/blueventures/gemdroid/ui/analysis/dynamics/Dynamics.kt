@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClasses
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import java.net.HttpURLConnection
 
 object Dynamics {
@@ -38,7 +38,7 @@ object Dynamics {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
-        Polygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, viewModel)
+        CollectPolygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, viewModel)
 
         b.backHandler(Routes.target_classes, {
             if (viewModel.subregionsFinalized) nav.popBackStack(Analysis.Routes.dashboard, false) else nav.popBackStack()

@@ -49,9 +49,9 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Maps
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.Clear
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.toHexString
@@ -59,7 +59,7 @@ import java.io.File
 
 class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
-): ApiViewModel(repo), Polygons.Model {
+): ApiViewModel(repo), CollectPolygons.Model {
     override var visualizer: Visualize.Visualizer? = null
     lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cras: ContemporaryAndHistoricalCRAs
@@ -93,14 +93,14 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
         val coarseBoundaryTitle = context.getString(R.string.coarse_boundary)
         val subRegionsTitle = context.getString(R.string.sub_regions)
         return background({
-            val boundary = Poly.PolygonGroup(coarseBoundaryTitle, listOf(Poly.NamedPoly(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
-            val polys = mutableListOf<Poly.NamedPoly>()
-            for (poly in polygons) polys.add(Poly.NamedPoly(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(boundary, Poly.PolygonGroup(subRegionsTitle, polys, Clear.toArgb(), 0x7FB4B4B4, true))
+            val boundary = Polygons.Group(coarseBoundaryTitle, listOf(Polygons.Named(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
+            val polys = mutableListOf<Polygons.Named>()
+            for (poly in polygons) polys.add(Polygons.Named(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
+            listOf(boundary, Polygons.Group(subRegionsTitle, polys, Clear.toArgb(), 0x7FB4B4B4, true))
         }, callback)
     }
 

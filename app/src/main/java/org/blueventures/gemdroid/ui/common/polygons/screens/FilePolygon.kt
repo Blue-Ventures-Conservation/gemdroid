@@ -14,10 +14,10 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 
 object FilePolygon {
-    interface Model: Polygons.AppBarTitler {
+    interface Model: CollectPolygons.AppBarTitler {
         var filePoly: MultiPolyPts
         fun <T> background(work: () -> T, callback: (T) -> Unit): Job
         fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job

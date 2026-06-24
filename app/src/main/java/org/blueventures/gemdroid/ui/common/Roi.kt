@@ -16,6 +16,7 @@ import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonDrawer
 import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
+import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
@@ -135,7 +136,8 @@ object Roi {
                 val counts = info.classCounts
                 for (cc in counts) {
                     total += cc.craCount
-                    OverviewRow("${cc.classNumber} - ${cc.className}:", "${cc.craCount}")
+                    val translatedBVName = BVClass.fromName(cc.className)?.stringID()?.let { stringResource(it) }
+                    OverviewRow("${cc.classNumber} - ${translatedBVName ?: cc.className}:", "${cc.craCount}")
                 }
 
                 OverviewRow(stringResource(R.string.total), "$total")

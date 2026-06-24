@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.common.polygons.screens.PolygonsOption
 import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeFilePoly
 
-object Polygons {
+object CollectPolygons {
     interface Model: AppBarTitler, PolygonsOption.Model, NamePolygon.Model, DrawOrUpload.Model, DrawPolygon.Model, FilePolygon.Model, VisualizeFilePoly.Model {
         val named: Boolean
         fun goBack()

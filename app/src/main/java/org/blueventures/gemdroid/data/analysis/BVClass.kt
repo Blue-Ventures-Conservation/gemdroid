@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.data.analysis
 
 import androidx.compose.ui.graphics.Color
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVBurlywood
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVDarkBlue
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVDarkGreen
@@ -12,7 +13,7 @@ import org.blueventures.gemdroid.data.analysis.BVClassColors.BVRed
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVYellow
 import kotlin.enums.enumEntries
 
-enum class BVClass(val number: Int, val color: Color, val names: List<String>) {
+enum class BVClass(val number: Int, val color: Color, val enNames: List<String>) {
     CCM(1, BVDarkGreen, listOf("Closed-Canopy Mangrove")),
     OCMI(2, BVGreen, listOf("Open-Canopy Mangrove", "Open-Canopy Mangrove I", "Open-Canopy Mangrove 1")),
     OCMII(3, BVLimeGreen, listOf("Open-Canopy Mangrove II", "Open-Canopy Mangrove 2")),
@@ -23,11 +24,25 @@ enum class BVClass(val number: Int, val color: Color, val names: List<String>) {
     BE(8, BVYellow, listOf("Barren Exposed", "Barren/Exposed")),
     RW(9, BVDarkBlue, listOf("Residual Water"));
 
+    fun stringID(): Int {
+        return when(this) {
+            CCM -> R.string.closed_canopy_mangrove
+            OCMI -> R.string.open_canopy_mangrove
+            OCMII -> R.string.open_canopy_mangrove_ii
+            OCMIII -> R.string.open_canopy_mangrove_iii
+            TF -> R.string.terrestrial_forest
+            OTV -> R.string.other_vegetation
+            OV -> R.string.freshwater_vegetation
+            BE -> R.string.barren_exposed
+            RW -> R.string.residual_water
+        }
+    }
+    
     companion object {
         fun fromName(name: String): BVClass? {
             val sane = sanitize(name)
             enumEntries<BVClass>().forEach { bv ->
-                for (nm in bv.names) {
+                for (nm in bv.enNames) {
                     if (sane == sanitize(nm)) {
                         return bv
                     }

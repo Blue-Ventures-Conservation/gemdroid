@@ -20,7 +20,7 @@ import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.maps.Layers
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
-import org.blueventures.gemdroid.ui.common.maps.Poly
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 
 object DynamicsMap {
     @Composable
@@ -28,9 +28,7 @@ object DynamicsMap {
         GetRemote.Save(viewModel::loadDynamicsFile, viewModel::getDynamics, viewModel::saveDynamicsFile, errorHandler = Dynamics::errHandler) { urls ->
             viewModel.urls = urls
 
-            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), floating = {
-                MapActionButton(details) { Icon(Icons.Filled.TableChart, stringResource(R.string.view_dynamics_details)) }
-            }, layers = object : Layers.Model<DynamicsURLs>() {
+            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.dynamics)), storage = Maps.Storage.fromViewModel(viewModel), center = Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), layers = object : Layers.Model<DynamicsURLs>() {
                 override val initUrls = urls
                 override val layerNames = stringArrayResource(R.array.dynamics_layers).toList()
                 override val parentDir = viewModel.classDir()
@@ -38,11 +36,13 @@ object DynamicsMap {
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
                 override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
-            }, poly = object : Poly.Model() {
+            }, poly = object : Polygons.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(context: Context, callback: (List<Poly.PolygonGroup>) -> Unit) = viewModel.polygonGroups(context, callback)
+                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.polygonGroups(context, callback)
                 override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
-            })
+            }) {
+                MapActionButton(details) { Icon(Icons.Filled.TableChart, stringResource(R.string.view_dynamics_details)) }
+            }
         }
     }
 }

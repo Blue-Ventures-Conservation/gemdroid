@@ -22,7 +22,7 @@ import org.blueventures.gemdroid.ui.analysis.screens.Satellite
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.roi.Roi
 
 object Analysis {
@@ -62,7 +62,7 @@ object Analysis {
             }, clazz = {
                 nav.navigate(map)
             }, dyn = {
-                nav.navigate(Dynamics.Routes.prefix + Polygons.Routes.option)
+                nav.navigate(Dynamics.Routes.prefix + CollectPolygons.Routes.option)
             })
         }
 

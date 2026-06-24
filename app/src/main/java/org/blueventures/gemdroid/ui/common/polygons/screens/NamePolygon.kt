@@ -8,10 +8,10 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Collect
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.polygons.Polygons
+import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 
 object NamePolygon {
-    interface Model: Polygons.AppBarTitler {
+    interface Model: CollectPolygons.AppBarTitler {
         var polygonName: String
 
         val polygonType: Int
