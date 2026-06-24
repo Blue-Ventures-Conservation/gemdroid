@@ -61,7 +61,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.FlowPreview
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Bounds.centerFromRing
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.Rectangle
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -232,7 +232,7 @@ object Compose {
                     }) {
                         if (capture != null) {
                             currentLatLng?.let {
-                                val opt = PolygonDrawer.square(it, 30.0)
+                                val opt = Rectangle.square(it, 30.0)
                                 Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 1000f)
                             }
                         }

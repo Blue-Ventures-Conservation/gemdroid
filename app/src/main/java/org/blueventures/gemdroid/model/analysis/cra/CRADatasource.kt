@@ -464,7 +464,7 @@ class CRADatasource(
             return Result.failure(err)
         }
 
-        if (contResult?.data?.success != true || (histResult != null && histResult?.data?.success != true)) {
+        if (contResult?.data?.success != true || (histResult != null && histResult.data?.success != true)) {
             return Result.failure(Throwable())
         }
 

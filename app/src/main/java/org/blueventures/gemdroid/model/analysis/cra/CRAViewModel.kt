@@ -4,7 +4,10 @@ import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonPolygon
@@ -224,7 +227,8 @@ class CRAViewModel(
 
     override val scale = if (roi.useS2()) 10.0 else 30.0
     override val classes = BVClass.entries
-    override val shapes = listOf(
+
+    private val shapeOrder = listOf(
         Rectangle(scale*3, scale*3),
         Rectangle(scale*2, scale*2),
         Rectangle(scale*3, scale*2),
@@ -234,9 +238,18 @@ class CRAViewModel(
         Rectangle(scale*5, scale*1),
         Rectangle(scale*1, scale*5),
     )
+    private var shapeCursor = 0
+    private val _shapes = MutableStateFlow(shapeOrder[shapeCursor])
+    override val shapes: StateFlow<Rectangle> = _shapes
+
+    fun nextShape() {
+        shapeCursor += 1
+        if (shapeCursor >= shapeOrder.size) shapeCursor = 0
+        val next = shapeOrder[shapeCursor]
+        _shapes.value = next
+    }
 
     private val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
-
     override fun capture(craClass: BVClass, polygon: List<LatLng>) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
