@@ -74,7 +74,7 @@ object CRA {
 
         b.craBackHandler(Routes.hist_choice, appBar, {
             viewModel.clearHistoricalChoice()
-            nav.popBackStack(Analysis.Routes.dashboard, false)
+            nav.popBackStack()
         }) {
             ChooseHistorical.Screen(viewModel) {
                 when (viewModel.historicalChoice) {

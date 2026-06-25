@@ -356,4 +356,6 @@
     <string name="freshwater_vegetation">Freshwater Vegetation</string>
     <string name="barren_exposed">Barren Exposed</string>
     <string name="residual_water">Residual Water</string>
+    <string name="your_cras_are_as_follows">Your CRAs are as follows:</string>
+    <string name="please_create_some_cras_before_tapping_the_done_button">Please create some CRAs before tapping the done button!</string>
 </resources>

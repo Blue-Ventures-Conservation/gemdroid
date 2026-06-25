@@ -23,8 +23,9 @@ object Creation {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun, done: Click) {
         Visualize.Capture(viewModel.visualizer, appBar, stringResource(R.string.classification_reference_areas),
-            true, Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), 11f, Maps.Storage.fromViewModel(viewModel),
+            true, Bounds.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), 16f, Maps.Storage.fromViewModel(viewModel),
             capture = Capture.Model(viewModel, snack, done)) {
+            val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
             MultiMapActionButtons(ClickContent({
                 viewModel.nextCapture()
             }) {
@@ -34,7 +35,11 @@ object Creation {
             }) {
                 Icon(Icons.Filled.FormatShapes, contentDescription = stringResource(R.string.modify_polygon_shape))
             }, ClickContent({
-                viewModel.doneClick()
+                if (viewModel.capturedCollection.features.isNotEmpty()) {
+                    viewModel.doneClick()
+                } else {
+                    snack(createCRAsFirst)
+                }
             }) {
                 Icon(Icons.Filled.DoneAll, contentDescription = stringResource(R.string.finished_creating_cras))
             })

@@ -8,8 +8,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
@@ -39,6 +42,10 @@ class CRAViewModel(
 
     var roiDir = File("")
     var roi: ROI = ROI()
+        set(value) {
+            field = value
+            setScale()
+        }
     var visualizer: Visualize.Visualizer? = null
     var historicalCRA: CRAFile? = null
     var contemporaryCRA = CRAFile()
@@ -233,20 +240,27 @@ class CRAViewModel(
 
     override val classes = BVClass.entries
 
-    private val scale = if (roi.useS2()) 10.0 else 30.0
-    private val shapeOrder = listOf(
-        NamedRectangle("3x3", scale*3, scale*3),
-        NamedRectangle("2x2", scale*2, scale*2),
-        NamedRectangle("3x2", scale*3, scale*2),
-        NamedRectangle("2x3", scale*2, scale*3),
-        NamedRectangle("4x2", scale*4, scale*2),
-        NamedRectangle("2x4", scale*2, scale*4),
-        NamedRectangle("5x1", scale*5, scale*1),
-        NamedRectangle("1x5", scale*1, scale*5),
-    )
+    private var scale = 0.0
     private var shapeCursor = 0
-    private val _shapes = MutableStateFlow(shapeOrder[shapeCursor])
-    override val shapes: Flow<NamedRectangle> = _shapes.debounce(500.milliseconds)
+    private lateinit var shapeOrder: List<NamedRectangle>
+    private lateinit var _shapes: MutableStateFlow<NamedRectangle>
+    override lateinit var shapes: StateFlow<NamedRectangle>
+    private fun setScale() {
+        scale = if (roi.useS2()) 10.0 else 30.0
+        shapeOrder = listOf(
+            NamedRectangle("3x3", scale*3, scale*3),
+            NamedRectangle("2x2", scale*2, scale*2),
+            NamedRectangle("3x2", scale*3, scale*2),
+            NamedRectangle("2x3", scale*2, scale*3),
+            NamedRectangle("4x2", scale*4, scale*2),
+            NamedRectangle("2x4", scale*2, scale*4),
+            NamedRectangle("6x1", scale*6, scale*1),
+            NamedRectangle("1x6", scale*1, scale*6)
+        )
+        _shapes = MutableStateFlow(shapeOrder[shapeCursor])
+        shapes = _shapes.debounce(500.milliseconds).stateIn(viewModelScope, SharingStarted.Eagerly, shapeOrder[shapeCursor])
+    }
+
     fun nextShape() {
         shapeCursor = (shapeCursor + 1) % shapeOrder.size
         val next = shapeOrder[shapeCursor]

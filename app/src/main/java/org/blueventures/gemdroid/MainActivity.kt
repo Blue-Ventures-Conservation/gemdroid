@@ -84,6 +84,7 @@ fun GEMTheme(activity: ComponentActivity, settingsModel: SettingsViewModel, anal
     val scope = rememberCoroutineScope()
     val snack: SnackFun = { msg ->
         scope.launch {
+            snackHostState.currentSnackbarData?.dismiss()
             snackHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
         }
     }
