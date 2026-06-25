@@ -212,14 +212,14 @@ object Compose {
             Layers.checkers(layers, checkers)
         }
 
-        val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>>(emptyList()) }
-        if (poly != null && groups.isEmpty()) {
+        val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }
+        if (poly != null && groups == null) {
             Polygons.checkers(LocalContext.current.applicationContext, poly) { pair ->
                 checkers.addAll(pair.first)
                 setGroups(pair.second)
             }
         } else {
-            Display(appBar, title, gps, storage, layers, draw, poly, capture, clearState, touchState, screenPoints, position, mapType, checkers, groups)
+            Display(appBar, title, gps, storage, layers, draw, poly, capture, clearState, touchState, screenPoints, position, mapType, checkers, groups ?: emptyList())
         }
     }
 
@@ -242,7 +242,6 @@ object Compose {
         groups: List<Polygons.NamedOptionsGroup>,
     ) {
         val cameraPositionState = rememberCameraPositionState(init = { this.position = position })
-
 
         val uiSettings by remember { mutableStateOf(MapUiSettings(mapToolbarEnabled = false, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
         var properties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
