@@ -127,7 +127,7 @@ object Maps {
     }
 
     @Composable
-    fun <T : URLs> MapType(
+    private fun <T : URLs> MapType(
         appBar: AppBar,
         title: String,
         gps: Boolean,
@@ -164,8 +164,10 @@ object Maps {
         next: FloatingNext?,
     ) {
         val checkers = remember { mutableListOf<Checker>() }
-        layers?.let {
-            Layers.checkers(layers, checkers)
+        if (checkers.isEmpty()) {
+            layers?.let {
+                Layers.checkers(layers, checkers)
+            }
         }
 
         val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }
