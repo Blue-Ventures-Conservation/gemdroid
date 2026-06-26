@@ -19,8 +19,8 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.data.PolygonDrawer
-import org.blueventures.gemdroid.ui.common.maps.Compose.Checker
+import org.blueventures.gemdroid.data.PolygonUtils
+import org.blueventures.gemdroid.ui.common.maps.Maps.Checker
 import org.blueventures.gemdroid.ui.theme.LightGreen
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.blend
@@ -52,7 +52,9 @@ object Polygons {
                         ColorUtils.setAlphaComponent(group.color, 0x7F)
                     }
                     group.polygons.forEach { poly ->
-                        opts.add(NamedOptions(poly.name, PolygonDrawer.opts(poly.polygon, groupColor, group.strokeColor, dashes = group.dashes)))
+                        PolygonUtils.opts(poly.polygon, groupColor, group.strokeColor, dashes = group.dashes)?.let { opt ->
+                            opts.add(NamedOptions(poly.name, opt))
+                        }
                     }
                     optGroups.add(NamedOptionsGroup(group.menuTitle, opts, group.startVisible))
                 }
@@ -92,6 +94,7 @@ object Polygons {
     }
 
     @Composable
+    @GoogleMapComposable
     private fun ShowPolygons(checker: Checker, zIndex: Float, group: NamedOptionsGroup) {
         val (visible, setVisible) = remember { mutableStateOf(group.startVisible) }
         checker.state = visible
@@ -117,6 +120,7 @@ object Polygons {
     }
 
     @Composable
+    @GoogleMapComposable
     fun Touch(model: Model, optGroups: List<NamedOptionsGroup>, visibility: List<Boolean>, lastTouch: MutableState<LatLng?>) {
         var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
         markerOpts?.let {

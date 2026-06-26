@@ -1,9 +1,11 @@
 package org.blueventures.gemdroid.ui.analysis.dynamics
 
 import android.content.Context
+import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.maxSubRegions
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsViewModel
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
@@ -17,7 +19,9 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.TargetClasses
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
+import org.blueventures.gemdroid.ui.theme.SkyBlue
 import java.net.HttpURLConnection
 
 object Dynamics {
@@ -38,7 +42,7 @@ object Dynamics {
     }
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
-        CollectPolygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, viewModel)
+        CollectPolygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, Maps.Storage.fromViewModel(viewModel), R.string.sub_region, R.string.sub_regions, maxSubRegions, false, SkyBlue.toArgb(), model = viewModel)
 
         b.backHandler(Routes.target_classes, {
             if (viewModel.subregionsFinalized) nav.popBackStack(Analysis.Routes.dashboard, false) else nav.popBackStack()

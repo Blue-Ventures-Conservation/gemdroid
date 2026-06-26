@@ -1,7 +1,6 @@
 package org.blueventures.gemdroid.ui.common.maps
 
 import android.content.Context
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import com.github.zibnix.droidbones.api.ApiResult
@@ -11,6 +10,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.maps.Maps.FloatingNext
 import java.io.File
 import java.net.HttpURLConnection
 
@@ -35,7 +35,7 @@ object Visualize {
         draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
-        floating: @Composable BoxScope.() -> Unit = {},
+        next: FloatingNext? = null,
     ) {
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
@@ -47,10 +47,10 @@ object Visualize {
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                     override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)
-                }, draw, poly, capture, floating)
+                }, draw, poly, capture, next)
             }
         } else {
-            Maps.NoLayers(appBar, title, attemptGps, center, initialZoom, storage, draw, poly, capture, floating)
+            Maps.NoLayers(appBar, title, attemptGps, center, initialZoom, storage, draw, poly, capture, next)
         }
     }
 
@@ -83,8 +83,7 @@ object Visualize {
         storage: Maps.Storage? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
-        floating: @Composable BoxScope.() -> Unit = {},
     ) {
-        Screen(visualizer, appBar, title, attemptGps, center, initialZoom, storage, null, poly, capture, floating)
+        Screen(visualizer, appBar, title, attemptGps, center, initialZoom, storage, null, poly, capture)
     }
 }

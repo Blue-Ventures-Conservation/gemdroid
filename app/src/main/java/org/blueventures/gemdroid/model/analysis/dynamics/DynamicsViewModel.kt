@@ -9,13 +9,12 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVDarkBlue
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVGreen
@@ -36,7 +35,6 @@ import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Comp
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.exportsFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.gainTileDir
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.lossTileDir
-import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.maxSubRegions
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.persistenceTileDir
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.readyFile
 import org.blueventures.gemdroid.model.analysis.dynamics.DynamicsDatasource.Companion.resultsFile
@@ -48,19 +46,16 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.screens.SubRegionsOption
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.Clear
-import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
 class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
 ): ApiViewModel(repo), CollectPolygons.Model {
-    override var visualizer: Visualize.Visualizer? = null
     lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cras: ContemporaryAndHistoricalCRAs
     lateinit var targetClasses: List<String>
@@ -69,14 +64,18 @@ class DynamicsViewModel(
     lateinit var urls: DynamicsURLs
     lateinit var analysisRegion: RegionStats
     lateinit var analysisClass: ClassDynamics
+    var visualizer: Visualize.Visualizer? = null
     var alreadyDownloaded = false
     var combinedName: String? = null
 
+    override var drawnPoints = emptyList<LatLng>()
+    override fun visualizer() = visualizer
+
+    override fun center() = PolygonUtils.centerFromMultiPoly(roi.boundaryPolyToState())
     override var polygonName = ""
-    override var drawer = PolygonDrawer()
     override var filePoly: List<List<List<LatLng>>> = emptyList()
 
-    override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
+    override val polygons = mutableListOf<PolygonUtils.NamedPolygon>()
 
     fun init(awaiter: Await.CRAAwaiter, vis: Visualize.Visualizer) {
         craAwaiter = awaiter
@@ -119,42 +118,34 @@ class DynamicsViewModel(
             }
         }
 
-        return polygonName.length <= maxNameLength && Regexp.subRegionName.matches(polygonName)
+        return polygonName.length <= maxNameCharLength && Regexp.subRegionName.matches(polygonName)
     }
 
     override val named = true
     override fun goBack() {}
 
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points)))))
-        drawer.clear()
+        polygons.add(PolygonUtils.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawnPoints)))))
+        drawnPoints = emptyList()
         polygonName = ""
     }
 
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
+        polygons.add(PolygonUtils.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
         filePoly = emptyList()
         polygonName = ""
     }
 
-    override fun center() = Bounds.centerFromMultiPoly(roi.boundaryPolyToState())
-    override val storage = Maps.Storage.fromViewModel(this)
-    override val shpColor = SkyBlue.toArgb()
     override fun appBarTitle(title: String) = roi.appBarTitle(title)
     override val appBarTitleId = R.string.dynamics
-    override val maxNameLength = maxNameCharLength
-    override val polygonType = R.string.sub_region
-    override val attemptGps = false
-    override val maxPolygons = maxSubRegions
     override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadSubRegionsFile(callback)
-    override val polygonTypePlural = R.string.sub_regions
 
     override fun edit() = false
     override fun clearEdit() {}
 
     fun combinedNameNeeded() = !alreadyDownloaded && targetClasses.size > 1
     fun validateCombinedName(name: String): Boolean {
-        if (name.length > maxNameLength || !Regexp.roiName.matches(name)) {
+        if (name.length > maxNameCharLength || !Regexp.roiName.matches(name)) {
             return false
         }
 

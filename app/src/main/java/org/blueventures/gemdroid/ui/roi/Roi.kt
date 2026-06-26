@@ -1,10 +1,13 @@
 package org.blueventures.gemdroid.ui.roi
 
 import android.app.Activity
+import androidx.compose.ui.graphics.toArgb
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
+import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiViewModel
 import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
@@ -12,6 +15,7 @@ import org.blueventures.gemdroid.ui.analysis.assess.Assess
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygon
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.roi.screens.CoarsePolygonPurpose
@@ -24,6 +28,7 @@ import org.blueventures.gemdroid.ui.roi.screens.InlandMang
 import org.blueventures.gemdroid.ui.roi.screens.Name
 import org.blueventures.gemdroid.ui.roi.screens.Overview
 import org.blueventures.gemdroid.ui.roi.screens.RoiList
+import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 
 object Roi {
@@ -137,7 +142,7 @@ object Roi {
         }
 
         // Coarse ROI boundary creation
-        CollectPolygon.screens(b, nav, Routes.prefix, Routes.inland_mang, appBar, snack, viewModel.coarseModel)
+        CollectPolygon.screens(b, nav, Routes.prefix, Routes.inland_mang, appBar, snack, Maps.Storage.fromViewModel(viewModel), R.string.coarse_boundary, true, null, model = viewModel.coarseModel)
 
         b.backHandler(Routes.inland_mang, nav::popBackStack) {
             InlandMang.Screen(viewModel, appBar) {
@@ -146,7 +151,7 @@ object Roi {
         }
 
         // Sub-Regions
-        CollectPolygons.screens(b, nav, Routes.prefix, Routes.prefix+CollectPolygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, viewModel)
+        CollectPolygons.screens(b, nav, Routes.prefix, Routes.prefix+CollectPolygon.Routes.draw_or_shapefile, Routes.overview, appBar, snack, Maps.Storage.fromViewModel(viewModel), R.string.excluded_region, R.string.excluded_regions, maxExcludedRegions, false, MildRed.toArgb(), model = viewModel)
 
         // ROI overview
         b.backHandler(Routes.overview, nav::popBackStack) {

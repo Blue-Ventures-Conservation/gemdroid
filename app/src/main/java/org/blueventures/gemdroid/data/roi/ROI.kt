@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.shouldUseS2
 import java.io.File
@@ -66,7 +66,7 @@ data class ROI(
             contMonths: List<Int>,
             points: MultiPolyPts,
             inlandMang: Boolean,
-            excludes: List<PolygonDrawer.NamedPolygon>,
+            excludes: List<PolygonUtils.NamedPolygon>,
             buffDist: Int,
             regionUUID: String? = null,
             forceLandsat: Boolean? = null,

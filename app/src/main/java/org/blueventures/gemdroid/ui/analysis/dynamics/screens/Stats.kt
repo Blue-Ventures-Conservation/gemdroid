@@ -10,8 +10,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.anychart.chart.common.dataentry.DataEntry
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
+import org.blueventures.gemdroid.data.PolygonUtils.HECTARE_IN_METERS
+import org.blueventures.gemdroid.data.PolygonUtils.hectaresString
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.Conversion
@@ -66,7 +66,7 @@ object Stats {
 
     @Composable
     fun PercentRow(label: String, area: Double, historicalArea: Double) {
-        DetailsRow(label, hectares(toHectares(area)) + " [" + percent(area, historicalArea) + "]")
+        DetailsRow(label, hectaresString(toHectares(area)) + " [" + percent(area, historicalArea) + "]")
     }
 
     private fun percent(num: Double, denom: Double) = (round((num/denom) * 1e4)/1e2).toString() + "%"
@@ -74,7 +74,7 @@ object Stats {
 
     @Composable
     fun StatsRow(label: String, area: Double) {
-        DetailsRow(label, hectares(toHectares(area)))
+        DetailsRow(label, hectaresString(toHectares(area)))
     }
 
     @Composable
@@ -91,7 +91,7 @@ object Stats {
     @Composable
     private fun classLabel(@StringRes fmt: Int, targetClass: String) = stringResource(fmt).format(targetClass)
 
-    private fun toHectares(meters: Double) = (meters/hectareInMeters).toInt()
+    private fun toHectares(meters: Double) = (meters/HECTARE_IN_METERS).toInt()
 
     @Composable
     fun Chart(title: String, conversions: List<Conversion>, classColors: Map<String, String>) {

@@ -1,15 +1,17 @@
 package org.blueventures.gemdroid.ui.common.polygons
 
+import androidx.annotation.StringRes
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrUpload
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
+import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.NamePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.PolygonsOption
-import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.VisualizeFilePoly
 
 object CollectPolygons {
@@ -40,6 +42,12 @@ object CollectPolygons {
         nextRoute: String,
         appBar: AppBar,
         snack: SnackFun,
+        storage: Maps.Storage?,
+        @StringRes polygonType: Int,
+        @StringRes polygonTypePlural: Int,
+        maxPolygons: Int,
+        attemptGps: Boolean,
+        shpColor: Int?,
         model: Model,
     ) {
         val addPrefix: (String) -> String = { routePrefix + it }
@@ -52,11 +60,11 @@ object CollectPolygons {
 
         b.backHandler(routePolygonsOption, {
             model.polygons.clear()
-            model.drawer.clear()
+            model.drawnPoints = emptyList()
             model.goBack()
             nav.popBackStack()
         }) { back ->
-            PolygonsOption.Screen(model, appBar, snack, back, skip = {
+            PolygonsOption.Screen(model, appBar, snack, polygonTypePlural, maxPolygons, back, skip = {
                 nav.navigate(nextRoute) {
                     popUpTo(prevRoute)
                 }
@@ -75,13 +83,13 @@ object CollectPolygons {
             model.polygonName = ""
             nav.popBackStack()
         }) {
-            NamePolygon.Screen(model, appBar, snack) {
+            NamePolygon.Screen(model, appBar, snack, polygonType, maxPolygons) {
                 nav.navigate(routePolygonDrawOrShp)
             }
         }
 
         b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
-            DrawOrUpload.Screen(model, appBar, draw = {
+            DrawOrUpload.Screen(model, appBar, polygonType, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
@@ -89,10 +97,10 @@ object CollectPolygons {
         }
 
         b.backHandler(routeDrawnPolygon, {
-            model.drawer.clear()
+            model.drawnPoints = emptyList()
             nav.popBackStack()
         }) {
-            DrawPolygon.Screen(model, appBar, snack) {
+            DrawPolygon.Screen(model, appBar, snack, storage, polygonType, attemptGps) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }
@@ -106,7 +114,7 @@ object CollectPolygons {
         b.backHandler(routeVisualizeShp, {
             nav.popBackStack(routePolygonDrawOrShp, false)
         }) {
-            VisualizeFilePoly.Screen(model, appBar) {
+            VisualizeFilePoly.Screen(model, appBar, storage, polygonTypePlural, shpColor) {
                 nav.popBackStack(routePolygonsOption, false)
             }
         }

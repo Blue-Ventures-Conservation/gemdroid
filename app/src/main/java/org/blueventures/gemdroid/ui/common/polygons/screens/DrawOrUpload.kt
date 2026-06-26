@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.polygons.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,15 +16,14 @@ import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 
 object DrawOrUpload {
     interface Model: CollectPolygons.AppBarTitler {
-        val polygonType: Int
         fun edit(): Boolean
         fun clearEdit()
     }
 
     @Composable
-    fun Screen(model: Model, appBar: AppBar, draw: Click, shapefile: Click) {
+    fun Screen(model: Model, appBar: AppBar, @StringRes polygonType: Int, draw: Click, shapefile: Click) {
         appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
-        val polyType = stringResource(model.polygonType)
+        val polyType = stringResource(polygonType)
 
         val edit by remember { mutableStateOf(model.edit()) }
 

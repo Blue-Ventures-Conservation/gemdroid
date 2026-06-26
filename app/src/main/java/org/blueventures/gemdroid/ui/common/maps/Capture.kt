@@ -1,31 +1,34 @@
 package org.blueventures.gemdroid.ui.common.maps
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.FormatShapes
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Polygon
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.FlowPreview
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.Rectangle
@@ -36,72 +39,82 @@ import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Rad
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
     interface UI {
         val snack: SnackFun
         val done: Click
+
+        fun currentShape(): NamedRectangle
+        fun nextShape(): NamedRectangle
     }
 
     interface Data {
         val classes: List<BVClass>
         val capturedCollection: GeojsonPolygonFeatureCollection
-        val shapes: StateFlow<NamedRectangle>
-        val captures: Flow<Unit>
-        val doneClicks: Flow<Unit>
 
         fun capture(craClass: BVClass, polygon: List<LatLng>)
     }
 
-    data class Model(private val data: Data, override val snack: SnackFun, override val done: Click): Data by data, UI
+    @OptIn(FlowPreview::class)
+    data class Model(private val data: Data, private val usesS2: Boolean, override val snack: SnackFun, override val done: Click): Data by data, UI {
+        private val scale = if (usesS2) 10.0 else 30.0
+        private var shapeCursor = 0
+        private val shapeOrder =  listOf(
+            NamedRectangle("3x3", scale*3, scale*3),
+            NamedRectangle("2x2", scale*2, scale*2),
+            NamedRectangle("3x2", scale*3, scale*2),
+            NamedRectangle("2x3", scale*2, scale*3),
+            NamedRectangle("4x2", scale*4, scale*2),
+            NamedRectangle("2x4", scale*2, scale*4),
+            NamedRectangle("6x1", scale*6, scale*1),
+            NamedRectangle("1x6", scale*1, scale*6)
+        )
+
+        override fun currentShape() = shapeOrder[shapeCursor]
+        override fun nextShape(): NamedRectangle {
+            shapeCursor = (shapeCursor + 1) % shapeOrder.size
+            return shapeOrder[shapeCursor]
+        }
+    }
+
+    data class CaptureState(val shape: NamedRectangle, val center: LatLng? = null, val doCapture: Unit? = null, val maybeDone: Unit? = null)
+
+    @Composable
+    fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<CaptureState> {
+        val captureState = remember { mutableStateOf(CaptureState(model.currentShape())) }
+        LaunchedEffect(cameraPositionState) {
+            snapshotFlow { cameraPositionState.position.target }
+                .collect { captureState.value = captureState.value.copy(center = it) }
+        }
+
+        return captureState
+    }
 
     @Composable
     @GoogleMapComposable
-    fun Display(model: Model, cameraPositionState: CameraPositionState) {
-        var center: LatLng? by remember { mutableStateOf(null) }
-        LaunchedEffect(cameraPositionState) {
-            snapshotFlow { cameraPositionState.position.target }
-                .collect { center = it }
-        }
-
-        val usingSnack = stringResource(R.string.using_s_polygon)
-        val namedRectangle: NamedRectangle by model.shapes.collectAsStateWithLifecycle()
-        LaunchedEffect(namedRectangle) {
-            model.snack(usingSnack.format(namedRectangle.name))
-        }
-        val (doCapture, setDoCapture) = remember { mutableStateOf<List<LatLng>?>(null) }
-        val (maybeDone, setMaybeDone) = remember { mutableStateOf<Unit?>(null) }
-
-        LaunchedEffect(Unit) {
-            model.captures.collect {
-                optsFromState(center, namedRectangle)?.points?.let(setDoCapture)
-            }
-        }
-
-        LaunchedEffect(Unit) {
-            model.doneClicks.collect {
-                setMaybeDone(Unit)
-            }
-        }
-
-        doCapture?.let {
+    fun Display(model: Model, captureState: MutableState<CaptureState>) {
+        captureState.value.doCapture?.let {
             CaptureDialog(model, {
-                setDoCapture(null)
-            }) {
-                model.capture(it, doCapture)
+                captureState.value = captureState.value.copy(doCapture = null)
+            }) { craClass ->
+                optsFromState(captureState.value.center, captureState.value.shape)?.points?.let { polygon ->
+                    model.capture(craClass, polygon)
+                }
             }
         }
 
-        maybeDone?.let {
+        captureState.value.maybeDone?.let {
             MaybeDoneDialog(model, {
-                setMaybeDone(null)
+                captureState.value = captureState.value.copy(maybeDone = null)
             }) {
                 model.done()
             }
         }
 
-        optsFromState(center, namedRectangle)?.let { opts ->
+        optsFromState(captureState.value.center, captureState.value.shape)?.let { opts ->
             Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, zIndex = 1000f)
         }
     }
@@ -110,6 +123,31 @@ object Capture {
         return if (center != null && rect != null) {
             Rectangle.toPolygon(center, rect)
         }  else null
+    }
+
+    @Composable
+    fun BoxScope.CaptureMapActions(model: Model, captureState: MutableState<CaptureState>) {
+        val usingSnack = stringResource(R.string.using_s_polygon)
+        val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
+        MultiMapActionButtons(ClickContent({
+            captureState.value = captureState.value.copy(doCapture = Unit)
+        }) {
+            Icon(Icons.Filled.PhotoLibrary, contentDescription = stringResource(R.string.capture_the_current_area))
+        }, ClickContent({
+            val nextRect = model.nextShape()
+            model.snack(usingSnack.format(nextRect.name))
+            captureState.value = captureState.value.copy(shape = nextRect)
+        }) {
+            Icon(Icons.Filled.FormatShapes, contentDescription = stringResource(R.string.modify_polygon_shape))
+        }, ClickContent({
+            if (model.capturedCollection.features.isNotEmpty()) {
+                captureState.value = captureState.value.copy(maybeDone = Unit)
+            } else {
+                model.snack(createCRAsFirst)
+            }
+        }) {
+            Icon(Icons.Filled.DoneAll, contentDescription = stringResource(R.string.finished_creating_cras))
+        })
     }
 
     @Composable

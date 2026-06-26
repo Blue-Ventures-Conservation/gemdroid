@@ -5,7 +5,7 @@ import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.SphericalUtil
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.opt
+import org.blueventures.gemdroid.data.PolygonUtils.opt
 import org.blueventures.gemdroid.ui.theme.Chartreuse
 import kotlin.math.atan
 import kotlin.math.hypot
@@ -16,7 +16,7 @@ open class Rectangle(open val width: Double, open val height: Double)  {
        // side length in meters
        fun square(center: LatLng, side: Double) = toPolygon(center, Rectangle(side, side))
 
-       fun toPolygon(center: LatLng, rect: Rectangle): PolygonOptions {
+       fun toPolygon(center: LatLng, rect: Rectangle): PolygonOptions? {
            val distToSide = rect.width/2.0
            val distToTopBot = rect.height/2.0
            val hyp = hypot(distToSide, distToTopBot)

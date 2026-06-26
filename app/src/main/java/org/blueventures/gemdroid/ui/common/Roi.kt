@@ -14,8 +14,8 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.data.PolygonDrawer
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectares
+import org.blueventures.gemdroid.data.PolygonUtils
+import org.blueventures.gemdroid.data.PolygonUtils.hectaresString
 import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
@@ -78,12 +78,12 @@ object Roi {
                         val pair = GeojsonMultiPolygon.toStateWithContainer(region, multi)
                         val excl = pair.first
                         excludedPolygons += excl.size
-                        excludedArea += PolygonDrawer.areaHectares(excl)
+                        excludedArea += PolygonUtils.multiPolygonAreaHectares(excl).toInt()
                         outsideHectares += pair.second
                     }
 
                     excludedArea -= outsideHectares
-                    val polyArea = PolygonDrawer.areaHectares(multi)
+                    val polyArea = PolygonUtils.multiPolygonAreaHectares(multi).toInt()
                     Triple(polyArea, excludedPolygons, excludedArea)
                 }, setCalcs)
             }
@@ -104,11 +104,11 @@ object Roi {
                         OverviewRow(stringResource(R.string.overview_historical_months), histMonths.joinToString(separator = ", "))
                         OverviewRow(stringResource(R.string.overview_contemporary_years), "$contYearStart - $contYearEnd")
                         OverviewRow(stringResource(R.string.overview_contemporary_months), contMonths.joinToString(separator = ", "))
-                        OverviewRow(stringResource(R.string.overview_boundary_area), hectares(calcs.first))
+                        OverviewRow(stringResource(R.string.overview_boundary_area), hectaresString(calcs.first))
                         OverviewRow(stringResource(R.string.overview_excluded_regions), stringResource(R.string.overview_regions).format("${calcs.second}"))
                         if (calcs.second > 0) {
-                            OverviewRow(stringResource(R.string.overview_excluded_area), hectares(calcs.third))
-                            OverviewRow(stringResource(R.string.overview_net_area), hectares(calcs.first - calcs.third))
+                            OverviewRow(stringResource(R.string.overview_excluded_area), hectaresString(calcs.third))
+                            OverviewRow(stringResource(R.string.overview_net_area), hectaresString(calcs.first - calcs.third))
                         }
                         OverviewRow(stringResource(R.string.satellites), if (useS2) stringResource(R.string.sentinel_2) else stringResource(R.string.landsat))
                     }

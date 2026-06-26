@@ -12,7 +12,7 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider
-import org.blueventures.gemdroid.ui.common.maps.Compose.Checker
+import org.blueventures.gemdroid.ui.common.maps.Maps.Checker
 import java.io.File
 
 object Layers {
@@ -75,6 +75,7 @@ object Layers {
     }
 
     @Composable
+    @GoogleMapComposable
     // this function prevents layers from flickering when toggled
     // by separating their contexts from each other
     private fun Overlay(provider: TileProvider, checker: Checker, opts: TileOverlayOptions) {

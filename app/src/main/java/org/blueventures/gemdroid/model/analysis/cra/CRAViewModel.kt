@@ -1,19 +1,10 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
-import androidx.lifecycle.viewModelScope
 import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonPolygon
@@ -28,13 +19,10 @@ import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.clas
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
-import org.blueventures.gemdroid.ui.common.maps.NamedRectangle
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 import java.io.InputStream
-import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(FlowPreview::class)
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Capture.Data, Await.CRAAwaiter, ApiViewModel(repo) {
@@ -42,10 +30,6 @@ class CRAViewModel(
 
     var roiDir = File("")
     var roi: ROI = ROI()
-        set(value) {
-            field = value
-            setScale()
-        }
     var visualizer: Visualize.Visualizer? = null
     var historicalCRA: CRAFile? = null
     var contemporaryCRA = CRAFile()
@@ -239,39 +223,9 @@ class CRAViewModel(
     }
 
     override val classes = BVClass.entries
-
-    private var scale = 0.0
-    private var shapeCursor = 0
-    private lateinit var shapeOrder: List<NamedRectangle>
-    private lateinit var _shapes: MutableStateFlow<NamedRectangle>
-    override lateinit var shapes: StateFlow<NamedRectangle>
-    private fun setScale() {
-        scale = if (roi.useS2()) 10.0 else 30.0
-        shapeOrder = listOf(
-            NamedRectangle("3x3", scale*3, scale*3),
-            NamedRectangle("2x2", scale*2, scale*2),
-            NamedRectangle("3x2", scale*3, scale*2),
-            NamedRectangle("2x3", scale*2, scale*3),
-            NamedRectangle("4x2", scale*4, scale*2),
-            NamedRectangle("2x4", scale*2, scale*4),
-            NamedRectangle("6x1", scale*6, scale*1),
-            NamedRectangle("1x6", scale*1, scale*6)
-        )
-        _shapes = MutableStateFlow(shapeOrder[shapeCursor])
-        shapes = _shapes.debounce(500.milliseconds).stateIn(viewModelScope, SharingStarted.Eagerly, shapeOrder[shapeCursor])
-    }
-
-    fun nextShape() {
-        shapeCursor = (shapeCursor + 1) % shapeOrder.size
-        val next = shapeOrder[shapeCursor]
-        _shapes.value = next
-    }
-
     override val capturedCollection
         get() = GeojsonPolygonFeatureCollection(features = capturedFeatures)
     val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
-    private val _captures = MutableSharedFlow<Unit>()
-    override val captures: Flow<Unit> = _captures.debounce(500.milliseconds)
     override fun capture(craClass: BVClass, polygon: List<LatLng>) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
@@ -280,19 +234,6 @@ class CRAViewModel(
                 classNumberPropertyKey to craClass.number,
             )
         ))
-    }
-    fun nextCapture() {
-        viewModelScope.launch {
-            _captures.emit(Unit)
-        }
-    }
-
-    private val _doneClicks = MutableSharedFlow<Unit>()
-    override val doneClicks: Flow<Unit> = _doneClicks.debounce(500.milliseconds)
-    fun doneClick() {
-        viewModelScope.launch {
-            _doneClicks.emit(Unit)
-        }
     }
 }
 

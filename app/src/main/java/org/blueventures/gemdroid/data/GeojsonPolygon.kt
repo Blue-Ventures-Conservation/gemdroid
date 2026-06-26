@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.PolygonDrawer.Companion.hectareInMeters
+import org.blueventures.gemdroid.data.PolygonUtils.HECTARE_IN_METERS
 
 typealias PolyPts = List<List<LatLng>>
 data class GeojsonPolygon(
@@ -49,7 +49,7 @@ data class GeojsonPolygon(
             if (uncontainedRing.size >= 3) {
                 // close the ring
                 uncontainedRing.add(uncontainedRing.first())
-                hectaresOutside = SphericalUtil.computeArea(uncontainedRing) / hectareInMeters
+                hectaresOutside = SphericalUtil.computeArea(uncontainedRing) / HECTARE_IN_METERS
             }
             return Pair(newPoly, hectaresOutside.toInt())
         }

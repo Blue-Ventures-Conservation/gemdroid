@@ -1,10 +1,12 @@
 package org.blueventures.gemdroid.ui.common.polygons
 
+import androidx.annotation.StringRes
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
+import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawOrUpload
 import org.blueventures.gemdroid.ui.common.polygons.screens.DrawPolygon
 import org.blueventures.gemdroid.ui.common.polygons.screens.FilePolygon
@@ -27,6 +29,10 @@ object CollectPolygon {
         nextRoute: String,
         appBar: AppBar,
         snack: SnackFun,
+        storage: Maps.Storage?,
+        @StringRes polygonType: Int,
+        attemptGps: Boolean,
+        shpColor: Int?,
         model: Model,
     ) {
         val addPrefix: (String) -> String = { routePrefix + it }
@@ -36,7 +42,7 @@ object CollectPolygon {
         val routeVisualizeShp = addPrefix(Routes.visualize_shapefile)
 
         b.backHandler(routePolygonDrawOrShp, nav::popBackStack) {
-            DrawOrUpload.Screen(model, appBar, draw = {
+            DrawOrUpload.Screen(model, appBar, polygonType, draw = {
                 nav.navigate(routeDrawnPolygon)
             }) {
                 nav.navigate(routeShpPolygon)
@@ -44,10 +50,10 @@ object CollectPolygon {
         }
 
         b.backHandler(routeDrawnPolygon, {
-            model.drawer.clear()
+            model.drawnPoints = emptyList()
             nav.popBackStack()
         }) {
-            DrawPolygon.Screen(model, appBar, snack) {
+            DrawPolygon.Screen(model, appBar, snack, storage, polygonType, attemptGps) {
                 nav.navigate(nextRoute)
             }
         }
@@ -59,10 +65,10 @@ object CollectPolygon {
         }
 
         b.backHandler(routeVisualizeShp, {
-            model.drawer.clear()
+            model.drawnPoints = emptyList()
             nav.popBackStack(routePolygonDrawOrShp, false)
         }) {
-            VisualizeFilePoly.Screen(model, appBar) {
+            VisualizeFilePoly.Screen(model, appBar, storage, polygonType, shpColor) {
                 nav.navigate(nextRoute)
             }
         }

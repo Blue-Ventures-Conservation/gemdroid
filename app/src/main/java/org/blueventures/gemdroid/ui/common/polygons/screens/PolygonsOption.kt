@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.polygons.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
@@ -22,10 +23,7 @@ object PolygonsOption {
     interface Model: CollectPolygons.AppBarTitler {
         var polygonName: String
 
-        val polygonType: Int
-        val polygonTypePlural: Int
-        val maxPolygons: Int
-        val polygons: MutableList<PolygonDrawer.NamedPolygon>
+        val polygons: MutableList<PolygonUtils.NamedPolygon>
 
         fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job
         @Composable
@@ -33,16 +31,16 @@ object PolygonsOption {
     }
 
     @Composable
-    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, back: Click, skip: Click, yes: Click, no: Click) {
+    fun Screen(model: Model, appBar: AppBar, snack: SnackFun, @StringRes polygonTypePlural: Int, maxPolygons: Int, back: Click, skip: Click, yes: Click, no: Click) {
         appBar.Update(AppBarUpdate(model.appBarTitle(stringResource(model.appBarTitleId))))
         model.polygonName = ""
         model.OptionsInit(snack, back) {
-            Choice(model, snack, skip, yes, no)
+            Choice(model, snack, polygonTypePlural, maxPolygons, skip, yes, no)
         }
     }
 
     @Composable
-    fun Choice(model: Model, snack: SnackFun, skip: Click, yes: Click, no: Click) {
+    fun Choice(model: Model, snack: SnackFun, @StringRes polygonTypePlural: Int, maxPolygons: Int, skip: Click, yes: Click, no: Click) {
         val (drawnPolys, setDrawnPolys) = remember { mutableStateOf<Result<DrawnPolygonsFile>?>(null) }
 
         when {
@@ -50,7 +48,7 @@ object PolygonsOption {
                 Progress()
                 model.loadDrawnPolygonsFile(setDrawnPolys)
             }
-            drawnPolys.isFailure -> Layout(model, snack, yes, no)
+            drawnPolys.isFailure -> Layout(model, snack, polygonTypePlural, maxPolygons, yes, no)
             else -> {
                 model.polygons.clear()
                 model.polygons.addAll(drawnPolys.getOrNull()!!.polygons)
@@ -60,7 +58,7 @@ object PolygonsOption {
     }
 
     @Composable
-    fun Layout(model: Model, snack: SnackFun, yes: Click, no: Click) {
+    fun Layout(model: Model, snack: SnackFun, @StringRes polygonTypePlural: Int, maxPolygons: Int, yes: Click, no: Click) {
         val notFirst by remember { mutableStateOf(model.polygons.isNotEmpty()) }
 
         var header = R.string.would_you_like_polygons
@@ -73,11 +71,11 @@ object PolygonsOption {
             noButton = R.string.no_skip_more_polygons
         }
 
-        val plural = stringResource(model.polygonTypePlural)
-        val tooMany = stringResource(R.string.please_hit_no).format(model.maxPolygons.toString(), plural)
+        val plural = stringResource(polygonTypePlural)
+        val tooMany = stringResource(R.string.please_hit_no).format(maxPolygons.toString(), plural)
         Col.Dash(stringResource(header).format(plural)) {
             DashboardButton(stringResource(yesButton).format(plural)) {
-                if (model.polygons.size < model.maxPolygons) {
+                if (model.polygons.size < maxPolygons) {
                     yes()
                 } else {
                     snack(tooMany)

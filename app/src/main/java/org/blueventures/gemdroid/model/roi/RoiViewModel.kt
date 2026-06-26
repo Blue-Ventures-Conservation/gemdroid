@@ -3,26 +3,23 @@ package org.blueventures.gemdroid.model.roi
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.Bounds
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.api.ApiViewModel
-import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxNameCharLength
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.roiUUID
 import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.forceLandsat
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Polygons
-import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygon
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.MildRed
@@ -40,12 +37,12 @@ class RoiViewModel(
     var historicalYearStart: Int = defaultHistoricalYearStart
     var historicalYearEnd: Int = defaultHistoricalYearEnd
     var historicalMonths: List<Int> = emptyList()
-    var roiDrawer = PolygonDrawer(maxArea = maxRoiArea)
     var inlandMang = false
     var importedROI: MultiPolyPts = emptyList()
     var importedBufferDist: Int = -1
     var imported = false
     var forceLS: Boolean = false
+    val coarseModel: CollectPolygon.Model = CoarsePolygonModel(this)
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -70,7 +67,7 @@ class RoiViewModel(
     )
 
     fun multiPolyFromState() = importedROI.ifEmpty {
-        listOf(listOf(roiDrawer.points))
+        listOf(listOf(coarseModel.drawnPoints))
     }
 
     fun deleteRoi(dir: File, callback: (Result<Unit>) -> Unit) = scoped { repo.deleteRoi(dir).collect(callback) }
@@ -87,12 +84,12 @@ class RoiViewModel(
         historicalMonths = roi.histMonths ?: emptyList()
         importedBufferDist = roi.buffDist
         polygons.clear()
-        polygons.addAll(roi.excludedRegions.map { PolygonDrawer.NamedPolygon("", it) })
+        polygons.addAll(roi.excludedRegions.map { PolygonUtils.NamedPolygon("", it) })
         if (roi.polygon.coordinates.size > 1) {
             // there's more than one polygon, so it likely came in via shapefile
             importedROI = GeojsonMultiPolygon.toState(roi.polygon)
         } else {
-            roiDrawer = PolygonDrawer(points = firstRing(GeojsonMultiPolygon.toState(roi.polygon)), maxArea = maxRoiArea)
+            coarseModel.drawnPoints = firstRing(GeojsonMultiPolygon.toState(roi.polygon))
         }
         inlandMang = roi.inlandMang
     }
@@ -130,7 +127,7 @@ class RoiViewModel(
     // the alternative to clearing state like this is to tie the lifecycle of the viewmodel to something more temporary,
     // like a fragment or a nav graph destination. Maybe that would have been better, and yet, do I really want to have
     // that many view models? Do I want to have to think that much about how to pass state between them all? I do not.
-    fun clearState() { clearName(); clearImportedROI(); clearImported(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); roiDrawer.clear(); polygons.clear(); }
+    fun clearState() { clearName(); clearImportedROI(); clearImported(); clearContemporaryYears(); clearContemporaryMonths(); clearHistoricalYears(); clearHistoricalMonths(); drawnPoints = emptyList(); coarseModel.drawnPoints = emptyList(); polygons.clear(); }
     private fun validateDateIntsOrder(d1: Int, d2: Int) = d1 <= d2
     private fun validateYearGap(y1: Int, y2: Int) = (y2 - y1) <= maxYearGap
 
@@ -139,18 +136,15 @@ class RoiViewModel(
     override fun goBack() { importedROI = emptyList() }
     override val appBarTitleId = R.string.create_coarse_boundary
     override fun appBarTitle(title: String) = title
-    override var visualizer: Visualize.Visualizer? = null
-    override val drawer = PolygonDrawer()
 
+    // used when drawing excluded regions
+    override var drawnPoints = emptyList<LatLng>()
     override fun polygonDrawn() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawer.points)))))
-        drawer.clear()
+        polygons.add(PolygonUtils.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(listOf(listOf(drawnPoints)))))
+        drawnPoints = emptyList()
         polygonName = ""
     }
 
-    override fun center() = Bounds.centerFromRing(roiDrawer.points)
-    override val storage = Maps.Storage.fromViewModel(this)
-    override val shpColor = MildRed.toArgb()
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {
             if (region.name == polygonName) {
@@ -158,16 +152,14 @@ class RoiViewModel(
             }
         }
 
-        return polygonName.length <= maxNameLength && Regexp.subRegionName.matches(polygonName)
+        return polygonName.length <= maxNameCharLength && Regexp.subRegionName.matches(polygonName)
     }
 
+    override fun visualizer() = null
+    override fun center() = coarseModel.center()
+
     override var polygonName = ""
-    override val polygonType = R.string.excluded_region
-    override val attemptGps = false
-    override val maxNameLength = maxNameCharLength
-    override val polygonTypePlural = R.string.excluded_regions
-    override val maxPolygons = maxExcludedRegions
-    override val polygons = mutableListOf<PolygonDrawer.NamedPolygon>()
+    override val polygons = mutableListOf<PolygonUtils.NamedPolygon>()
 
     override fun edit() = false
     override fun clearEdit() {}
@@ -192,17 +184,22 @@ class RoiViewModel(
             if (polys.isNotEmpty()) {
                 list.add(Polygons.Group(excludedRegionsTitle, polys, MildRed.toArgb()))
             }
-            list.add(backgroundPolygon(context))
+            val coarseTitle = context.getString(R.string.coarse_boundary)
+            val coarsePolygon = Polygons.Group(
+                coarseTitle,
+                listOf(Polygons.Named(
+                    roiName,
+                    listOf(listOf(coarseModel.drawnPoints)))
+                ))
+            list.add(coarsePolygon)
             list
         }, callback)
     }
 
-    private fun backgroundPolygon(context: Context) = Polygons.Group(context.getString(R.string.coarse_boundary), listOf(Polygons.Named(roiName, listOf(listOf(roiDrawer.points)))))
-
     override var filePoly: MultiPolyPts = emptyList()
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }
     override fun shapefileLooksGood() {
-        polygons.add(PolygonDrawer.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
+        polygons.add(PolygonUtils.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
         filePoly = emptyList()
         polygonName = ""
     }
@@ -226,45 +223,28 @@ class RoiViewModel(
     }
 
     var isAssessmentEditor = false
-
-    val coarseModel: CollectPolygon.Model = CoarsePolygonModel(this)
 }
 
 class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Model {
     override val appBarTitleId = R.string.create_coarse_boundary
+    override var drawnPoints = emptyList<LatLng>()
+
+    override fun visualizer() = null
+    override fun center() = PolygonUtils.centerFromRing(drawnPoints)
     override fun appBarTitle(title: String) = title
-
-    override val polygonType = R.string.coarse_boundary
-    override val polygonTypePlural = R.string.coarse_boundary
-    override var visualizer: Visualize.Visualizer? = null
-    override val storage: Maps.Storage = viewModel.storage
-    override val shpColor = null
-    override val attemptGps = true
-    override val drawer: PolygonDrawer
-        get() = viewModel.roiDrawer
-
     override fun edit() = viewModel.imported
-
     override fun clearEdit() = viewModel.clearImported()
-
     override fun polygonDrawn() {}
-
-    override fun center() = viewModel.center()
-
     override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.background({ emptyList() }, callback)
-
     override var filePoly: MultiPolyPts = emptyList()
-
     override fun <T> background(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
-
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = viewModel.validatePolygonFile(streams, callback)
-
     override var polygonName: String = viewModel.roiName
 
     override fun shapefileLooksGood() {
         viewModel.importedROI = filePoly
         if (filePoly.size == 1) {
-            viewModel.roiDrawer = PolygonDrawer(points = RoiViewModel.firstRing(filePoly), maxArea = RoiViewModel.maxRoiArea)
+            drawnPoints = RoiViewModel.firstRing(filePoly)
         }
     }
 }

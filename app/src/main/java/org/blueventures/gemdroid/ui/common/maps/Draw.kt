@@ -6,7 +6,9 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -25,15 +27,14 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Polygon
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Maps.MapActionButton
+import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 import kotlin.math.roundToInt
 
 object Draw {
@@ -43,19 +44,10 @@ object Draw {
     }
 
     interface Data {
-        val maxPoints: Int
-        var points: List<LatLng>
-        fun clear()
-        fun polygonOptions(): PolygonOptions?
-
-        /** validation functions */
-        fun validatePolygon(): Boolean
-        fun maxHectares(): String
-        fun polygonHectares(): String
-        fun area(): Double
+        var drawnPoints: List<LatLng>
     }
 
-    data class Model(private val drawPoly: PolygonDrawer, override val snack: SnackFun, override val next: Click): Data by drawPoly, UI
+    data class Model(private val data: Data, override val snack: SnackFun, override val next: Click): Data by data, UI
 
     enum class MotionEvent { IDLE, DOWN, UP, MOVE }
     data class MapPolygonState(
@@ -63,38 +55,69 @@ object Draw {
         val event: MotionEvent = MotionEvent.IDLE
     )
 
+    data class DrawState(val drawing: Boolean = false, val screenPoints: List<Point> = emptyList())
+
     @Composable
-    fun BoxScope.DrawButton(draw: MutableState<Boolean>) {
-        MapActionButton({
-            draw.value = !draw.value
-        }) {
-            if (draw.value) {
-                Icon(Icons.Filled.Close, stringResource(R.string.stop_drawing_polygon))
-            } else {
-                Icon(Icons.Filled.Draw, stringResource(R.string.start_drawing_polygon))
+    fun prepareState(): MutableState<DrawState> {
+        val drawState = remember { mutableStateOf(DrawState()) }
+        return drawState
+    }
+
+    @Composable
+    @GoogleMapComposable
+    fun Display(model: Model, drawState: MutableState<DrawState>, camera: CameraPositionState) {
+        if (drawState.value.screenPoints.isNotEmpty()) {
+            camera.projection?.let {  proj ->
+                model.drawnPoints = drawState.value.screenPoints.map {
+                    proj.fromScreenLocation(it)
+                }
+                PolygonUtils.opt(listOf(model.drawnPoints))?.let { opt ->
+                    Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 100f)
+                }
             }
         }
     }
 
     @Composable
-    @GoogleMapComposable
-    fun Do(draw: Model, screenPoints: List<Point>, camera: CameraPositionState, clearState: MutableState<Boolean>) {
-        if (screenPoints.isNotEmpty()) {
-            camera.projection?.let {  proj ->
-                draw.points = screenPoints.map {
-                    proj.fromScreenLocation(it)
-                }
+    fun BoxScope.DrawMapActions(model: Model, drawState: MutableState<DrawState>) {
+        if (drawState.value.drawing) {
+            Canvas { screenPoints ->
+                drawState.value = drawState.value.copy(screenPoints = screenPoints)
             }
         }
 
-        draw.polygonOptions()?.let { opt ->
-            Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 100f)
-        }
+        val pleaseDraw = stringResource(R.string.please_create_polygon)
+        val tooBig = stringResource(R.string.polygon_sizing)
+        MultiMapActionButtons(ClickContent({
+            drawState.value = drawState.value.copy(drawing = !drawState.value.drawing)
+        }) {
+            if (drawState.value.drawing) {
+                Icon(Icons.Filled.Close, stringResource(R.string.start_drawing_polygon))
+            } else {
+                Icon(Icons.Filled.Draw, stringResource(R.string.stop_drawing_polygon))
+            }
+        }, ClickContent({
+            model.drawnPoints = emptyList()
+            drawState.value = DrawState(false, emptyList())
+        }) {
+            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.clear_the_currently_drawn_polygon))
+        }, ClickContent({
+            if (PolygonUtils.validate(model.drawnPoints)) {
+                model.next()
+            } else {
+                val msg = if (PolygonUtils.ringAreaHectares(model.drawnPoints) <= 0) {
+                    pleaseDraw
+                } else {
+                    val max = PolygonUtils.maxHectaresString()
+                    val current = PolygonUtils.areaStr(listOf(model.drawnPoints))
+                    String.format(tooBig, max, current)
+                }
 
-        if (clearState.value) {
-            draw.clear()
-            clearState.value = false
-        }
+                model.snack(msg)
+            }
+        }) {
+            Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.i_m_done_drawing_let_s_go_to_the_next_screen))
+        })
     }
 
     @Composable

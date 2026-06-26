@@ -1,13 +1,13 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.PolygonDrawer
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.roi.ROI
 
 data class DynamicsROI(
     @Json(name = "target_classes") val targetClass: List<String>,
     @Json(name = "combined_name") val combinedName: String?,
-    @Json(name = "sub_regions") val subRegions: List<PolygonDrawer.NamedPolygon>,
+    @Json(name = "sub_regions") val subRegions: List<PolygonUtils.NamedPolygon>,
     @Json(name = "red") val loss: String,
     @Json(name = "blue") val persistence: String,
     @Json(name = "green") val gain: String,
