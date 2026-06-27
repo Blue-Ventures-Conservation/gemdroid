@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.api.ApiResult
@@ -16,6 +17,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
+import org.blueventures.gemdroid.data.GeojsonPolygon
+import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
@@ -36,9 +39,11 @@ import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.NotActiveException
+import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.resume
 
 // TODO: go through this file and anywhere that accesses /shps for a user, make sure it knows how to handle that alternate json path as well
@@ -224,8 +229,8 @@ class CRADatasource(
             return Result.success(BothFieldsCounted(fieldsCounts.fields, fieldsCounts.counts, fieldsCounts.counts))
         }
 
-        var histRes: Result<FieldsCounts> = Result.failure(NotActiveException())
-        var contRes: Result<FieldsCounts> = Result.failure(NotActiveException())
+        var histRes: Result<FieldsCounts> = Result.failure(Throwable())
+        var contRes: Result<FieldsCounts> = Result.failure(Throwable())
         coroutineScope {
             launch { histRes = craFields(hist) }
             launch { contRes = craFields(cont) }
@@ -354,9 +359,47 @@ class CRADatasource(
         }
     }
 
+    fun convertToCSVAndZip(roiDir: File, roiName: String, features: List<GeojsonPolygonFeature>): Result<File> {
+        val timestamp = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault()).format(Date())
+        val filenameNoExt = "${roiName.lowercase().replace(" ", "_")}_${timestamp}"
+        val csvFile = File(creationDir(roiDir), "$filenameNoExt.csv")
+        val zipFile = File(creationDir(roiDir), "$filenameNoExt.zip")
+
+        return try {
+            val csvWriter = FileOutputStream(csvFile).bufferedWriter()
+            // csv header
+            csvWriter.write("geometry,$classIDPropertyKey,$classNumberPropertyKey,$classNamePropertyKey")
+            csvWriter.newLine()
+
+            val sortedFeatures = features.sortedBy { it.properties[classNumberPropertyKey] as Int }
+
+            var id = 1
+            for (feature in sortedFeatures) {
+                val geoStr = GeojsonPolygon.adapter.toJson(feature.geometry)
+                val classNumber = feature.properties[classNumberPropertyKey] as Int
+                val className = feature.properties[classNamePropertyKey] as String
+                csvWriter.write("\"$geoStr\",$id,$classNumber,$className")
+                csvWriter.newLine()
+                id += 1
+            }
+            csvWriter.flush()
+
+            val zipResult = zipFile(listOf(csvFile), zipFile)
+            if (zipResult.isFailure) {
+                Result.failure(zipResult.exceptionOrNull()!!)
+            } else {
+                Result.success(zipFile)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun deleteCreationDir(roiDir: File) = FileService.deleteDir(creationDir(roiDir))
+
     suspend fun uploadCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
-        var r1: Result<Unit> = Result.failure(NotActiveException())
-        var r2: Result<Unit> = Result.failure(NotActiveException())
+        var r1: Result<Unit> = Result.failure(Throwable())
+        var r2: Result<Unit> = Result.failure(Throwable())
         coroutineScope {
             launch { r1 = uploadCRA(c1) }
             launch { r2 = uploadCRA(c2) }
@@ -365,7 +408,9 @@ class CRADatasource(
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
 
-        return Result.success(Unit)
+        val ingestResult = ingestCRAs(c1, c2)
+        if (ingestResult.isFailure) return ingestResult
+        return uploadFields(c1, c2)
     }
 
     suspend fun uploadCRA(cra: LocalOrRemoteCRAFile): Result<Unit> {
@@ -375,7 +420,11 @@ class CRADatasource(
 
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
 
-        return uploadCRAFile(cra, auth.currentUser!!.uid, cra.localFile)
+        val uploadResult = uploadCRAFile(cra, auth.currentUser!!.uid, cra.localFile)
+        if (uploadResult.isFailure) return uploadResult
+        val ingestResult = ingestCRA(cra)
+        if (ingestResult.isFailure) return ingestResult
+        return uploadFields(cra)
     }
 
     private suspend fun uploadCRAFile(cra: LocalOrRemoteCRAFile, uid: String, file: File): Result<Unit> = suspendCancellableCoroutine { cont ->
@@ -389,16 +438,15 @@ class CRADatasource(
             }
     }
 
-    suspend fun ingestCRAs(roiDir: File, c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
-        var r1: Result<Unit> = Result.failure(NotActiveException())
-        var r2: Result<Unit> = Result.failure(NotActiveException())
+    suspend fun ingestCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
+        var r1: Result<Unit> = Result.failure(Throwable())
+        var r2: Result<Unit> = Result.failure(Throwable())
         coroutineScope {
             launch { r1 = ingestCRA(c1) }
             launch { r2 = ingestCRA(c2) }
         }
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
-        writeCRAsIngestedSuccess(roiDir)
         return Result.success(Unit)
     }
 
@@ -425,15 +473,34 @@ class CRADatasource(
         return Result.success(result.data!!.ingestNeeded())
     }
 
-    suspend fun uploadFields(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
-        val r1 = uploadFields(c1)
-        val r2 = uploadFields(c2)
+    suspend fun uploadOneIngestOther(toUpload: LocalOrRemoteCRAFile, toIngest: LocalOrRemoteCRAFile): Result<Unit> {
+        var uploadResult: Result<Unit> = Result.failure(Throwable())
+        var ingestResult: Result<Unit> = Result.failure(Throwable())
+        coroutineScope {
+            launch { uploadResult = uploadCRA(toUpload) }
+            launch { ingestResult = ingestCRA(toIngest) }
+        }
+
+        val err = resultCheck(uploadResult, ingestResult)
+        if (err != null) return Result.failure(err)
+        return Result.success(Unit)
+    }
+
+    private suspend fun uploadFields(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
+        var r1: Result<Unit> = Result.failure(Throwable())
+        var r2: Result<Unit> = Result.failure(Throwable())
+
+        coroutineScope {
+            launch { r1 = uploadFields(c1) }
+            launch { r2 = uploadFields(c2) }
+        }
+
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
         return Result.success(Unit)
     }
 
-    suspend fun uploadFields(cra: LocalOrRemoteCRAFile): Result<Unit> {
+    private suspend fun uploadFields(cra: LocalOrRemoteCRAFile): Result<Unit> {
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
         val uid = auth.currentUser!!.uid
         return try {
@@ -448,7 +515,7 @@ class CRADatasource(
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
-        val shpRes = RemoteCRAFileInfo.toFile(
+        val infoFileResult = RemoteCRAFileInfo.toFile(
             tmp,
             RemoteCRAFileInfo(
                 cra.shpKey(),
@@ -461,8 +528,8 @@ class CRADatasource(
             )
         )
 
-        if (shpRes.isFailure) {
-            cont.resume(shpRes)
+        if (infoFileResult.isFailure) {
+            cont.resume(infoFileResult)
         } else {
             val filetypes = cra.filetypes()
             storage.reference.child("users/$uid/$filetypes/$key.json").putFile(Uri.fromFile(tmp))
@@ -549,17 +616,23 @@ class CRADatasource(
     }
 
     companion object {
+        const val classIDPropertyKey = "ID"
+        const val classNamePropertyKey = "classname"
+        const val classNumberPropertyKey = "classnumber"
+
         const val crasDir = "cras"
-        const val createdCRAFile = "created_cra.geojson"
+        const val creationDir = "cra_creation"
+        const val creationGeojson = "created_cra.geojson"
         const val crasFile = "cras.json"
         const val crasIngestedFile = "ingested.json"
 
         private const val addedFieldShapeLen = "shape_len"
         private const val addedFieldShapeArea = "shape_area"
         private val ignoreFields = arrayOf(addedFieldShapeLen, addedFieldShapeArea)
+        private fun crasDir(roiDir: File) = File(roiDir, crasDir)
 
-        fun crasDir(roiDir: File) = File(roiDir, crasDir)
-        fun createdCRAFile(roiDir: File) = File(crasDir(roiDir), createdCRAFile)
+        fun creationDir(roiDir: File) = File(crasDir(roiDir), creationDir)
+        fun creationGeojson(roiDir: File) = File(creationDir(roiDir), creationGeojson)
         fun crasFile(roiDir: File) = File(crasDir(roiDir), crasFile)
         fun crasIngestedFile(roiDir: File) = File(crasDir(roiDir), crasIngestedFile)
     }

@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
-import android.icu.text.SimpleDateFormat
 import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
@@ -10,8 +9,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
-import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection.Companion.classNamePropertyKey
-import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
@@ -23,16 +20,15 @@ import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
 import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.crasDir
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.createdCRAFile
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.creationGeojson
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 import java.io.InputStream
-import java.util.Date
-import java.util.Locale
 
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
@@ -57,10 +53,10 @@ class CRAViewModel(
         this.grouper = grouper
     }
 
-    fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(createdCRAFile(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)
-    fun saveLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = saveFile(createdCRAFile(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion, callback)
+    fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(creationGeojson(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)
+    fun saveLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = saveFile(creationGeojson(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion, callback)
     fun deleteLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) {
-        deleteFile(createdCRAFile(roiDir)) {
+        deleteFile(creationGeojson(roiDir)) {
             capturedFeatures.clear()
             callback(it)
         }
@@ -84,7 +80,7 @@ class CRAViewModel(
         contemporaryCRA.counted.counts = both.contCounts
     }
 
-    fun saveCRAs(callback: (Result<Unit>) -> Unit) {
+    fun crasToCloudStorage(callback: (Result<Unit>) -> Unit) {
         val badState = NoStack(R.string.internal_cra_err)
         val cont = contemporaryCRA
 
@@ -106,57 +102,45 @@ class CRAViewModel(
             }
         } else {
             when {
+                // we ingest both here, because ingestion can fail somewhat silently
                 cont.isRemote() && hist.isRemote() -> ingestBoth(cont, hist, callback)
-                cont.isRemote() && hist.readyToUpload() -> uploadEither(hist, cont, hist, callback)
-                cont.readyToUpload() && hist.isRemote() -> uploadEither(cont, cont, hist, callback)
+                cont.isRemote() && hist.readyToUpload() -> uploadOneIngestOther(cont, hist, callback, hist, cont)
+                cont.readyToUpload() && hist.isRemote() -> uploadOneIngestOther(cont, hist, callback, cont, hist)
                 cont.readyToUpload() && hist.readyToUpload() -> uploadBoth(cont, hist, callback)
             }
         }
     }
 
+    /**
+     * Uploading includes ingesting, so if you upload a CRA, you don't need to also ingest it here.
+     */
+
     private fun ingestContemporary(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit) {
-        skipUpload(cont, hist, callback, repo.ingestCRA(cont), repo.uploadFields(cont))
+        collectCRAFlow(cont, hist, callback, repo.ingestCRA(cont))
     }
 
     private fun uploadContemporary(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit) {
-        uploadIngest(cont, cont, hist, callback, repo.ingestCRA(cont))
-    }
-
-    // we ingest both here, because ingestion can fail somewhat silently
-    private fun uploadEither(upload: LocalOrRemoteCRAFile, cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
-        uploadIngest(upload, cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist))
-    }
-
-    private fun uploadIngest(upload: LocalOrRemoteCRAFile, cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>) {
-        uploadIngestFields(cont, hist, callback, repo.uploadCRA(upload), ingest, repo.uploadFields(upload))
-    }
-
-    private fun uploadBoth(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
-        uploadIngestFields(cont, hist, callback, repo.uploadCRAs(cont, hist), repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
+        collectCRAFlow(cont, hist, callback, repo.uploadCRA(cont))
     }
 
     private fun ingestBoth(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
-        skipUpload(cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
+        collectCRAFlow(cont, hist, callback, repo.ingestCRAs(cont, hist))
     }
 
-    private fun skipUpload(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
-        uploadIngestFields(cont, hist, callback, flow { emit(Result.success(Unit)) }, ingest, fields)
+    private fun uploadOneIngestOther(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit, toUpload: LocalOrRemoteCRAFile, toIngest: LocalOrRemoteCRAFile) {
+        collectCRAFlow(cont, hist, callback, repo.uploadOneIngestOther(toUpload, toIngest))
     }
 
-    private fun uploadIngestFields(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, upload: Flow<Result<Unit>>, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
-        uploadJob = resultWithToken<Unit>(uploadJob, flow {
-            upload.collect { result ->
+    private fun uploadBoth(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
+        collectCRAFlow(cont, hist, callback, repo.uploadCRAs(cont, hist))
+    }
+
+    private fun collectCRAFlow(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, theFlow: Flow<Result<Unit>>) {
+        uploadJob = resultWithToken(uploadJob, flow {
+            theFlow.collect { result ->
                 when {
-                    result.isSuccess -> ingest.collect { res ->
-                        when {
-                            res.isSuccess -> fields.collect { r ->
-                                when {
-                                    r.isSuccess -> repo.saveCRAs(roiDir, hist, cont).collect { emit(it) }
-                                    else -> emit(r)
-                                }
-                            } else -> emit(res)
-                        }
-                    } else -> emit(result)
+                    result.isSuccess -> repo.saveCRAs(roiDir, hist, cont).collect { emit(it) }
+                    else -> emit(result)
                 }
             }
         }) { result ->
@@ -256,17 +240,15 @@ class CRAViewModel(
         capturedFeatures.addAll(fc.features)
     }
 
-    fun processAndSaveCapturedCRAs(callback: (Result<Unit>) -> Unit) {
-        historicalCRA = null
-        val classCountList = capturedCollection.countClasses()
-        val classCounts = ClassCounts(chosenCounts = classCountList)
-        val timestamp = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault()).format(Date())
-        val zipName = "${sanitize(roi.name)}_${timestamp}.zip"
-        val zipFile = File(crasDir(roiDir), zipName)
-        zipFile(listOf(createdCRAFile(roiDir)), zipFile) { zipResult ->
+    fun processCapturedCRAsAndStoreInCloud(callback: (Result<Unit>) -> Unit) {
+        scoped { repo.convertToCSVAndZip(roiDir, roi.name, capturedFeatures).collect{ result ->
             when {
-                zipResult.isFailure -> callback(zipResult)
+                result.isFailure -> callback(Result.failure(result.exceptionOrNull()!!))
                 else -> {
+                    val zipFile = result.getOrNull()!!
+                    historicalCRA = null
+                    val classCountList = capturedCollection.countClasses()
+                    val classCounts = ClassCounts(chosenCounts = classCountList)
                     contemporaryCRA = LocalOrRemoteCRAFile(
                         false,
                         null,
@@ -282,22 +264,25 @@ class CRAViewModel(
                             StringsNumerics(classCounts, classCounts)
                         )
                     )
-                    saveCRAs { result ->
+                    crasToCloudStorage { result ->
                         if (result.isFailure) {
                             deleteFile(zipFile) {
                                 callback(result)
                             }
                         } else {
-                            callback(result)
+                            // make a good faith attempt to clean up
+                            scoped { repo.deleteCreationDir(roiDir).collect {
+                                callback(result)
+                            }}
                         }
                     }
                 }
             }
-        }
+        }}
     }
 }
 
-private fun sanitize(name: String) = name.lowercase().replace(" ", "_")
+
 
 /**
  * Answers to the question: Are historical CRAs available?

@@ -18,7 +18,7 @@ import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Progress
+import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.SnackFun
 
 object UploadCreation {
@@ -36,9 +36,9 @@ object UploadCreation {
                 }
             }
             else -> {
-                Progress()
+                PleaseWait()
                 val context = LocalContext.current.applicationContext
-                viewModel.processAndSaveCapturedCRAs { result ->
+                viewModel.processCapturedCRAsAndStoreInCloud { result ->
                     when {
                         result.isFailure -> {
                             snack(result.exceptionOrNull()!!.localized(context))

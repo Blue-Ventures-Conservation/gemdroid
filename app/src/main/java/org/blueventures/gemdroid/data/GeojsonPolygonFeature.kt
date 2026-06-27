@@ -2,6 +2,8 @@ package org.blueventures.gemdroid.data
 
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import java.io.File
 
 data class GeojsonPolygonFeature(
@@ -62,9 +64,6 @@ data class GeojsonPolygonFeatureCollection(
     }
 
     companion object : Serializer<GeojsonPolygonFeatureCollection>() {
-        const val classNamePropertyKey = "classname"
-        const val classNumberPropertyKey = "classnumber"
-
         private val adapter = make<GeojsonPolygonFeatureCollection>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: GeojsonPolygonFeatureCollection) = toFile(adapter, file, data)

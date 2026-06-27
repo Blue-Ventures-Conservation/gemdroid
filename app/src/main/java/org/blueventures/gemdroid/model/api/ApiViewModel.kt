@@ -41,12 +41,6 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
     fun deleteFile(file: File, callback: (Result<Unit>) -> Unit = {}) {
         scoped { repo.deleteFile(file).collect(callback) }
     }
-    fun renameFile(file: File, newName: String, callback: (Result<Unit>) -> Unit = {}) {
-        scoped { repo.renameFile(file, newName).collect(callback) }
-    }
-    fun zipFile(files: List<File>, out: File, callback: (Result<Unit>) -> Unit) {
-        scoped { repo.zipFile(files, out).collect(callback) }
-    }
 
     fun saveResults(file: File, results: TasksResults, callback: (Result<Unit>) -> Unit) = saveFile(file, results, TasksResults.Companion, callback)
     fun loadResults(file: File, callback: (Result<TasksResults>) -> Unit) = loadFile(file, TasksResults.Companion, callback)

@@ -98,7 +98,7 @@ object CRAFields {
 
                             if (!gaveUp) {
                                 viewModel.setFields(both)
-                                viewModel.saveCRAs { result ->
+                                viewModel.crasToCloudStorage { result ->
                                     when {
                                         result.isSuccess -> done()
                                         else -> {
@@ -167,7 +167,7 @@ object CRAFields {
                                     StringsNumerics(ClassCounts(chosenCounts = chosenHistCounts)),
                                     StringsNumerics(ClassCounts(chosenCounts = chosenContCounts)),
                                 ))
-                                viewModel.saveCRAs {
+                                viewModel.crasToCloudStorage {
                                     when {
                                         it.isSuccess -> done()
                                         else -> {

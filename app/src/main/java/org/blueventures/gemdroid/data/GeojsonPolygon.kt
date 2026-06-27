@@ -5,13 +5,14 @@ import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.PolygonUtils.HECTARE_IN_METERS
+import java.io.File
 
 typealias PolyPts = List<List<LatLng>>
 data class GeojsonPolygon(
     @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
     @Json(name = "type") val type: String = "Polygon",
 ) {
-    companion object {
+    companion object : Serializer<GeojsonPolygon>() {
         fun toStateWithContainer(geo: GeojsonPolygon, container: MultiPolyPts? = null): Pair<PolyPts, Int> {
             val checkContainment = !container.isNullOrEmpty()
             val newPoly = mutableListOf<List<LatLng>>()
@@ -26,7 +27,7 @@ data class GeojsonPolygon(
 
                     if (checkContainment && first) {
                         var ptContained = false
-                        for (poly in container!!) {
+                        for (poly in container) {
                             if (PolyUtil.containsLocation(newPt, poly[0], true)) {
                                 ptContained = true
                                 break
@@ -75,5 +76,9 @@ data class GeojsonPolygon(
 
             return ring
         }
+
+        val adapter = make<GeojsonPolygon>()
+        override fun fromFile(file: File) = fromFile(adapter, file)
+        override fun toFile(file: File, data: GeojsonPolygon) = toFile(adapter, file, data)
     }
 }
