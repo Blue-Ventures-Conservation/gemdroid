@@ -27,8 +27,8 @@ object UploadCreation {
         val (doItRequest, setDoItRequest) = remember { mutableStateOf<Unit?>(null) }
         when {
             doItRequest == null -> {
-                Col.Col(scroll = true) {
-                    Info.Txt(stringResource(R.string.caution_you_won_t_be_able_to_create_again))
+                Col.Dash(stringResource(R.string.caution_you_won_t_be_able_to_create_again)) {
+                    Info.Txt(stringResource(R.string.you_can_tap_the_back_button_if_you_aren_t_ready))
                     Spacer(modifier = Modifier.height(32.dp))
                     Button({ setDoItRequest(Unit) }) {
                         Text(stringResource(R.string.save_and_move_on), fontSize = 20.sp)

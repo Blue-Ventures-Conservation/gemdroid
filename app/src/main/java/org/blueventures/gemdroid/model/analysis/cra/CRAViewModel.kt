@@ -10,6 +10,8 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
+import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection.Companion.classNamePropertyKey
+import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
@@ -19,8 +21,6 @@ import org.blueventures.gemdroid.data.analysis.cra.Fields
 import org.blueventures.gemdroid.data.analysis.cra.FieldsCounts
 import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
 import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
-import org.blueventures.gemdroid.data.classNamePropertyKey
-import org.blueventures.gemdroid.data.classNumberPropertyKey
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.createdCRAFile

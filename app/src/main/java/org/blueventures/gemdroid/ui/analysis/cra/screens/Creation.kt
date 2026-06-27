@@ -16,7 +16,7 @@ object Creation {
     @Composable
     fun Screen(viewModel: CRAViewModel, appBar: AppBar, snack: SnackFun, done: Click) {
         Visualize.Capture(viewModel.visualizer, appBar, stringResource(R.string.classification_reference_areas),
-            true, PolygonUtils.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), 16f,
+            true, PolygonUtils.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), 12f,
             Maps.Storage.fromViewModel(viewModel), capture = Capture.Model(viewModel, viewModel.roi.useS2(), snack, done))
     }
 }

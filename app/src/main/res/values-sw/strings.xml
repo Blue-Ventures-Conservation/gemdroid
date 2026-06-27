@@ -365,4 +365,5 @@
     <string name="caution_you_won_t_be_able_to_create_again">Caution: You won\'t be able to create the CRA for this project again!\n\nShould we save it and move on?</string>
     <string name="save_and_move_on">Save and Move On</string>
     <string name="failed_to_save_please_try_again">Failed to save, please try again.</string>
+    <string name="you_can_tap_the_back_button_if_you_aren_t_ready">You can tap the Back button if you aren\'t ready.</string>
 </resources>

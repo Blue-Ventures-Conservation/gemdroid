@@ -30,7 +30,9 @@ object CheckForExistingCreation {
                     deleteRequest == null -> {
                         Col.Dash(stringResource(R.string.there_are_already_cras_created_for_this_project)) {
                             Col.DashboardButton(stringResource(R.string.continue_where_i_left_off)) {
-                                viewModel.continueExisting(existingResult.getOrNull()!!)
+                                val fc = existingResult.getOrNull()!!
+                                fc.fixFloats()
+                                viewModel.continueExisting(fc)
                                 next()
                             }
                             Col.DashboardButton(stringResource(R.string.start_over)) {
