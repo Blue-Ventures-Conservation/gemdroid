@@ -9,7 +9,6 @@ import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Progress
 
 object CheckForExistingCreation {
@@ -29,8 +28,7 @@ object CheckForExistingCreation {
                 val (deleteRequest, setDeleteRequest) = remember { mutableStateOf<Unit?>(null) }
                 when {
                     deleteRequest == null -> {
-                        Col.Col(scroll = true) {
-                            Info.Txt(stringResource(R.string.there_are_already_cras_created_for_this_project))
+                        Col.Dash(stringResource(R.string.there_are_already_cras_created_for_this_project)) {
                             Col.DashboardButton(stringResource(R.string.continue_where_i_left_off)) {
                                 viewModel.continueExisting(existingResult.getOrNull()!!)
                                 next()
