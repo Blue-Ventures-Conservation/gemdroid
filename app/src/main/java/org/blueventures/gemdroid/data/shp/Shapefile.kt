@@ -194,7 +194,7 @@ object Shapefile {
 
         val zipFile = File(workDir, "$shpName.zip")
 
-        val zipRes = FileService.zip(arrayOf(shp, shx, dbf, prj), zipFile.path)
+        val zipRes = FileService.zip(listOf(File(shp), File(shx), File(dbf), File(prj)), zipFile)
         if (zipRes.isFailure) {
             return Result.failure(zipRes.exceptionOrNull()!!)
         }

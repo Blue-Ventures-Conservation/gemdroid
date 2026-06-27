@@ -186,19 +186,19 @@ object FileService {
         }
     }
 
-    fun zip(files: Array<String>, path: String): Result<Unit> {
-        val res = createFile(File(path.substringBeforeLast(sep)), path.substringAfterLast(sep))
+    fun zip(files: List<File>, out: File): Result<Unit> {
+        val res = createFile(out.parentFile!!, out.name)
         if (res.isFailure) {
             return Result.failure(res.exceptionOrNull()!!)
         }
 
         return try {
-            val dest = FileOutputStream(path)
+            val dest = FileOutputStream(out)
             val out = ZipOutputStream(BufferedOutputStream(dest))
             val data = ByteArray(buf)
-            files.forEach { fpath ->
-                val origin = BufferedInputStream(FileInputStream(fpath), 8192)
-                val entry = ZipEntry(File(fpath).name)
+            files.forEach { f ->
+                val origin = BufferedInputStream(FileInputStream(f), 8192)
+                val entry = ZipEntry(f.name)
                 out.putNextEntry(entry)
                 var count: Int
                 while (origin.read(data, 0, buf).also { count = it } != -1) {

@@ -5,5 +5,6 @@ import com.squareup.moshi.Json
 // Sent to the backend when uploading a CRA to GEE
 data class CRAKey(
     @Json(name = "key") val key: String,
+    @Json(name = "is_shapefile") val isShapefile: Boolean,
     @Json(name = "overwrite") val overwrite: Boolean,
 )

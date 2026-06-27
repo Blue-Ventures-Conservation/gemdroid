@@ -22,7 +22,6 @@ data class LocalOrRemoteCRAFile(
     fun shpKey() = if (isShapefile) key() else  null
     fun jsonKey() = if (!isShapefile) key() else null
     fun filetypes() = if (isShapefile) "shps" else "geojsons"
-    fun ext() = if (isShapefile) "shp" else "geojson"
 
     fun readyToUpload() = isLocal() && counted.complete()
     fun isLocal() = localFile != null && storageKey == null

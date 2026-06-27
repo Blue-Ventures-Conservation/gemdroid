@@ -23,8 +23,8 @@ import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
 import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.crasDir
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.createdCRAFile
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.renamedCreatedCRAFile
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
@@ -261,17 +261,18 @@ class CRAViewModel(
         val classCountList = capturedCollection.countClasses()
         val classCounts = ClassCounts(chosenCounts = classCountList)
         val timestamp = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault()).format(Date())
-        val newName = "${sanitize(roi.name)}_${timestamp}.geojson"
-        renameFile(createdCRAFile(roiDir), newName) { renameResult ->
+        val zipName = "${sanitize(roi.name)}_${timestamp}.zip"
+        val zipFile = File(crasDir(roiDir), zipName)
+        zipFile(listOf(createdCRAFile(roiDir)), zipFile) { zipResult ->
             when {
-                renameResult.isFailure -> callback(renameResult)
+                zipResult.isFailure -> callback(zipResult)
                 else -> {
                     contemporaryCRA = LocalOrRemoteCRAFile(
                         false,
                         null,
                         false,
                         null,
-                        renamedCreatedCRAFile(roiDir, newName),
+                        zipFile,
                         FieldsCounts(
                             Fields(
                                 chosenNumeric = classNumberPropertyKey,
@@ -281,7 +282,15 @@ class CRAViewModel(
                             StringsNumerics(classCounts, classCounts)
                         )
                     )
-                    saveCRAs(callback)
+                    saveCRAs { result ->
+                        if (result.isFailure) {
+                            deleteFile(zipFile) {
+                                callback(result)
+                            }
+                        } else {
+                            callback(result)
+                        }
+                    }
                 }
             }
         }

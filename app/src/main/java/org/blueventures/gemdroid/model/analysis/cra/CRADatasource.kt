@@ -380,9 +380,8 @@ class CRADatasource(
 
     private suspend fun uploadCRAFile(cra: LocalOrRemoteCRAFile, uid: String, file: File): Result<Unit> = suspendCancellableCoroutine { cont ->
         val filetypes = cra.filetypes()
-        val ext = cra.ext()
         val key = cra.key()
-        storage.reference.child("users/$uid/$filetypes/$key.$ext").putFile(Uri.fromFile(file))
+        storage.reference.child("users/$uid/$filetypes/$key.zip").putFile(Uri.fromFile(file))
             .addOnSuccessListener {
                 cont.resume(Result.success(Unit))
             }.addOnFailureListener {
@@ -408,7 +407,7 @@ class CRADatasource(
         val needed = ingestNeeded(cra.eeUploadName, key)
         if (needed.isFailure) return Result.failure(needed.exceptionOrNull()!!)
         if (!needed.getOrNull()!!) return Result.success(Unit)
-        val result = api.ingestCRA(CRAKey(key, cra.overwrite))
+        val result = api.ingestCRA(CRAKey(key, cra.isShapefile, cra.overwrite))
         val err = apiResultCheck(result)
         if (err != null) return Result.failure(err)
         val data = result.data!!
@@ -558,10 +557,9 @@ class CRADatasource(
         private const val addedFieldShapeLen = "shape_len"
         private const val addedFieldShapeArea = "shape_area"
         private val ignoreFields = arrayOf(addedFieldShapeLen, addedFieldShapeArea)
-        private fun crasDir(roiDir: File) = File(roiDir, crasDir)
 
+        fun crasDir(roiDir: File) = File(roiDir, crasDir)
         fun createdCRAFile(roiDir: File) = File(crasDir(roiDir), createdCRAFile)
-        fun renamedCreatedCRAFile(roiDir: File, newName: String) = File(crasDir(roiDir), newName)
         fun crasFile(roiDir: File) = File(crasDir(roiDir), crasFile)
         fun crasIngestedFile(roiDir: File) = File(crasDir(roiDir), crasIngestedFile)
     }

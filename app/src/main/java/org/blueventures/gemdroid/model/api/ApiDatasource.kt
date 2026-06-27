@@ -41,4 +41,5 @@ open class ApiDatasource(
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = serializer.toFile(file, data)
     fun deleteFile(file: File) = FileService.deleteFile(file)
     fun renameFile(file: File, newName: String) = FileService.renameFile(file, newName)
+    fun zipFile(files: List<File>, out: File) = FileService.zip(files, out)
 }
