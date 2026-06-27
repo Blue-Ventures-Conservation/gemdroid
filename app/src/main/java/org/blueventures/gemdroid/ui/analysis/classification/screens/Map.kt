@@ -40,7 +40,7 @@ object Map {
 
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
-                override fun save(urls: ClassificationURLs) = viewModel.saveClassificationFile(urls)
+                override fun save(urls: ClassificationURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveClassificationFile(urls, callback)
             }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_classifications_details, details))
         }
     }

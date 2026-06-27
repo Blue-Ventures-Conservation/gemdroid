@@ -83,6 +83,16 @@ class DynamicsViewModel(
     }
 
     var subregionsFinalized = false
+
+    fun finalizeSubregions(viewModel: DynamicsViewModel, callback: (Result<Unit>) -> Unit) {
+        viewModel.saveSubRegionsFile { result ->
+            if (result.isSuccess) {
+                viewModel.subregionsFinalized = true
+            }
+            callback(result)
+        }
+    }
+
     private var readyJob: Job? = null
     private var dynamicsJob: Job? = null
     private var exportsJobs: Job? = null
@@ -108,7 +118,7 @@ class DynamicsViewModel(
     fun tileDirs() = listOf(lossTileDir(roiDir, targetClasses), persistenceTileDir(roiDir, targetClasses), gainTileDir(roiDir, targetClasses))
 
     private fun loadSubRegionsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadFile(subRegionsFile(roiDir), DrawnPolygonsFile.Companion, callback)
-    fun saveSubRegionsFile() = saveFile(subRegionsFile(roiDir), DrawnPolygonsFile(polygons), DrawnPolygonsFile.Companion)
+    private fun saveSubRegionsFile(callback: (Result<Unit>) -> Unit) = saveFile(subRegionsFile(roiDir), DrawnPolygonsFile(polygons), DrawnPolygonsFile.Companion, callback)
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
 
     override fun validatePolygonName(): Boolean {
@@ -192,7 +202,7 @@ class DynamicsViewModel(
             api.dynamicsReady(ready)
         }
     }
-    fun saveDynamicsReadyFile(ready: DynamicsReadyResponse) = saveFile(readyFile(roiDir), ready, DynamicsReadyResponse.Companion)
+    fun saveDynamicsReadyFile(ready: DynamicsReadyResponse, callback: (Result<Unit>) -> Unit) = saveFile(readyFile(roiDir), ready, DynamicsReadyResponse.Companion, callback)
     fun loadDynamicsReadyFile(callback: (Result<DynamicsReadyResponse>) -> Unit) = loadFile(readyFile(roiDir), DynamicsReadyResponse.Companion) { result ->
         when {
             result.isSuccess -> {
@@ -215,10 +225,10 @@ class DynamicsViewModel(
             api.dynamics(roi)
         }
     }
-    fun saveDynamicsFile(urls: DynamicsURLs) = saveFile(urlsFile(roiDir, targetClasses), urls, DynamicsURLs.Companion)
+    fun saveDynamicsFile(urls: DynamicsURLs, callback: (Result<Unit>) -> Unit) = saveFile(urlsFile(roiDir, targetClasses), urls, DynamicsURLs.Companion, callback)
     fun loadDynamicsFile(callback: (Result<DynamicsURLs>) -> Unit) = loadFile(urlsFile(roiDir, targetClasses), DynamicsURLs.Companion, callback)
 
-    fun saveExports(exports: DynamicsExports) = saveFile(exportsFile(roiDir, targetClasses), exports, DynamicsExports.Companion)
+    fun saveExports(exports: DynamicsExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir, targetClasses), exports, DynamicsExports.Companion, callback)
     fun loadExports(callback: (Result<DynamicsExports>) -> Unit) = loadFile(exportsFile(roiDir, targetClasses), DynamicsExports.Companion, callback)
     fun getExports(callback: (ApiResult<DynamicsExports>) -> Unit) {
         exportsJobs = getRemote(exportsJobs, makeDynamicsROI(), { result ->
@@ -258,7 +268,7 @@ class DynamicsViewModel(
         roi,
     )
 
-    fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir, targetClasses), results)
+    fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir, targetClasses), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir, targetClasses), callback)
     fun getResults(exports: DynamicsExports, callback: (ApiResult<TasksResults>) -> Unit) {
         val taskList = mutableListOf<String>()

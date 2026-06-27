@@ -22,12 +22,12 @@ object ScatterChoices {
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, back: Click, next: Click) {
         appBar.Update(AppBarUpdate(viewModel.title))
 
-        GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
+        GetRemote.Save(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
             val bands = SeparabilityJSON.bands(json)
 
             if (bands == null) {
                 back.Once()
-                return@AwaitSave
+                return@Save
             }
 
             Choices(viewModel, bands, next)

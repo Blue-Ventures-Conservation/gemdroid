@@ -36,11 +36,6 @@ object Dynamics {
         const val stats = prefix + "stats"
     }
 
-    private fun finalizeSubregions(viewModel: DynamicsViewModel) {
-        viewModel.saveSubRegionsFile()
-        viewModel.subregionsFinalized = true
-    }
-
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: DynamicsViewModel, appBar: AppBar, snack: SnackFun) {
         CollectPolygons.screens(b, nav, Routes.prefix, Analysis.Routes.dashboard, Routes.target_classes, appBar, snack, Maps.Storage.fromViewModel(viewModel), R.string.sub_region, R.string.sub_regions, maxSubRegions, false, SkyBlue.toArgb(), model = viewModel)
 
@@ -50,17 +45,13 @@ object Dynamics {
             TargetClasses.Screen(viewModel, appBar, snack) {
                 when {
                     viewModel.combinedNameNeeded() -> nav.navigate(Routes.combined_name)
-                    else -> {
-                        finalizeSubregions(viewModel)
-                        nav.navigate(Routes.map)
-                    }
+                    else -> nav.navigate(Routes.map)
                 }
             }
         }
 
         b.backHandler(Routes.combined_name, nav::popBackStack) {
             CombinedName.Screen(viewModel, appBar, snack) {
-                finalizeSubregions(viewModel)
                 nav.navigate(Routes.map)
             }
         }

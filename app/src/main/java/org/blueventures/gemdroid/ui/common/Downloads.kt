@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.api.ApiResult
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.ui.theme.LightGreen
@@ -42,8 +41,8 @@ object Downloads {
     }
 
     interface ExportList {
-        fun saveResults(results: TasksResults): Job
-        fun loadResults(callback: (Result<TasksResults>) -> Unit): Job
+        fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit)
+        fun loadResults(callback: (Result<TasksResults>) -> Unit)
         fun getResults(callback: (ApiResult<TasksResults>) -> Unit)
         fun list(): List<NamedExport>
     }
@@ -53,7 +52,7 @@ object Downloads {
         holder: VisualizeHolder?,
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: (Boolean, (ApiResult<T>) -> Unit) -> Unit,
-        save: (T) -> Unit,
+        save: (T, callback: (Result<Unit>) -> Unit) -> Unit,
         clear: Click,
         convert: @Composable (T) -> ExportList,
     ) {
@@ -151,8 +150,9 @@ object Downloads {
                         stop()
                         if (result is ApiResult.Success) {
                             val data = result.data!!
-                            exports.saveResults(data)
-                            setResults(data)
+                            exports.saveResults(data) {
+                                setResults(data)
+                            }
                         }
                     }
                 }
@@ -224,7 +224,7 @@ object Downloads {
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
             manager.enqueue(request)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // pass
         }
     }

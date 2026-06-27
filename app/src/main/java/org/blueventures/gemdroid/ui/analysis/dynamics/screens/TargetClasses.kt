@@ -21,17 +21,22 @@ object TargetClasses {
         viewModel.combinedName = null
         appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.dynamics))))
         val classes = viewModel.cras.contemporaryCRA.stringClassValues
+        val (subRegionsResult, setSubRegionsResult) = remember { mutableStateOf<Result<Unit>?>(null) }
         val (classesChosen, setClassesChosen) = remember { mutableStateOf(false) }
         val (dynamicsResult, setDynamicsResult) = remember { mutableStateOf<Result<DynamicsURLs>?>(null) }
 
-        when (classesChosen) {
-            false -> {
+        when {
+            subRegionsResult == null -> {
+                Progress()
+                viewModel.finalizeSubregions(viewModel, setSubRegionsResult)
+            }
+            !classesChosen -> {
                 Checklist.Screen(snack, stringResource(R.string.choose_class_dynamics), classes) { checked ->
                     viewModel.targetClasses = checked
                     setClassesChosen(true)
                 }
             }
-            true -> {
+            else -> {
                 when (dynamicsResult) {
                     null -> {
                         Progress()

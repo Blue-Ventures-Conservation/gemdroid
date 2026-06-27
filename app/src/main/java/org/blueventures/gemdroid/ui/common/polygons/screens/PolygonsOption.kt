@@ -25,7 +25,7 @@ object PolygonsOption {
 
         val polygons: MutableList<PolygonUtils.NamedPolygon>
 
-        fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job
+        fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit)
         @Composable
         fun OptionsInit(snack: SnackFun, back: Click, content: @Composable () -> Unit)
     }

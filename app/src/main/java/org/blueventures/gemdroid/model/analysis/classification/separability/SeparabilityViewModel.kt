@@ -39,7 +39,7 @@ class SeparabilityViewModel(
             timePeriod.separation(api, roi)
         }
     }
-    fun saveSeparationFile(data: Map<String, Any>) = saveFile(separationFile(roiDir, timePeriod), data, JSONMap)
+    fun saveSeparationFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = saveFile(separationFile(roiDir, timePeriod), data, JSONMap, callback)
     fun loadSeparationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(separationFile(roiDir, timePeriod), JSONMap, callback)
 
     fun getScatter(callback: (ApiResult<Map<String, Any>>) -> Unit) {
@@ -55,7 +55,7 @@ class SeparabilityViewModel(
             timePeriod.correlation(api, roi)
         }
     }
-    fun saveCorrelationFile(data: Map<String, Any>) = saveFile(correlationFile(roiDir, timePeriod), data, JSONMap)
+    fun saveCorrelationFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = saveFile(correlationFile(roiDir, timePeriod), data, JSONMap, callback)
     fun loadCorrelationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(correlationFile(roiDir, timePeriod), JSONMap, callback)
 
     private fun makeCraROI(timePeriod: Int): CraROI {

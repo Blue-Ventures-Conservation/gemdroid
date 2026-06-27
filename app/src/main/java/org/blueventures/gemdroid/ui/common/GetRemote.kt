@@ -25,21 +25,6 @@ object GetRemote {
     fun <T> Save(
         getLocal: ((Result<T>) -> Unit) -> Unit,
         getRemote: ((ApiResult<T>) -> Unit) -> Unit,
-        save: (T) -> Unit,
-        checkExpires: Boolean = false,
-        // returns a message to display and whether the request should be retried
-        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
-        screen: @Composable (T) -> Unit) {
-        Display(getLocal, getRemote, checkExpires, errorHandler, screen) { dat ->
-            save(dat)
-            screen(dat)
-        }
-    }
-
-    @Composable
-    fun <T> AwaitSave(
-        getLocal: ((Result<T>) -> Unit) -> Unit,
-        getRemote: ((ApiResult<T>) -> Unit) -> Unit,
         save: (T, (Result<Unit>) -> Unit) -> Unit,
         checkExpires: Boolean = false,
         // returns a message to display and whether the request should be retried

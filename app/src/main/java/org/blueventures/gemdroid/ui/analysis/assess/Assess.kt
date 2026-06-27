@@ -37,7 +37,7 @@ object Assess {
         }
 
         b.backHandler(Routes.edits_needed, nav::popBackStack) {
-            FitForPurpose.Screen(viewModel, roiViewModel, appBar, {
+            FitForPurpose.Screen(viewModel, roiViewModel, appBar, snack, {
                 nav.popBackStack(Analysis.Routes.dashboard, false)
             }) {
                 nav.navigate(Roi.Routes.historicalYears)

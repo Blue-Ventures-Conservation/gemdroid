@@ -164,10 +164,8 @@ class RoiViewModel(
     override fun edit() = false
     override fun clearEdit() {}
 
-    override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit): Job {
-        return background({
-            Result.failure(Throwable("pass"))
-        }, callback)
+    override fun loadDrawnPolygonsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) {
+        background({ Result.failure(Throwable("pass")) }, callback)
     }
 
     @Composable

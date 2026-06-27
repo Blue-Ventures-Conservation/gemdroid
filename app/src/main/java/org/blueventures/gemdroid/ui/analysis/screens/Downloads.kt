@@ -27,7 +27,7 @@ object Downloads {
             val hlotTitle = stringResource(R.string.hist_low_tide)
 
             object : Downloads.ExportList {
-                override fun saveResults(results: TasksResults) = viewModel.saveResults(results)
+                override fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = viewModel.saveResults(results, callback)
                 override fun loadResults(callback: (Result<TasksResults>) -> Unit) = viewModel.loadResults(callback)
                 override fun getResults(callback: (ApiResult<TasksResults>) -> Unit) = viewModel.getResults(exports, callback)
                 override fun list(): List<Downloads.NamedExport> {

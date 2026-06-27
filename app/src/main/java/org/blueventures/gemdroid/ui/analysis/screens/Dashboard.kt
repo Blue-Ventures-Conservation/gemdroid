@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.roiUUID
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.analysis.Stage
@@ -47,19 +48,22 @@ object Dashboard {
 
     @Composable
     fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
-        Roi.Loader(viewModel::getROI, snack, back) {
-            var roi = it
-            if (it.regionUUID == null) {
-                roi = it.copy(regionUUID = roiUUID())
-                viewModel.saveROI(roi)
-            }
-            viewModel.roi = roi
+        Roi.Loader(viewModel::getROI, snack, back) { loadedRoi ->
             appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.analysis))))
-
+            val (roi, setROI) = remember { mutableStateOf<ROI?>(null) }
             val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
-            when (stage) {
-                null -> {
+            when {
+                roi == null && loadedRoi.regionUUID == null -> {
                     Progress()
+                    val updatedROI = loadedRoi.copy(regionUUID = roiUUID())
+                    viewModel.saveROI(updatedROI) {
+                        setROI(updatedROI)
+                    }
+                }
+                roi == null -> setROI(loadedRoi)
+                stage == null -> {
+                    Progress()
+                    viewModel.roi = roi
                     viewModel.refreshStage(setStage)
                 }
                 else -> {
@@ -117,7 +121,6 @@ object Dashboard {
                                 DynamicsRow(dyn)
                                 ReviewInputsRow(properties)
                             }
-                            else -> {}
                         }
                     }
 

@@ -33,7 +33,7 @@ object DynamicsMap {
 
                 override fun tileDir(i: Int) = viewModel.tileDirs()[i]
                 override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
-                override fun save(urls: DynamicsURLs) = viewModel.saveDynamicsFile(urls)
+                override fun save(urls: DynamicsURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveDynamicsFile(urls, callback)
             }, poly = object : Polygons.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.polygonGroups(context, callback)

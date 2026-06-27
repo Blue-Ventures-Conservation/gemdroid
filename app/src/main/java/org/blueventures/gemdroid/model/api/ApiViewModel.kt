@@ -32,12 +32,20 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
     fun uriFromStorage(prev: Job?, path: String, callback: (Result<Uri>) -> Unit) = resultWithToken(prev, repo.uriFromStorage(path), callback)
 
     fun <I, O> getRemote(prev: Job?, body: I, callback: (ApiResult<O>) -> Unit, call: suspend (Api.Service, I) -> ApiResult<O>) = apiWithToken(prev, repo.getRemote(body, call), callback)
-    fun <T, S : Serializer<T>> loadFile(file: File, serializer: S, callback: (Result<T>) -> Unit) = scoped { repo.loadFile(file, serializer).collect(callback) }
-    fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.saveFile(file, data, serializer).collect(callback) }
-    fun deleteFile(file: File, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.deleteFile(file).collect(callback) }
-    fun renameFile(file: File, newName: String, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.renameFile(file, newName).collect(callback) }
+    fun <T, S : Serializer<T>> loadFile(file: File, serializer: S, callback: (Result<T>) -> Unit) {
+        scoped { repo.loadFile(file, serializer).collect(callback) }
+    }
+    fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S, callback: (Result<Unit>) -> Unit) {
+        scoped { repo.saveFile(file, data, serializer).collect(callback) }
+    }
+    fun deleteFile(file: File, callback: (Result<Unit>) -> Unit = {}) {
+        scoped { repo.deleteFile(file).collect(callback) }
+    }
+    fun renameFile(file: File, newName: String, callback: (Result<Unit>) -> Unit = {}) {
+        scoped { repo.renameFile(file, newName).collect(callback) }
+    }
 
-    fun saveResults(file: File, results: TasksResults) = saveFile(file, results, TasksResults.Companion)
+    fun saveResults(file: File, results: TasksResults, callback: (Result<Unit>) -> Unit) = saveFile(file, results, TasksResults.Companion, callback)
     fun loadResults(file: File, callback: (Result<TasksResults>) -> Unit) = loadFile(file, TasksResults.Companion, callback)
 
     fun <T> read(context: Context, builder: (Preferences) -> T, callback: (T) -> Unit) = scoped { repo.read(context, builder).collect(callback) }

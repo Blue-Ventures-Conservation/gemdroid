@@ -33,6 +33,7 @@ object CheckForExistingCreation {
                             Info.Txt(stringResource(R.string.there_are_already_cras_created_for_this_project))
                             Col.DashboardButton(stringResource(R.string.continue_where_i_left_off)) {
                                 viewModel.continueExisting(existingResult.getOrNull()!!)
+                                next()
                             }
                             Col.DashboardButton(stringResource(R.string.start_over)) {
                                 setDeleteRequest(Unit)
@@ -41,7 +42,7 @@ object CheckForExistingCreation {
                     }
                     else -> {
                         Progress()
-                        viewModel.deleteLocallCreatedCRAFile {
+                        viewModel.deleteLocallyCreatedCRAFile {
                             next()
                         }
                     }

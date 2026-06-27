@@ -18,12 +18,12 @@ object ScatterClasses {
     @Composable
     fun Screen(viewModel: SeparabilityViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click) {
         appBar.Update(AppBarUpdate(viewModel.title))
-        GetRemote.AwaitSave(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
+        GetRemote.Save(viewModel::loadScatterFile, viewModel::getScatter, viewModel::saveScatterFile, errorHandler = CRA::errHandler) { json ->
             val classes = SeparabilityJSON.classes(json)
 
             if (classes == null) {
                 back.Once()
-                return@AwaitSave
+                return@Save
             }
 
             Checklist.Screen(snack, stringResource(R.string.choose_classes), classes, List(classes.size) {true}) { checked ->

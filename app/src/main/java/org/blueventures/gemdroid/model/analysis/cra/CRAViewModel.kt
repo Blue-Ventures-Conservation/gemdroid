@@ -58,8 +58,8 @@ class CRAViewModel(
     }
 
     fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(createdCRAFile(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)
-    fun saveLocallyCreatedCRAFile() = saveFile(createdCRAFile(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion)
-    fun deleteLocallCreatedCRAFile(callback: (Result<Unit>) -> Unit) = deleteFile(createdCRAFile(roiDir), callback)
+    fun saveLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = saveFile(createdCRAFile(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion, callback)
+    fun deleteLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = deleteFile(createdCRAFile(roiDir), callback)
 
     private var uploadJob: Job? = null
 
@@ -235,7 +235,7 @@ class CRAViewModel(
     override val capturedCollection
         get() = GeojsonPolygonFeatureCollection(features = capturedFeatures)
     val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
-    override fun capture(craClass: BVClass, polygon: List<LatLng>) {
+    override fun capture(craClass: BVClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
             properties = mapOf(
@@ -243,7 +243,7 @@ class CRAViewModel(
                 classNumberPropertyKey to craClass.number,
             )
         ))
-        saveLocallyCreatedCRAFile()
+        saveLocallyCreatedCRAFile(callback)
     }
 
     fun continueExisting(fc: GeojsonPolygonFeatureCollection) {

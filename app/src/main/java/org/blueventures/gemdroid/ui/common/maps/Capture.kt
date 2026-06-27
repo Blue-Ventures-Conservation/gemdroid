@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +56,7 @@ object Capture {
         val classes: List<BVClass>
         val capturedCollection: GeojsonPolygonFeatureCollection
 
-        fun capture(craClass: BVClass, polygon: List<LatLng>)
+        fun capture(craClass: BVClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit)
     }
 
     @OptIn(FlowPreview::class)
@@ -97,11 +98,18 @@ object Capture {
     @GoogleMapComposable
     fun Display(model: Model, captureState: MutableState<CaptureState>) {
         captureState.value.doCapture?.let {
-            CaptureDialog(model, {
+            val onDismiss = {
                 captureState.value = captureState.value.copy(doCapture = null)
-            }) { craClass ->
+            }
+            val context = LocalContext.current.applicationContext
+            CaptureDialog(model, onDismiss) { craClass ->
                 optsFromState(captureState.value.center, captureState.value.shape)?.points?.let { polygon ->
-                    model.capture(craClass, polygon)
+                    model.capture(craClass, polygon) { result ->
+                        when {
+                            result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
+                            else -> onDismiss()
+                        }
+                    }
                 }
             }
         }
@@ -157,7 +165,9 @@ object Capture {
             onDismissRequest = onDismiss,
             title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
             text = {
-                Column(modifier = Modifier.padding(bottom = 16.dp).verticalScroll(rememberScrollState())) {
+                Column(modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .verticalScroll(rememberScrollState())) {
                     Rad.InnerIo(model.classes, choice, setChoice) { bvClass ->
                         bvClass.stringID()
                     }
@@ -165,7 +175,6 @@ object Capture {
             },
             confirmButton = {
                 Butt.Text(stringResource(R.string.capture), choice != null) {
-                    onDismiss()
                     choice?.let { onCapture(it) }
                 }
             },
@@ -181,7 +190,9 @@ object Capture {
             onDismissRequest = onDismiss,
             title = { Text(text = stringResource(R.string.finish_and_upload_your_cras)) },
             text = {
-                Column(modifier = Modifier.padding(bottom = 16.dp).verticalScroll(rememberScrollState())) {
+                Column(modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .verticalScroll(rememberScrollState())) {
                     Text(text = stringResource(R.string.your_cras_are_as_follows))
                     model.classes.forEach { bvClass ->
                         val count = model.capturedCollection.intPropertyCount(classNumberPropertyKey, bvClass.number)

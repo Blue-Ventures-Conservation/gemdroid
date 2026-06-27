@@ -64,10 +64,10 @@ class ClassificationViewModel(
             api.classification(roi)
         }
     }
-    fun saveClassificationFile(urls: ClassificationURLs) = saveFile(urlsFile(roiDir), urls, ClassificationURLs.Companion)
+    fun saveClassificationFile(urls: ClassificationURLs, callback: (Result<Unit>) -> Unit) = saveFile(urlsFile(roiDir), urls, ClassificationURLs.Companion, callback)
     fun loadClassificationFile(callback: (Result<ClassificationURLs>) -> Unit) = loadFile(urlsFile(roiDir), ClassificationURLs.Companion, callback)
 
-    fun saveExports(exports: ClassificationExports) = saveFile(exportsFile(roiDir), exports, ClassificationExports.Companion)
+    fun saveExports(exports: ClassificationExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ClassificationExports.Companion, callback)
     fun loadExports(callback: (Result<ClassificationExports>) -> Unit) = loadFile(exportsFile(roiDir), ClassificationExports.Companion, callback)
     fun getExports(callback: (ApiResult<ClassificationExports>) -> Unit) {
         exportsJobs = getRemote(exportsJobs, makeClassificationROI(), { result ->
@@ -91,7 +91,7 @@ class ClassificationViewModel(
         roi,
     )
 
-    fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir), results)
+    fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
     fun getResults(exports: ClassificationExports, callback: (ApiResult<TasksResults>) -> Unit) {
         statusJob = getRemote(statusJob, Tasks(listOf(exports.contemporary.name, exports.historical.name)), callback) { api, tasks ->

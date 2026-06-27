@@ -23,7 +23,7 @@ object Layers {
 
         abstract fun tileDir(i: Int): File
         abstract fun getRemote(callback: (ApiResult<T>) -> Unit)
-        abstract fun save(urls: T): Job
+        abstract fun save(urls: T, callback: (Result<Unit>) -> Unit)
 
         fun tileOpts(index: Int, urls: T): TileOverlayOptions {
             return TileOverlayOptions().tileProvider(
@@ -50,7 +50,7 @@ object Layers {
             model.getRemote { result ->
                 if (result is ApiResult.Success) {
                     val data = result.data!!
-                    model.save(data)
+                    model.save(data) {}
                     setUrls(data)
                 }
             }

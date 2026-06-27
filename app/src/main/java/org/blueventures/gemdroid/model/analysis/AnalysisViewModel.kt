@@ -7,7 +7,6 @@ import androidx.activity.viewModels
 import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.analysis.CompositesAssessed
@@ -82,14 +81,18 @@ class AnalysisViewModel(
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = loadFile(roiFile(roiDir), ROI.Companion, callback)
-    fun saveROI(roi: ROI) = saveFile(roiFile(roiDir), roi, ROI.Companion)
+    fun saveROI(roi: ROI, callback: (Result<Unit>) -> Unit) = saveFile(roiFile(roiDir), roi, ROI.Companion, callback)
 
     override fun parentDir() = roiDir
     override fun tileDir(i: Int) = tileDirs()[i]
 
-    override fun saveVisualizeURLsFile(urls: VisualizeURLs): Job {
-        scoped { repo.makeVisualizeTileDirs(roiDir).collect() }
-        return saveFile(urlsFile(roiDir), urls, VisualizeURLs.Companion)
+    override fun saveVisualizeURLsFile(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) {
+        scoped { repo.makeVisualizeTileDirs(roiDir).collect { result ->
+            when {
+                result.isFailure -> callback(result)
+                else -> saveFile(urlsFile(roiDir), urls, VisualizeURLs.Companion, callback)
+            }
+        }}
     }
     override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = loadFile(urlsFile(roiDir), VisualizeURLs.Companion, callback)
     override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
@@ -108,7 +111,7 @@ class AnalysisViewModel(
         }
     }
 
-    fun saveExports(exports: ImageryExports) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion)
+    fun saveExports(exports: ImageryExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion, callback)
     fun loadExports(callback: (Result<ImageryExports>) -> Unit) = loadFile(exportsFile(roiDir), ImageryExports.Companion, callback)
     fun getExports(visualize: Boolean, callback: (ApiResult<ImageryExports>) -> Unit) {
         exportsJob = getRemote(exportsJob, roi.copy(visualize = visualize), { result ->
@@ -122,7 +125,7 @@ class AnalysisViewModel(
         }
     }
 
-    fun saveResults(results: TasksResults) = saveResults(resultsFile(roiDir), results)
+    fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
     fun getResults(exports: ImageryExports, callback: (ApiResult<TasksResults>) -> Unit) {
         statusJob = getRemote(statusJob, Tasks(listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)), callback) { api, tasks ->
@@ -148,7 +151,7 @@ class AnalysisViewModel(
         deleteFile(exportsFile(roiDir))
     }
 
-    fun saveCompositesAssessedFile() = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion)
+    fun saveCompositesAssessedFile(callback: (Result<Unit>) -> Unit) = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion, callback)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
     override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit): Job {

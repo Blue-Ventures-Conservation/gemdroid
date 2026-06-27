@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -18,9 +17,9 @@ object Visualize {
     interface Visualizer {
         fun parentDir(): File
         fun tileDir(i: Int): File
-        fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit): Job
+        fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit)
         fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
-        fun saveVisualizeURLsFile(urls: VisualizeURLs): Job
+        fun saveVisualizeURLsFile(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit)
     }
 
     @Composable
@@ -46,7 +45,7 @@ object Visualize {
 
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
-                    override fun save(urls: VisualizeURLs) = visualizer.saveVisualizeURLsFile(urls)
+                    override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
                 }, draw, poly, capture, next)
             }
         } else {
