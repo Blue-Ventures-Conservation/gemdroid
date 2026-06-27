@@ -33,7 +33,10 @@ object ContemporaryMonths {
         }
 
         forceLandsat?.let { force ->
-            ImageryDialog(viewModel, viewModel.shouldUseS2(), force, next)
+            ImageryDialog(viewModel, viewModel.shouldUseS2(), force) {
+                setForceLandsat(null)
+                next()
+            }
         }
     }
 

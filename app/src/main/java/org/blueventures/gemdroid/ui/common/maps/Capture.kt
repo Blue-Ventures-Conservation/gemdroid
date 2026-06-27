@@ -115,9 +115,11 @@ object Capture {
         }
 
         captureState.value.maybeDone?.let {
-            MaybeDoneDialog(model, {
+            val onDismiss = {
                 captureState.value = captureState.value.copy(maybeDone = null)
-            }) {
+            }
+            MaybeDoneDialog(model, onDismiss) {
+                onDismiss()
                 model.done()
             }
         }
