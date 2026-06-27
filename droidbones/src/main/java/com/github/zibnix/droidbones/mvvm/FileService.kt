@@ -107,6 +107,7 @@ object FileService {
 
     fun deleteFile(file: File): Result<Unit> {
         return try {
+            if (!file.exists()) return Result.success(Unit)
             if (file.delete()) {
                 Result.success(Unit)
             } else {

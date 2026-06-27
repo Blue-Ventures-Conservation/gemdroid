@@ -261,8 +261,7 @@ class CRAViewModel(
         val classCountList = capturedCollection.countClasses()
         val classCounts = ClassCounts(chosenCounts = classCountList)
         val timestamp = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault()).format(Date())
-        val noExt = createdCRAFile.substringBeforeLast(".")
-        val newName = "${noExt}_${timestamp}.geojson"
+        val newName = "${sanitize(roi.name)}_${timestamp}.geojson"
         renameFile(createdCRAFile(roiDir), newName) { renameResult ->
             when {
                 renameResult.isFailure -> callback(renameResult)
@@ -288,6 +287,8 @@ class CRAViewModel(
         }
     }
 }
+
+private fun sanitize(name: String) = name.lowercase().replace(" ", "_")
 
 /**
  * Answers to the question: Are historical CRAs available?
