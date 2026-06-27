@@ -5,13 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.contLCTileDir
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.exportsFile

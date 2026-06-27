@@ -16,17 +16,17 @@ class AnalysisDatasource(
             when {
                 atCompositesStage(roiDir) -> Stage.COMPOSITES
                 atCRAsStage(roiDir) -> Stage.CRAS
-                !File(File(roiDir, ClassificationDatasource.classificationDir), ClassificationDatasource.classificationURLsFile).exists() -> Stage.CLASSIFICATION
+                !ClassificationDatasource.urlsFile(roiDir).exists() -> Stage.CLASSIFICATION
                 else -> Stage.ALL
             }
-        } catch(e: Exception) {
+        } catch(_: Exception) {
             Stage.ERROR
         }
     }
 
     // composites stage was added in 1.4.2, so we check that we're also at the CRAs stage
-    private fun atCompositesStage(roiDir: File) = !File(roiDir, compositeAssessedFile).exists() && atCRAsStage(roiDir)
-    private fun atCRAsStage(roiDir: File) = !File(File(roiDir, CRADatasource.crasDir), CRADatasource.crasFile).exists()
+    private fun atCompositesStage(roiDir: File) = !compositesAssessedFile(roiDir).exists() && atCRAsStage(roiDir)
+    private fun atCRAsStage(roiDir: File) = !CRADatasource.crasFile(roiDir).exists()
 
     fun makeVisualizeTileDirs(roiDir: File): Result<Unit> {
         visualizeTileDirs.forEach { subdir ->

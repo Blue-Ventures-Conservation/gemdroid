@@ -1,13 +1,10 @@
-package org.blueventures.gemdroid.model.analysis.cra
+package org.blueventures.gemdroid.data.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService.sep
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
-import org.blueventures.gemdroid.data.shp.ClassCount
-import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import java.io.File
 
 // This class holds data that may come from local parsing or from fetching details from remote.
-data class CRAFile(
+data class LocalOrRemoteCRAFile(
     var isShapefile: Boolean = true,
     var eeUploadName: String? = null,
     var overwrite: Boolean = false,
@@ -15,7 +12,7 @@ data class CRAFile(
     val localFile: File? = null,
     val counted: FieldsCounts = FieldsCounts(),
 ) {
-    fun equivalent(o: CRAFile): Boolean {
+    fun equivalent(o: LocalOrRemoteCRAFile): Boolean {
         val remote = (storageKey != null && storageKey == o.storageKey)
         val local = (localFile != null && localFile.path == o.localFile?.path)
         return remote || local
@@ -24,35 +21,13 @@ data class CRAFile(
     fun key() = storageKey ?: localFile?.path?.substringAfterLast(sep)?.substringBeforeLast(".") ?: ""
     fun shpKey() = if (isShapefile) key() else  null
     fun jsonKey() = if (!isShapefile) key() else null
+    fun filetypes() = if (isShapefile) "shps" else "geojsons"
+    fun ext() = if (isShapefile) "shp" else "geojson"
 
     fun readyToUpload() = isLocal() && counted.complete()
     fun isLocal() = localFile != null && storageKey == null
     fun isRemote() = localFile == null && storageKey != null
     fun badFinalState() = (!isRemote() && !readyToUpload()) || (isRemote() && !counted.complete())
-
-    companion object {
-        fun toCRA(cont: CRAFile, hist: CRAFile?): ContemporaryAndHistoricalCRAs {
-            val histShp = if (hist == null) null else RemoteCRAFileInfo(
-                hist.shpKey(),
-                hist.jsonKey(),
-                hist.eeUploadName!!,
-                hist.counted.fields.chosenNumeric!!,
-                hist.counted.fields.chosenString!!,
-                hist.counted.fields.chosenStringValues!!,
-                hist.counted.counts.stringCounts.chosenCounts
-            )
-            val contShp = RemoteCRAFileInfo(
-                cont.shpKey(),
-                cont.jsonKey(),
-                cont.eeUploadName!!,
-                cont.counted.fields.chosenNumeric!!,
-                cont.counted.fields.chosenString!!,
-                cont.counted.fields.chosenStringValues!!,
-                cont.counted.counts.stringCounts.chosenCounts
-            )
-            return ContemporaryAndHistoricalCRAs(histShp, contShp)
-        }
-    }
 }
 
 data class BothFieldsCounted(
@@ -71,6 +46,7 @@ data class FieldsCounts(
     fun complete() = fields.complete()
 }
 
+// numericCounts has data only when it has been parsed from a local file
 data class StringsNumerics(
     var stringCounts: ClassCounts = ClassCounts(),
     var numericCounts: ClassCounts = ClassCounts(),
@@ -84,33 +60,30 @@ data class ClassCounts(
 ) {
     fun parsedLocally() = counts.isNotEmpty()
 
-    fun getChosen(chosen: String, nums: Map<String, Int>): List<ClassCount> {
+    fun getChosenCounts(chosen: String, nums: Map<String, Int>?): List<ClassCount> {
         val count = counts[chosen]!!
 
-        for (cc in count) {
-            val num = nums[cc.className]!!
-            cc.classNumber = num
+        if (nums != null) {
+            for (cc in count) {
+                if (cc.classNumber == Int.MIN_VALUE) {
+                    cc.classNumber = nums[cc.className]!!
+                }
+            }
         }
 
         return count.sortedBy { it.classNumber }
     }
 
-    fun getChosenNumericValues(chosen: String): List<String> {
-        val count = counts[chosen]!!
-
-        for (cc in count) {
-            cc.classNumber = cc.className.toInt()
-        }
-
-        return count.sortedBy { it.classNumber }.map { it.className }
-    }
+    fun getChosenNumerics(chosen: String) = counts[chosen]!!.map { it.classNumber }
 }
 
 data class Fields(
+    // locally parsed
     val numerics: List<String>? = null,
     val strings: List<String>? = null,
     val stringValues: Map<String, List<String>>? = null,
-    val numericValues: Map<String, List<String>>? = null,
+    val numericValues: Map<String, List<Int>>? = null,
+    // locally parsed and stored remotely
     val chosenNumeric: String? = null,
     val chosenString: String? = null,
     val chosenStringValues: List<String>? = null,

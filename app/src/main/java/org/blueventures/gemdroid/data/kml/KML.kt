@@ -37,7 +37,7 @@ object KML {
         try {
             kmlStream = FileInputStream(kmlPath)
             bis = BufferedInputStream(kmlStream)
-            val polysResult = parseKml(bis)
+            val polysResult = parse(bis)
             if (polysResult.isFailure) return Result.failure(polysResult.exceptionOrNull()!!)
             val placemarks = polysResult.getOrNull()!!
 
@@ -98,7 +98,7 @@ object KML {
             "viewRefreshTime|when"
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun parseKml(stream: InputStream): Result<List<KmlPolygon>> {
+    private fun parse(stream: InputStream): Result<List<KmlPolygon>> {
         val parser = createXmlParser(stream)
         var eventType = parser.eventType
         val polys = mutableListOf<KmlPolygon>()

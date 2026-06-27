@@ -164,10 +164,8 @@ object Maps {
         next: FloatingNext?,
     ) {
         val checkers = remember { mutableListOf<Checker>() }
-        if (checkers.isEmpty()) {
-            layers?.let {
-                Layers.checkers(layers, checkers)
-            }
+        if (layers != null && checkers.isEmpty()) {
+            Layers.checkers(layers, checkers)
         }
 
         val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }

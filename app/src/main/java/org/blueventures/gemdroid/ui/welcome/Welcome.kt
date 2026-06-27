@@ -6,7 +6,6 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.model.settings.SettingsViewModel
-import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.roi.Roi
@@ -54,7 +53,7 @@ object Welcome {
         b.backHandler(Routes.final, nav::popBackStack) {
             Final.Screen(appBar) {
                 viewModel.setWelcomeShown(activity, true)
-                nav.popClear(Roi.Routes.list)
+                nav.popBackStack(Roi.Routes.list, false)
             }
         }
     }

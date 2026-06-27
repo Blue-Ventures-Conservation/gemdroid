@@ -33,7 +33,7 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.Rectangle
 import org.blueventures.gemdroid.data.analysis.BVClass
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
+import org.blueventures.gemdroid.data.classNumberPropertyKey
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Info

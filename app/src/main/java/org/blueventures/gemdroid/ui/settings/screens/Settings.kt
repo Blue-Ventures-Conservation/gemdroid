@@ -16,8 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.auth
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.versionString
 import org.blueventures.gemdroid.model.settings.SettingsViewModel

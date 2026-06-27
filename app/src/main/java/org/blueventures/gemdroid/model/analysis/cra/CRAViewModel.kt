@@ -1,27 +1,38 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
+import android.icu.text.SimpleDateFormat
 import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.analysis.BVClass
+import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
+import org.blueventures.gemdroid.data.analysis.cra.ClassCount
+import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.Fields
+import org.blueventures.gemdroid.data.analysis.cra.FieldsCounts
+import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
+import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
+import org.blueventures.gemdroid.data.classNamePropertyKey
+import org.blueventures.gemdroid.data.classNumberPropertyKey
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.data.shp.ClassCount
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
-import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.createdCRAFile
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.renamedCreatedCRAFile
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import java.io.File
 import java.io.InputStream
+import java.util.Date
+import java.util.Locale
 
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
@@ -31,12 +42,12 @@ class CRAViewModel(
     var roiDir = File("")
     var roi: ROI = ROI()
     var visualizer: Visualize.Visualizer? = null
-    var historicalCRA: CRAFile? = null
-    var contemporaryCRA = CRAFile()
+    var historicalCRA: LocalOrRemoteCRAFile? = null
+    var contemporaryCRA = LocalOrRemoteCRAFile()
     var historicalChoice = HistoricalChoice.SEPARATE
         set(choice) {
             field = choice
-            var hist: CRAFile? = null
+            var hist: LocalOrRemoteCRAFile? = null
             if (choice == HistoricalChoice.CONTEMPORARY) hist = contemporaryCRA
             historicalCRA = hist
         }
@@ -46,10 +57,14 @@ class CRAViewModel(
         this.grouper = grouper
     }
 
+    fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(createdCRAFile(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)
+    fun saveLocallyCreatedCRAFile() = saveFile(createdCRAFile(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion)
+    fun deleteLocallCreatedCRAFile(callback: (Result<Unit>) -> Unit) = deleteFile(createdCRAFile(roiDir), callback)
+
     private var uploadJob: Job? = null
 
     fun getRemoteCRAs(callback: (Result<List<String>>) -> Unit) = scoped { repo.getRemoteCRAs().collect(callback) }
-    fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean, callback: (Result<CRAFile>) -> Unit) = scoped {
+    fun validateLocalCRA(files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean, callback: (Result<LocalOrRemoteCRAFile>) -> Unit) = scoped {
         repo.validateLocalCRA(roiDir, files, names, remoteCRAs, previous, overwrite).collect(callback)
     }
 
@@ -94,36 +109,36 @@ class CRAViewModel(
         }
     }
 
-    private fun ingestContemporary(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit) {
+    private fun ingestContemporary(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit) {
         skipUpload(cont, hist, callback, repo.ingestCRA(cont), repo.uploadFields(cont))
     }
 
-    private fun uploadContemporary(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit) {
+    private fun uploadContemporary(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit) {
         uploadIngest(cont, cont, hist, callback, repo.ingestCRA(cont))
     }
 
     // we ingest both here, because ingestion can fail somewhat silently
-    private fun uploadEither(upload: CRAFile, cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
+    private fun uploadEither(upload: LocalOrRemoteCRAFile, cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
         uploadIngest(upload, cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist))
     }
 
-    private fun uploadIngest(upload: CRAFile, cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>) {
+    private fun uploadIngest(upload: LocalOrRemoteCRAFile, cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>) {
         uploadIngestFields(cont, hist, callback, repo.uploadCRA(upload), ingest, repo.uploadFields(upload))
     }
 
-    private fun uploadBoth(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
+    private fun uploadBoth(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
         uploadIngestFields(cont, hist, callback, repo.uploadCRAs(cont, hist), repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
     }
 
-    private fun ingestBoth(cont: CRAFile, hist: CRAFile, callback: (Result<Unit>) -> Unit) {
+    private fun ingestBoth(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile, callback: (Result<Unit>) -> Unit) {
         skipUpload(cont, hist, callback, repo.ingestCRAs(roiDir, cont, hist), repo.uploadFields(cont, hist))
     }
 
-    private fun skipUpload(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
+    private fun skipUpload(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
         uploadIngestFields(cont, hist, callback, flow { emit(Result.success(Unit)) }, ingest, fields)
     }
 
-    private fun uploadIngestFields(cont: CRAFile, hist: CRAFile?, callback: (Result<Unit>) -> Unit, upload: Flow<Result<Unit>>, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
+    private fun uploadIngestFields(cont: LocalOrRemoteCRAFile, hist: LocalOrRemoteCRAFile?, callback: (Result<Unit>) -> Unit, upload: Flow<Result<Unit>>, ingest: Flow<Result<Unit>>, fields: Flow<Result<Unit>>) {
         uploadJob = resultWithToken<Unit>(uploadJob, flow {
             upload.collect { result ->
                 when {
@@ -131,7 +146,7 @@ class CRAViewModel(
                         when {
                             res.isSuccess -> fields.collect { r ->
                                 when {
-                                    r.isSuccess -> repo.saveCRAs(roiDir, CRAFile.toCRA(cont, hist)).collect { emit(it) }
+                                    r.isSuccess -> repo.saveCRAs(roiDir, hist, cont).collect { emit(it) }
                                     else -> emit(r)
                                 }
                             } else -> emit(res)
@@ -147,22 +162,16 @@ class CRAViewModel(
 
     fun clearState() { clearHistoricalChoice() }
 
-    fun handleLocalCounts(counts: StringsNumerics, chosenString: String, chosenStrings: List<String>, chosenNumeric: String, chosenNumerics: List<String>): Pair<List<ClassCount>, Int?> {
-        val zipped = chosenNumerics.map { it.toInt() }.zip(chosenStrings)
+    fun handleLocalCounts(counts: StringsNumerics, chosenString: String, chosenStrings: List<String>, chosenNumeric: String, chosenNumerics: List<Int>): Pair<List<ClassCount>, Int?> {
+        val zipped = chosenNumerics.zip(chosenStrings)
         val strAssociated = zipped.associateByTo(mutableMapOf(), {
             it.second
         }) {
             it.first
         }
 
-        val numAssociated = chosenNumerics.associateByTo(mutableMapOf(), {
-            it
-        }) {
-            it.toInt()
-        }
-
-        val strings = counts.stringCounts.getChosen(chosenString, strAssociated)
-        val numbers = counts.numericCounts.getChosen(chosenNumeric, numAssociated)
+        val strings = counts.stringCounts.getChosenCounts(chosenString, strAssociated)
+        val numbers = counts.numericCounts.getChosenCounts(chosenNumeric, null)
         compareFields(strings, numbers)?.let { msg ->
             return Pair(emptyList(), msg)
         }
@@ -234,6 +243,44 @@ class CRAViewModel(
                 classNumberPropertyKey to craClass.number,
             )
         ))
+        saveLocallyCreatedCRAFile()
+    }
+
+    fun continueExisting(fc: GeojsonPolygonFeatureCollection) {
+        capturedFeatures.clear()
+        capturedFeatures.addAll(fc.features)
+    }
+
+    fun processAndSaveCapturedCRAs(callback: (Result<Unit>) -> Unit) {
+        historicalCRA = null
+        val classCountList = capturedCollection.countClasses()
+        val classCounts = ClassCounts(chosenCounts = classCountList)
+        val timestamp = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault()).format(Date())
+        val noExt = createdCRAFile.substringBeforeLast(".")
+        val newName = "${noExt}_${timestamp}.geojson"
+        renameFile(createdCRAFile(roiDir), newName) { renameResult ->
+            when {
+                renameResult.isFailure -> callback(renameResult)
+                else -> {
+                    contemporaryCRA = LocalOrRemoteCRAFile(
+                        false,
+                        null,
+                        false,
+                        null,
+                        renamedCreatedCRAFile(roiDir, newName),
+                        FieldsCounts(
+                            Fields(
+                                chosenNumeric = classNumberPropertyKey,
+                                chosenString = classNamePropertyKey,
+                                chosenStringValues = classCountList.map { it.className },
+                            ),
+                            StringsNumerics(classCounts, classCounts)
+                        )
+                    )
+                    saveCRAs(callback)
+                }
+            }
+        }
     }
 }
 

@@ -9,35 +9,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.model.analysis.cra.BothFieldsCounted
+import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
+import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
+import org.blueventures.gemdroid.data.analysis.cra.Fields
+import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
-import org.blueventures.gemdroid.model.analysis.cra.ClassCounts
-import org.blueventures.gemdroid.model.analysis.cra.Fields
-import org.blueventures.gemdroid.model.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.PleaseWait
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.Once
 
 object CRAFields {
     @Composable
-    fun Screen(viewModel: CRAViewModel, snack: SnackFun, back: Click, done: Click, giveUp: Click) {
+    fun Screen(viewModel: CRAViewModel, snack: SnackFun, back: Click, done: Click) {
         val (saving, setSaving) = remember{ mutableStateOf(false) }
 
         if (saving) {
             PleaseWait()
         } else {
-            CRAFields(viewModel, snack, setSaving, back, done, giveUp)
+            CRAFields(viewModel, snack, setSaving, back, done)
         }
     }
 
     @Composable
-    fun CRAFields(viewModel: CRAViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, back: Click, done: Click, giveUp: Click) {
+    fun CRAFields(viewModel: CRAViewModel, snack: SnackFun, setSaving: (Boolean) -> Unit, back: Click, done: Click) {
         val (bothFields, setBothFields) = remember { mutableStateOf<Result<BothFieldsCounted>?>(null) }
 
         when {
@@ -51,7 +51,7 @@ object CRAFields {
                 Progress()
                 val msg = bothFields.exceptionOrNull()!!.localized(LocalContext.current)
                 snack.Once(msg)
-                giveUp()
+                done()
             }
             else -> {
                 val both = bothFields.getOrNull()!!
@@ -63,21 +63,23 @@ object CRAFields {
 
                         // fields are complete, so it is only possible for one
                         // or zero of the CRAs to have been parsed locally
+                        // if both were parsed locally, we wouldn't know the fields yet
+                        // if one is remote and one is parsed locally, we are using the fields from the remote
                         if (both.histCounts.parsedLocally()) {
-                            val hp = viewModel.handleLocalCounts(both.histCounts, both.fields.chosenString!!, both.fields.chosenStringValues!!, both.fields.chosenNumeric!!, both.histCounts.numericCounts.getChosenNumericValues(both.fields.chosenNumeric))
+                            val hp = viewModel.handleLocalCounts(both.histCounts, both.fields.chosenString!!, both.fields.chosenStringValues!!, both.fields.chosenNumeric!!, both.histCounts.numericCounts.getChosenNumerics(both.fields.chosenNumeric))
                             if (hp.second != null) {
                                 gaveUp = true
                                 snack(ctx.getString(hp.second!!).format(ctx.getString(R.string.historical)))
-                                giveUp()
+                                done()
                             } else {
                                 both.histCounts.stringCounts = ClassCounts(chosenCounts = hp.first)
                             }
                         } else if (both.contCounts.parsedLocally()) {
-                            val cp = viewModel.handleLocalCounts(both.contCounts, both.fields.chosenString!!, both.fields.chosenStringValues!!, both.fields.chosenNumeric!!, both.contCounts.numericCounts.getChosenNumericValues(both.fields.chosenNumeric))
+                            val cp = viewModel.handleLocalCounts(both.contCounts, both.fields.chosenString!!, both.fields.chosenStringValues!!, both.fields.chosenNumeric!!, both.contCounts.numericCounts.getChosenNumerics(both.fields.chosenNumeric))
                             if (cp.second != null) {
                                 gaveUp = true
                                 snack(ctx.getString(cp.second!!).format(ctx.getString(R.string.contemporary)))
-                                giveUp()
+                                done()
                             } else {
                                 both.contCounts.stringCounts = ClassCounts(chosenCounts = cp.first)
                             }
@@ -90,7 +92,7 @@ object CRAFields {
                                 viewModel.compareCRAs(chosenHistCounts, chosenContCounts)?.let {
                                     gaveUp = true
                                     snack(ctx.getString(it))
-                                    giveUp()
+                                    done()
                                 }
                             }
 
@@ -109,14 +111,14 @@ object CRAFields {
                         }
                     }
                 } else {
-                    SelectFields(viewModel, both, setSaving, snack, back, done, giveUp)
+                    SelectFields(viewModel, both, setSaving, snack, back, done)
                 }
             }
         }
     }
 
     @Composable
-    fun SelectFields(viewModel: CRAViewModel, both: BothFieldsCounted, setSaving: (Boolean) -> Unit, snack: SnackFun, back: Click, done: Click, giveUp: Click) {
+    fun SelectFields(viewModel: CRAViewModel, both: BothFieldsCounted, setSaving: (Boolean) -> Unit, snack: SnackFun, back: Click, done: Click) {
         Col.Col {
             val strings = both.fields.strings!!
             val numerics = both.fields.numerics!!
@@ -144,22 +146,22 @@ object CRAFields {
                     val histCountsPair = viewModel.handleLocalCounts(both.histCounts, chosenString, chosenStrings, chosenNumeric, chosenNumerics)
                     histCountsPair.second?.let {
                         snack(ctx.getString(it).format(ctx.getString(R.string.historical)))
-                        giveUp()
+                        done()
                     } ?: run {
                         val contsCountsPair = viewModel.handleLocalCounts(both.contCounts, chosenString, chosenStrings, chosenNumeric, chosenNumerics)
                         contsCountsPair.second?.let {
                             snack(ctx.getString(it).format(ctx.getString(R.string.contemporary)))
-                            giveUp()
+                            done()
                         } ?: run {
                             val chosenHistCounts = histCountsPair.first
                             val chosenContCounts = contsCountsPair.first
 
                             viewModel.compareCRAs(chosenHistCounts, chosenContCounts)?.let {
                                 snack(ctx.getString(it))
-                                giveUp()
+                                done()
                             } ?: run {
                                 setSaving(true)
-                                val zipped = chosenNumerics.map { it.toInt() }.zip(chosenStrings)
+                                val zipped = chosenNumerics.zip(chosenStrings)
                                 viewModel.setFields(BothFieldsCounted(
                                     Fields(chosenNumeric = chosenNumeric, chosenString = chosenString, chosenStringValues = zipped.sortedBy { it.first }.map { it.second }),
                                     StringsNumerics(ClassCounts(chosenCounts = chosenHistCounts)),

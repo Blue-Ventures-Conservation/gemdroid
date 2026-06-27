@@ -360,4 +360,8 @@
     <string name="please_create_some_cras_before_tapping_the_done_button">Please create some CRAs before tapping the done button!</string>
     <string name="i_m_done_drawing_let_s_go_to_the_next_screen">I\'m done drawing, let\'s go to the next screen.</string>
     <string name="clear_the_currently_drawn_polygon">Clear the currently drawn polygon.</string>
+    <string name="there_are_already_cras_created_for_this_project">There are already CRAs created for this project. Would you like to continue adding CRAs to that group, or start over?</string>
+    <string name="continue_where_i_left_off">Continue where I left off.</string>
+    <string name="caution_you_won_t_be_able_to_create_again">Caution: You won\'t be able to create the CRA for this project again!\n\nShould we save it and move on?</string>
+    <string name="save_and_move_on">Save and Move On</string>
 </resources>

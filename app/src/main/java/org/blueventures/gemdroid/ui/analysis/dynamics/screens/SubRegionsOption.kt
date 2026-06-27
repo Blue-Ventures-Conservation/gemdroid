@@ -8,8 +8,8 @@ import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
-import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.Once
+import org.blueventures.gemdroid.ui.common.SnackFun
 
 object SubRegionsOption {
     @Composable

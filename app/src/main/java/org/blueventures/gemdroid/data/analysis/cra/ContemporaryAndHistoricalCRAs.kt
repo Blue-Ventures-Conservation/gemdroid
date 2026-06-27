@@ -1,8 +1,7 @@
-package org.blueventures.gemdroid.data
+package org.blueventures.gemdroid.data.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
-import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import java.io.File
 
 /**

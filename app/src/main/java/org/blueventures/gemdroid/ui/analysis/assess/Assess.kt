@@ -4,7 +4,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.assess.screens.Composites
 import org.blueventures.gemdroid.ui.analysis.assess.screens.Description
@@ -24,7 +23,7 @@ object Assess {
 
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: AnalysisViewModel, roiViewModel: RoiViewModel, appBar: AppBar, snack: SnackFun) {
         b.backHandler(Routes.assess_description, {
-            nav.popClear(Analysis.Routes.dashboard)
+            nav.popBackStack(Analysis.Routes.dashboard, false)
         }) { back ->
             Description.Screen(viewModel, roiViewModel, appBar, snack, back) {
                 nav.navigate(Routes.assess_composites)
@@ -39,7 +38,7 @@ object Assess {
 
         b.backHandler(Routes.edits_needed, nav::popBackStack) {
             FitForPurpose.Screen(viewModel, roiViewModel, appBar, {
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.popBackStack(Analysis.Routes.dashboard, false)
             }) {
                 nav.navigate(Roi.Routes.historicalYears)
             }

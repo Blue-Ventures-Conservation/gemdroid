@@ -22,6 +22,7 @@ open class ApiRepository(
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S) = goFlow { datasource.loadFile(file, serializer) }
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = goFlow { datasource.saveFile(file, data, serializer) }
     fun deleteFile(file: File) = goFlow { datasource.deleteFile(file) }
+    fun renameFile(file: File, newName: String) = goFlow { datasource.renameFile(file, newName) }
 
     fun <T> read(context: Context, callback: (Preferences) -> T) = context.dataStore.data.catch {
         emit(emptyPreferences())

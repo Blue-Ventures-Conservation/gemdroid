@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
@@ -130,15 +129,6 @@ fun GEMTheme(activity: ComponentActivity, settingsModel: SettingsViewModel, anal
                 Roi.screens(this, nav, activity, roiModel, analysisModel, appBar, snack)
                 Analysis.screens(this, nav, analysisModel, roiModel, appBar, snack)
             }
-        }
-    }
-}
-
-fun NavHostController.popClear(route: String) {
-    val controller = this
-    navigate(route) {
-        popUpTo(controller.graph.id) {
-            inclusive = true
         }
     }
 }

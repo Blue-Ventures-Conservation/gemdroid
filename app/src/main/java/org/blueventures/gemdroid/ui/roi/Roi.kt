@@ -9,7 +9,6 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
 import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.maxExcludedRegions
 import org.blueventures.gemdroid.model.roi.RoiViewModel
-import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.assess.Assess
 import org.blueventures.gemdroid.ui.common.AppBar
@@ -159,9 +158,9 @@ object Roi {
                 viewModel.clearState()
 
                 if (viewModel.isAssessmentEditor) {
-                    nav.popClear(Assess.Routes.assess_description)
+                    nav.popBackStack(Assess.Routes.assess_description, false)
                 } else {
-                    nav.popClear(Routes.list)
+                    nav.popBackStack(Routes.list, false)
                 }
             }
         }

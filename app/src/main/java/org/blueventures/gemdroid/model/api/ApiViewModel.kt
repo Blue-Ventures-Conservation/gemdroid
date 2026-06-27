@@ -35,6 +35,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S, callback: (Result<T>) -> Unit) = scoped { repo.loadFile(file, serializer).collect(callback) }
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.saveFile(file, data, serializer).collect(callback) }
     fun deleteFile(file: File, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.deleteFile(file).collect(callback) }
+    fun renameFile(file: File, newName: String, callback: (Result<Unit>) -> Unit = {}) = scoped { repo.renameFile(file, newName).collect(callback) }
 
     fun saveResults(file: File, results: TasksResults) = saveFile(file, results, TasksResults.Companion)
     fun loadResults(file: File, callback: (Result<TasksResults>) -> Unit) = loadFile(file, TasksResults.Companion, callback)

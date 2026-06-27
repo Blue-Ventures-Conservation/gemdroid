@@ -9,7 +9,6 @@ import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
@@ -22,6 +21,7 @@ import org.blueventures.gemdroid.data.analysis.BVClassColors.BVRed
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI

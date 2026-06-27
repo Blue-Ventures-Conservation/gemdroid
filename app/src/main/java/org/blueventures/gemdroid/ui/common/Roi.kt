@@ -11,14 +11,14 @@ import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.PolygonUtils.hectaresString
 import org.blueventures.gemdroid.data.analysis.BVClass
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.RemoteCRAFileInfo
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.ui.common.Col.DashboardButton
 
 object Roi {

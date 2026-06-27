@@ -16,14 +16,21 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.Regexp
+import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
+import org.blueventures.gemdroid.data.analysis.cra.ClassCount
+import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.Fields
+import org.blueventures.gemdroid.data.analysis.cra.FieldsCounts
+import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
+import org.blueventures.gemdroid.data.analysis.cra.RemoteCRAFileInfo
+import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.data.analysis.cra.Success
 import org.blueventures.gemdroid.data.analysis.cra.UploadName
 import org.blueventures.gemdroid.data.polyfile.PolyFile
-import org.blueventures.gemdroid.data.shp.ClassCount
-import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
+import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
@@ -31,6 +38,7 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.io.NotActiveException
 import kotlin.coroutines.resume
 
 // TODO: go through this file and anywhere that accesses /shps for a user, make sure it knows how to handle that alternate json path as well
@@ -39,9 +47,25 @@ class CRADatasource(
     private val auth: FirebaseAuth = Firebase.auth,
     private val storage: FirebaseStorage = Firebase.storage,
 ): ApiDatasource(api, auth, storage) {
-    suspend fun getRemoteCRAs(): Result<List<String>> = suspendCancellableCoroutine { resumer ->
+    suspend fun getRemoteCRAs(): Result<List<String>> {
+        var shpsRes: Result<List<String>> = Result.failure(SignIn.not)
+        var geojsonsRes: Result<List<String>> = Result.failure(SignIn.not)
+        coroutineScope {
+            shpsRes = getRemoteCRAList("shps")
+            geojsonsRes = getRemoteCRAList("geojsons")
+        }
+
+        val err = resultCheck(shpsRes, geojsonsRes)
+        if (err != null) return Result.failure(err)
+
+        return Result.success(shpsRes.getOrNull()!!.toMutableList().apply {
+            addAll(geojsonsRes.getOrNull()!!)
+        })
+    }
+
+    private suspend fun getRemoteCRAList(filetypes: String): Result<List<String>> = suspendCancellableCoroutine { resumer ->
         auth.currentUser?.uid?.let { uid ->
-            storage.reference.child("users/$uid/shps").listAll()
+            storage.reference.child("users/$uid/$filetypes").listAll()
                 .addOnSuccessListener { result ->
                     val files = mutableListOf<String>()
                     result.items.forEach {
@@ -59,29 +83,29 @@ class CRADatasource(
         }
     }
 
-    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<CRAFile> {
+    fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<LocalOrRemoteCRAFile> {
         val crasDir = File(roiDir, crasDir)
         return validateShapes(crasDir, files, names, remoteCRAs, previous, overwrite)
     }
 
-    private data class OrderedField(val values: MutableList<String>, val counts: MutableList<Int>) {
-        fun size() = values.size
-        fun indexOf(field: String) = values.indexOf(field)
+    private data class OrderedField<T>(val fieldValues: MutableList<T>, val fieldCounts: MutableList<Int>) {
+        fun size() = fieldValues.size
+        fun indexOf(value: T) = fieldValues.indexOf(value)
     }
 
-    private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<CRAFile> {
+    private fun validateShapes(crasDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<LocalOrRemoteCRAFile> {
         val strings = mutableListOf<String>()
-        val stringsMap = mutableMapOf<String, OrderedField>()
+        val stringsMap = mutableMapOf<String, OrderedField<String>>()
         val stringValues = mutableMapOf<String, List<String>>()
 
         val numerics = mutableListOf<String>()
-        val numericsMap = mutableMapOf<String, OrderedField>()
-        val numericValues = mutableMapOf<String, List<String>>()
+        val numericsMap = mutableMapOf<String, OrderedField<Int>>()
+        val numericValues = mutableMapOf<String, List<Int>>()
 
         val pathsResult = PolyFile.unzipOrCopy(crasDir, files, names)
         if (pathsResult.isFailure) return Result.failure(pathsResult.exceptionOrNull()!!)
 
-        val zipResult = RemoteCRAFileInfo.file(crasDir, pathsResult.getOrNull()!!, nameCheck = { shpName ->
+        val zipResult = Shapefile.parse(crasDir, pathsResult.getOrNull()!!, nameCheck = { shpName ->
             when {
                 previous != null && previous == shpName -> NoStack(R.string.shps_must_differ)
                 remoteCRAs.contains(shpName) && !overwrite -> Common.BadName(shpName)
@@ -100,7 +124,7 @@ class CRADatasource(
                 when (field.type) {
                     DbfFieldTypeEnum.Numeric -> {
                         try {
-                            val numericVal = stringVal.toFloat().toInt().toString()
+                            val numericVal = stringVal.toFloat().toInt()
                             addToMap(numericsMap, name, numericVal)
                         } catch (_: Exception) {}
                     }
@@ -117,11 +141,11 @@ class CRADatasource(
         numericsMap.forEach { (nf, nof) ->
             var matched = false
             stringsMap.forEach { (sf, sof) ->
-                if (nof.size() == sof.size() && nof.counts == sof.counts) {
+                if (nof.size() == sof.size() && nof.fieldCounts == sof.fieldCounts) {
                     matched = true
 
-                    val numbers = nof.values.map { it.toInt() }
-                    val sorted = numbers.zip(sof.values).sortedBy { it.first }
+                    val numbers = nof.fieldValues
+                    val sorted = numbers.zip(sof.fieldValues).sortedBy { it.first }
                     val sofValues = sorted.map { it.second }
 
                     if (!strings.contains(sf)) {
@@ -133,7 +157,7 @@ class CRADatasource(
 
             if (matched) {
                 numerics.add(nf)
-                numericValues[nf] = nof.values.sortedBy { it.toInt() }
+                numericValues[nf] = nof.fieldValues.sorted()
             }
         }
 
@@ -148,16 +172,18 @@ class CRADatasource(
         val stringCounts = toClassCounts(stringsMap)
         val numericCounts = toClassCounts(numericsMap)
 
-        return Result.success(CRAFile(
-            localFile = zipFile,
-            counted = FieldsCounts(
-                Fields(numerics, strings, stringValues, numericValues),
-                StringsNumerics(ClassCounts(stringCounts), ClassCounts(numericCounts))
-            ))
+        return Result.success(
+            LocalOrRemoteCRAFile(
+                localFile = zipFile,
+                counted = FieldsCounts(
+                    Fields(numerics, strings, stringValues, numericValues),
+                    StringsNumerics(ClassCounts(stringCounts), ClassCounts(numericCounts))
+                )
+            )
         )
     }
 
-    private fun addToMap(m: MutableMap<String, OrderedField>, field: String, value: String) {
+    private fun <T> addToMap(m: MutableMap<String, OrderedField<T>>, field: String, value: T){
         var of = m[field]
         if (of == null) {
             of = OrderedField(mutableListOf(), mutableListOf())
@@ -166,38 +192,44 @@ class CRADatasource(
 
         val i = of.indexOf(value)
         if (i < 0) {
-            of.values.add(value)
-            of.counts.add(1)
+            of.fieldValues.add(value)
+            of.fieldCounts.add(1)
         } else {
-            of.counts[i] = of.counts[i] + 1
+            of.fieldCounts[i] += 1
         }
     }
 
-    private fun toClassCounts(m: MutableMap<String, OrderedField>): Map<String, List<ClassCount>> {
+    private fun <T> toClassCounts(m: MutableMap<String, OrderedField<T>>): Map<String, List<ClassCount>> {
         return m.entries.associateByTo(mutableMapOf(), { entry ->
             entry.key
         }) { entry ->
+            val orderedField = entry.value
             val counts = mutableListOf<ClassCount>()
-            for ((i, fieldValue) in entry.value.values.withIndex()) {
+            for ((i, fieldValue) in orderedField.fieldValues.withIndex()) {
                 counts.add(ClassCount(
-                    fieldValue,
-                    -1,
-                    craCount = entry.value.counts[i]
+                    fieldValue.toString(),
+                    fieldValue as? Int ?: Int.MIN_VALUE,
+                    craCount = entry.value.fieldCounts[i]
                 ))
             }
             counts.toList()
         }
     }
 
-    suspend fun getCRAFields(hist: CRAFile?, cont: CRAFile): Result<BothFieldsCounted> {
+    suspend fun getCRAFields(hist: LocalOrRemoteCRAFile?, cont: LocalOrRemoteCRAFile): Result<BothFieldsCounted> {
         if (hist == null || cont.equivalent(hist)) {
             val res = craFields(cont)
             if (res.isFailure) return Result.failure(res.exceptionOrNull()!!)
             val fieldsCounts = res.getOrNull()!!
             return Result.success(BothFieldsCounted(fieldsCounts.fields, fieldsCounts.counts, fieldsCounts.counts))
         }
-        val histRes = craFields(hist)
-        val contRes = craFields(cont)
+
+        var histRes: Result<FieldsCounts> = Result.failure(NotActiveException())
+        var contRes: Result<FieldsCounts> = Result.failure(NotActiveException())
+        coroutineScope {
+            launch { histRes = craFields(hist) }
+            launch { contRes = craFields(cont) }
+        }
         val err = resultCheck(histRes, contRes)
         if (err != null) return Result.failure(err)
 
@@ -249,7 +281,7 @@ class CRADatasource(
                 if (sx.isNotEmpty() && nx.isNotEmpty()) {
                     var matches = 0
                     val svx = mutableMapOf<String, List<String>>()
-                    val nvx = mutableMapOf<String, List<String>>()
+                    val nvx = mutableMapOf<String, List<Int>>()
 
                     for (s in sx) {
                         if (sv1[s]!! == sv2[s]!!) {
@@ -280,7 +312,7 @@ class CRADatasource(
         }
     }
 
-    private suspend fun craFields(cra: CRAFile): Result<FieldsCounts> {
+    private suspend fun craFields(cra: LocalOrRemoteCRAFile): Result<FieldsCounts> {
         if (cra.counted.parsedLocally() || cra.counted.complete()) return Result.success(cra.counted)
         if (cra.storageKey == null) return Result.failure(NoStack(R.string.internal_storage_key_err))
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
@@ -293,25 +325,26 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun fetchFields(cra: CRAFile, key: String, uid: String): Result<FieldsCounts> = suspendCancellableCoroutine { cont ->
+    private suspend fun fetchFields(cra: LocalOrRemoteCRAFile, key: String, uid: String): Result<FieldsCounts> = suspendCancellableCoroutine { cont ->
         val tmp = File.createTempFile("cras", "json")
         tmp.deleteOnExit()
-        storage.reference.child("users/$uid/shps/$key.json").getFile(tmp).addOnSuccessListener {
-            val shpRes = RemoteCRAFileInfo.fromFile(tmp)
-            if (shpRes.isFailure) {
-                cont.resume(Result.failure(shpRes.exceptionOrNull()!!))
+        val filetypes = cra.filetypes()
+        storage.reference.child("users/$uid/$filetypes/$key.json").getFile(tmp).addOnSuccessListener {
+            val infoRes = RemoteCRAFileInfo.fromFile(tmp)
+            if (infoRes.isFailure) {
+                cont.resume(Result.failure(infoRes.exceptionOrNull()!!))
             } else {
-                val shp = shpRes.getOrNull()!!
-                cra.eeUploadName = shp.tableUploadOperationName
+                val info = infoRes.getOrNull()!!
+                cra.eeUploadName = info.tableUploadOperationName
                 cont.resume(
                     Result.success(
                         FieldsCounts(
                             Fields(
-                                chosenNumeric = shp.numericClassField,
-                                chosenString = shp.stringClassField,
-                                chosenStringValues = shp.stringClassValues,
+                                chosenNumeric = info.numericClassField,
+                                chosenString = info.stringClassField,
+                                chosenStringValues = info.stringClassValues,
                             ),
-                            StringsNumerics(ClassCounts(chosenCounts = shp.classCounts ?: emptyList()))
+                            StringsNumerics(ClassCounts(chosenCounts = info.classCounts ?: emptyList()))
                         )
                     )
                 )
@@ -321,9 +354,13 @@ class CRADatasource(
         }
     }
 
-    suspend fun uploadCRAs(c1: CRAFile, c2: CRAFile): Result<Unit> {
-        val r1 = uploadCRA(c1)
-        val r2 = uploadCRA(c2)
+    suspend fun uploadCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
+        var r1: Result<Unit> = Result.failure(NotActiveException())
+        var r2: Result<Unit> = Result.failure(NotActiveException())
+        coroutineScope {
+            launch { r1 = uploadCRA(c1) }
+            launch { r2 = uploadCRA(c2) }
+        }
 
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
@@ -331,18 +368,21 @@ class CRADatasource(
         return Result.success(Unit)
     }
 
-    suspend fun uploadCRA(cra: CRAFile): Result<Unit> {
+    suspend fun uploadCRA(cra: LocalOrRemoteCRAFile): Result<Unit> {
         if (cra.localFile == null || !cra.counted.complete()) {
             return Result.failure(NoStack(R.string.internal_sho_err))
         }
 
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
 
-        return uploadShapefile(cra.key(), auth.currentUser!!.uid, cra.localFile)
+        return uploadCRAFile(cra, auth.currentUser!!.uid, cra.localFile)
     }
 
-    private suspend fun uploadShapefile(key: String, uid: String, zip: File): Result<Unit> = suspendCancellableCoroutine { cont ->
-        storage.reference.child("users/$uid/shps/$key.zip").putFile(Uri.fromFile(zip))
+    private suspend fun uploadCRAFile(cra: LocalOrRemoteCRAFile, uid: String, file: File): Result<Unit> = suspendCancellableCoroutine { cont ->
+        val filetypes = cra.filetypes()
+        val ext = cra.ext()
+        val key = cra.key()
+        storage.reference.child("users/$uid/$filetypes/$key.$ext").putFile(Uri.fromFile(file))
             .addOnSuccessListener {
                 cont.resume(Result.success(Unit))
             }.addOnFailureListener {
@@ -350,16 +390,20 @@ class CRADatasource(
             }
     }
 
-    suspend fun ingestCRAs(roiDir: File, c1: CRAFile, c2: CRAFile): Result<Unit> {
-        val r1 = ingestCRA(c1)
-        val r2 = ingestCRA(c2)
+    suspend fun ingestCRAs(roiDir: File, c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
+        var r1: Result<Unit> = Result.failure(NotActiveException())
+        var r2: Result<Unit> = Result.failure(NotActiveException())
+        coroutineScope {
+            launch { r1 = ingestCRA(c1) }
+            launch { r2 = ingestCRA(c2) }
+        }
         val err = resultCheck(r1, r2)
         if (err != null) return Result.failure(err)
         writeCRAsIngestedSuccess(roiDir)
         return Result.success(Unit)
     }
 
-    suspend fun ingestCRA(cra: CRAFile): Result<Unit> {
+    suspend fun ingestCRA(cra: LocalOrRemoteCRAFile): Result<Unit> {
         val key = cra.key()
         val needed = ingestNeeded(cra.eeUploadName, key)
         if (needed.isFailure) return Result.failure(needed.exceptionOrNull()!!)
@@ -382,7 +426,7 @@ class CRADatasource(
         return Result.success(result.data!!.ingestNeeded())
     }
 
-    suspend fun uploadFields(c1: CRAFile, c2: CRAFile): Result<Unit> {
+    suspend fun uploadFields(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
         val r1 = uploadFields(c1)
         val r2 = uploadFields(c2)
         val err = resultCheck(r1, r2)
@@ -390,7 +434,7 @@ class CRADatasource(
         return Result.success(Unit)
     }
 
-    suspend fun uploadFields(cra: CRAFile): Result<Unit> {
+    suspend fun uploadFields(cra: LocalOrRemoteCRAFile): Result<Unit> {
         if (auth.currentUser?.uid == null) return Result.failure(SignIn.not)
         val uid = auth.currentUser!!.uid
         return try {
@@ -401,7 +445,7 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun uploadFields(cra: CRAFile, uid: String): Result<Unit>  = suspendCancellableCoroutine { cont ->
+    private suspend fun uploadFields(cra: LocalOrRemoteCRAFile, uid: String): Result<Unit>  = suspendCancellableCoroutine { cont ->
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
@@ -421,7 +465,8 @@ class CRADatasource(
         if (shpRes.isFailure) {
             cont.resume(shpRes)
         } else {
-            storage.reference.child("users/$uid/shps/$key.json").putFile(Uri.fromFile(tmp))
+            val filetypes = cra.filetypes()
+            storage.reference.child("users/$uid/$filetypes/$key.json").putFile(Uri.fromFile(tmp))
                 .addOnSuccessListener {
                     cont.resume(Result.success(Unit))
                 }.addOnFailureListener {
@@ -430,11 +475,30 @@ class CRADatasource(
         }
     }
 
-    fun saveCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs): Result<Unit> {
-        return ContemporaryAndHistoricalCRAs.toFile(File(File(roiDir, crasDir), crasFile), cras)
+    // called after ingestion
+    fun saveCRAs(roiDir: File, hist: LocalOrRemoteCRAFile?, cont: LocalOrRemoteCRAFile): Result<Unit> {
+        val histCRA = if (hist == null) null else RemoteCRAFileInfo(
+            hist.shpKey(),
+            hist.jsonKey(),
+            hist.eeUploadName!!,
+            hist.counted.fields.chosenNumeric!!,
+            hist.counted.fields.chosenString!!,
+            hist.counted.fields.chosenStringValues!!,
+            hist.counted.counts.stringCounts.chosenCounts
+        )
+        val contCRA = RemoteCRAFileInfo(
+            cont.shpKey(),
+            cont.jsonKey(),
+            cont.eeUploadName!!,
+            cont.counted.fields.chosenNumeric!!,
+            cont.counted.fields.chosenString!!,
+            cont.counted.fields.chosenStringValues!!,
+            cont.counted.counts.stringCounts.chosenCounts
+        )
+        return ContemporaryAndHistoricalCRAs.toFile(crasFile(roiDir), ContemporaryAndHistoricalCRAs(histCRA, contCRA))
     }
 
-    fun loadCRAs(roiDir: File) = ContemporaryAndHistoricalCRAs.fromFile(File(File(roiDir, crasDir), crasFile))
+    fun loadCRAs(roiDir: File) = ContemporaryAndHistoricalCRAs.fromFile(crasFile(roiDir))
 
     fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {
         return try {
@@ -460,9 +524,7 @@ class CRADatasource(
         }
 
         val err = apiResultCheck(contResult, histResult)
-        if (err != null) {
-            return Result.failure(err)
-        }
+        if (err != null) return Result.failure(err)
 
         if (contResult?.data?.success != true || (histResult != null && histResult.data?.success != true)) {
             return Result.failure(Throwable())
@@ -475,7 +537,6 @@ class CRADatasource(
 
     private fun writeCRAsIngestedSuccess(roiDir: File) = Success.toFile(crasIngestedFile(roiDir), Success(true))
 
-    private fun crasIngestedFile(roiDir: File) = File(File(roiDir, crasDir), crasIngestedFile)
     private suspend fun awaitCRAIngestion(name: String, key: String) = api.awaitCRAIngestion(UploadName(name, key))
 
     private fun shouldIgnoreField(name: String): Boolean {
@@ -490,14 +551,18 @@ class CRADatasource(
 
     companion object {
         const val crasDir = "cras"
+        const val createdCRAFile = "created_cra.geojson"
         const val crasFile = "cras.json"
         const val crasIngestedFile = "ingested.json"
-
-        const val classNamePropertyKey = "classname"
-        const val classNumberPropertyKey = "classnumber"
 
         private const val addedFieldShapeLen = "shape_len"
         private const val addedFieldShapeArea = "shape_area"
         private val ignoreFields = arrayOf(addedFieldShapeLen, addedFieldShapeArea)
+        private fun crasDir(roiDir: File) = File(roiDir, crasDir)
+
+        fun createdCRAFile(roiDir: File) = File(crasDir(roiDir), createdCRAFile)
+        fun renamedCreatedCRAFile(roiDir: File, newName: String) = File(crasDir(roiDir), newName)
+        fun crasFile(roiDir: File) = File(crasDir(roiDir), crasFile)
+        fun crasIngestedFile(roiDir: File) = File(crasDir(roiDir), crasIngestedFile)
     }
 }

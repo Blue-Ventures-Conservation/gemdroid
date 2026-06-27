@@ -22,21 +22,21 @@ import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.localized
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.FileStream
-import org.blueventures.gemdroid.model.analysis.cra.CRAFile
+import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
 import org.blueventures.gemdroid.ui.common.Dropdown
 import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.PolygonFile
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.Once
 
 object Common {
     @Composable
-    fun Screen(viewModel: CRAViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun Screen(viewModel: CRAViewModel, temporal: String, snack: SnackFun, next: Click, back: Click, previous: String?, setLocal: (LocalOrRemoteCRAFile) -> Unit, setRemote: (String) -> Unit) {
         val (remoteCRAs, setRemoteCRAs) = remember { mutableStateOf<Result<List<String>>?>(null) }
 
         when {
@@ -63,9 +63,9 @@ object Common {
     }
 
     @Composable
-    fun Selection(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (CRAFile) -> Unit, setRemote: (String) -> Unit) {
+    fun Selection(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, snack: SnackFun, next: Click, previous: String?, setLocal: (LocalOrRemoteCRAFile) -> Unit, setRemote: (String) -> Unit) {
         Col.Col {
-            val (craFile, setCRAFile) = remember { mutableStateOf<Result<CRAFile>?>(null) }
+            val (craFile, setCRAFile) = remember { mutableStateOf<Result<LocalOrRemoteCRAFile>?>(null) }
             val (remoteKey, setRemoteKey) = remember { mutableStateOf<String?>(null) }
             val (progress, setProgress) = remember { mutableStateOf(false) }
             val (checkedState, setCheckedState) = remember { mutableStateOf(false) }
@@ -74,7 +74,7 @@ object Common {
             val overwrite = remember { mutableStateOf(false) }
             val shpName = remember { mutableStateOf("") }
             val craUris = remember { mutableStateOf<List<Uri>>(emptyList()) }
-            val craCallback = remember { mutableStateOf<((Result<CRAFile>) -> Unit)>({}) }
+            val craCallback = remember { mutableStateOf<((Result<LocalOrRemoteCRAFile>) -> Unit)>({}) }
             val overwriteState = OverwriteState(askOverwrite, overwrite, shpName, craUris, craCallback)
 
             when {
@@ -103,7 +103,7 @@ object Common {
                 }
                 else -> {
                     val sp: (Boolean) -> Unit = { setProgress(it) }
-                    val local: (Result<CRAFile>?) -> Unit = { setProgress(false); setCRAFile(it) }
+                    val local: (Result<LocalOrRemoteCRAFile>?) -> Unit = { setProgress(false); setCRAFile(it) }
                     if (remoteCRAs.isEmpty()) {
                         LocalCRA(viewModel, temporal, remoteCRAs, previous, local, sp, overwriteState)
                     } else {
@@ -115,7 +115,7 @@ object Common {
     }
 
     @Composable
-    fun LocalRemoteSwitch(viewModel: CRAViewModel, checkedState: Boolean, setCheckedState: (Boolean) -> Unit, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<CRAFile>?) -> Unit, setRemote: (String) -> Unit, setProgress: (Boolean) -> Unit, overwriteState: OverwriteState) {
+    fun LocalRemoteSwitch(viewModel: CRAViewModel, checkedState: Boolean, setCheckedState: (Boolean) -> Unit, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<LocalOrRemoteCRAFile>?) -> Unit, setRemote: (String) -> Unit, setProgress: (Boolean) -> Unit, overwriteState: OverwriteState) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -142,11 +142,11 @@ object Common {
         val overwrite: MutableState<Boolean>,
         val shpName: MutableState<String>,
         val craUris: MutableState<List<Uri>>,
-        val craCallback: MutableState<(Result<CRAFile>) -> Unit>
+        val craCallback: MutableState<(Result<LocalOrRemoteCRAFile>) -> Unit>
     )
 
     @Composable
-    fun LocalCRA(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<CRAFile>?) -> Unit, setProgress: (Boolean) -> Unit, state: OverwriteState) {
+    fun LocalCRA(viewModel: CRAViewModel, temporal: String, remoteCRAs: List<String>, previous: String?, setLocal: (Result<LocalOrRemoteCRAFile>?) -> Unit, setProgress: (Boolean) -> Unit, state: OverwriteState) {
         val context = LocalContext.current
         when {
             state.askOverwrite.value -> {
@@ -192,7 +192,7 @@ object Common {
                             callback(result)
                         }
                     }
-                }, { result: Result<CRAFile> ->
+                }, { result: Result<LocalOrRemoteCRAFile> ->
                     if (result.isSuccess || result.exceptionOrNull()!! as? BadName == null) {
                         setLocal(result)
                     } else {

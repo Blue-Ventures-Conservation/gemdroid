@@ -7,9 +7,9 @@ import androidx.navigation.NavHostController
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.model.analysis.cra.CRAViewModel
 import org.blueventures.gemdroid.model.analysis.cra.HistoricalChoice
-import org.blueventures.gemdroid.popClear
 import org.blueventures.gemdroid.ui.analysis.Analysis
 import org.blueventures.gemdroid.ui.analysis.cra.screens.CRAFields
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CheckForExistingCreation
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateChosen
@@ -17,6 +17,7 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.Creation
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Purpose
 import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadChosen
+import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadCreation
 import org.blueventures.gemdroid.ui.analysis.cra.screens.UploadOrCreate
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
@@ -31,7 +32,9 @@ object CRA {
         const val upload_or_create = prefix + "upload_or_create"
         const val create_chosen = prefix + "create_chosen"
         const val upload_chosen = prefix + "upload_chosen"
+        const val checkForExistingCreation = prefix + "check_for_existing_creation"
         const val creation = prefix + "creation"
+        const val upload_creation = prefix + "upload_creation"
         const val hist_choice = prefix + "hist_choice"
         const val hist_cra = prefix + "hist"
         const val cont_cra = prefix + "cont"
@@ -61,14 +64,27 @@ object CRA {
 
         b.craBackHandler(Routes.create_chosen, appBar, nav::popBackStack) {
             CreateChosen.Screen {
+                nav.navigate(Routes.checkForExistingCreation)
+            }
+        }
+
+        b.craBackHandler(Routes.checkForExistingCreation, appBar, nav::popBackStack) {
+            CheckForExistingCreation.Screen(viewModel) {
                 nav.navigate(Routes.creation)
             }
         }
 
-        b.craBackHandler(Routes.creation, appBar, nav::popBackStack) {
+        b.craBackHandler(Routes.creation, appBar, {
+            nav.popBackStack(Routes.create_chosen, false)
+        }) {
             Creation.Screen(viewModel, appBar, snack) {
-                viewModel.clearState()
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.navigate(Routes.upload_creation)
+            }
+        }
+
+        b.craBackHandler(Routes.upload_creation, appBar, nav::popBackStack) { back ->
+            UploadCreation.Screen(viewModel, snack, back) {
+                nav.popBackStack(Analysis.Routes.dashboard, false)
             }
         }
 
@@ -101,11 +117,10 @@ object CRA {
         }
 
         b.craBackHandler(Routes.cra_fields, appBar, nav::popBackStack) {
-            val exit = {
+            CRAFields.Screen(viewModel, snack, nav::popBackStack) {
                 viewModel.clearState()
-                nav.popClear(Analysis.Routes.dashboard)
+                nav.popBackStack(Analysis.Routes.dashboard, false)
             }
-            CRAFields.Screen(viewModel, snack, nav::popBackStack, exit, exit)
         }
     }
 

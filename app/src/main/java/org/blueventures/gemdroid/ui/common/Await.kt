@@ -6,7 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
 
 object Await {
     interface CRAAwaiter {

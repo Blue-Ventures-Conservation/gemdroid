@@ -4,8 +4,8 @@ import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
+import org.blueventures.gemdroid.data.analysis.cra.RemoteCRAFileInfo
 import org.blueventures.gemdroid.data.roi.ROI
-import org.blueventures.gemdroid.data.shp.RemoteCRAFileInfo
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.correlationFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.scatterFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityDatasource.Companion.separationFile
