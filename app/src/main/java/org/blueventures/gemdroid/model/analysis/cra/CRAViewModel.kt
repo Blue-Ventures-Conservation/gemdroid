@@ -59,7 +59,12 @@ class CRAViewModel(
 
     fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(createdCRAFile(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)
     fun saveLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = saveFile(createdCRAFile(roiDir), capturedCollection, GeojsonPolygonFeatureCollection.Companion, callback)
-    fun deleteLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) = deleteFile(createdCRAFile(roiDir), callback)
+    fun deleteLocallyCreatedCRAFile(callback: (Result<Unit>) -> Unit) {
+        deleteFile(createdCRAFile(roiDir)) {
+            capturedFeatures.clear()
+            callback(it)
+        }
+    }
 
     private var uploadJob: Job? = null
 
