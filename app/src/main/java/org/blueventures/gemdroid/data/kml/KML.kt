@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.data.kml
 
 import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.data.kml.KmlPolygon
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.polyfile.PolyFile.MAX_VERTICES
@@ -15,6 +14,11 @@ import java.io.IOException
 import java.io.InputStream
 
 object KML {
+    data class PolygonData(
+        val outerBoundary: List<LatLng> = emptyList(),
+        val holes: List<List<LatLng>> = emptyList()
+    )
+
     fun polygons(paths: List<String>): Result<MultiPolyPts> {
         var kmlPath: String? = null
         for(path in paths) {
@@ -44,14 +48,14 @@ object KML {
             var vertexCount = 0
 
             for (kmlPoly in placemarks) {
-                vertexCount += kmlPoly.outerBoundaryCoordinates.size + kmlPoly.innerBoundaryCoordinates.size
+                vertexCount += kmlPoly.outerBoundary.size + kmlPoly.holes.size
                 if (vertexCount > MAX_VERTICES) {
                     return Result.failure(NoStack(R.string.please_use_smaller_poly_file))
                 }
 
                 val toAdd =  mutableListOf<List<LatLng>>()
-                toAdd.add(kmlPoly.outerBoundaryCoordinates)
-                toAdd.addAll(kmlPoly.innerBoundaryCoordinates)
+                toAdd.add(kmlPoly.outerBoundary)
+                toAdd.addAll(kmlPoly.holes)
 
                 val poly = mutableListOf<List<LatLng>>()
                 for (p in toAdd) {
@@ -98,10 +102,10 @@ object KML {
             "viewRefreshTime|when"
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun parse(stream: InputStream): Result<List<KmlPolygon>> {
+    private fun parse(stream: InputStream): Result<List<PolygonData>> {
         val parser = createXmlParser(stream)
         var eventType = parser.eventType
-        val polys = mutableListOf<KmlPolygon>()
+        val polys = mutableListOf<PolygonData>()
 
         while(eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
@@ -125,7 +129,7 @@ object KML {
     }
 
     @Throws(IOException::class, XmlPullParserException::class)
-    fun createPlacemark(parser: XmlPullParser): Result<KmlPolygon> {
+    fun createPlacemark(parser: XmlPullParser): Result<PolygonData> {
         var eventType = parser.eventType
 
         while (!(eventType == XmlPullParser.END_TAG && parser.name == "Placemark")) {
@@ -141,7 +145,7 @@ object KML {
     }
 
     @Throws(IOException::class, XmlPullParserException::class)
-    private fun createGeometry(parser: XmlPullParser, geometryType: String): Result<KmlPolygon> {
+    private fun createGeometry(parser: XmlPullParser, geometryType: String): Result<PolygonData> {
         var eventType = parser.eventType
         while (!(eventType == XmlPullParser.END_TAG && parser.name == geometryType)) {
             if (eventType == XmlPullParser.START_TAG) {
@@ -156,7 +160,7 @@ object KML {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun createPolygon(parser: XmlPullParser): KmlPolygon {
+    private fun createPolygon(parser: XmlPullParser): PolygonData {
         // Indicates if an outer boundary needs to be defined
         var isOuterBoundary = false
         var outerBoundary = mutableListOf<LatLng>()
@@ -176,7 +180,7 @@ object KML {
             }
             eventType = parser.next()
         }
-        return KmlPolygon(outerBoundary, innerBoundaries)
+        return PolygonData(outerBoundary, innerBoundaries)
     }
 
     private fun convertToLatLngList(coordinatesString: String): MutableList<LatLng> {
