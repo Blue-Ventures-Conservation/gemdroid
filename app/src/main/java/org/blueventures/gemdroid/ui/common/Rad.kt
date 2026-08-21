@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common
 
+import android.content.Context
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 object Rad {
@@ -21,7 +22,7 @@ object Rad {
      * Radio button group
      */
     @Composable
-    fun <T> Io(choices: List<T>, default: T?, textGetter: (T) -> Int, onClick: (T) -> Unit) {
+    fun <T> Io(choices: List<T>, default: T?, textGetter: (Context, T) -> String, onClick: (T) -> Unit) {
         val (choice, setChoice) = remember { mutableStateOf(default) }
         InnerIo(choices, choice, setChoice, textGetter)
         Spacer(modifier = Modifier.height(0.dp))
@@ -32,7 +33,7 @@ object Rad {
      * Provided for when the button exists in a different composable.
      */
     @Composable
-    fun <T> InnerIo(choices: List<T>, choice: T?, setChoice: (T?) -> Unit, textGetter: (T) -> Int) {
+    fun <T> InnerIo(choices: List<T>, choice: T?, setChoice: (T?) -> Unit, textGetter: (Context, T) -> String) {
         choices.forEach { option ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -44,7 +45,7 @@ object Rad {
                     )
             ) {
                 RadioButton(selected = (option?.equals(choice) == true), onClick = { setChoice(option) })
-                Text(text = stringResource(textGetter(option)), modifier = Modifier.padding(start = 16.dp))
+                Text(text = textGetter(LocalContext.current,  option), modifier = Modifier.padding(start = 16.dp))
             }
         }
     }

@@ -14,25 +14,49 @@ import kotlin.math.hypot
 open class Rectangle(open val width: Double, open val height: Double)  {
    companion object {
        // side length in meters
-       fun square(center: LatLng, side: Double) = toPolygon(center, Rectangle(side, side))
+       fun square(cellSize: Double, center: LatLng, side: Double) = toPolygon(cellSize, center, Rectangle(side, side))
 
-       fun toPolygon(center: LatLng, rect: Rectangle): PolygonOptions? {
+       fun toPolygon(cellSize: Double, center: LatLng, rect: Rectangle): Pair<PolygonOptions, List<PolygonOptions>>? {
            val distToSide = rect.width/2.0
            val distToTopBot = rect.height/2.0
            val hyp = hypot(distToSide, distToTopBot)
            val angle = Math.toDegrees(atan(distToTopBot/distToSide))
            val northeast = SphericalUtil.computeOffset(center, hyp, angle)
            val southwest = SphericalUtil.computeOffset(center, hyp, angle + 180)
+
+           val polyOpts = optsFromPoints(pointsFromCorners(northeast, southwest)) ?: return null
+
+           val grid = mutableListOf<PolygonOptions>()
+           val cellsWide = rect.width / cellSize
+           val cellsTall = rect.height / cellSize
+
+           val cellHyp = hypot(cellSize, cellSize)
+           for (x in 0 until cellsWide.toInt()) {
+               val rowNE = SphericalUtil.computeOffset(northeast, cellSize * x, 90.0)
+               for (y in 0 until cellsTall.toInt()) {
+                   val ne = SphericalUtil.computeOffset(rowNE, cellSize * y, 180.0)
+                   val sw = SphericalUtil.computeOffset(ne, cellHyp, 135.0)
+                   val cellOpts = optsFromPoints(pointsFromCorners(ne, sw)) ?: return null
+                   grid.add(cellOpts)
+               }
+           }
+
+           return Pair(polyOpts, grid)
+       }
+
+       private fun pointsFromCorners(northeast: LatLng, southwest: LatLng): List<LatLng> {
            val southeast = LatLng(southwest.latitude, northeast.longitude)
            val northwest = LatLng(northeast.latitude, southwest.longitude)
-           val points = mutableListOf(
+           return listOf(
                northeast,
                southeast,
                southwest,
                northwest,
                northeast // closed ring
            )
+       }
 
+       private fun optsFromPoints(points: List<LatLng>): PolygonOptions? {
            return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), 0x7F), 12f)
        }
    }

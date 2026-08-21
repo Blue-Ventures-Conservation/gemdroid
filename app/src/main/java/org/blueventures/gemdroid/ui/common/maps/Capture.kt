@@ -8,6 +8,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.FormatShapes
+import androidx.compose.material.icons.filled.GridOff
+import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -47,6 +49,7 @@ object Capture {
     interface UI {
         val snack: SnackFun
         val done: Click
+        val cellSize: Double
 
         fun currentShape(): NamedRectangle
         fun nextShape(): NamedRectangle
@@ -74,6 +77,7 @@ object Capture {
             NamedRectangle("1x6", scale*1, scale*6)
         )
 
+        override val cellSize = scale
         override fun currentShape() = shapeOrder[shapeCursor]
         override fun nextShape(): NamedRectangle {
             shapeCursor = (shapeCursor + 1) % shapeOrder.size
@@ -81,7 +85,7 @@ object Capture {
         }
     }
 
-    data class CaptureState(val shape: NamedRectangle, val center: LatLng? = null, val doCapture: Unit? = null, val maybeDone: Unit? = null)
+    data class CaptureState(val shape: NamedRectangle, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val maybeDone: Unit? = null)
 
     @Composable
     fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<CaptureState> {
@@ -103,7 +107,7 @@ object Capture {
             }
             val context = LocalContext.current.applicationContext
             CaptureDialog(model, onDismiss) { craClass ->
-                optsFromState(captureState.value.center, captureState.value.shape)?.points?.let { polygon ->
+                optsFromState(model.cellSize, captureState.value.center, captureState.value.shape)?.first?.points?.let { polygon ->
                     model.capture(craClass, polygon) { result ->
                         when {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
@@ -124,14 +128,27 @@ object Capture {
             }
         }
 
-        optsFromState(captureState.value.center, captureState.value.shape)?.let { opts ->
-            Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, zIndex = 1000f)
+        optsFromState(model.cellSize, captureState.value.center, captureState.value.shape)?.let { optsPair ->
+            val opts = optsPair.first
+            DrawMapPolygon(opts, 1000f)
+            captureState.value.showGrid?.let {
+                val gridOpts = optsPair.second
+                gridOpts.forEach { opts ->
+                    DrawMapPolygon(opts, 1000f)
+                }
+            }
         }
     }
 
-    private fun optsFromState(center: LatLng?, rect: NamedRectangle?): PolygonOptions? {
+    @GoogleMapComposable
+    @Composable
+    private fun DrawMapPolygon(opts: PolygonOptions, zIndex: Float) {
+        Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, zIndex = zIndex)
+    }
+
+    private fun optsFromState(cellSize: Double, center: LatLng?, rect: NamedRectangle?): Pair<PolygonOptions, List<PolygonOptions>>? {
         return if (center != null && rect != null) {
-            Rectangle.toPolygon(center, rect)
+            Rectangle.toPolygon(cellSize, center, rect)
         }  else null
     }
 
@@ -139,6 +156,7 @@ object Capture {
     fun BoxScope.CaptureMapActions(model: Model, captureState: MutableState<CaptureState>) {
         val usingSnack = stringResource(R.string.using_s_polygon)
         val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
+        val gridShowing = captureState.value.showGrid != null
         MultiMapActionButtons(ClickContent({
             captureState.value = captureState.value.copy(doCapture = Unit)
         }) {
@@ -149,6 +167,10 @@ object Capture {
             captureState.value = captureState.value.copy(shape = nextRect)
         }) {
             Icon(Icons.Filled.FormatShapes, contentDescription = stringResource(R.string.modify_polygon_shape))
+        }, ClickContent({
+            captureState.value = captureState.value.copy(showGrid = if (gridShowing) null else Unit)
+        }) {
+            Icon(if (gridShowing) Icons.Filled.GridOff else Icons.Filled.GridOn, contentDescription = stringResource(R.string.toggle_the_inner_grid_of_the_capture_polygon_on_or_off))
         }, ClickContent({
             if (model.capturedCollection.features.isNotEmpty()) {
                 captureState.value = captureState.value.copy(maybeDone = Unit)
@@ -170,8 +192,8 @@ object Capture {
                 Column(modifier = Modifier
                     .padding(bottom = 16.dp)
                     .verticalScroll(rememberScrollState())) {
-                    Rad.InnerIo(model.classes, choice, setChoice) { bvClass ->
-                        bvClass.stringID()
+                    Rad.InnerIo(model.classes, choice, setChoice) { context, bvClass ->
+                        context.getString(bvClass.stringID())
                     }
                 }
             },

@@ -20,7 +20,9 @@ object ChooseHistorical {
         Col.Col(bottom = 24.dp) {
             Text(stringResource(R.string.is_a_historical_cra), fontSize = 24.sp, textAlign = TextAlign.Center)
             Text(stringResource(R.string.fields_must_match), fontSize = 16.sp, textAlign = TextAlign.Center)
-            Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { it.label() }, onClick = { choice ->
+            Rad.Io(choices = choices, default = viewModel.historicalChoice, textGetter = { context, choice ->
+                context.getString(choice.label())
+            }, onClick = { choice ->
                 viewModel.historicalChoice = choice
                 next()
             })
