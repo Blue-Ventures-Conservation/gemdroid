@@ -20,7 +20,7 @@ open class Rectangle(open val width: Double, open val height: Double)  {
            val distToSide = rect.width/2.0
            val distToTopBot = rect.height/2.0
            val hyp = hypot(distToSide, distToTopBot)
-           val angle = Math.toDegrees(atan(distToTopBot/distToSide))
+           val angle = Math.toDegrees(atan(distToSide/distToTopBot))
            val northeast = SphericalUtil.computeOffset(center, hyp, angle)
            val southwest = SphericalUtil.computeOffset(center, hyp, angle + 180)
 
@@ -32,11 +32,11 @@ open class Rectangle(open val width: Double, open val height: Double)  {
 
            val cellHyp = hypot(cellSize, cellSize)
            for (x in 0 until cellsWide.toInt()) {
-               val rowNE = SphericalUtil.computeOffset(northeast, cellSize * x, 90.0)
+               val rowNE = SphericalUtil.computeOffset(northeast, cellSize * x, 270.0)
                for (y in 0 until cellsTall.toInt()) {
                    val ne = SphericalUtil.computeOffset(rowNE, cellSize * y, 180.0)
-                   val sw = SphericalUtil.computeOffset(ne, cellHyp, 135.0)
-                   val cellOpts = optsFromPoints(pointsFromCorners(ne, sw)) ?: return null
+                   val sw = SphericalUtil.computeOffset(ne, cellHyp, 225.0)
+                   val cellOpts = optsFromPoints(pointsFromCorners(ne, sw), 0xFF) ?: return null
                    grid.add(cellOpts)
                }
            }
@@ -56,8 +56,8 @@ open class Rectangle(open val width: Double, open val height: Double)  {
            )
        }
 
-       private fun optsFromPoints(points: List<LatLng>): PolygonOptions? {
-           return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), 0x7F), 12f)
+       private fun optsFromPoints(points: List<LatLng>, alpha: Int = 0x7F): PolygonOptions? {
+           return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), alpha), 12f)
        }
    }
 }
