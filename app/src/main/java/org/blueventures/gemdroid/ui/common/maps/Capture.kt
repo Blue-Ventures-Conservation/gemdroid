@@ -116,15 +116,16 @@ object Capture {
     fun Display(model: Model, state: State, setState: (State) -> Unit, setGroups: (List<Polygons.NamedOptionsGroup>?) -> Unit) {
         val context = LocalContext.current.applicationContext
         state.doCapture?.let {
-            val onDismiss = {
-                setState(state.copy(doCapture = null))
-            }
+            val onDismiss = { setState(state.copy(doCapture = null)) }
             CaptureDialog(model, onDismiss) { craClass ->
                 optsFromState(model.cellSize, state.center, state.shape)?.first?.points?.let { polygon ->
                     model.capture(craClass, polygon) { result ->
                         when {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
-                            else -> onDismiss()
+                            else -> {
+                                onDismiss()
+                                setGroups(null)
+                            }
                         }
                     }
                 }
@@ -132,17 +133,17 @@ object Capture {
         }
 
         state.doEdit?.let { stringID ->
-            val recomposer = {
-                setState(state.copy(doEdit = null))
-                setGroups(null)
-            }
+            val onDismiss = { setState(state.copy(doEdit = null)) }
             val callback: (Result<Unit>) -> Unit = { result ->
                 when {
                     result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
-                    else -> recomposer()
+                    else -> {
+                        onDismiss()
+                        setGroups(null)
+                    }
                 }
             }
-            EditDialog(model, model.currentClass(stringID), recomposer, { newClass ->
+            EditDialog(model, model.currentClass(stringID), onDismiss, { newClass ->
                 model.updateClass(stringID, newClass, callback)
             }) {
                 model.delete(stringID, callback)

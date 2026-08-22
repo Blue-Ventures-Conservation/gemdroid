@@ -153,6 +153,9 @@ object Polygons {
                 }
             }
 
+            // because we always invoke the composable below, setting this to null here (when
+            // there is no polygon being touched) prevents showing the same content over and over
+            // and allows callers to clean up their state
             lastTouch.value = null
         }
 

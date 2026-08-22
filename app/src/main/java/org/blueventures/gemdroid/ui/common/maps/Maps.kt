@@ -212,7 +212,6 @@ object Maps {
         val touchState = remember { mutableStateOf<LatLng?>(null) }
         val drawState = Draw.prepareState()
 
-
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
