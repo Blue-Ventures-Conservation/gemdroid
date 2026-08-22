@@ -2,19 +2,22 @@ package org.blueventures.gemdroid.data
 
 import com.squareup.moshi.Json
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classIDPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import java.io.File
 
 data class GeojsonPolygonFeature(
-    @Json(name = "type") val type: String = "Feature",
-    @Json(name = "geometry") val geometry: GeojsonPolygon,
-    @Json(name = "properties") var properties: Map<String, Any>
-)
+    @param:Json(name = "type") val type: String = "Feature",
+    @param:Json(name = "geometry") val geometry: GeojsonPolygon,
+    @param:Json(name = "properties") var properties: Map<String, Any>
+) {
+    fun intProperty(key: String) = properties[key] as? Int
+}
 
 data class GeojsonPolygonFeatureCollection(
-    @Json(name = "type") val type: String = "FeatureCollection",
-    @Json(name = "features") val features: List<GeojsonPolygonFeature>
+    @param:Json(name = "type") val type: String = "FeatureCollection",
+    @param:Json(name = "features") val features: List<GeojsonPolygonFeature>
 ) {
     // Int properties are written to disk without decimals, but when read back
     // the JsonAdapter interprets unstructured JSON values as Doubles
@@ -22,7 +25,7 @@ data class GeojsonPolygonFeatureCollection(
         for (feature in features) {
             val newMap = mutableMapOf<String, Any>()
             feature.properties.forEach { (key, value) ->
-                if (key == classNumberPropertyKey) {
+                if (key == classNumberPropertyKey || key == classIDPropertyKey) {
                     val newVal = (value as Double).toInt()
                     newMap[key] = newVal
                 } else {
@@ -36,7 +39,7 @@ data class GeojsonPolygonFeatureCollection(
     fun intPropertyCount(property: String, target: Int): Int {
         var total = 0
         for (feature in features) {
-            (feature.properties[property] as? Int)?.let { value ->
+            feature.intProperty(property)?.let { value ->
                 if (value == target) {
                     total += 1
                 }
@@ -50,7 +53,7 @@ data class GeojsonPolygonFeatureCollection(
         val counts = mutableMapOf<String, ClassCount>()
         for (feature in features) {
             val className = feature.properties[classNamePropertyKey] as? String
-            val classNumber = feature.properties[classNumberPropertyKey] as? Int
+            val classNumber = feature.intProperty(classNumberPropertyKey)
             if (className != null && classNumber != null) {
                 if (counts[className] == null) {
                     counts[className] = ClassCount(className, classNumber, 0)

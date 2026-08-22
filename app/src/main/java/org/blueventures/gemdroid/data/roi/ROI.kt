@@ -11,26 +11,26 @@ import java.io.File
 
 // Saved on device based on user input when creating an ROI
 data class ROI(
-    @Json(name = "buff_dist") val buffDist: Int = -1,
-    @Json(name = "name") val name: String = "",
-    @Json(name = "hist_year_start") val histYearStart: Int = 0,
-    @Json(name = "hist_year_end") val histYearEnd: Int = 0,
-    @Json(name = "hist_months") val histMonths: List<Int>? = null,
-    @Json(name = "cont_year_start") val contYearStart: Int = 0,
-    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
-    @Json(name = "cont_months") val contMonths: List<Int>? = null,
-    @Json(name = "polygon") val polygon: GeojsonMultiPolygon = GeojsonMultiPolygon(emptyList()),
-    @Json(name = "inland_mang") val inlandMang: Boolean = false,
-    @Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
-    @Json(name = "visualize") val visualize: Boolean = true,
-    @Json(name = "region_uuid") val regionUUID: String? = null,
-    @Json(name = "force_landsat") val forceLandsat: Boolean? = null,
+    @param:Json(name = "buff_dist") val buffDist: Int = -1,
+    @param:Json(name = "name") val name: String = "",
+    @param:Json(name = "hist_year_start") val histYearStart: Int = 0,
+    @param:Json(name = "hist_year_end") val histYearEnd: Int = 0,
+    @param:Json(name = "hist_months") val histMonths: List<Int>? = null,
+    @param:Json(name = "cont_year_start") val contYearStart: Int = 0,
+    @param:Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @param:Json(name = "cont_months") val contMonths: List<Int>? = null,
+    @param:Json(name = "polygon") val polygon: GeojsonMultiPolygon = GeojsonMultiPolygon(emptyList()),
+    @param:Json(name = "inland_mang") val inlandMang: Boolean = false,
+    @param:Json(name = "excludes") val excludedRegions: List<GeojsonMultiPolygon> = emptyList(),
+    @param:Json(name = "visualize") val visualize: Boolean = true,
+    @param:Json(name = "region_uuid") val regionUUID: String? = null,
+    @param:Json(name = "force_landsat") val forceLandsat: Boolean? = null,
 
     // old and unused, kept for backwards compatibility
-    @Json(name = "cont_month_start") val contMonthStart: Int? = null,
-    @Json(name = "cont_month_end") val contMonthEnd: Int? = null,
-    @Json(name = "hist_month_start") val histMonthStart: Int? = null,
-    @Json(name = "hist_month_end") val histMonthEnd: Int? = null,
+    @param:Json(name = "cont_month_start") val contMonthStart: Int? = null,
+    @param:Json(name = "cont_month_end") val contMonthEnd: Int? = null,
+    @param:Json(name = "hist_month_start") val histMonthStart: Int? = null,
+    @param:Json(name = "hist_month_end") val histMonthEnd: Int? = null,
 ) {
     fun boundaryPolyToState() = if (polygon.coordinates.isNotEmpty()) GeojsonMultiPolygon.toState(polygon) else emptyList()
 
@@ -145,20 +145,20 @@ data class ROI(
  * This class provides backwards compatibility with version 1.1.4 and earlier.
  */
 data class SinglePolyROI(
-    @Json(name = "buff_dist") val buffDist: Int = 0,
-    @Json(name = "name") val name: String = "",
-    @Json(name = "hist_year_start") val histYearStart: Int = 0,
-    @Json(name = "hist_year_end") val histYearEnd: Int = 0,
-    @Json(name = "hist_month_start") val histMonthStart: Int = 0,
-    @Json(name = "hist_month_end") val histMonthEnd: Int = 0,
-    @Json(name = "cont_year_start") val contYearStart: Int = 0,
-    @Json(name = "cont_year_end") val contYearEnd: Int = 0,
-    @Json(name = "cont_month_start") val contMonthStart: Int = 0,
-    @Json(name = "cont_month_end") val contMonthEnd: Int = 0,
-    @Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
-    @Json(name = "excludes") val excludedRegions: List<GeojsonPolygon> = emptyList(),
-    @Json(name = "visualize") val visualize: Boolean = true,
-    @Json(name = "region_uuid") val regionUUID: String? = null,
+    @param:Json(name = "buff_dist") val buffDist: Int = 0,
+    @param:Json(name = "name") val name: String = "",
+    @param:Json(name = "hist_year_start") val histYearStart: Int = 0,
+    @param:Json(name = "hist_year_end") val histYearEnd: Int = 0,
+    @param:Json(name = "hist_month_start") val histMonthStart: Int = 0,
+    @param:Json(name = "hist_month_end") val histMonthEnd: Int = 0,
+    @param:Json(name = "cont_year_start") val contYearStart: Int = 0,
+    @param:Json(name = "cont_year_end") val contYearEnd: Int = 0,
+    @param:Json(name = "cont_month_start") val contMonthStart: Int = 0,
+    @param:Json(name = "cont_month_end") val contMonthEnd: Int = 0,
+    @param:Json(name = "polygon") val polygon: GeojsonPolygon = GeojsonPolygon(emptyList()),
+    @param:Json(name = "excludes") val excludedRegions: List<GeojsonPolygon> = emptyList(),
+    @param:Json(name = "visualize") val visualize: Boolean = true,
+    @param:Json(name = "region_uuid") val regionUUID: String? = null,
 ) {
     companion object : Serializer<SinglePolyROI>() {
         private val adapter = make<SinglePolyROI>()

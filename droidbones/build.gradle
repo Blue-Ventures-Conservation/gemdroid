@@ -37,11 +37,6 @@ android {
     testOptions {
         targetSdk = 37
     }
-    kotlin {
-        compilerOptions {
-            freeCompilerArgs.add('-XXLanguage:+PropertyParamAnnotationDefaultTargetMode')
-        }
-    }
 }
 
 dependencies {

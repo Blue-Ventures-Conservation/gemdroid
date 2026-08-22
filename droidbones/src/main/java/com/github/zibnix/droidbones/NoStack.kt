@@ -1,9 +1,8 @@
 package com.github.zibnix.droidbones
 
 import android.content.Context
-import androidx.annotation.StringRes
 
-class NoStack(@StringRes val resId: Int): Throwable("") {
+class NoStack(val resId: Int): Throwable("") {
     override fun fillInStackTrace() = this
 }
 

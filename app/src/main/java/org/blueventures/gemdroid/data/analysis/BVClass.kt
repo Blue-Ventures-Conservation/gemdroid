@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.data.analysis
 
+import android.content.Context
 import androidx.compose.ui.graphics.Color
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.BVClassColors.BVBurlywood
@@ -24,19 +25,21 @@ enum class BVClass(val number: Int, val color: Color, val enNames: List<String>)
     BE(8, BVYellow, listOf("Barren Exposed", "Barren/Exposed")),
     RW(9, BVDarkBlue, listOf("Residual Water"));
 
-    fun stringID(): Int {
+    fun localizedName(context: Context): String {
         return when(this) {
-            CCM -> R.string.closed_canopy_mangrove
-            OCMI -> R.string.open_canopy_mangrove
-            OCMII -> R.string.open_canopy_mangrove_ii
-            OCMIII -> R.string.open_canopy_mangrove_iii
-            TF -> R.string.terrestrial_forest
-            OTV -> R.string.other_vegetation
-            OV -> R.string.freshwater_vegetation
-            BE -> R.string.barren_exposed
-            RW -> R.string.residual_water
+            CCM -> context.getString(R.string.closed_canopy_mangrove)
+            OCMI -> context.getString(R.string.open_canopy_mangrove)
+            OCMII -> context.getString(R.string.open_canopy_mangrove_ii)
+            OCMIII -> context.getString(R.string.open_canopy_mangrove_iii)
+            TF -> context.getString(R.string.terrestrial_forest)
+            OTV -> context.getString(R.string.other_vegetation)
+            OV -> context.getString(R.string.freshwater_vegetation)
+            BE -> context.getString(R.string.barren_exposed)
+            RW -> context.getString(R.string.residual_water)
         }
     }
+
+    fun toCRAClass(context: Context) = CRAClass(number, localizedName(context))
     
     companion object {
         fun fromName(name: String): BVClass? {

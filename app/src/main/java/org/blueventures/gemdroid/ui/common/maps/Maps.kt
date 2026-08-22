@@ -2,7 +2,6 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import android.content.Context
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -21,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +34,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -79,7 +78,7 @@ object Maps {
     }
 
     data class Checker(val name: String, var state: Boolean = true, var setState: (Boolean) -> Unit = {})
-    data class FloatingNext(val imageVector: ImageVector, @StringRes val contentDescription: Int, val next: Click)
+    data class FloatingNext(val imageVector: ImageVector, val contentDescription: Int, val next: Click)
 
     @Composable
     fun NoLayers(
@@ -163,19 +162,30 @@ object Maps {
         mapType: MapType,
         next: FloatingNext?,
     ) {
+        val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
+        val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
+        var captureStatePair: Pair<Capture.State, (Capture.State) -> Unit>? = null
+        if (capture != null) {
+            captureStatePair = Capture.prepareState(capture, cameraPositionState)
+        }
+
+        val newPoly = if (capture != null && poly == null) {
+            capture.polyModel(captureStatePair!!.first, captureStatePair.second)
+        } else poly
+
         val checkers = remember { mutableListOf<Checker>() }
         if (layers != null && checkers.isEmpty()) {
             Layers.checkers(layers, checkers)
         }
 
         val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }
-        if (poly != null && groups == null) {
-            Polygons.checkers(LocalContext.current.applicationContext, poly) { pair ->
+        if (newPoly != null && groups == null) {
+            Polygons.checkers(LocalContext.current, newPoly) { pair ->
                 checkers.addAll(pair.first)
                 setGroups(pair.second)
             }
         } else {
-            Display(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, mapType, checkers, groups ?: emptyList(), next)
+            Display(appBar, title, gps, storage, layers, draw, newPoly, capture, captureStatePair,  cameraPositionState, mapType, checkers, groups, setGroups, next)
         }
     }
 
@@ -184,29 +194,24 @@ object Maps {
         appBar: AppBar,
         title: String,
         gps: Boolean,
-        center: LatLng?,
-        initialZoom: Float?,
         storage: Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Polygons.Model?,
         capture: Capture.Model?,
+        captureStatePair: Pair<Capture.State, (Capture.State) -> Unit>?,
+        cameraPositionState: CameraPositionState,
         mapType: MapType,
         checkers: List<Checker>,
-        groups: List<Polygons.NamedOptionsGroup>,
+        groups: List<Polygons.NamedOptionsGroup>?,
+        setGroups: (List<Polygons.NamedOptionsGroup>?) -> Unit,
         next: FloatingNext?,
     ) {
-        val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
-        val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
-
         val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
         val touchState = remember { mutableStateOf<LatLng?>(null) }
         val drawState = Draw.prepareState()
-        var captureState: MutableState<Capture.CaptureState>? = null
-        if (capture != null) {
-            captureState = Capture.prepareState(capture, cameraPositionState)
-        }
+
 
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
@@ -223,7 +228,7 @@ object Maps {
                 draw?.let {
                     Draw.Display(draw, drawState, cameraPositionState)
                 } ?: capture?.let {
-                    Capture.Display(capture, captureState!!)
+                    Capture.Display(capture, captureStatePair!!.first, captureStatePair.second, setGroups)
                 }
 
                 layers?.let {
@@ -231,7 +236,7 @@ object Maps {
                 }
 
                 poly?.let {
-                    Polygons.Display(poly, groups, checkers, touchState)
+                    Polygons.Display(poly, groups ?: emptyList(), checkers, touchState)
                 }
 
                 if (checkers.isNotEmpty()) {
@@ -250,7 +255,7 @@ object Maps {
             draw?.let {
                 DrawMapActions(draw, drawState)
             } ?: capture?.let {
-                CaptureMapActions(capture, captureState!!)
+                CaptureMapActions(capture, captureStatePair!!.first, captureStatePair.second)
             }
 
             if (capture == null && draw == null && next != null) {

@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common.maps
 
+import android.content.Context
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -33,9 +33,10 @@ import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Polygon
 import kotlinx.coroutines.FlowPreview
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.Rectangle
-import org.blueventures.gemdroid.data.analysis.BVClass
+import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
@@ -46,20 +47,28 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
+    data class State(val shape: NamedRectangle, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
+
     interface UI {
         val snack: SnackFun
         val done: Click
         val cellSize: Double
 
+        fun polyModel(state: State, setState: (State) -> Unit): Polygons.Model
         fun currentShape(): NamedRectangle
         fun nextShape(): NamedRectangle
     }
 
     interface Data {
-        val classes: List<BVClass>
         val capturedCollection: GeojsonPolygonFeatureCollection
 
-        fun capture(craClass: BVClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit)
+        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
+        fun classes(context: Context): List<CRAClass>
+        fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit)
+        fun identity(feature: GeojsonPolygonFeature): String?
+        fun currentClass(id: String): String?
+        fun updateClass(id: String, newClass: CRAClass, callback: (Result<Unit>) -> Unit)
+        fun delete(id: String, callback: (Result<Unit>) -> Unit)
     }
 
     @OptIn(FlowPreview::class)
@@ -76,8 +85,15 @@ object Capture {
             NamedRectangle("6x1", scale*6, scale*1),
             NamedRectangle("1x6", scale*1, scale*6)
         )
-
         override val cellSize = scale
+
+        override fun polyModel(state: State, setState: (State) -> Unit): Polygons.Model {
+            return object : Polygons.Model() {
+                override val touchEnabled = true
+                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = data.polygonGroups(context, callback)
+                override fun onTouch(point: Polygons.NamedPoint?) = @Composable { if (point != null) setState(state.copy(doEdit = point.name)) }
+            }
+        }
         override fun currentShape() = shapeOrder[shapeCursor]
         override fun nextShape(): NamedRectangle {
             shapeCursor = (shapeCursor + 1) % shapeOrder.size
@@ -85,29 +101,26 @@ object Capture {
         }
     }
 
-    data class CaptureState(val shape: NamedRectangle, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val maybeDone: Unit? = null)
-
     @Composable
-    fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<CaptureState> {
-        val captureState = remember { mutableStateOf(CaptureState(model.currentShape())) }
+    fun prepareState(model: Model, cameraPositionState: CameraPositionState): Pair<State, (State) -> Unit> {
+        val (state, setState) = remember { mutableStateOf(State(model.currentShape())) }
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.position.target }
-                .collect { captureState.value = captureState.value.copy(center = it) }
+                .collect { setState(state.copy(center = it)) }
         }
-
-        return captureState
+        return Pair(state, setState)
     }
 
     @Composable
     @GoogleMapComposable
-    fun Display(model: Model, captureState: MutableState<CaptureState>) {
-        captureState.value.doCapture?.let {
+    fun Display(model: Model, state: State, setState: (State) -> Unit, setGroups: (List<Polygons.NamedOptionsGroup>?) -> Unit) {
+        val context = LocalContext.current.applicationContext
+        state.doCapture?.let {
             val onDismiss = {
-                captureState.value = captureState.value.copy(doCapture = null)
+                setState(state.copy(doCapture = null))
             }
-            val context = LocalContext.current.applicationContext
             CaptureDialog(model, onDismiss) { craClass ->
-                optsFromState(model.cellSize, captureState.value.center, captureState.value.shape)?.first?.points?.let { polygon ->
+                optsFromState(model.cellSize, state.center, state.shape)?.first?.points?.let { polygon ->
                     model.capture(craClass, polygon) { result ->
                         when {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
@@ -118,9 +131,27 @@ object Capture {
             }
         }
 
-        captureState.value.maybeDone?.let {
+        state.doEdit?.let { stringID ->
+            val recomposer = {
+                setState(state.copy(doEdit = null))
+                setGroups(null)
+            }
+            val callback: (Result<Unit>) -> Unit = { result ->
+                when {
+                    result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
+                    else -> recomposer()
+                }
+            }
+            EditDialog(model, model.currentClass(stringID), recomposer, { newClass ->
+                model.updateClass(stringID, newClass, callback)
+            }) {
+                model.delete(stringID, callback)
+            }
+        }
+
+        state.maybeDone?.let {
             val onDismiss = {
-                captureState.value = captureState.value.copy(maybeDone = null)
+                setState(state.copy(maybeDone = null))
             }
             MaybeDoneDialog(model, onDismiss) {
                 onDismiss()
@@ -128,13 +159,13 @@ object Capture {
             }
         }
 
-        optsFromState(model.cellSize, captureState.value.center, captureState.value.shape)?.let { optsPair ->
+        optsFromState(model.cellSize, state.center, state.shape)?.let { optsPair ->
             val opts = optsPair.first
-            DrawMapPolygon(opts, 1000f)
-            captureState.value.showGrid?.let {
+            DrawMapPolygon(opts)
+            state.showGrid?.let {
                 val gridOpts = optsPair.second
                 gridOpts.forEach { opts ->
-                    DrawMapPolygon(opts, 1000f)
+                    DrawMapPolygon(opts)
                 }
             }
         }
@@ -142,8 +173,8 @@ object Capture {
 
     @GoogleMapComposable
     @Composable
-    private fun DrawMapPolygon(opts: PolygonOptions, zIndex: Float) {
-        Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, zIndex = zIndex)
+    private fun DrawMapPolygon(opts: PolygonOptions) {
+        Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, zIndex = 1000f)
     }
 
     private fun optsFromState(cellSize: Double, center: LatLng?, rect: NamedRectangle?): Pair<PolygonOptions, List<PolygonOptions>>? {
@@ -153,27 +184,27 @@ object Capture {
     }
 
     @Composable
-    fun BoxScope.CaptureMapActions(model: Model, captureState: MutableState<CaptureState>) {
+    fun BoxScope.CaptureMapActions(model: Model, state: State, setState: (State) -> Unit) {
         val usingSnack = stringResource(R.string.using_s_polygon)
         val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
-        val gridShowing = captureState.value.showGrid != null
+        val gridShowing = state.showGrid != null
         MultiMapActionButtons(ClickContent({
-            captureState.value = captureState.value.copy(doCapture = Unit)
+            setState(state.copy(doCapture = Unit))
         }) {
             Icon(Icons.Filled.PhotoLibrary, contentDescription = stringResource(R.string.capture_the_current_area))
         }, ClickContent({
             val nextRect = model.nextShape()
             model.snack(usingSnack.format(nextRect.name))
-            captureState.value = captureState.value.copy(shape = nextRect)
+            setState(state.copy(shape = nextRect))
         }) {
             Icon(Icons.Filled.FormatShapes, contentDescription = stringResource(R.string.modify_polygon_shape))
         }, ClickContent({
-            captureState.value = captureState.value.copy(showGrid = if (gridShowing) null else Unit)
+            setState(state.copy(showGrid = if (gridShowing) null else Unit))
         }) {
             Icon(if (gridShowing) Icons.Filled.GridOff else Icons.Filled.GridOn, contentDescription = stringResource(R.string.toggle_the_inner_grid_of_the_capture_polygon_on_or_off))
         }, ClickContent({
             if (model.capturedCollection.features.isNotEmpty()) {
-                captureState.value = captureState.value.copy(maybeDone = Unit)
+                setState(state.copy(maybeDone = Unit))
             } else {
                 model.snack(createCRAsFirst)
             }
@@ -183,29 +214,61 @@ object Capture {
     }
 
     @Composable
-    fun CaptureDialog(model: Model, onDismiss: Click, onCapture: (BVClass) -> Unit) {
-        val (choice, setChoice) = remember { mutableStateOf<BVClass?>(null) }
+    fun EditDialog(model: Model, currentClass: String?, onDismiss: Click, onEdit: (CRAClass) -> Unit, onDelete: () -> Unit) {
+        val classChoices = model.classes(LocalContext.current).toMutableList()
+        var initChoice: CRAClass? = null
+        for (craClass in classChoices) {
+            if (currentClass == craClass.name) {
+                initChoice = craClass
+                break
+            }
+        }
+
+        val (choice, setChoice) = remember { mutableStateOf(initChoice) }
+        val deleteClassNumber = -999999
+        classChoices.add(CRAClass(deleteClassNumber, stringResource(R.string.delete)))
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
-            text = {
-                Column(modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .verticalScroll(rememberScrollState())) {
-                    Rad.InnerIo(model.classes, choice, setChoice) { context, bvClass ->
-                        context.getString(bvClass.stringID())
+            title = { Text(text = stringResource(R.string.change_cra_class_or_delete)) },
+            text = { ClassChoices(classChoices, choice, setChoice) },
+            confirmButton = {
+                Butt.Text(stringResource(R.string.finished), choice != null) {
+                    choice?.let { chosen ->
+                        if (chosen.number == deleteClassNumber) {
+                            onDelete()
+                        } else {
+                            onEdit(chosen)
+                        }
                     }
                 }
             },
+            dismissButton = { Butt.Text(stringResource(R.string.cancel), click = onDismiss) }
+        )
+    }
+
+    @Composable
+    fun CaptureDialog(model: Model, onDismiss: Click, onCapture: (CRAClass) -> Unit) {
+        val (choice, setChoice) = remember { mutableStateOf<CRAClass?>(null) }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
+            text = { ClassChoices(model.classes(LocalContext.current), choice, setChoice) },
             confirmButton = {
                 Butt.Text(stringResource(R.string.capture), choice != null) {
                     choice?.let { onCapture(it) }
                 }
             },
-            dismissButton = {
-                Butt.Text(stringResource(R.string.cancel), click = onDismiss)
-            }
+            dismissButton = { Butt.Text(stringResource(R.string.cancel), click = onDismiss) }
         )
+    }
+
+    @Composable
+    fun ClassChoices(classes: List<CRAClass>, choice: CRAClass?, setChoice: (CRAClass?) -> Unit) {
+        Column(modifier = Modifier
+            .padding(bottom = 16.dp)
+            .verticalScroll(rememberScrollState())) {
+            Rad.InnerIo(classes, choice, setChoice) { _, craClass ->  craClass.name }
+        }
     }
 
     @Composable
@@ -218,10 +281,10 @@ object Capture {
                     .padding(bottom = 16.dp)
                     .verticalScroll(rememberScrollState())) {
                     Text(text = stringResource(R.string.your_cras_are_as_follows))
-                    model.classes.forEach { bvClass ->
-                        val count = model.capturedCollection.intPropertyCount(classNumberPropertyKey, bvClass.number)
+                    model.classes(LocalContext.current).forEach { craClass ->
+                        val count = model.capturedCollection.intPropertyCount(classNumberPropertyKey, craClass.number)
                         Info.Row {
-                            Info.Txt(stringResource(bvClass.stringID()) + ": ", 14.sp, truncate = true)
+                            Info.Txt(craClass.name + ": ", 14.sp, truncate = true)
                             Info.Txt("$count", 14.sp)
                         }
                     }

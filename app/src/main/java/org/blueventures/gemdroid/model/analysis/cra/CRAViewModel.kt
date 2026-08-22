@@ -1,15 +1,19 @@
 package org.blueventures.gemdroid.model.analysis.cra
 
+import android.content.Context
+import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.NoStack
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.analysis.BVClass
+import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
 import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
@@ -20,13 +24,16 @@ import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
 import org.blueventures.gemdroid.data.analysis.cra.StringsNumerics
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.PolygonGrouper
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classIDPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.creationGeojson
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
+import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
+import org.blueventures.gemdroid.ui.theme.Chartreuse
 import java.io.File
 import java.io.InputStream
 
@@ -220,24 +227,93 @@ class CRAViewModel(
         awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cras), callback)
     }
 
-    override val classes = BVClass.entries
     override val capturedCollection
         get() = GeojsonPolygonFeatureCollection(features = capturedFeatures)
     val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
-    override fun capture(craClass: BVClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
+        background({
+            val polygons = mutableListOf<Polygons.Named>()
+            capturedCollection.features.forEach { feature ->
+                identity(feature)?.let { stringID ->
+                    polygons.add(Polygons.Named(stringID, GeojsonMultiPolygon.toState(GeojsonMultiPolygon(listOf(feature.geometry.coordinates)))))
+                }
+            }
+
+            if (polygons.isEmpty()) {
+                emptyList()
+            } else {
+                val color = Chartreuse.toArgb()
+                listOf(Polygons.Group("CRAs", polygons, color, color))
+            }
+        }, callback)
+    }
+
+    var currentID = 1
+        get() = field++
+    private var craClasses: List<CRAClass>? = null
+    override fun classes(context: Context): List<CRAClass> {
+        if (craClasses == null) {
+            craClasses = BVClass.entries.map { it.toCRAClass(context) }
+        }
+        return craClasses!!
+    }
+    override fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
-            properties = mapOf(
-                classNamePropertyKey to craClass.enNames.first(),
-                classNumberPropertyKey to craClass.number,
-            )
+            properties = makeProperties(currentID, craClass)
         ))
         saveLocallyCreatedCRAFile(callback)
+    }
+    private fun makeProperties(id: Int, craClass: CRAClass) = mapOf(
+        classIDPropertyKey to id,
+        classNamePropertyKey to craClass.name,
+        classNumberPropertyKey to craClass.number,
+    )
+    override fun identity(feature: GeojsonPolygonFeature) = feature.intProperty(classIDPropertyKey)?.toString()
+    override fun currentClass(id: String): String? {
+        for (feature in capturedFeatures) {
+            if (feature.intProperty(classIDPropertyKey)?.toString() == id) {
+                return (feature.properties[classNamePropertyKey] as? String)
+            }
+        }
+
+        return null
+    }
+    override fun updateClass(id: String, newClass: CRAClass, callback: (Result<Unit>) -> Unit) {
+        findFeature(id) { intID, feature ->
+            feature.properties = makeProperties(intID, newClass)
+            saveLocallyCreatedCRAFile(callback)
+        }
+    }
+    override fun delete(id: String, callback: (Result<Unit>) -> Unit) {
+        findFeature(id) { _, feature ->
+            capturedFeatures.remove(feature)
+            saveLocallyCreatedCRAFile(callback)
+        }
+    }
+    private fun findFeature(id: String, found: (Int, GeojsonPolygonFeature) -> Unit) {
+        for (feature in capturedFeatures) {
+            feature.intProperty(classIDPropertyKey)?.let { intID ->
+                if (intID.toString() == id) {
+                    found(intID, feature)
+                    return
+                }
+            }
+        }
     }
 
     fun continueExisting(fc: GeojsonPolygonFeatureCollection) {
         capturedFeatures.clear()
         capturedFeatures.addAll(fc.features)
+        var maxID = -1
+        for (feature in capturedFeatures) {
+            feature.intProperty(classIDPropertyKey)?.let { id ->
+                if (id > maxID) {
+                    maxID = id
+                }
+            }
+        }
+        currentID = maxID + 1
     }
 
     fun processCapturedCRAsAndStoreInCloud(callback: (Result<Unit>) -> Unit) {

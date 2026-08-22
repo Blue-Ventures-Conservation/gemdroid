@@ -128,7 +128,7 @@ object PolygonUtils {
     }
 
     data class NamedPolygon(
-        @Json(name = "name") val name: String,
-        @Json(name = "geometry") val polygon: GeojsonMultiPolygon,
+        @param:Json(name = "name") val name: String,
+        @param:Json(name = "geometry") val polygon: GeojsonMultiPolygon,
     )
 }

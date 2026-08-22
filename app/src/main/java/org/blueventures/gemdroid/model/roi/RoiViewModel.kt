@@ -28,8 +28,13 @@ import java.util.Calendar
 class RoiViewModel(
     private val repo: RoiRepository = RoiRepository()
 ): ApiViewModel(repo), CollectPolygons.Model {
+    val coarseModel: CollectPolygon.Model = CoarsePolygonModel(this)
     var rois: List<File> = emptyList()
     var roiName: String = ""
+        set(value) {
+            field = value
+            coarseModel.polygonName = value
+        }
     var contemporaryYearStart: Int = defaultContemporaryYearStart
     var contemporaryYearEnd: Int = defaultContemporaryYearEnd
     var contemporaryMonths: List<Int> = emptyList()
@@ -41,7 +46,6 @@ class RoiViewModel(
     var importedBufferDist: Int = -1
     var imported = false
     var forceLS: Boolean = false
-    val coarseModel: CollectPolygon.Model = CoarsePolygonModel(this)
 
     fun refreshRois(filesDir: File, callback: (Result<List<File>>) -> Unit) = scoped { repo.getRois(filesDir).collect(callback) }
 
@@ -236,7 +240,7 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Mo
     override var filePoly: MultiPolyPts = emptyList()
     override fun <T> background(work: () -> T, callback: (T) -> Unit) { viewModel.background(work, callback) }
     override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) { viewModel.validatePolygonFile(streams, callback) }
-    override var polygonName: String = viewModel.roiName
+    override var polygonName: String = ""
 
     override fun shapefileLooksGood() {
         viewModel.importedROI = filePoly

@@ -7,12 +7,12 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class ImageryExports(
-    @Json(name = "chot") val chot: Export,
-    @Json(name = "clot") val clot: Export,
-    @Json(name = "hhot") val hhot: Export,
-    @Json(name = "hlot") val hlot: Export,
-    @Json(name = "created_at") override val createdAt: Int, // seconds
-    @Json(name = "timeout") override val timeout: Int, // seconds
+    @param:Json(name = "chot") val chot: Export,
+    @param:Json(name = "clot") val clot: Export,
+    @param:Json(name = "hhot") val hhot: Export,
+    @param:Json(name = "hlot") val hlot: Export,
+    @param:Json(name = "created_at") override val createdAt: Int, // seconds
+    @param:Json(name = "timeout") override val timeout: Int, // seconds
 ): Expires {
     companion object : Serializer<ImageryExports>() {
         private val adapter = make<ImageryExports>()

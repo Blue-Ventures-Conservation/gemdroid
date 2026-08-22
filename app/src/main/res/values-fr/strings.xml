@@ -367,4 +367,5 @@
     <string name="failed_to_save_please_try_again">Failed to save, please try again.</string>
     <string name="you_can_tap_the_back_button_if_you_aren_t_ready">You can tap the Back button if you aren\'t ready.</string>
     <string name="toggle_the_inner_grid_of_the_capture_polygon_on_or_off">toggle the inner grid of the capture polygon on or off</string>
+    <string name="change_cra_class_or_delete">Change CRA Class or Delete</string>
 </resources>

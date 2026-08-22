@@ -5,8 +5,8 @@ import com.squareup.moshi.Json
 
 typealias MultiPolyPts = List<List<List<LatLng>>>
 data class GeojsonMultiPolygon(
-    @Json(name = "coordinates") val coordinates: List<List<List<List<Double>>>>,
-    @Json(name = "type") val type: String = "MultiPolygon",
+    @param:Json(name = "coordinates") val coordinates: List<List<List<List<Double>>>>,
+    @param:Json(name = "type") val type: String = "MultiPolygon",
 ) {
     companion object {
         fun toState(geo: GeojsonMultiPolygon): MultiPolyPts {

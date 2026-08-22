@@ -9,8 +9,8 @@ import java.io.File
 
 typealias PolyPts = List<List<LatLng>>
 data class GeojsonPolygon(
-    @Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
-    @Json(name = "type") val type: String = "Polygon",
+    @param:Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
+    @param:Json(name = "type") val type: String = "Polygon",
 ) {
     companion object : Serializer<GeojsonPolygon>() {
         fun toStateWithContainer(geo: GeojsonPolygon, container: MultiPolyPts? = null): Pair<PolyPts, Int> {

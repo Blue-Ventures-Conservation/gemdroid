@@ -20,7 +20,7 @@ object CheckForExistingCreation {
                 Progress()
                 viewModel.loadLocallyCreatedCRAFile(setExistingResult)
             }
-            existingResult.isFailure -> {
+            existingResult.isFailure || existingResult.getOrNull()!!.features.isEmpty() -> {
                 Progress()
                 next()
             }

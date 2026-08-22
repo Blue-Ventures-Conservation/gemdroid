@@ -5,7 +5,7 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class TasksResults(
-    @Json(name = "results") val results: List<TaskStatus>
+    @param:Json(name = "results") val results: List<TaskStatus>
 ) {
 
     fun completed(): Boolean {
@@ -27,6 +27,6 @@ data class TasksResults(
 }
 
 data class TaskStatus(
-    @Json(name = "success") val success: Boolean,
-    @Json(name = "error") val error: String?,
+    @param:Json(name = "success") val success: Boolean,
+    @param:Json(name = "error") val error: String?,
 )

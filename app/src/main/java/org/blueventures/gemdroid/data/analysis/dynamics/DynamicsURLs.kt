@@ -6,13 +6,13 @@ import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
 data class DynamicsURLs(
-    @Json(name = "loss_url") val lossURL: String,
-    @Json(name = "persistence_url") val persistenceURL: String,
-    @Json(name = "gain_url") val gainURL: String,
-    @Json(name = "stats") val stats: RegionStats,
-    @Json(name = "sub_region_stats") val subRegionStats: List<RegionStats>,
-    @Json(name = "created_at") override val createdAt: Int, // seconds
-    @Json(name = "timeout") override val timeout: Int, // seconds
+    @param:Json(name = "loss_url") val lossURL: String,
+    @param:Json(name = "persistence_url") val persistenceURL: String,
+    @param:Json(name = "gain_url") val gainURL: String,
+    @param:Json(name = "stats") val stats: RegionStats,
+    @param:Json(name = "sub_region_stats") val subRegionStats: List<RegionStats>,
+    @param:Json(name = "created_at") override val createdAt: Int, // seconds
+    @param:Json(name = "timeout") override val timeout: Int, // seconds
 ): URLs {
     override fun ordered(i: Int): String {
         return when(i) { 0 -> lossURL; 1 -> persistenceURL; else -> gainURL }
@@ -26,26 +26,26 @@ data class DynamicsURLs(
 }
 
 data class RegionStats(
-    @Json(name = "name") val name: String,
-    @Json(name = "all_classes") val allClasses: List<ClassDynamics>,
+    @param:Json(name = "name") val name: String,
+    @param:Json(name = "all_classes") val allClasses: List<ClassDynamics>,
 )
 
 data class ClassDynamics(
-    @Json(name = "name") val name: String,
-    @Json(name = "cont") val contArea: Double,
-    @Json(name = "hist") val histArea: Double,
-    @Json(name = "loss") val loss: Double,
-    @Json(name = "persistence") val persistence: Double,
-    @Json(name = "gain") val gain: Double,
-    @Json(name = "conversions") val conversions: ClassConversions,
+    @param:Json(name = "name") val name: String,
+    @param:Json(name = "cont") val contArea: Double,
+    @param:Json(name = "hist") val histArea: Double,
+    @param:Json(name = "loss") val loss: Double,
+    @param:Json(name = "persistence") val persistence: Double,
+    @param:Json(name = "gain") val gain: Double,
+    @param:Json(name = "conversions") val conversions: ClassConversions,
 )
 
 data class ClassConversions(
-    @Json(name = "to") val to: List<Conversion>,
-    @Json(name = "from") val from: List<Conversion>,
+    @param:Json(name = "to") val to: List<Conversion>,
+    @param:Json(name = "from") val from: List<Conversion>,
 )
 
 data class Conversion(
-    @Json(name = "area") val area: Double,
-    @Json(name = "name") val name: String,
+    @param:Json(name = "area") val area: Double,
+    @param:Json(name = "name") val name: String,
 )

@@ -5,10 +5,10 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class DynamicsReadyResponse(
-    @Json(name = "cont_ready") val contReady: Boolean,
-    @Json(name = "hist_ready") val histReady: Boolean,
-    @Json(name = "cont_op") val contOp: String,
-    @Json(name = "hist_op") val histOp: String,
+    @param:Json(name = "cont_ready") val contReady: Boolean,
+    @param:Json(name = "hist_ready") val histReady: Boolean,
+    @param:Json(name = "cont_op") val contOp: String,
+    @param:Json(name = "hist_op") val histOp: String,
 ) {
     fun isReady() = contReady && histReady
     companion object : Serializer<DynamicsReadyResponse>() {

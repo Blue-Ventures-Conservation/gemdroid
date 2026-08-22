@@ -24,7 +24,15 @@ import org.blueventures.gemdroid.ui.theme.blend
 
 object Polygons {
     data class Named(val name: String, val polygon: MultiPolyPts)
-    data class Group(val menuTitle: String, val polygons: List<Named>, val color: Int? = null, val strokeColor: Int = 0x7F000000, val dashes: Boolean = false, val startVisible: Boolean = true)
+    data class Group(
+        val menuTitle: String,
+        val polygons: List<Named>,
+        val color: Int? = null,
+        val strokeColor: Int = 0x7F000000,
+        val dashes: Boolean = false,
+        val startVisible: Boolean = true
+    )
+
     data class NamedOptions(val name: String, val options: List<PolygonOptions>)
     data class NamedOptionsGroup(val menuTitle: String, val namedOptions: List<NamedOptions>, val startVisible: Boolean = true)
     data class NamedPoint(val name: String, val point: LatLng)
@@ -111,7 +119,15 @@ object Polygons {
         if (group.namedOptions.isNotEmpty()) {
             for (namedOptions in group.namedOptions) {
                 for (opts in namedOptions.options) {
-                    Polygon(points = opts.points, fillColor = Color(opts.fillColor), strokeColor = Color(opts.strokeColor), strokePattern = opts.strokePattern, strokeWidth = opts.strokeWidth, visible = checker.state, zIndex = zIndex)
+                    Polygon(
+                        points = opts.points,
+                        fillColor = Color(opts.fillColor),
+                        strokeColor = Color(opts.strokeColor),
+                        strokePattern = opts.strokePattern,
+                        strokeWidth = opts.strokeWidth,
+                        visible = checker.state,
+                        zIndex = zIndex
+                    )
                 }
             }
         }
@@ -136,6 +152,8 @@ object Polygons {
                     }
                 }
             }
+
+            lastTouch.value = null
         }
 
         model.onTouch(namedPoint).invoke()

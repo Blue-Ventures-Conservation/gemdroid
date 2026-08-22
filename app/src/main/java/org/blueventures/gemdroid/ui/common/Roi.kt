@@ -133,9 +133,10 @@ object Roi {
 
                 var total = 0
                 val counts = info.classCounts
+                val context = LocalContext.current
                 for (cc in counts) {
                     total += cc.craCount
-                    val translatedBVName = BVClass.fromName(cc.className)?.stringID()?.let { stringResource(it) }
+                    val translatedBVName = BVClass.fromName(cc.className)?.localizedName(context)
                     OverviewRow("${cc.classNumber} - ${translatedBVName ?: cc.className}:", "${cc.craCount}")
                 }
 

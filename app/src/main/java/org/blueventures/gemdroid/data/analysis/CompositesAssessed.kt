@@ -7,7 +7,7 @@ import java.io.File
 // existence is all that really matters about this file
 // it is used to show that the false color composites have been assessed and accepted
 data class CompositesAssessed(
-    @Json(name = "assessed") val assessed: Boolean
+    @param:Json(name = "assessed") val assessed: Boolean
 ){
     companion object : Serializer<CompositesAssessed>() {
         private val adapter = make<CompositesAssessed>()

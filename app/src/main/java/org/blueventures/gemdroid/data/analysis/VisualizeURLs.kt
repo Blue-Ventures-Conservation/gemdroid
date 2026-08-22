@@ -7,13 +7,13 @@ import java.io.File
 
 // Returned by the backend after receiving an ROI and preparing imagery
 data class VisualizeURLs(
-    @Json(name = "chot_url") val chotURL: String,
-    @Json(name = "clot_url") val clotURL: String,
-    @Json(name = "hhot_url") val hhotURL: String,
-    @Json(name = "hlot_url") val hlotURL: String,
-    @Json(name = "buff_dist") val buffDist: Int,
-    @Json(name = "created_at") override val createdAt: Int, // seconds
-    @Json(name = "timeout") override val timeout: Int, // seconds
+    @param:Json(name = "chot_url") val chotURL: String,
+    @param:Json(name = "clot_url") val clotURL: String,
+    @param:Json(name = "hhot_url") val hhotURL: String,
+    @param:Json(name = "hlot_url") val hlotURL: String,
+    @param:Json(name = "buff_dist") val buffDist: Int,
+    @param:Json(name = "created_at") override val createdAt: Int, // seconds
+    @param:Json(name = "timeout") override val timeout: Int, // seconds
 ): URLs {
     override fun ordered(i: Int): String {
         return when(i) {

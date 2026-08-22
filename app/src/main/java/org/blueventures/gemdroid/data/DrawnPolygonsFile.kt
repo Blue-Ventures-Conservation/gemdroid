@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import java.io.File
 
 data class DrawnPolygonsFile(
-    @Json(name = "drawn_polygons") val polygons: List<PolygonUtils.NamedPolygon>
+    @param:Json(name = "drawn_polygons") val polygons: List<PolygonUtils.NamedPolygon>
 ) {
     companion object : Serializer<DrawnPolygonsFile>() {
         private val adapter = make<DrawnPolygonsFile>()

@@ -7,10 +7,10 @@ import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
 data class ClassificationExports(
-    @Json(name = "contemporary") val contemporary: Export,
-    @Json(name = "historical") val historical: Export,
-    @Json(name = "created_at") override val createdAt: Int, // seconds
-    @Json(name = "timeout") override val timeout: Int, // seconds
+    @param:Json(name = "contemporary") val contemporary: Export,
+    @param:Json(name = "historical") val historical: Export,
+    @param:Json(name = "created_at") override val createdAt: Int, // seconds
+    @param:Json(name = "timeout") override val timeout: Int, // seconds
 ): Expires {
     companion object : Serializer<ClassificationExports>() {
         private val adapter = make<ClassificationExports>()
