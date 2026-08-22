@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -47,14 +48,14 @@ import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
-    data class State(val shape: NamedRectangle, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
+    data class State(val shape: NamedRectangle, val center: LatLng? = null, val checker: Maps.Checker? = null, val group: Polygons.NamedOptionsGroup? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
 
     interface UI {
         val snack: SnackFun
         val done: Click
         val cellSize: Double
 
-        fun polyModel(state: State, setState: (State) -> Unit): Polygons.Model
+        fun polyModel(state: MutableState<State>): Polygons.Model
         fun currentShape(): NamedRectangle
         fun nextShape(): NamedRectangle
     }
@@ -87,11 +88,11 @@ object Capture {
         )
         override val cellSize = scale
 
-        override fun polyModel(state: State, setState: (State) -> Unit): Polygons.Model {
+        override fun polyModel(state: MutableState<State>): Polygons.Model {
             return object : Polygons.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = data.polygonGroups(context, callback)
-                override fun onTouch(point: Polygons.NamedPoint?) = @Composable { if (point != null) setState(state.copy(doEdit = point.name)) }
+                override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { if (point != null) { state.value = state.value.copy(doEdit = point.polygonName) }}
             }
         }
         override fun currentShape() = shapeOrder[shapeCursor]
@@ -102,29 +103,41 @@ object Capture {
     }
 
     @Composable
-    fun prepareState(model: Model, cameraPositionState: CameraPositionState): Pair<State, (State) -> Unit> {
-        val (state, setState) = remember { mutableStateOf(State(model.currentShape())) }
+    fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<State> {
+        val state = remember { mutableStateOf(State(model.currentShape())) }
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.position.target }
-                .collect { setState(state.copy(center = it)) }
+                .collect { state.value = state.value.copy(center = it) }
         }
-        return Pair(state, setState)
+        return state
     }
 
     @Composable
     @GoogleMapComposable
-    fun Display(model: Model, state: State, setState: (State) -> Unit, setGroups: (List<Polygons.NamedOptionsGroup>?) -> Unit) {
+    fun Display(model: Model, state: MutableState<State>, lastTouch: MutableState<LatLng?>) {
+        val polyModel = model.polyModel(state)
+
+        val (groupAndCheckerResult, setGroupAndCheckerResult) = remember { mutableStateOf<Result<Unit>?>(null) }
+        when {
+            groupAndCheckerResult == null -> groupAndChecker(LocalContext.current, polyModel, state, setGroupAndCheckerResult)
+            groupAndCheckerResult.isSuccess -> {
+                val groups = listOf(state.value.group!!)
+                val checkers = listOf(state.value.checker!!)
+                Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, groups, checkers, lastTouch)
+            }
+        }
+
         val context = LocalContext.current.applicationContext
-        state.doCapture?.let {
-            val onDismiss = { setState(state.copy(doCapture = null)) }
+        state.value.doCapture?.let {
+            val onDismiss = { state.value = state.value.copy(doCapture = null) }
             CaptureDialog(model, onDismiss) { craClass ->
-                optsFromState(model.cellSize, state.center, state.shape)?.first?.points?.let { polygon ->
+                optsFromState(model.cellSize, state.value.center, state.value.shape)?.first?.points?.let { polygon ->
                     model.capture(craClass, polygon) { result ->
                         when {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                             else -> {
                                 onDismiss()
-                                setGroups(null)
+                                setGroupAndCheckerResult(null)
                             }
                         }
                     }
@@ -132,14 +145,14 @@ object Capture {
             }
         }
 
-        state.doEdit?.let { stringID ->
-            val onDismiss = { setState(state.copy(doEdit = null)) }
+        state.value.doEdit?.let { stringID ->
+            val onDismiss = { state.value = state.value.copy(doEdit = null) }
             val callback: (Result<Unit>) -> Unit = { result ->
                 when {
                     result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                     else -> {
                         onDismiss()
-                        setGroups(null)
+                        setGroupAndCheckerResult(null)
                     }
                 }
             }
@@ -150,9 +163,9 @@ object Capture {
             }
         }
 
-        state.maybeDone?.let {
+        state.value.maybeDone?.let {
             val onDismiss = {
-                setState(state.copy(maybeDone = null))
+                state.value = state.value.copy(maybeDone = null)
             }
             MaybeDoneDialog(model, onDismiss) {
                 onDismiss()
@@ -160,14 +173,26 @@ object Capture {
             }
         }
 
-        optsFromState(model.cellSize, state.center, state.shape)?.let { optsPair ->
+        optsFromState(model.cellSize, state.value.center, state.value.shape)?.let { optsPair ->
             val opts = optsPair.first
             DrawMapPolygon(opts)
-            state.showGrid?.let {
+            state.value.showGrid?.let {
                 val gridOpts = optsPair.second
                 gridOpts.forEach { opts ->
                     DrawMapPolygon(opts)
                 }
+            }
+        }
+    }
+
+    private fun groupAndChecker(context: Context, polyModel: Polygons.Model, state: MutableState<State>, callback: (Result<Unit>) -> Unit) {
+        polyModel.polygonOptions(context) { groups ->
+            if (groups.isNotEmpty()) {
+                val group = groups.first()
+                state.value = state.value.copy(checker = Maps.Checker(group.menuTitle), group = group)
+                callback(Result.success(Unit))
+            } else {
+                callback(Result.failure(Throwable()))
             }
         }
     }
@@ -185,27 +210,27 @@ object Capture {
     }
 
     @Composable
-    fun BoxScope.CaptureMapActions(model: Model, state: State, setState: (State) -> Unit) {
+    fun BoxScope.CaptureMapActions(model: Model, state: MutableState<State>) {
         val usingSnack = stringResource(R.string.using_s_polygon)
         val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
-        val gridShowing = state.showGrid != null
+        val gridShowing = state.value.showGrid != null
         MultiMapActionButtons(ClickContent({
-            setState(state.copy(doCapture = Unit))
+            state.value = state.value.copy(doCapture = Unit)
         }) {
             Icon(Icons.Filled.PhotoLibrary, contentDescription = stringResource(R.string.capture_the_current_area))
         }, ClickContent({
             val nextRect = model.nextShape()
             model.snack(usingSnack.format(nextRect.name))
-            setState(state.copy(shape = nextRect))
+            state.value = state.value.copy(shape = nextRect)
         }) {
             Icon(Icons.Filled.FormatShapes, contentDescription = stringResource(R.string.modify_polygon_shape))
         }, ClickContent({
-            setState(state.copy(showGrid = if (gridShowing) null else Unit))
+            state.value = state.value.copy(showGrid = if (gridShowing) null else Unit)
         }) {
             Icon(if (gridShowing) Icons.Filled.GridOff else Icons.Filled.GridOn, contentDescription = stringResource(R.string.toggle_the_inner_grid_of_the_capture_polygon_on_or_off))
         }, ClickContent({
             if (model.capturedCollection.features.isNotEmpty()) {
-                setState(state.copy(maybeDone = Unit))
+                state.value = state.value.copy(maybeDone = Unit)
             } else {
                 model.snack(createCRAsFirst)
             }

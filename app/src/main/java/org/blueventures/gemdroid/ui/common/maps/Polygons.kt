@@ -35,12 +35,12 @@ object Polygons {
 
     data class NamedOptions(val name: String, val options: List<PolygonOptions>)
     data class NamedOptionsGroup(val menuTitle: String, val namedOptions: List<NamedOptions>, val startVisible: Boolean = true)
-    data class NamedPoint(val name: String, val point: LatLng)
+    data class PolygonPoint(val polygonName: String, val point: LatLng)
 
     abstract class Model {
         abstract val touchEnabled: Boolean
         abstract fun polygonGroups(context: Context, callback: (List<Group>) -> Unit)
-        abstract fun onTouch(point: NamedPoint?): @Composable () -> Unit
+        abstract fun onTouch(point: PolygonPoint?): @Composable () -> Unit
 
         fun polygonOptions(context: Context, callback: (List<NamedOptionsGroup>) -> Unit) {
             polygonGroups(context) { polyGroups ->
@@ -82,7 +82,19 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    fun Display(model: Model, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>) {
+    fun PlaceMarker(polygonPoint: PolygonPoint?) {
+        if (polygonPoint != null) {
+            val state = rememberUpdatedMarkerState(polygonPoint.point)
+            LaunchedEffect(polygonPoint) {
+                state.showInfoWindow()
+            }
+            MarkerInfoWindow(state = state, title = polygonPoint.polygonName)
+        }
+    }
+
+    @Composable
+    @GoogleMapComposable
+    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Unit, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>) {
         val firstZ = 9999f
 
         val visibilities = mutableListOf<Boolean>()
@@ -104,8 +116,8 @@ object Polygons {
             }
         }
 
-        if (model.touchEnabled) {
-            Touch(model, groups, visibilities, lastTouch)
+        if (touchEnabled) {
+            Touch(onTouch, groups, visibilities, lastTouch)
         }
     }
 
@@ -135,8 +147,8 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    fun Touch(model: Model, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
-        var namedPoint: NamedPoint? = null
+    private fun Touch(onTouch: (PolygonPoint?) -> @Composable () -> Unit, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
+        var polygonPoint: PolygonPoint? = null
         if (lastTouch.value != null) {
             val point = lastTouch.value!!
             outer@ for (i in optGroups.indices) {
@@ -145,7 +157,7 @@ object Polygons {
                     for (namedOpts in optGroup.namedOptions) {
                         for (opts in namedOpts.options) {
                             if (PolyUtil.containsLocation(point, opts.points, true)) {
-                                namedPoint = NamedPoint(namedOpts.name, point)
+                                polygonPoint = PolygonPoint(namedOpts.name, point)
                                 break@outer
                             }
                         }
@@ -159,18 +171,6 @@ object Polygons {
             lastTouch.value = null
         }
 
-        model.onTouch(namedPoint).invoke()
-    }
-
-    @Composable
-    @GoogleMapComposable
-    fun PlaceMarker(namedPoint: NamedPoint?) {
-        if (namedPoint != null) {
-            val state = rememberUpdatedMarkerState(namedPoint.point)
-            LaunchedEffect(namedPoint) {
-                state.showInfoWindow()
-            }
-            MarkerInfoWindow(state = state, title = namedPoint.name)
-        }
+        onTouch(polygonPoint).invoke()
     }
 }

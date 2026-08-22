@@ -42,7 +42,7 @@ object VisualizeFilePoly {
             val title = stringResource(R.string.visualize_polygon)
             Visualize.Screen(model.visualizer(), appBar, title, false, center = center, storage = storage, poly = object : Polygons.Model() {
                 override val touchEnabled = true
-                override fun onTouch(point: Polygons.NamedPoint?) = @Composable { Polygons.PlaceMarker(point) }
+                override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { Polygons.PlaceMarker(point) }
 
                 override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
                     return model.polygonGroups(context) { groups ->

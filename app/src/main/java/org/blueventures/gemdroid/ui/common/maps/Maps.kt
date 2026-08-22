@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -20,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +36,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -162,30 +163,21 @@ object Maps {
         mapType: MapType,
         next: FloatingNext?,
     ) {
-        val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
-        val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
-        var captureStatePair: Pair<Capture.State, (Capture.State) -> Unit>? = null
-        if (capture != null) {
-            captureStatePair = Capture.prepareState(capture, cameraPositionState)
-        }
-
-        val newPoly = if (capture != null && poly == null) {
-            capture.polyModel(captureStatePair!!.first, captureStatePair.second)
-        } else poly
-
         val checkers = remember { mutableListOf<Checker>() }
-        if (layers != null && checkers.isEmpty()) {
+        if (checkers.isEmpty() && layers != null) {
             Layers.checkers(layers, checkers)
         }
 
-        val (groups, setGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }
-        if (newPoly != null && groups == null) {
-            Polygons.checkers(LocalContext.current, newPoly) { pair ->
+        val polygonGroups = remember { mutableListOf<Polygons.NamedOptionsGroup>() }
+        val (polyStateGathered, setPolyStateGathered) = remember { mutableStateOf(false) }
+        if (poly != null && !polyStateGathered) {
+            Polygons.checkers(LocalContext.current, poly) { pair ->
                 checkers.addAll(pair.first)
-                setGroups(pair.second)
+                polygonGroups.addAll(pair.second)
+                setPolyStateGathered(true)
             }
         } else {
-            Display(appBar, title, gps, storage, layers, draw, newPoly, capture, captureStatePair,  cameraPositionState, mapType, checkers, groups, setGroups, next)
+            Display(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, mapType, checkers, polygonGroups, next)
         }
     }
 
@@ -194,23 +186,30 @@ object Maps {
         appBar: AppBar,
         title: String,
         gps: Boolean,
+        center: LatLng?,
+        initialZoom: Float?,
         storage: Storage?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Polygons.Model?,
         capture: Capture.Model?,
-        captureStatePair: Pair<Capture.State, (Capture.State) -> Unit>?,
-        cameraPositionState: CameraPositionState,
         mapType: MapType,
-        checkers: List<Checker>,
-        groups: List<Polygons.NamedOptionsGroup>?,
-        setGroups: (List<Polygons.NamedOptionsGroup>?) -> Unit,
+        checkers: MutableList<Checker>,
+        polygonGroups: List<Polygons.NamedOptionsGroup>,
         next: FloatingNext?,
     ) {
+        val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
+        val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
         val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
         val touchState = remember { mutableStateOf<LatLng?>(null) }
         val drawState = Draw.prepareState()
+        var captureState: MutableState<Capture.State>? = null
+        if (capture != null) {
+            captureState = Capture.prepareState(capture, cameraPositionState)
+        }
+
+        Log.e("derp", "Maps.Display")
 
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
@@ -222,20 +221,26 @@ object Maps {
                 onMapClick = { pt ->
                     touchState.value = pt
                 }) {
-                // drawing and capturing are currently mutually exclusive
-                // because they both take over the bottom right floating map buttons
-                draw?.let {
-                    Draw.Display(draw, drawState, cameraPositionState)
-                } ?: capture?.let {
-                    Capture.Display(capture, captureStatePair!!.first, captureStatePair.second, setGroups)
-                }
-
                 layers?.let {
                     Layers.Display(layers, checkers)
                 }
 
                 poly?.let {
-                    Polygons.Display(poly, groups ?: emptyList(), checkers, touchState)
+                    Polygons.Display(poly.touchEnabled, poly::onTouch, polygonGroups, checkers, touchState)
+                }
+
+                // drawing and capturing are currently mutually exclusive
+                // because they both take over the bottom right floating map buttons
+                draw?.let {
+                    Draw.Display(draw, drawState, cameraPositionState)
+                } ?: capture?.let {
+                    Capture.Display(capture,  captureState!!, touchState)
+                }
+
+                captureState?.let { state ->
+                    state.value.checker?.let {
+                        checkers.add(it)
+                    }
                 }
 
                 if (checkers.isNotEmpty()) {
@@ -254,7 +259,7 @@ object Maps {
             draw?.let {
                 DrawMapActions(draw, drawState)
             } ?: capture?.let {
-                CaptureMapActions(capture, captureStatePair!!.first, captureStatePair.second)
+                CaptureMapActions(capture, captureState!!)
             }
 
             if (capture == null && draw == null && next != null) {

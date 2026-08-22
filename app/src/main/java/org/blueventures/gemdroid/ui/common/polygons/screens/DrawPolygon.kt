@@ -31,7 +31,7 @@ object DrawPolygon {
         }, poly = object : Polygons.Model() {
             override val touchEnabled = false
             override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) { model.polygonGroups(context, callback) }
-            override fun onTouch(point: Polygons.NamedPoint?) = @Composable { Polygons.PlaceMarker(point) }
+            override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { Polygons.PlaceMarker(point) }
         })
     }
 }
