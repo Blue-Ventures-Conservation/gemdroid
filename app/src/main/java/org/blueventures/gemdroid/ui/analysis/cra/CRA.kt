@@ -13,6 +13,8 @@ import org.blueventures.gemdroid.ui.analysis.cra.screens.CheckForExistingCreatio
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ChooseHistorical
 import org.blueventures.gemdroid.ui.analysis.cra.screens.ContemporaryCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateChosen
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateClasses
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateOrDefaultClasses
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Creation
 import org.blueventures.gemdroid.ui.analysis.cra.screens.HistoricalCRA
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Purpose
@@ -32,7 +34,9 @@ object CRA {
         const val upload_or_create = prefix + "upload_or_create"
         const val create_chosen = prefix + "create_chosen"
         const val upload_chosen = prefix + "upload_chosen"
-        const val checkForExistingCreation = prefix + "check_for_existing_creation"
+        const val check_for_existing_creation = prefix + "check_for_existing_creation"
+        const val create_or_default_classes = prefix + "create_or_default_classes"
+        const val create_classes = prefix + "create_classes"
         const val creation = prefix + "creation"
         const val upload_creation = prefix + "upload_creation"
         const val hist_choice = prefix + "hist_choice"
@@ -64,12 +68,30 @@ object CRA {
 
         b.craBackHandler(Routes.create_chosen, appBar, nav::popBackStack) {
             CreateChosen.Screen {
-                nav.navigate(Routes.checkForExistingCreation)
+                nav.navigate(Routes.check_for_existing_creation)
             }
         }
 
-        b.craBackHandler(Routes.checkForExistingCreation, appBar, nav::popBackStack) {
-            CheckForExistingCreation.Screen(viewModel) {
+        b.craBackHandler(Routes.check_for_existing_creation, appBar, nav::popBackStack) {
+            CheckForExistingCreation.Screen(viewModel, {
+                nav.navigate(Routes.creation)
+            }) {
+                nav.navigate(Routes.create_or_default_classes)
+            }
+        }
+
+        b.craBackHandler(Routes.create_or_default_classes, appBar, {
+            nav.popBackStack(Routes.create_chosen, false)
+        }) {
+            CreateOrDefaultClasses.Screen(viewModel, {
+                nav.navigate(Routes.creation)
+            }) {
+                nav.navigate(Routes.create_classes)
+            }
+        }
+
+        b.craBackHandler(Routes.create_classes, appBar, nav::popBackStack) {
+            CreateClasses.Screen(viewModel) {
                 nav.navigate(Routes.creation)
             }
         }

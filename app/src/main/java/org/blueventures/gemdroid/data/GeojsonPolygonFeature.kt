@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.data
 
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classIDPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
@@ -17,7 +18,8 @@ data class GeojsonPolygonFeature(
 
 data class GeojsonPolygonFeatureCollection(
     @param:Json(name = "type") val type: String = "FeatureCollection",
-    @param:Json(name = "features") val features: List<GeojsonPolygonFeature>
+    @param:Json(name = "features") val features: List<GeojsonPolygonFeature>,
+    @param:Json(name = "properties") var properties: Map<String, List<CRAClass>>
 ) {
     // Int properties are written to disk without decimals, but when read back
     // the JsonAdapter interprets unstructured JSON values as Doubles

@@ -22,7 +22,7 @@ enum class BVClass(val number: Int, val color: Color, val enNames: List<String>)
     TF(5, BVRed, listOf("Terrestrial Forest")),
     OTV(6, BVOrange, listOf("Other Vegetation", "Other Vegetation I", "Other Vegetation 1", "Other Terrestrial Vegetation", "Other Terrestrial Vegetation I", "Other Terrestrial Vegetation 1")),
     OV(7, BVBurlywood, listOf("Freshwater Vegetation", "Other Vegetation II", "Other Vegetation 2", "Other Terrestrial Vegetation II", "Other Terrestrial Vegetation 2")),
-    BE(8, BVYellow, listOf("Barren Exposed", "Barren/Exposed")),
+    BE(8, BVYellow, listOf("Barren Exposed", "Barren/Exposed", "Barren / Exposed")),
     RW(9, BVDarkBlue, listOf("Residual Water"));
 
     fun localizedName(context: Context): String {

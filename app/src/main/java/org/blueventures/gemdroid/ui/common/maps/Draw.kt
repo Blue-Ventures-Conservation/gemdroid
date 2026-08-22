@@ -33,8 +33,9 @@ import com.google.maps.android.compose.Polygon
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.ClickContent
+import org.blueventures.gemdroid.ui.common.FloatingButtons
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 import kotlin.math.roundToInt
 
 object Draw {
@@ -88,7 +89,7 @@ object Draw {
 
         val pleaseDraw = stringResource(R.string.please_create_polygon)
         val tooBig = stringResource(R.string.polygon_sizing)
-        MultiMapActionButtons(ClickContent({
+        FloatingButtons(ClickContent({
             drawState.value = drawState.value.copy(drawing = !drawState.value.drawing)
         }) {
             if (drawState.value.drawing) {

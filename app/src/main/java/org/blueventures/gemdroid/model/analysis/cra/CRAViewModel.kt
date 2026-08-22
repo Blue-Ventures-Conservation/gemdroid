@@ -27,6 +27,7 @@ import org.blueventures.gemdroid.model.analysis.PolygonGrouper
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classIDPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNamePropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.collectionClassesPropertyKey
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.creationGeojson
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
@@ -228,7 +229,7 @@ class CRAViewModel(
     }
 
     override val capturedCollection
-        get() = GeojsonPolygonFeatureCollection(features = capturedFeatures)
+        get() = GeojsonPolygonFeatureCollection(features = capturedFeatures, properties = mapOf(collectionClassesPropertyKey to craClasses))
     val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
     override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
         background({
@@ -248,23 +249,23 @@ class CRAViewModel(
         }, callback)
     }
 
+    fun setCRAClasses(context: Context, classes: List<CRAClass>) {
+        craClasses = classes.ifEmpty {
+            BVClass.entries.map { it.toCRAClass(context) }
+        }
+    }
+
     var currentID = 1
         get() = field++
-    private var craClasses: List<CRAClass>? = null
-    override fun classes(context: Context): List<CRAClass> {
-        if (craClasses == null) {
-            craClasses = BVClass.entries.map { it.toCRAClass(context) }
-        }
-        return craClasses!!
-    }
+    override var craClasses: List<CRAClass> = emptyList()
     override fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
-            properties = makeProperties(currentID, craClass)
+            properties = makeCRAProperties(currentID, craClass)
         ))
         saveLocallyCreatedCRAFile(callback)
     }
-    private fun makeProperties(id: Int, craClass: CRAClass) = mapOf(
+    private fun makeCRAProperties(id: Int, craClass: CRAClass) = mapOf(
         classIDPropertyKey to id,
         classNamePropertyKey to craClass.name,
         classNumberPropertyKey to craClass.number,
@@ -281,7 +282,7 @@ class CRAViewModel(
     }
     override fun updateClass(id: String, newClass: CRAClass, callback: (Result<Unit>) -> Unit) {
         findFeature(id) { intID, feature ->
-            feature.properties = makeProperties(intID, newClass)
+            feature.properties = makeCRAProperties(intID, newClass)
             saveLocallyCreatedCRAFile(callback)
         }
     }

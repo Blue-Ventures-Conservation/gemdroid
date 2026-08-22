@@ -619,6 +619,8 @@ class CRADatasource(
         const val classIDPropertyKey = "ID"
         const val classNamePropertyKey = "classname"
         const val classNumberPropertyKey = "classnumber"
+        const val collectionClassesPropertyKey = "classes"
+        const val minCRAClasses = 2
 
         const val crasDir = "cras"
         const val creationDir = "cra_creation"

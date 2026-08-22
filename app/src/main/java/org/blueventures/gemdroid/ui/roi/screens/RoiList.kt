@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -47,6 +46,7 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Effect
+import org.blueventures.gemdroid.ui.common.FloatingButton
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.Progress
@@ -97,12 +97,7 @@ object RoiList {
                     Column(modifier = Modifier.fillMaxSize()) {
                         ListView(viewModel, snack, list, setRois, dirHolder, next, floating)
                     }
-                    FloatingActionButton(
-                        onClick = floating,
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .align(Alignment.BottomEnd)
-                    ) {
+                    FloatingButton(floating) {
                         Icon(Icons.Filled.Add, stringResource(R.string.add_new_project))
                     }
                 }

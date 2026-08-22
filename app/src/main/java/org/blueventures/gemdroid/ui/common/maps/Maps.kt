@@ -2,11 +2,9 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +14,6 @@ import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -48,11 +45,11 @@ import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.FloatingButton
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.maps.Capture.CaptureMapActions
 import org.blueventures.gemdroid.ui.common.maps.Draw.DrawMapActions
 
-data class ClickContent(val click: Click, val content: @Composable () -> Unit)
 object Maps {
     interface Storage {
         fun getMapType(context: Context, callback: (MapType) -> Unit): Job
@@ -209,8 +206,6 @@ object Maps {
             captureState = Capture.prepareState(capture, cameraPositionState)
         }
 
-        Log.e("derp", "Maps.Display")
-
         Box(modifier = Modifier.fillMaxSize()) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
@@ -294,7 +289,7 @@ object Maps {
     @Composable
     fun BoxScope.MapTypeButton(storage: Storage?, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
-        MapActionButton({
+        FloatingButton({
             val values = MapType.entries.toTypedArray()
             val size = values.size
 
@@ -313,27 +308,6 @@ object Maps {
 
     @Composable
     fun BoxScope.OptionalNextButton(next: FloatingNext) {
-        MapActionButton(next.next) { Icon(next.imageVector, stringResource(next.contentDescription)) }
-    }
-
-    @Composable
-    fun BoxScope.MapActionButton(click: Click, align: Alignment = Alignment.BottomEnd, content: @Composable () -> Unit) {
-        FloatingActionButton(click, modifier = Modifier
-            .padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 24.dp)
-            .align(align),
-            content = content,
-        )
-    }
-
-    @Composable
-    fun BoxScope.MultiMapActionButtons(vararg clickContents: ClickContent) {
-        Column(Modifier
-            .padding(16.dp, 12.dp, 16.dp, 24.dp)
-            .align(Alignment.BottomEnd),
-            Arrangement.spacedBy(16.dp, Alignment.Bottom)) {
-            for (clickContent in clickContents) {
-                FloatingActionButton(clickContent.click, content = clickContent.content)
-            }
-        }
+        FloatingButton(next.next) { Icon(next.imageVector, stringResource(next.contentDescription)) }
     }
 }

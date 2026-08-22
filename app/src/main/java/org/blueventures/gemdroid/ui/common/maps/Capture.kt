@@ -41,10 +41,11 @@ import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.ClickContent
+import org.blueventures.gemdroid.ui.common.FloatingButtons
 import org.blueventures.gemdroid.ui.common.Info
 import org.blueventures.gemdroid.ui.common.Rad
 import org.blueventures.gemdroid.ui.common.SnackFun
-import org.blueventures.gemdroid.ui.common.maps.Maps.MultiMapActionButtons
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
@@ -62,9 +63,9 @@ object Capture {
 
     interface Data {
         val capturedCollection: GeojsonPolygonFeatureCollection
+        var craClasses: List<CRAClass>
 
         fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
-        fun classes(context: Context): List<CRAClass>
         fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit)
         fun identity(feature: GeojsonPolygonFeature): String?
         fun currentClass(id: String): String?
@@ -214,7 +215,7 @@ object Capture {
         val usingSnack = stringResource(R.string.using_s_polygon)
         val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
         val gridShowing = state.value.showGrid != null
-        MultiMapActionButtons(ClickContent({
+        FloatingButtons(ClickContent({
             state.value = state.value.copy(doCapture = Unit)
         }) {
             Icon(Icons.Filled.PhotoLibrary, contentDescription = stringResource(R.string.capture_the_current_area))
@@ -241,7 +242,7 @@ object Capture {
 
     @Composable
     fun EditDialog(model: Model, currentClass: String?, onDismiss: Click, onEdit: (CRAClass) -> Unit, onDelete: () -> Unit) {
-        val classChoices = model.classes(LocalContext.current).toMutableList()
+        val classChoices = model.craClasses.toMutableList()
         var initChoice: CRAClass? = null
         for (craClass in classChoices) {
             if (currentClass == craClass.name) {
@@ -278,7 +279,7 @@ object Capture {
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
-            text = { ClassChoices(model.classes(LocalContext.current), choice, setChoice) },
+            text = { ClassChoices(model.craClasses, choice, setChoice) },
             confirmButton = {
                 Butt.Text(stringResource(R.string.capture), choice != null) {
                     choice?.let { onCapture(it) }
@@ -307,7 +308,7 @@ object Capture {
                     .padding(bottom = 16.dp)
                     .verticalScroll(rememberScrollState())) {
                     Text(text = stringResource(R.string.your_cras_are_as_follows))
-                    model.classes(LocalContext.current).forEach { craClass ->
+                    model.craClasses.forEach { craClass ->
                         val count = model.capturedCollection.intPropertyCount(classNumberPropertyKey, craClass.number)
                         Info.Row {
                             Info.Txt(craClass.name + ": ", 14.sp, truncate = true)

@@ -13,7 +13,7 @@ import org.blueventures.gemdroid.ui.common.Progress
 
 object CheckForExistingCreation {
     @Composable
-    fun Screen(viewModel: CRAViewModel, next: Click) {
+    fun Screen(viewModel: CRAViewModel, resume: Click, startFresh: Click) {
         val (existingResult, setExistingResult) = remember { mutableStateOf<Result<GeojsonPolygonFeatureCollection>?>(null) }
         when {
             existingResult == null -> {
@@ -22,7 +22,7 @@ object CheckForExistingCreation {
             }
             existingResult.isFailure || existingResult.getOrNull()!!.features.isEmpty() -> {
                 Progress()
-                next()
+                startFresh()
             }
             else -> {
                 val (deleteRequest, setDeleteRequest) = remember { mutableStateOf<Unit?>(null) }
@@ -33,7 +33,7 @@ object CheckForExistingCreation {
                                 val fc = existingResult.getOrNull()!!
                                 fc.fixFloats()
                                 viewModel.continueExisting(fc)
-                                next()
+                                resume()
                             }
                             Col.DashboardButton(stringResource(R.string.start_over)) {
                                 setDeleteRequest(Unit)
@@ -43,7 +43,7 @@ object CheckForExistingCreation {
                     else -> {
                         Progress()
                         viewModel.deleteLocallyCreatedCRAFile {
-                            next()
+                            startFresh()
                         }
                     }
                 }
