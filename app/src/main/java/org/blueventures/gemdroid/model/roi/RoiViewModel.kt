@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
@@ -173,9 +172,9 @@ class RoiViewModel(
         content()
     }
 
-    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
-        return background({
+        background({
             val polys = mutableListOf<Polygons.Named>()
             for (poly in polygons) polys.add(Polygons.Named(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
             val list = mutableListOf<Polygons.Group>()
@@ -195,7 +194,7 @@ class RoiViewModel(
     }
 
     override var filePoly: MultiPolyPts = emptyList()
-    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }
+    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) { scoped { repo.validatePolygonFile(filesDir, streams.streams, streams.names).collect(callback) }}
     override fun shapefileLooksGood() {
         polygons.add(PolygonUtils.NamedPolygon(polygonName, GeojsonMultiPolygon.fromState(filePoly)))
         filePoly = emptyList()
@@ -233,10 +232,10 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Mo
     override fun edit() = viewModel.imported
     override fun clearEdit() = viewModel.clearImported()
     override fun polygonDrawn() {}
-    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.background({ emptyList() }, callback)
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) { viewModel.background({ emptyList() }, callback) }
     override var filePoly: MultiPolyPts = emptyList()
-    override fun <T> background(work: () -> T, callback: (T) -> Unit) = viewModel.background(work, callback)
-    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = viewModel.validatePolygonFile(streams, callback)
+    override fun <T> background(work: () -> T, callback: (T) -> Unit) { viewModel.background(work, callback) }
+    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) { viewModel.validatePolygonFile(streams, callback) }
     override var polygonName: String = viewModel.roiName
 
     override fun shapefileLooksGood() {

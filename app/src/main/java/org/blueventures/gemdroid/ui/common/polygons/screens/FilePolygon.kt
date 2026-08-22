@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.localized
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.FileStream
 import org.blueventures.gemdroid.data.MultiPolyPts
@@ -19,8 +18,8 @@ import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 object FilePolygon {
     interface Model: CollectPolygons.AppBarTitler {
         var filePoly: MultiPolyPts
-        fun <T> background(work: () -> T, callback: (T) -> Unit): Job
-        fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit): Job
+        fun <T> background(work: () -> T, callback: (T) -> Unit)
+        fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit)
     }
 
     @Composable

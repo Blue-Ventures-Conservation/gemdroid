@@ -154,17 +154,17 @@ class AnalysisViewModel(
     fun saveCompositesAssessedFile(callback: (Result<Unit>) -> Unit) = saveFile(compositesAssessedFile(roiDir), CompositesAssessed(true), CompositesAssessed.Companion, callback)
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
-    override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit): Job {
-        return excludedRegions(context, startVisible) { excludes ->
+    override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit) {
+        excludedRegions(context, startVisible) { excludes ->
             backgroundPolygon(context, startVisible) { coarseROI ->
                 callback(mutableListOf(coarseROI).apply { if (excludes != null) add(excludes) })
             }
         }
     }
 
-    fun excludedRegions(context: Context, startVisible: Boolean, callback: (Polygons.Group?) -> Unit): Job {
+    fun excludedRegions(context: Context, startVisible: Boolean, callback: (Polygons.Group?) -> Unit) {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
-        return if (roi.excludedRegions.isNotEmpty()) {
+        if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Polygons.Named>()
@@ -182,5 +182,5 @@ class AnalysisViewModel(
 }
 
 interface PolygonGrouper {
-    fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit): Job
+    fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit)
 }

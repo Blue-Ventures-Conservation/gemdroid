@@ -102,10 +102,10 @@ class DynamicsViewModel(
     private var persistenceUriJob: Job? = null
     private var gainUriJob: Job? = null
 
-    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
+    override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
         val coarseBoundaryTitle = context.getString(R.string.coarse_boundary)
         val subRegionsTitle = context.getString(R.string.sub_regions)
-        return background({
+        background({
             val boundary = Polygons.Group(coarseBoundaryTitle, listOf(Polygons.Named(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
             val polys = mutableListOf<Polygons.Named>()
             for (poly in polygons) polys.add(Polygons.Named(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
@@ -119,7 +119,7 @@ class DynamicsViewModel(
 
     private fun loadSubRegionsFile(callback: (Result<DrawnPolygonsFile>) -> Unit) = loadFile(subRegionsFile(roiDir), DrawnPolygonsFile.Companion, callback)
     private fun saveSubRegionsFile(callback: (Result<Unit>) -> Unit) = saveFile(subRegionsFile(roiDir), DrawnPolygonsFile(polygons), DrawnPolygonsFile.Companion, callback)
-    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) = scoped { repo.validatePolygonFile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }
+    override fun validatePolygonFile(streams: FileStream.Streams, callback: (Result<MultiPolyPts>) -> Unit) { scoped { repo.validatePolygonFile(dynamicDir(roiDir), streams.streams, streams.names).collect(callback) }}
 
     override fun validatePolygonName(): Boolean {
         for (region in polygons) {

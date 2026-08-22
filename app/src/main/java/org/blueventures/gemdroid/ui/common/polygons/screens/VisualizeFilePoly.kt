@@ -9,8 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonUtils
@@ -27,8 +25,8 @@ object VisualizeFilePoly {
 
         fun visualizer(): Visualize.Visualizer?
         fun shapefileLooksGood()
-        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job
-        fun <T> background(work: () -> T, callback: (T) -> Unit): Job
+        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
+        fun <T> background(work: () -> T, callback: (T) -> Unit)
     }
 
     @Composable
@@ -44,9 +42,9 @@ object VisualizeFilePoly {
             val title = stringResource(R.string.visualize_polygon)
             Visualize.Screen(model.visualizer(), appBar, title, false, center = center, storage = storage, poly = object : Polygons.Model() {
                 override val touchEnabled = true
-                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = model.background(work, callback)
+                override fun onTouch(point: Polygons.NamedPoint?) = @Composable { Polygons.PlaceMarker(point) }
 
-                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job {
+                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
                     return model.polygonGroups(context) { groups ->
                         val list = mutableListOf<Polygons.Group>()
 

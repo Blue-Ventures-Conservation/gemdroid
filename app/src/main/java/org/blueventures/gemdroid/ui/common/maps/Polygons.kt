@@ -2,22 +2,19 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MarkerInfoWindow
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
-import kotlinx.coroutines.Job
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.ui.common.maps.Maps.Checker
@@ -30,11 +27,12 @@ object Polygons {
     data class Group(val menuTitle: String, val polygons: List<Named>, val color: Int? = null, val strokeColor: Int = 0x7F000000, val dashes: Boolean = false, val startVisible: Boolean = true)
     data class NamedOptions(val name: String, val options: List<PolygonOptions>)
     data class NamedOptionsGroup(val menuTitle: String, val namedOptions: List<NamedOptions>, val startVisible: Boolean = true)
+    data class NamedPoint(val name: String, val point: LatLng)
 
     abstract class Model {
         abstract val touchEnabled: Boolean
-        abstract fun polygonGroups(context: Context, callback: (List<Group>) -> Unit): Job
-        abstract fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job
+        abstract fun polygonGroups(context: Context, callback: (List<Group>) -> Unit)
+        abstract fun onTouch(point: NamedPoint?): @Composable () -> Unit
 
         fun polygonOptions(context: Context, callback: (List<NamedOptionsGroup>) -> Unit) {
             polygonGroups(context) { polyGroups ->
@@ -61,6 +59,16 @@ object Polygons {
 
                 callback(optGroups)
             }
+        }
+    }
+
+    fun checkers(context: Context, model: Model, callback: (Pair<MutableList<Checker>, List<NamedOptionsGroup>>) -> Unit) {
+        model.polygonOptions(context) { groups ->
+            val checkers = mutableListOf<Checker>()
+            for (group in groups) {
+                checkers.add(Checker(group.menuTitle))
+            }
+            callback(Pair(checkers, groups))
         }
     }
 
@@ -109,64 +117,39 @@ object Polygons {
         }
     }
 
-    fun checkers(context: Context, model: Model, callback: (Pair<MutableList<Checker>, List<NamedOptionsGroup>>) -> Unit) {
-        model.polygonOptions(context) { groups ->
-            val checkers = mutableListOf<Checker>()
-            for (group in groups) {
-                checkers.add(Checker(group.menuTitle))
+    @Composable
+    @GoogleMapComposable
+    fun Touch(model: Model, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
+        var namedPoint: NamedPoint? = null
+        if (lastTouch.value != null) {
+            val point = lastTouch.value!!
+            outer@ for (i in optGroups.indices) {
+                val optGroup = optGroups[i]
+                if (optGroup.namedOptions.isNotEmpty() && visibilities[i]) {
+                    for (namedOpts in optGroup.namedOptions) {
+                        for (opts in namedOpts.options) {
+                            if (PolyUtil.containsLocation(point, opts.points, true)) {
+                                namedPoint = NamedPoint(namedOpts.name, point)
+                                break@outer
+                            }
+                        }
+                    }
+                }
             }
-            callback(Pair(checkers, groups))
         }
+
+        model.onTouch(namedPoint).invoke()
     }
 
     @Composable
     @GoogleMapComposable
-    fun Touch(model: Model, optGroups: List<NamedOptionsGroup>, visibility: List<Boolean>, lastTouch: MutableState<LatLng?>) {
-        var markerOpts by remember { mutableStateOf<MarkerOptions?>(null) }
-        markerOpts?.let {
-            val state by remember { mutableStateOf(MarkerState(it.position)) }
-            MarkerInfoWindow(state = state, title = it.title)
-        }
-
-        lastTouch.value?.let { pt ->
-            if (markerOpts?.position == pt) {
-                lastTouch.value = null
-            } else {
-                model.markerWork({
-                    var markerOpts: MarkerOptions? = null
-                    for (i in optGroups.indices) {
-                        val optGroup = optGroups[i]
-
-                        if (optGroup.namedOptions.isNotEmpty() && visibility[i]) {
-                            for (namedOpts in optGroup.namedOptions) {
-                                var contained = false
-                                for (opts in namedOpts.options) {
-                                    if (PolyUtil.containsLocation(pt, opts.points, true)) {
-                                        markerOpts = MarkerOptions().position(pt).title(namedOpts.name)
-                                        contained = true
-                                        break
-                                    }
-                                }
-
-                                if (contained) {
-                                    break
-                                }
-                            }
-                        }
-
-                        if (markerOpts != null) {
-                            break
-                        }
-                    }
-
-                    markerOpts
-                }) { opts ->
-                    if (opts == null) {
-                        lastTouch.value = null
-                    }
-                    markerOpts = opts
-                }
+    fun PlaceMarker(namedPoint: NamedPoint?) {
+        if (namedPoint != null) {
+            val state = rememberUpdatedMarkerState(namedPoint.point)
+            LaunchedEffect(namedPoint) {
+                state.showInfoWindow()
             }
+            MarkerInfoWindow(state = state, title = namedPoint.name)
         }
     }
 }

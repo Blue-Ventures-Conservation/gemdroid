@@ -5,8 +5,6 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
@@ -20,9 +18,8 @@ object DrawPolygon {
     interface Model : Draw.Data {
         fun visualizer(): Visualize.Visualizer?
         fun center(): LatLng?
-        fun <T> background(work: () -> T, callback: (T) -> Unit): Job
         fun polygonDrawn()
-        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit): Job
+        fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
     }
 
     @Composable
@@ -33,10 +30,8 @@ object DrawPolygon {
             next()
         }, poly = object : Polygons.Model() {
             override val touchEnabled = false
-            override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = model.polygonGroups(context, callback)
-            override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit): Job {
-                return model.background({ null }, callback)
-            }
+            override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) { model.polygonGroups(context, callback) }
+            override fun onTouch(point: Polygons.NamedPoint?) = @Composable { Polygons.PlaceMarker(point) }
         })
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.zibnix.droidbones.localized
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
@@ -44,7 +43,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, roi: ROI, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromROI(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Unit, roi: ROI, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
         OverviewFromState(
             background,
             name = roi.name,
@@ -65,7 +64,7 @@ object Roi {
     }
 
     @Composable
-    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Job, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
+    fun OverviewFromState(background: (() -> Triple<Int, Int, Int>, (Triple<Int, Int, Int>) -> Unit) -> Unit, name: String, histYearStart: Int, histYearEnd: Int, histMonths: List<Int>, contYearStart: Int, contYearEnd: Int, contMonths: List<Int>, multi: MultiPolyPts, excluded: List<GeojsonMultiPolygon>, useS2: Boolean, cras: ContemporaryAndHistoricalCRAs?, header: String, buttonLabel: String, next: Click) {
         val (calcs, setCalcs) = remember { mutableStateOf<Triple<Int, Int, Int>?>(null) }
         when (calcs) {
             null -> {

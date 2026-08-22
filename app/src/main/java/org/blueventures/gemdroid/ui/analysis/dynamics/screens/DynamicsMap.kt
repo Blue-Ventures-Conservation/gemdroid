@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
-import com.google.android.gms.maps.model.MarkerOptions
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
@@ -36,8 +35,8 @@ object DynamicsMap {
                 override fun save(urls: DynamicsURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveDynamicsFile(urls, callback)
             }, poly = object : Polygons.Model() {
                 override val touchEnabled = true
-                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = viewModel.polygonGroups(context, callback)
-                override fun markerWork(work: () -> MarkerOptions?, callback: (MarkerOptions?) -> Unit) = viewModel.background(work, callback)
+                override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) { viewModel.polygonGroups(context, callback) }
+                override fun onTouch(point: Polygons.NamedPoint?) = @Composable { Polygons.PlaceMarker(point) }
             }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_dynamics_details, details))
         }
     }
