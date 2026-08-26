@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.PolygonUtils

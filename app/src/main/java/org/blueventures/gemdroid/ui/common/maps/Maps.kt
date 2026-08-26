@@ -75,7 +75,7 @@ object Maps {
         }
     }
 
-    data class Checker(val name: String, var state: Boolean = true, var setState: (Boolean) -> Unit = {})
+    data class Checker(var name: String = "", var state: Boolean = true, var setState: (Boolean) -> Unit = {})
     data class FloatingNext(val imageVector: ImageVector, val contentDescription: Int, val next: Click)
 
     @Composable
@@ -229,13 +229,7 @@ object Maps {
                 draw?.let {
                     Draw.Display(draw, drawState, cameraPositionState)
                 } ?: capture?.let {
-                    Capture.Display(capture,  captureState!!, touchState)
-                }
-
-                captureState?.let { state ->
-                    state.value.checker?.let {
-                        checkers.add(it)
-                    }
+                    Capture.Display(capture,  captureState!!, checkers, touchState)
                 }
 
                 if (checkers.isNotEmpty()) {

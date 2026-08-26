@@ -49,7 +49,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
-    data class State(val shape: NamedRectangle, val center: LatLng? = null, val checker: Maps.Checker? = null, val group: Polygons.NamedOptionsGroup? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
+    data class State(val shape: NamedRectangle, val checker: Maps.Checker, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
 
     interface UI {
         val snack: SnackFun
@@ -105,7 +105,7 @@ object Capture {
 
     @Composable
     fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<State> {
-        val state = remember { mutableStateOf(State(model.currentShape())) }
+        val state = remember { mutableStateOf(State(model.currentShape(), Maps.Checker())) }
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.position.target }
                 .collect { state.value = state.value.copy(center = it) }
@@ -115,16 +115,22 @@ object Capture {
 
     @Composable
     @GoogleMapComposable
-    fun Display(model: Model, state: MutableState<State>, lastTouch: MutableState<LatLng?>) {
+    fun Display(model: Model, state: MutableState<State>, checkers: MutableList<Maps.Checker>, lastTouch: MutableState<LatLng?>) {
         val polyModel = model.polyModel(state)
 
-        val (groupAndCheckerResult, setGroupAndCheckerResult) = remember { mutableStateOf<Result<Unit>?>(null) }
+        val (groupResult, setGroupResult) = remember { mutableStateOf<Result<Polygons.NamedOptionsGroup>?>(null) }
         when {
-            groupAndCheckerResult == null -> groupAndChecker(LocalContext.current, polyModel, state, setGroupAndCheckerResult)
-            groupAndCheckerResult.isSuccess -> {
-                val groups = listOf(state.value.group!!)
-                val checkers = listOf(state.value.checker!!)
-                Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, groups, checkers, lastTouch)
+            groupResult == null -> getGroup(LocalContext.current, polyModel, setGroupResult)
+            groupResult.isSuccess -> {
+                val group = groupResult.getOrNull()!!
+                state.value.checker.name = group.menuTitle
+                if (!checkers.contains(state.value.checker)) {
+                    checkers.add(state.value.checker)
+                }
+                Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, listOf(group), listOf(state.value.checker), lastTouch)
+            }
+            else -> {
+                checkers.remove(state.value.checker)
             }
         }
 
@@ -138,7 +144,7 @@ object Capture {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                             else -> {
                                 onDismiss()
-                                setGroupAndCheckerResult(null)
+                                setGroupResult(null)
                             }
                         }
                     }
@@ -153,7 +159,7 @@ object Capture {
                     result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                     else -> {
                         onDismiss()
-                        setGroupAndCheckerResult(null)
+                        setGroupResult(null)
                     }
                 }
             }
@@ -186,12 +192,10 @@ object Capture {
         }
     }
 
-    private fun groupAndChecker(context: Context, polyModel: Polygons.Model, state: MutableState<State>, callback: (Result<Unit>) -> Unit) {
+    private fun getGroup(context: Context, polyModel: Polygons.Model, callback: (Result<Polygons.NamedOptionsGroup>) -> Unit) {
         polyModel.polygonOptions(context) { groups ->
             if (groups.isNotEmpty()) {
-                val group = groups.first()
-                state.value = state.value.copy(checker = Maps.Checker(group.menuTitle), group = group)
-                callback(Result.success(Unit))
+                callback(Result.success(groups.first()))
             } else {
                 callback(Result.failure(Throwable()))
             }

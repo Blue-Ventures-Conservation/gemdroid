@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -111,10 +110,9 @@ object CreateClasses {
             onDismissRequest = onDismiss,
             text = { Text(text = if (valid) stringResource(R.string.all_done_creating_your_land_cover_classes) else stringResource(R.string.please_create_at_least_2_classes)) },
             confirmButton = {
-                val context = LocalContext.current
                 Butt.Text(if (valid) stringResource(R.string.done_button) else stringResource(android.R.string.ok)) {
                     if (valid) {
-                        viewModel.setCRAClasses(context, validClasses)
+                        viewModel.setCRAClasses(validClasses)
                         done()
                     } else {
                         onDismiss()

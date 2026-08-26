@@ -8,7 +8,6 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.TileOverlay
-import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.data.staleCheck
 import org.blueventures.gemdroid.tiles.CachingUrlTileProvider

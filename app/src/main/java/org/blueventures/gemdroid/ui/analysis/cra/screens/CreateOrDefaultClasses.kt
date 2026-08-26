@@ -14,7 +14,7 @@ object CreateOrDefaultClasses {
         val context = LocalContext.current
         Col.Dash(stringResource(R.string.use_recommended_or_create)) {
             Col.DashboardButton(stringResource(R.string.use_recommended_classes)) {
-                viewModel.setCRAClasses(context, emptyList())
+                viewModel.setCRAClassesToBVClasses(context)
                 useDefault()
             }
             Col.DashboardButton(stringResource(R.string.create_my_own_classes)) {

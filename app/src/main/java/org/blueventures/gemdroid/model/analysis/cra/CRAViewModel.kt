@@ -249,10 +249,12 @@ class CRAViewModel(
         }, callback)
     }
 
-    fun setCRAClasses(context: Context, classes: List<CRAClass>) {
-        craClasses = classes.ifEmpty {
-            BVClass.entries.map { it.toCRAClass(context) }
-        }
+    fun setCRAClassesToBVClasses(context: Context) {
+        setCRAClasses(BVClass.entries.map { it.toCRAClass(context) })
+    }
+
+    fun setCRAClasses(classes: List<CRAClass>) {
+        craClasses = classes
     }
 
     var currentID = 1
@@ -306,6 +308,9 @@ class CRAViewModel(
     fun continueExisting(fc: GeojsonPolygonFeatureCollection) {
         capturedFeatures.clear()
         capturedFeatures.addAll(fc.features)
+        fc.properties[collectionClassesPropertyKey]?.let {
+            setCRAClasses(it)
+        }
         var maxID = -1
         for (feature in capturedFeatures) {
             feature.intProperty(classIDPropertyKey)?.let { id ->
