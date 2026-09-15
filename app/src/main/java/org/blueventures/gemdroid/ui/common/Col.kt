@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.ui.common
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +38,7 @@ object Col {
     }
 
     @Composable
-    inline fun Col(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, arrange: Arrangement.Vertical = Arrangement.SpaceBetween, fill: Boolean = true, scroll: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
+    inline fun Col(start: Dp = 16.dp, top: Dp = 24.dp, end: Dp = 16.dp, bottom: Dp = 64.dp, arrange: Arrangement.Vertical = Arrangement.SpaceBetween, align: Alignment.Horizontal = Alignment.CenterHorizontally, fill: Boolean = true, scroll: Boolean = false, animateContentSize: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
         var modifier = Modifier
             .padding(start, top, end, bottom)
 
@@ -48,10 +49,14 @@ object Col {
         if (scroll) {
             modifier = modifier.verticalScroll(rememberScrollState())
         }
+
+        if (animateContentSize) {
+            modifier = modifier.animateContentSize()
+        }
         Column(
             modifier = modifier,
             verticalArrangement = arrange,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = align,
             content
         )
     }

@@ -29,9 +29,9 @@ object BVClassColors {
             cmap[bv] = pal.size - 1
         }
 
-        if (cmap.contains(BVClass.OCMII) && !cmap.contains(BVClass.OCMIII)) {
-            val pos = cmap[BVClass.OCMII]!!
-            pal[pos] = BVClass.OCMIII.color
+        if (cmap.contains(BVClass.CCMII) && cmap.contains(BVClass.OCMI)) {
+            val pos = cmap[BVClass.OCMI]!!
+            pal[pos] = BVLimeGreen
         }
 
         return pal

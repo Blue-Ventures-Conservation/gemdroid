@@ -249,9 +249,7 @@ class CRAViewModel(
         }, callback)
     }
 
-    fun setCRAClassesToBVClasses(context: Context) {
-        setCRAClasses(BVClass.entries.map { it.toCRAClass(context) })
-    }
+    fun getDefaultBVClasses() = BVClass.entries.filter { it != BVClass.CCMII }
 
     fun setCRAClasses(classes: List<CRAClass>) {
         craClasses = classes
