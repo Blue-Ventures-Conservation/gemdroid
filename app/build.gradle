@@ -51,7 +51,7 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'org.osmdroid:osmdroid-shape:6.1.20'
 
-    implementation platform('com.google.firebase:firebase-bom:34.18.0')
+    implementation platform('com.google.firebase:firebase-bom:34.19.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
@@ -59,15 +59,15 @@ dependencies {
     implementation 'com.google.firebase:firebase-appcheck-debug'
     implementation 'com.google.android.play:integrity:1.6.0'
 
-    def nav_version = "2.9.8"
+    def nav_version = "2.10.2"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
-    implementation 'androidx.core:core-ktx:1.19.0'
-    implementation 'androidx.fragment:fragment-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.19.1'
+    implementation 'androidx.fragment:fragment-ktx:1.9.1'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.activity:activity-compose:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.8.0'
@@ -88,12 +88,12 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
 
     implementation 'androidx.datastore:datastore-preferences:1.2.1'
-    implementation 'com.google.maps.android:maps-compose:8.4.0'
+    implementation 'com.google.maps.android:maps-compose:8.6.0'
     implementation 'com.google.android.gms:play-services-maps:20.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:5.1.1'
-    implementation 'com.google.maps.android:maps-utils-ktx:6.3.0'
+    implementation 'com.google.maps.android:android-maps-utils:5.2.0'
+    implementation 'com.google.maps.android:maps-utils-ktx:6.4.1'
     implementation 'com.google.android.material:material:1.14.0'
-    implementation 'com.google.android.gms:play-services-auth:21.6.0'
+    implementation 'com.google.android.gms:play-services-auth:22.0.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.2'
     implementation 'com.squareup.retrofit2:converter-moshi:3.0.0'
