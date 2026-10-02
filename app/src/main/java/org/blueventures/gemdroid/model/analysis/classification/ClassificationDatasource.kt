@@ -9,13 +9,15 @@ class ClassificationDatasource(
 ): ApiDatasource(api) {
     companion object {
         const val classificationDir = "classification"
-        const val classificationURLsFile = "urls.json"
+        private const val readyFile = "ready.json"
+        private const val classificationURLsFile = "urls.json"
         private const val contLCTilesDir = "cont_lc_tiles" // land cover tiles
         private const val histLCTilesDir = "hist_lc_tiles" // land cover tiles
         private const val exportsFilename = "classification_exports.json"
         private const val resultsFile = "results.json"
         private fun classDir(roiDir: File) = File(roiDir, classificationDir)
 
+        fun readyFile(roiDir: File) = File(classDir(roiDir), readyFile)
         fun urlsFile(roiDir: File) = File(classDir(roiDir), classificationURLsFile)
         fun exportsFile(roiDir: File) = File(classDir(roiDir), exportsFilename)
         fun resultsFile(roiDir: File) = File(classDir(roiDir), resultsFile)

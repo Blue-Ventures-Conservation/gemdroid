@@ -27,7 +27,11 @@ object Classification {
     fun screens(b: NavGraphBuilder, nav: NavHostController, viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun) {
         Separability.screens(b, nav, viewModel.sepViewModel, appBar, snack)
 
-        b.backHandler(Routes.map, nav::popBackStack) { back ->
+        b.backHandler(Routes.map, {
+            viewModel.clearCompositeOps()
+            nav.popBackStack()
+        }) { back ->
+            viewModel.clearCompositeOps()
             Map.Screen(viewModel, appBar, snack, back) {
                 nav.navigate(Routes.details)
             }
@@ -52,6 +56,8 @@ object Classification {
             craErr
         } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("classifier training failed") == true) {
             Pair(ctx.getString(R.string.classifier_training_failed), false)
+        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("composite cache unavailable") == true) {
+            Pair(ctx.getString(R.string.please_wait_the_composites_are_being_saved), false)
         } else {
             Pair(null, true)
         }

@@ -14,6 +14,10 @@ data class VisualizeURLs(
     @param:Json(name = "buff_dist") val buffDist: Int,
     @param:Json(name = "created_at") override val createdAt: Int, // seconds
     @param:Json(name = "timeout") override val timeout: Int, // seconds
+    @param:Json(name = "chot_image_op") val chotImageOp: String? = null,
+    @param:Json(name = "clot_image_op") val clotImageOp: String? = null,
+    @param:Json(name = "hhot_image_op") val hhotImageOp: String? = null,
+    @param:Json(name = "hlot_image_op") val hlotImageOp: String? = null,
 ): URLs {
     override fun ordered(i: Int): String {
         return when(i) {

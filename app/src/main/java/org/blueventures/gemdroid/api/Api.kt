@@ -10,6 +10,8 @@ import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationReady
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationReadyResponse
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.cra.CRAIngestRequested
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
@@ -45,6 +47,9 @@ object Api {
 
         @POST("/await_cra_upload")
         suspend fun awaitCRAIngestion(@Body name: UploadName): ApiResult<Success>
+
+        @POST("/classification_ready")
+        suspend fun classificationReady(@Body roi: ClassificationReady): ApiResult<ClassificationReadyResponse>
 
         @POST("/classification")
         suspend fun classification(@Body roi: ClassificationROI): ApiResult<ClassificationURLs>

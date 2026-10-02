@@ -403,4 +403,5 @@
     <string name="very_turbid_water_description">Very turbid water areas missed from masking.</string>
     <string name="select_which_of_our_recommended_classes_to_use">Select which of our recommended classes to use.\n\nYou can tap on each name to see a description of the class.</string>
     <string name="this_class_represents_the_following_subclasses">This class represents the following subclasses:</string>
+    <string name="please_wait_the_composites_are_being_saved">Please wait! The composites are being saved.</string>
 </resources>

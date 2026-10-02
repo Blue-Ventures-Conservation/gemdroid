@@ -198,7 +198,7 @@ class DynamicsViewModel(
         }
     }
     private fun fetchDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
-        readyJob = getRemote(readyJob, makeDynamicsReady(contOp ?: "unknown", histOp ?: "unknown"), callback) { api, ready ->
+        readyJob = getRemote(readyJob, makeDynamicsReady(contOp ?: "", histOp ?: ""), callback) { api, ready ->
             api.dynamicsReady(ready)
         }
     }

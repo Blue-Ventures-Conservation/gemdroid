@@ -8,14 +8,19 @@ import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
+import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationExports
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationReady
+import org.blueventures.gemdroid.data.analysis.classification.ClassificationReadyResponse
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
 import org.blueventures.gemdroid.data.roi.ROI
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.contLCTileDir
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.exportsFile
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.histLCTileDir
+import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.readyFile
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.resultsFile
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.urlsFile
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
@@ -51,6 +56,7 @@ class ClassificationViewModel(
         craAwaiter = awaiter
     }
 
+    private var readyJob: Job? = null
     private var classificationJob: Job? = null
     private var exportsJobs: Job? = null
     private var statusJob: Job? = null
@@ -58,6 +64,63 @@ class ClassificationViewModel(
     private var historicalUriJob: Job? = null
 
     fun tileDirs() = listOf(contLCTileDir(roiDir), histLCTileDir(roiDir))
+
+    fun loadVisualizeFile(callback: (Result<VisualizeURLs>) -> Unit) = loadFile(AnalysisDatasource.urlsFile(roiDir), VisualizeURLs.Companion, callback)
+
+    private var chotOp: String? = null
+    private var clotOp: String? = null
+    private var hhotOp: String? = null
+    private var hlotOp: String? = null
+    fun clearCompositeOps() {
+        chotOp = null
+        clotOp = null
+        hhotOp = null
+        hlotOp = null
+    }
+
+    fun getClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
+        if (chotOp == null || clotOp == null || hhotOp == null || hlotOp == null) {
+            loadVisualizeFile { res ->
+                if (res.isSuccess) {
+                    val urls = res.getOrNull()!!
+                    chotOp = urls.chotImageOp
+                    clotOp = urls.clotImageOp
+                    hhotOp = urls.hhotImageOp
+                    hlotOp = urls.hlotImageOp
+                }
+                fetchClassificationReady(callback)
+            }
+        } else {
+            fetchClassificationReady(callback)
+        }
+    }
+
+    private fun fetchClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
+        readyJob = getRemote(readyJob, makeClassificationReady(chotOp ?: "", clotOp ?: "", hhotOp ?: "", hlotOp ?: ""), callback) { api, ready ->
+            api.classificationReady(ready)
+        }
+    }
+    fun saveClassificationReadyFile(ready: ClassificationReadyResponse, callback: (Result<Unit>) -> Unit) = saveFile(readyFile(roiDir), ready, ClassificationReadyResponse.Companion, callback)
+    fun loadClassificationReadyFile(callback: (Result<ClassificationReadyResponse>) -> Unit) = loadFile(readyFile(roiDir), ClassificationReadyResponse.Companion) { result ->
+        when {
+            result.isSuccess -> {
+                val resp = result.getOrNull()!!
+                chotOp = resp.chotOp
+                clotOp = resp.clotOp
+                hhotOp = resp.hhotOp
+                hlotOp = resp.hlotOp
+
+                if (!resp.isReady()) {
+                    callback(Result.failure(Throwable()))
+                } else {
+                    callback(result)
+                }
+            }
+            else -> callback(result)
+        }
+    }
+
+    private fun makeClassificationReady(chotOp: String, clotOp: String, hhotOp: String, hlotOp: String) = ClassificationReady(chotOp, clotOp, hhotOp, hlotOp, roi)
 
     fun getClassification(callback: (ApiResult<ClassificationURLs>) -> Unit) {
         classificationJob = getRemote(classificationJob, makeClassificationROI(), callback) { api, roi ->

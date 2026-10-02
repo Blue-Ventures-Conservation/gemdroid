@@ -15,6 +15,7 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.GetRemote
+import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Layers
 import org.blueventures.gemdroid.ui.common.maps.Maps
@@ -24,7 +25,25 @@ object Map {
     fun Screen(viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun, back: Click, details: Click) {
         Await.CRAOrGoBack(snack, back, stringResource(R.string.could_not_verify_cras_classification), viewModel.craAwaiter) { cras ->
             viewModel.cras = cras
-            Classify(viewModel, appBar, details)
+            ReadyCheck(viewModel, appBar, snack, back, details)
+        }
+    }
+
+    @Composable
+    fun ReadyCheck(viewModel: ClassificationViewModel, appBar: AppBar, snack: SnackFun, back: Click, details: Click) {
+        GetRemote.Save(
+            getLocal = viewModel::loadClassificationReadyFile,
+            getRemote = viewModel::getClassificationReady,
+            save = viewModel::saveClassificationReadyFile,
+            errorHandler = Classification::errHandler
+        ) { resp ->
+            when {
+                resp.isReady() -> Classify(viewModel, appBar, details)
+                else -> {
+                    snack.Once(stringResource(R.string.please_wait_the_composites_are_being_saved))
+                    back.Once()
+                }
+            }
         }
     }
 
