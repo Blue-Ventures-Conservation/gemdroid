@@ -38,7 +38,6 @@ import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
-import org.blueventures.gemdroid.model.api.complete
 import org.blueventures.gemdroid.model.api.storage
 import org.blueventures.gemdroid.model.resultCheck
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
@@ -53,7 +52,6 @@ import java.util.Date
 import java.util.Locale
 import kotlin.coroutines.resume
 
-// TODO: go through this file and anywhere that accesses /shps for a user, make sure it knows how to handle that alternate json path as well
 class CRADatasource(
     private val api: Api.Service = Api.Service.instance(),
     private val auth: FirebaseAuth = Firebase.auth,
@@ -373,7 +371,7 @@ class CRADatasource(
 
             var id = 1
             for (feature in sortedFeatures) {
-                val geoStr = GeojsonPolygon.adapter.toJson(feature.geometry)
+                val geoStr = GeojsonPolygon.adapter.toJson(feature.geometry).replace("\"", "\"\"")
                 val classNumber = feature.properties[classNumberPropertyKey] as Int
                 val className = feature.properties[classNamePropertyKey] as String
                 csvWriter.write("\"$geoStr\",$id,$classNumber,$className")
@@ -691,7 +689,7 @@ class CRADatasource(
 
             var contZip: File? = null
             for (zip in zips) {
-                if (zip.name.contains(roiDir.name)) {
+                if (zip.name.contains(roiDir.name.lowercase())) {
                     contZip = zip
                     break
                 }
@@ -716,7 +714,12 @@ class CRADatasource(
                 reader.readLine() // header
                 val classNames = mutableListOf<String>()
                 val polys = reader.lineSequence().mapNotNull { line ->
-                    val (geometry, _, _, className) = line.split(',', ignoreCase = false, limit = 4)
+                    // plus 2 for (1) wrapping double quote " and the comma ,
+                    // that appear as the last two characters of the geometry field
+                    val geoSplit = line.lastIndexOf("}") + 2
+                    val geometry = line.substring(0, geoSplit).replace("\"\"", "\"").drop(1).dropLast(1)
+                    val theRest = line.substring(geoSplit + 1)
+                    val (_, _, className) = theRest.split(',', ignoreCase = false, limit = 3)
                     val geojson = GeojsonPolygon.adapter.fromJson(geometry)
                     if (geojson == null) {
                         null
