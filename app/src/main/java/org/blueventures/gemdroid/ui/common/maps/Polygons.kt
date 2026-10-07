@@ -148,16 +148,17 @@ object Polygons {
     @Composable
     @GoogleMapComposable
     private fun Touch(onTouch: (PolygonPoint?) -> @Composable () -> Unit, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
-        var polygonPoint: PolygonPoint? = null
+        val (polyPt, setPolyPt) = remember { mutableStateOf<PolygonPoint?>(null) }
         if (lastTouch.value != null) {
             val point = lastTouch.value!!
+            var name: String? = null
             outer@ for (i in optGroups.indices) {
                 val optGroup = optGroups[i]
                 if (optGroup.namedOptions.isNotEmpty() && visibilities[i]) {
                     for (namedOpts in optGroup.namedOptions) {
                         for (opts in namedOpts.options) {
                             if (PolyUtil.containsLocation(point, opts.points, true)) {
-                                polygonPoint = PolygonPoint(namedOpts.name, point)
+                                name = namedOpts.name
                                 break@outer
                             }
                         }
@@ -165,12 +166,13 @@ object Polygons {
                 }
             }
 
-            // because we always invoke the composable below, setting this to null here (when
-            // there is no polygon being touched) prevents showing the same content over and over
-            // and allows callers to clean up their state
-            lastTouch.value = null
+            if (name != null) {
+                setPolyPt(PolygonPoint(name, point))
+            } else {
+                setPolyPt(null)
+            }
         }
 
-        onTouch(polygonPoint).invoke()
+        onTouch(polyPt).invoke()
     }
 }
