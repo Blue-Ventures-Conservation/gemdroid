@@ -2,7 +2,7 @@ package com.github.zibnix.droidbones
 
 import android.content.Context
 
-class NoStack(val resId: Int): Throwable("") {
+class NoStack(val resId: Int = R.string.unknown_error): Throwable("") {
     override fun fillInStackTrace() = this
 }
 

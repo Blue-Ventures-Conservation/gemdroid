@@ -38,6 +38,8 @@ import org.blueventures.gemdroid.data.polyfile.PolyFile
 import org.blueventures.gemdroid.data.shp.Shapefile
 import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
+import org.blueventures.gemdroid.model.api.complete
+import org.blueventures.gemdroid.model.api.storage
 import org.blueventures.gemdroid.model.resultCheck
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
 import org.blueventures.gemdroid.ui.common.maps.Polygons
@@ -73,23 +75,19 @@ class CRADatasource(
         })
     }
 
-    private suspend fun getRemoteCRAList(filetypes: String): Result<List<String>> = suspendCancellableCoroutine { resumer ->
+    private suspend fun getRemoteCRAList(filetypes: String): Result<List<String>> = suspendCancellableCoroutine { cont ->
         auth.currentUser?.uid?.let { uid ->
-            storage.reference.child("users/$uid/$filetypes").listAll()
-                .addOnSuccessListener { result ->
-                    val files = mutableListOf<String>()
-                    result.items.forEach {
-                        if (it.name.endsWith(".json")) {
-                            files.add(it.name.substringBeforeLast("."))
-                        }
+            storage.reference.child("users/$uid/$filetypes").listAll().storage(cont) { result ->
+                val files = mutableListOf<String>()
+                result.items.forEach {
+                    if (it.name.endsWith(".json")) {
+                        files.add(it.name.substringBeforeLast("."))
                     }
-                    resumer.resume(Result.success(files))
                 }
-                .addOnFailureListener {
-                    resumer.resume(Result.failure(NoStack(R.string.could_not_reach_storage)))
-                }
+                files
+            }
         } ?: run {
-            resumer.resume(Result.failure(SignIn.not))
+            cont.resume(Result.failure(SignIn.not))
         }
     }
 
@@ -339,28 +337,23 @@ class CRADatasource(
         val tmp = File.createTempFile("cras", "json")
         tmp.deleteOnExit()
         val filetypes = cra.filetypes()
-        storage.reference.child("users/$uid/$filetypes/$key.json").getFile(tmp).addOnSuccessListener {
+        storage.reference.child("users/$uid/$filetypes/$key.json").getFile(tmp).storage(cont) {
             val infoRes = RemoteCRAFileInfo.fromFile(tmp)
             if (infoRes.isFailure) {
                 cont.resume(Result.failure(infoRes.exceptionOrNull()!!))
+                null
             } else {
                 val info = infoRes.getOrNull()!!
                 cra.eeUploadName = info.tableUploadOperationName
-                cont.resume(
-                    Result.success(
-                        FieldsCounts(
-                            Fields(
-                                chosenNumeric = info.numericClassField,
-                                chosenString = info.stringClassField,
-                                chosenStringValues = info.stringClassValues,
-                            ),
-                            StringsNumerics(ClassCounts(chosenCounts = info.classCounts ?: emptyList()))
-                        )
-                    )
+                FieldsCounts(
+                    Fields(
+                        chosenNumeric = info.numericClassField,
+                        chosenString = info.stringClassField,
+                        chosenStringValues = info.stringClassValues,
+                    ),
+                    StringsNumerics(ClassCounts(chosenCounts = info.classCounts ?: emptyList()))
                 )
             }
-        }.addOnFailureListener {
-            cont.resume(Result.failure(it))
         }
     }
 
@@ -400,6 +393,17 @@ class CRADatasource(
         }
     }
 
+    fun deleteCreationJsonAndCSV(roiDir: File): Result<Unit> {
+        val geojsonRes = FileService.deleteFile(creationGeojson(roiDir))
+        for (file in FileService.getFiles(creationDir(roiDir), "csv")) {
+            val res = FileService.deleteFile(file)
+            if (res.isFailure) {
+                return res
+            }
+        }
+        return geojsonRes
+    }
+
     suspend fun uploadCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
         var r1: Result<Unit> = Result.failure(Throwable())
         var r2: Result<Unit> = Result.failure(Throwable())
@@ -433,12 +437,7 @@ class CRADatasource(
     private suspend fun uploadCRAFile(cra: LocalOrRemoteCRAFile, uid: String, file: File): Result<Unit> = suspendCancellableCoroutine { cont ->
         val filetypes = cra.filetypes()
         val key = cra.key()
-        storage.reference.child("users/$uid/$filetypes/$key.zip").putFile(Uri.fromFile(file))
-            .addOnSuccessListener {
-                cont.resume(Result.success(Unit))
-            }.addOnFailureListener {
-                cont.resume(Result.failure(it))
-            }
+        storage.reference.child("users/$uid/$filetypes/$key.zip").putFile(Uri.fromFile(file)).storage(cont)
     }
 
     suspend fun ingestCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
@@ -513,7 +512,7 @@ class CRADatasource(
     }
 
     @Throws(IOException::class)
-    private suspend fun uploadFields(cra: LocalOrRemoteCRAFile, uid: String): Result<Unit>  = suspendCancellableCoroutine { cont ->
+    private suspend fun uploadFields(cra: LocalOrRemoteCRAFile, uid: String): Result<Unit> = suspendCancellableCoroutine { cont ->
         val key = cra.key()
         val tmp = File.createTempFile(key, "json")
         tmp.deleteOnExit()
@@ -534,12 +533,7 @@ class CRADatasource(
             cont.resume(infoFileResult)
         } else {
             val filetypes = cra.filetypes()
-            storage.reference.child("users/$uid/$filetypes/$key.json").putFile(Uri.fromFile(tmp))
-                .addOnSuccessListener {
-                    cont.resume(Result.success(Unit))
-                }.addOnFailureListener {
-                    cont.resume(Result.failure(it))
-                }
+            storage.reference.child("users/$uid/$filetypes/$key.json").putFile(Uri.fromFile(tmp)).storage(cont)
         }
     }
 
@@ -621,7 +615,7 @@ class CRADatasource(
 
         private fun loadLocalCRAShapefile(roiDir: File): Result<ContemporaryAndHistoricalPolysWithClasses> {
             val workDir = crasDir(roiDir)
-            val zips = getZips(workDir)
+            val zips = FileService.getFiles(workDir, "zip")
 
             if (zips.isEmpty()) {
                 return Result.failure(Throwable())
@@ -670,18 +664,6 @@ class CRADatasource(
             return Result.success(ContemporaryAndHistoricalPolysWithClasses(contRes.getOrNull()!!, histPolys))
         }
 
-        private fun getZips(workDir: File): List<File> {
-            val files = FileService.getFiles(workDir)
-            val zips = mutableListOf<File>()
-            for (file in files) {
-                if (file.extension.lowercase() == "zip") {
-                    zips.add(file)
-                }
-            }
-
-            return zips
-        }
-
         private fun unzipAndGather(workDir: File, zip: File, classNameProperty: String): Result<PolysWithClasses> {
             val unzipRes = FileService.unzip(FileInputStream(zip), workDir.path)
             if (unzipRes.isFailure) {
@@ -700,8 +682,8 @@ class CRADatasource(
 
         // currently only contemporary CRAs can be created locally as a CSV
         private fun loadLocalCraCsv(roiDir: File): Result<PolysWithClasses> {
-            val workDir = crasDir(roiDir)
-            val zips = getZips(workDir)
+            val workDir = creationDir(roiDir)
+            val zips = FileService.getFiles(workDir, "zip")
 
             if (zips.isEmpty()) {
                 return Result.failure(Throwable())

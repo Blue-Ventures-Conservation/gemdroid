@@ -21,6 +21,7 @@ class CRARepository(
     fun uploadOneIngestOther(toUpload: LocalOrRemoteCRAFile, toIngest: LocalOrRemoteCRAFile) = goFlow { datasource.uploadOneIngestOther(toUpload, toIngest) }
     fun saveCRAs(roiDir: File, hist: LocalOrRemoteCRAFile?, cont: LocalOrRemoteCRAFile) = goFlow { datasource.saveCRAs(roiDir, hist, cont) }
     fun loadRemoteCRAFilesInfo(roiDir: File) = goFlow { CRADatasource.loadRemoteCRAFilesInfo(roiDir) }
+    fun deleteCreationJsonAndCSV(roiDir: File) = goFlow { datasource.deleteCreationJsonAndCSV(roiDir) }
     fun shouldAwaitCRAs(roiDir: File) = goFlow { datasource.shouldAwaitCRAs(roiDir) }
     fun awaitCRAs(roiDir: File, cras: ContemporaryAndHistoricalRemoteCRAFileInfo) = goFlow { datasource.awaitCRAs(roiDir, cras) }
 }

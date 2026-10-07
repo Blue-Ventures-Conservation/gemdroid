@@ -36,12 +36,16 @@ object FileService {
         }
     }
 
-    fun getFiles(dir: File): List<File> {
+    fun getFiles(dir: File, ext: String? = null): List<File> {
         return try {
             val fs = mutableListOf<File>()
             for (file in dir.listFiles() ?: emptyArray()) {
                 if (file.exists() && !file.isDirectory && file.length() > 0) {
-                    fs.add(file)
+                    if (ext == null) {
+                        fs.add(file)
+                    } else if (file.extension.equals(ext, ignoreCase = true)) {
+                        fs.add(file)
+                    }
                 }
             }
 

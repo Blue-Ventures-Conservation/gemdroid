@@ -349,6 +349,8 @@ class CRAViewModel(
                             deleteFile(zipFile) {
                                 callback(result)
                             }
+                        } else {
+                            scoped { repo.deleteCreationJsonAndCSV(roiDir).collect(callback) }
                         }
                     }
                 }
