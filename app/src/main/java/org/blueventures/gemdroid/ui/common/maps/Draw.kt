@@ -72,9 +72,12 @@ object Draw {
                 model.drawnPoints = drawState.value.screenPoints.map {
                     proj.fromScreenLocation(it)
                 }
-                PolygonUtils.opt(listOf(model.drawnPoints))?.let { opt ->
-                    Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 100f)
-                }
+            }
+        }
+
+        if (model.drawnPoints.isNotEmpty()) {
+            PolygonUtils.opt(listOf(model.drawnPoints))?.let { opt ->
+                Polygon(points = opt.points, fillColor = Color(opt.fillColor), strokeColor = Color(opt.strokeColor), strokePattern = opt.strokePattern, strokeWidth = opt.strokeWidth, zIndex = 100f)
             }
         }
     }
