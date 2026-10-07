@@ -21,7 +21,7 @@ import org.blueventures.gemdroid.data.analysis.BVClassColors.BVRed
 import org.blueventures.gemdroid.data.analysis.Tasks
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
-import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalRemoteCRAFileInfo
 import org.blueventures.gemdroid.data.analysis.dynamics.ClassDynamics
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsExports
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsROI
@@ -57,7 +57,7 @@ class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
 ): ApiViewModel(repo), CollectPolygons.Model {
     lateinit var craAwaiter: Await.CRAAwaiter
-    lateinit var cras: ContemporaryAndHistoricalCRAs
+    lateinit var cras: ContemporaryAndHistoricalRemoteCRAFileInfo
     lateinit var targetClasses: List<String>
     lateinit var roiDir: File
     lateinit var roi: ROI

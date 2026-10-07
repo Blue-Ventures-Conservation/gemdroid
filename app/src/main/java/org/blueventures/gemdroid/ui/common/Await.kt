@@ -6,13 +6,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.github.zibnix.droidbones.localized
 import kotlinx.coroutines.Job
-import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalRemoteCRAFileInfo
 
 object Await {
     interface CRAAwaiter {
-        fun loadCRAs(callback: (Result<ContemporaryAndHistoricalCRAs>) -> Unit): Job
+        fun loadRemoteCRAFilesInfo(callback: (Result<ContemporaryAndHistoricalRemoteCRAFileInfo>) -> Unit): Job
         fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit): Job
-        fun awaitCRAs(cras: ContemporaryAndHistoricalCRAs, callback: (Result<Unit>) -> Unit)
+        fun awaitCRAs(cras: ContemporaryAndHistoricalRemoteCRAFileInfo, callback: (Result<Unit>) -> Unit)
     }
 
     @Composable
@@ -21,7 +21,7 @@ object Await {
         back: Click,
         notVerified: String,
         awaiter: CRAAwaiter,
-        content: @Composable (ContemporaryAndHistoricalCRAs) -> Unit,
+        content: @Composable (ContemporaryAndHistoricalRemoteCRAFileInfo) -> Unit,
     ) {
         CRA(notVerified, awaiter) { cra, msg ->
             msg?.let {
@@ -40,15 +40,15 @@ object Await {
     fun CRA(
         notVerified: String,
         awaiter: CRAAwaiter,
-        content: @Composable (ContemporaryAndHistoricalCRAs?, String?) -> Unit,
+        content: @Composable (ContemporaryAndHistoricalRemoteCRAFileInfo?, String?) -> Unit,
     ) {
-        val (cras, setCRAs) = remember { mutableStateOf<Result<ContemporaryAndHistoricalCRAs>?>(null) }
+        val (cras, setCRAs) = remember { mutableStateOf<Result<ContemporaryAndHistoricalRemoteCRAFileInfo>?>(null) }
         val (should, setShould) = remember { mutableStateOf<Result<Boolean>?>(null) }
         val (awaited, setAwaited) = remember { mutableStateOf<Result<Unit>?>(null) }
 
         when {
             cras == null -> {
-                awaiter.loadCRAs(setCRAs)
+                awaiter.loadRemoteCRAFilesInfo(setCRAs)
             }
             cras.isFailure -> {
                 val msg = cras.exceptionOrNull()!!.localized(LocalContext.current)

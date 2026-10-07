@@ -11,11 +11,11 @@ import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 
-object Boundary {
+object Shapes {
     @Composable
     fun Screen(viewModel: AnalysisViewModel, appBar: AppBar) {
-        val coarseBoundary = stringResource(R.string.coarse_boundary)
-        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(coarseBoundary),
+        val shapesTile = stringResource(R.string.shapes)
+        Visualize.Screen(viewModel, appBar, viewModel.roi.appBarTitle(shapesTile),
             center = PolygonUtils.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), storage = Maps.Storage.fromViewModel(viewModel),
             poly = object : Polygons.Model() {
                 override val touchEnabled = true

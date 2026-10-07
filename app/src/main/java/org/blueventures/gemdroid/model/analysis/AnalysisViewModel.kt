@@ -155,20 +155,43 @@ class AnalysisViewModel(
     fun deleteComposites(callback: (Result<Unit>) -> Unit) = scoped { repo.deleteComposites(roiDir).collect(callback) }
 
     override fun polygonGroups(context: Context, startVisible: Boolean, callback: (List<Polygons.Group>) -> Unit) {
-        excludedRegions(context, startVisible) { excludes ->
-            backgroundPolygon(context, startVisible) { coarseROI ->
-                callback(mutableListOf(coarseROI).apply { if (excludes != null) add(excludes) })
+        craPolygons(context) { craPolys ->
+            excludedRegions(context, startVisible) { excludes ->
+                backgroundPolygon(context, startVisible) { coarseROI ->
+                    val list = craPolys.toMutableList()
+                    if (excludes != null) {
+                        list.add(excludes)
+                    }
+                    list.add(coarseROI)
+                    callback(list)
+                }
+            }
+        }
+    }
+
+    fun craPolygons(context: Context, callback: (List<Polygons.Group>) -> Unit) {
+        val craPolygonsTitle = context.getString(R.string.cra_polygons)
+        val contemporaryPolygonsTitle = context.getString(R.string.contemporary_cras)
+        val historicalPolygonsTitle = context.getString(R.string.historical_cras)
+        scoped {
+            repo.loadCRAPolygons(roiDir, craPolygonsTitle, contemporaryPolygonsTitle, historicalPolygonsTitle).collect { result ->
+                if (result.isSuccess) {
+                    callback(result.getOrNull()!!)
+                } else {
+                    callback(emptyList())
+                }
             }
         }
     }
 
     fun excludedRegions(context: Context, startVisible: Boolean, callback: (Polygons.Group?) -> Unit) {
         val excludedRegionsTitle = context.getString(R.string.excluded_regions)
+        val excludedRegionName = context.getString(R.string.excluded_region)
         if (roi.excludedRegions.isNotEmpty()) {
             val excludes = roi.excludedRegions
             background({
                 val polys = mutableListOf<Polygons.Named>()
-                for (poly in excludes) polys.add(Polygons.Named("", GeojsonMultiPolygon.toState(poly)))
+                for (poly in excludes) polys.add(Polygons.Named(excludedRegionName, GeojsonMultiPolygon.toState(poly)))
                 Polygons.Group(excludedRegionsTitle, polys, MildRed.toArgb(), startVisible = startVisible)
             }, callback)
         } else {

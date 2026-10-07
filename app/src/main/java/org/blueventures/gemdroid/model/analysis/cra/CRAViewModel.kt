@@ -17,7 +17,7 @@ import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
 import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
-import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalRemoteCRAFileInfo
 import org.blueventures.gemdroid.data.analysis.cra.Fields
 import org.blueventures.gemdroid.data.analysis.cra.FieldsCounts
 import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
@@ -220,11 +220,11 @@ class CRAViewModel(
 
     private var awaitCRAsJob: Job? = null
 
-    override fun loadCRAs(callback: (Result<ContemporaryAndHistoricalCRAs>) -> Unit) = scoped { repo.loadCRAs(roiDir).collect(callback) }
+    override fun loadRemoteCRAFilesInfo(callback: (Result<ContemporaryAndHistoricalRemoteCRAFileInfo>) -> Unit) = scoped { repo.loadRemoteCRAFilesInfo(roiDir).collect(callback) }
 
     override fun shouldAwaitCRAs(callback: (Result<Boolean>) -> Unit) = scoped { repo.shouldAwaitCRAs(roiDir).collect(callback) }
 
-    override fun awaitCRAs(cras: ContemporaryAndHistoricalCRAs, callback: (Result<Unit>) -> Unit) {
+    override fun awaitCRAs(cras: ContemporaryAndHistoricalRemoteCRAFileInfo, callback: (Result<Unit>) -> Unit) {
         awaitCRAsJob = resultWithToken(awaitCRAsJob, repo.awaitCRAs(roiDir, cras), callback)
     }
 
@@ -349,11 +349,6 @@ class CRAViewModel(
                             deleteFile(zipFile) {
                                 callback(result)
                             }
-                        } else {
-                            // make a good faith attempt to clean up
-                            scoped { repo.deleteCreationDir(roiDir).collect {
-                                callback(result)
-                            }}
                         }
                     }
                 }

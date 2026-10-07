@@ -1,5 +1,6 @@
 package org.blueventures.gemdroid.model.analysis
 
+import org.blueventures.gemdroid.model.analysis.cra.CRADatasource
 import org.blueventures.gemdroid.model.api.ApiRepository
 import java.io.File
 
@@ -9,4 +10,5 @@ class AnalysisRepository(
     fun getStage(roiDir: File) = goFlow { datasource.getStage(roiDir) }
     fun makeVisualizeTileDirs(roiDir: File) = goFlow { datasource.makeVisualizeTileDirs(roiDir) }
     fun deleteComposites(roiDir: File) = goFlow { datasource.deleteComposites(roiDir) }
+    fun loadCRAPolygons(roiDir: File, craPolygonsTitle: String, contemporaryPolygonsTitle: String, historicalPolygonsTitle: String) = goFlow { CRADatasource.CRAPolygons.load(roiDir, craPolygonsTitle, contemporaryPolygonsTitle, historicalPolygonsTitle) }
 }

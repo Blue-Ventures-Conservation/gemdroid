@@ -14,7 +14,7 @@ import org.blueventures.gemdroid.data.analysis.classification.ClassificationROI
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationReady
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationReadyResponse
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
-import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalRemoteCRAFileInfo
 import org.blueventures.gemdroid.data.roi.ROI
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationDatasource.Companion.contLCTileDir
@@ -34,7 +34,7 @@ class ClassificationViewModel(
 ): ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
     lateinit var craAwaiter: Await.CRAAwaiter
-    lateinit var cras: ContemporaryAndHistoricalCRAs
+    lateinit var cras: ContemporaryAndHistoricalRemoteCRAFileInfo
 
     var roiDir = File("")
         set(value) {
@@ -174,7 +174,7 @@ class ClassificationViewModel(
         deleteFile(exportsFile(roiDir))
     }
 
-    private fun makePalette(cras: ContemporaryAndHistoricalCRAs): List<String> {
+    private fun makePalette(cras: ContemporaryAndHistoricalRemoteCRAFileInfo): List<String> {
         val colors = makeColorPalette(cras.contemporaryCRA.stringClassValues)
         val pal = mutableListOf<String>()
         for (c in colors) {

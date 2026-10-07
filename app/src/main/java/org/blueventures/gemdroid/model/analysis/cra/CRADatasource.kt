@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.model.analysis.cra
 
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
+import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.api.apiResultCheck
@@ -19,12 +20,13 @@ import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
+import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.Regexp
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
 import org.blueventures.gemdroid.data.analysis.cra.ClassCounts
-import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalCRAs
+import org.blueventures.gemdroid.data.analysis.cra.ContemporaryAndHistoricalRemoteCRAFileInfo
 import org.blueventures.gemdroid.data.analysis.cra.Fields
 import org.blueventures.gemdroid.data.analysis.cra.FieldsCounts
 import org.blueventures.gemdroid.data.analysis.cra.LocalOrRemoteCRAFile
@@ -38,7 +40,10 @@ import org.blueventures.gemdroid.model.SignIn
 import org.blueventures.gemdroid.model.api.ApiDatasource
 import org.blueventures.gemdroid.model.resultCheck
 import org.blueventures.gemdroid.ui.analysis.cra.screens.Common
+import org.blueventures.gemdroid.ui.common.maps.Polygons
+import org.blueventures.gemdroid.ui.theme.Chartreuse
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -52,7 +57,7 @@ class CRADatasource(
     private val auth: FirebaseAuth = Firebase.auth,
     private val storage: FirebaseStorage = Firebase.storage,
 ): ApiDatasource(api, auth, storage) {
-    suspend fun getRemoteCRAs(): Result<List<String>> {
+    suspend fun getRemoteCRANames(): Result<List<String>> {
         var shpsRes: Result<List<String>> = Result.failure(SignIn.not)
         var geojsonsRes: Result<List<String>> = Result.failure(SignIn.not)
         coroutineScope {
@@ -89,7 +94,7 @@ class CRADatasource(
     }
 
     fun validateLocalCRA(roiDir: File, files: List<InputStream?>, names: List<String?>, remoteCRAs: List<String>, previous: String?, overwrite: Boolean): Result<LocalOrRemoteCRAFile> {
-        val crasDir = File(roiDir, crasDir)
+        val crasDir = crasDir(roiDir)
         return validateShapes(crasDir, files, names, remoteCRAs, previous, overwrite)
     }
 
@@ -395,8 +400,6 @@ class CRADatasource(
         }
     }
 
-    fun deleteCreationDir(roiDir: File) = FileService.deleteDir(creationDir(roiDir))
-
     suspend fun uploadCRAs(c1: LocalOrRemoteCRAFile, c2: LocalOrRemoteCRAFile): Result<Unit> {
         var r1: Result<Unit> = Result.failure(Throwable())
         var r2: Result<Unit> = Result.failure(Throwable())
@@ -461,7 +464,6 @@ class CRADatasource(
         val data = result.data!!
         if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_failed))
         cra.eeUploadName = data.name
-        FileService.deleteFile(cra.localFile ?: File(""))
         return Result.success(Unit)
     }
 
@@ -561,10 +563,8 @@ class CRADatasource(
             cont.counted.fields.chosenStringValues!!,
             cont.counted.counts.stringCounts.chosenCounts
         )
-        return ContemporaryAndHistoricalCRAs.toFile(crasFile(roiDir), ContemporaryAndHistoricalCRAs(histCRA, contCRA))
+        return ContemporaryAndHistoricalRemoteCRAFileInfo.toFile(crasFile(roiDir), ContemporaryAndHistoricalRemoteCRAFileInfo(histCRA, contCRA))
     }
-
-    fun loadCRAs(roiDir: File) = ContemporaryAndHistoricalCRAs.fromFile(crasFile(roiDir))
 
     fun shouldAwaitCRAs(roiDir: File): Result<Boolean> {
         return try {
@@ -574,7 +574,7 @@ class CRADatasource(
         }
     }
 
-    suspend fun awaitCRAs(roiDir: File, cras: ContemporaryAndHistoricalCRAs): Result<Unit> {
+    suspend fun awaitCRAs(roiDir: File, cras: ContemporaryAndHistoricalRemoteCRAFileInfo): Result<Unit> {
         val hist = cras.historicalCRA
         val cont = cras.contemporaryCRA
 
@@ -615,7 +615,188 @@ class CRADatasource(
         return false
     }
 
+    object CRAPolygons {
+        data class PolysWithClasses(val polys: MultiPolyPts, val classes: List<String>)
+        data class ContemporaryAndHistoricalPolysWithClasses(val contemporary: PolysWithClasses, val historical: PolysWithClasses? = null)
+
+        private fun loadLocalCRAShapefile(roiDir: File): Result<ContemporaryAndHistoricalPolysWithClasses> {
+            val workDir = crasDir(roiDir)
+            val zips = getZips(workDir)
+
+            if (zips.isEmpty()) {
+                return Result.failure(Throwable())
+            }
+
+            val infoRes = loadRemoteCRAFilesInfo((roiDir))
+            if (infoRes.isFailure) {
+                return Result.failure(infoRes.exceptionOrNull()!!)
+            }
+
+            val contHist = infoRes.getOrNull()!!
+            val contName = contHist.contemporaryCRA.shapefileStorageKey ?: "xunknownx"
+            val histName = contHist.historicalCRA?.shapefileStorageKey ?: "xunknownx"
+            var contZip: File? = null
+            var histZip: File? = null
+            for (zip in zips) {
+                if (contZip == null && zip.name.contains(contName, false)) {
+                    contZip = zip
+                }
+                if (histZip == null && zip.name.contains(histName, false)) {
+                    histZip = zip
+                }
+            }
+
+            if (contZip == null) {
+                return Result.failure(Throwable())
+            }
+
+            val classNameProperty = contHist.contemporaryCRA.stringClassField
+            val contRes = unzipAndGather(workDir, contZip, classNameProperty)
+            if (contRes.isFailure) {
+                return Result.failure(contRes.exceptionOrNull()!!)
+            }
+
+            val histPolys = if (histZip != null) {
+                val res = unzipAndGather(workDir, histZip, classNameProperty)
+                if (res.isSuccess) {
+                    res.getOrNull()!!
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
+            return Result.success(ContemporaryAndHistoricalPolysWithClasses(contRes.getOrNull()!!, histPolys))
+        }
+
+        private fun getZips(workDir: File): List<File> {
+            val files = FileService.getFiles(workDir)
+            val zips = mutableListOf<File>()
+            for (file in files) {
+                if (file.extension.lowercase() == "zip") {
+                    zips.add(file)
+                }
+            }
+
+            return zips
+        }
+
+        private fun unzipAndGather(workDir: File, zip: File, classNameProperty: String): Result<PolysWithClasses> {
+            val unzipRes = FileService.unzip(FileInputStream(zip), workDir.path)
+            if (unzipRes.isFailure) {
+                return Result.failure(unzipRes.exceptionOrNull()!!)
+            }
+
+            val gatherRes = Shapefile.polygonsAndClasses(workDir, unzipRes.getOrNull()!!, classNameProperty)
+            return when {
+                gatherRes.isFailure -> Result.failure(gatherRes.exceptionOrNull()!!)
+                else -> {
+                    val pair = gatherRes.getOrNull()!!
+                    Result.success(PolysWithClasses(pair.first, pair.second))
+                }
+            }
+        }
+
+        // currently only contemporary CRAs can be created locally as a CSV
+        private fun loadLocalCraCsv(roiDir: File): Result<PolysWithClasses> {
+            val workDir = crasDir(roiDir)
+            val zips = getZips(workDir)
+
+            if (zips.isEmpty()) {
+                return Result.failure(Throwable())
+            }
+
+            var contZip: File? = null
+            for (zip in zips) {
+                if (zip.name.contains(roiDir.name)) {
+                    contZip = zip
+                    break
+                }
+            }
+
+            if (contZip == null) {
+                return Result.failure(Throwable())
+            }
+
+            val unzipRes = FileService.unzip(FileInputStream(contZip), workDir.path)
+            if (unzipRes.isFailure) {
+                return Result.failure(unzipRes.exceptionOrNull()!!)
+            }
+
+            val files = unzipRes.getOrNull()!!
+            if (files.isEmpty() || files.size != 1) {
+                return Result.failure(Throwable())
+            }
+
+            try {
+                val reader = FileInputStream(files[0]).bufferedReader()
+                reader.readLine() // header
+                val classNames = mutableListOf<String>()
+                val polys = reader.lineSequence().mapNotNull { line ->
+                    val (geometry, _, _, className) = line.split(',', ignoreCase = false, limit = 4)
+                    val geojson = GeojsonPolygon.adapter.fromJson(geometry)
+                    if (geojson == null) {
+                        null
+                    } else {
+                        classNames.add(className)
+                        GeojsonPolygon.toStateWithContainer(geojson).first
+                    }
+                }.toList()
+
+                return Result.success(PolysWithClasses(polys, classNames))
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
+        }
+
+        private fun craPolysToUIPolys(menuTitle: String, polys: PolysWithClasses?): Polygons.Group? {
+            if (polys == null || polys.polys.size != polys.classes.size) {
+                return null
+            }
+
+            val named = mutableListOf<Polygons.Named>()
+            for ((index, poly) in polys.polys.withIndex()) {
+                val name = polys.classes[index]
+                named.add(Polygons.Named(name, listOf(poly)))
+            }
+
+            return Polygons.Group(menuTitle, named, Chartreuse.toArgb())
+        }
+
+        private fun toUIPolys(contHistPolys: ContemporaryAndHistoricalPolysWithClasses, craPolygonsTitle: String, contemporaryPolygonsTitle: String, historicalPolygonsTitle: String): Result<List<Polygons.Group>> {
+            val hist = craPolysToUIPolys(historicalPolygonsTitle, contHistPolys.historical)
+            val cont = craPolysToUIPolys(if (hist == null) craPolygonsTitle else contemporaryPolygonsTitle, contHistPolys.contemporary)
+
+            if (cont == null) {
+                return Result.failure(Throwable())
+            } else {
+                val list = mutableListOf(cont)
+                if (hist != null) {
+                    list.add(hist)
+                }
+                return Result.success(list)
+            }
+        }
+
+        fun load(roiDir: File, craPolygonsTitle: String, contemporaryPolygonsTitle: String, historicalPolygonsTitle: String): Result<List<Polygons.Group>> {
+            val csvRes = loadLocalCraCsv(roiDir)
+            if (csvRes.isSuccess) {
+                return toUIPolys(ContemporaryAndHistoricalPolysWithClasses(csvRes.getOrNull()!!), craPolygonsTitle, contemporaryPolygonsTitle, historicalPolygonsTitle)
+            }
+
+            val shpRes = loadLocalCRAShapefile(roiDir)
+            if (shpRes.isSuccess) {
+                return toUIPolys(shpRes.getOrNull()!!, craPolygonsTitle, contemporaryPolygonsTitle, historicalPolygonsTitle)
+            }
+
+            return Result.failure(Throwable())
+        }
+    }
+
     companion object {
+        fun loadRemoteCRAFilesInfo(roiDir: File) = ContemporaryAndHistoricalRemoteCRAFileInfo.fromFile(crasFile(roiDir))
+
         const val classIDPropertyKey = "ID"
         const val classNamePropertyKey = "classname"
         const val classNumberPropertyKey = "classnumber"

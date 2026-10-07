@@ -3,6 +3,7 @@ package org.blueventures.gemdroid.data.shp
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.maps.model.LatLng
+import net.iryndin.jdbf.core.DbfFieldTypeEnum
 import net.iryndin.jdbf.core.DbfRecord
 import net.iryndin.jdbf.reader.DbfReader
 import org.blueventures.gemdroid.R
@@ -20,15 +21,40 @@ import kotlin.math.abs
 
 object Shapefile {
     fun polygons(workDir: File, paths: List<String>): Result<MultiPolyPts> {
-        val polys = mutableListOf<List<List<LatLng>>>()
+        val result = polygonsAndClasses(workDir, paths)
+        return when {
+            result.isFailure -> Result.failure(result.exceptionOrNull()!!)
+            else -> {
+                val pair = result.getOrNull()!!
+                Result.success(pair.first)
+            }
+        }
+    }
 
-        val zipResult = parse(workDir, paths, MAX_VERTICES, true, {null}, {null}) { pts ->
+    fun polygonsAndClasses(workDir: File, paths: List<String>, classNameProperty: String = ""): Result<Pair<MultiPolyPts, List<String>>> {
+        val polys = mutableListOf<List<List<LatLng>>>()
+        val classNameVals = mutableListOf<String>()
+
+        val zipResult = parse(workDir, paths, MAX_VERTICES, true, {null}, { record ->
+            if (classNameProperty.isEmpty()) {
+                null
+            } else {
+                for (field in record.fields) {
+                    val fieldName = field.name
+                    if (field.type == DbfFieldTypeEnum.Character && fieldName.trim() == classNameProperty.trim()) {
+                        val stringVal = record.getString(fieldName)
+                        classNameVals.add(stringVal)
+                    }
+                }
+                null
+            }
+        }) { pts ->
             polys.add(pts)
         }
         if (zipResult.isFailure) return Result.failure(zipResult.exceptionOrNull()!!)
         if (polys.isEmpty()) return Result.failure(NoStack(R.string.no_polygons_found))
 
-        return Result.success(polys)
+        return Result.success(Pair(polys, classNameVals))
     }
 
     // this function is exposed primarily for inspecting CRAs

@@ -12,14 +12,14 @@ import java.io.File
  *
  * A CRA file is saved on device to keep track of the CRAs in use for an ROI.
  */
-data class ContemporaryAndHistoricalCRAs(
+data class ContemporaryAndHistoricalRemoteCRAFileInfo(
     @param:Json(name = "hist_shp") val historicalCRA: RemoteCRAFileInfo? = null,
     @param:Json(name = "cont_shp") val contemporaryCRA: RemoteCRAFileInfo,
 ) {
     companion object {
-        private val adapter = FileService.adapter<ContemporaryAndHistoricalCRAs>()
+        private val adapter = FileService.adapter<ContemporaryAndHistoricalRemoteCRAFileInfo>()
         fun fromFile(file: File) = FileService.fromFile(file, adapter)
-        fun toFile(file: File, cras: ContemporaryAndHistoricalCRAs) = FileService.toFile(file, cras, adapter)
+        fun toFile(file: File, cras: ContemporaryAndHistoricalRemoteCRAFileInfo) = FileService.toFile(file, cras, adapter)
     }
 
     fun historicalShp() = historicalCRA ?: contemporaryCRA

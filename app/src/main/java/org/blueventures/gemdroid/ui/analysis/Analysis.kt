@@ -12,7 +12,7 @@ import org.blueventures.gemdroid.ui.analysis.classification.Classification.Route
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.purpose
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.analysis.screens.Boundary
+import org.blueventures.gemdroid.ui.analysis.screens.Shapes
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColorDescription
@@ -32,7 +32,7 @@ object Analysis {
         const val imagery_description = prefix + "imagery_description"
         const val imagery_downloads = prefix + "imagery_downloads"
         const val review_inputs = prefix + "review_inputs"
-        const val boundary = prefix + "boundary"
+        const val shapes = prefix + "shapes"
 
         fun dashboardNext(stage: Stage): String? {
             return when(stage) {
@@ -84,12 +84,12 @@ object Analysis {
 
         b.backHandler(Routes.review_inputs, nav::popBackStack) {
             ReviewInputs.Screen(viewModel, appBar) {
-                nav.navigate(Routes.boundary)
+                nav.navigate(Routes.shapes)
             }
         }
 
-        b.backHandler(Routes.boundary, nav::popBackStack) {
-            Boundary.Screen(viewModel, appBar)
+        b.backHandler(Routes.shapes, nav::popBackStack) {
+            Shapes.Screen(viewModel, appBar)
         }
 
         // Composite Assessment

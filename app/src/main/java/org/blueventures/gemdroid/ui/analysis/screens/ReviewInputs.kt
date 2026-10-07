@@ -16,7 +16,7 @@ object ReviewInputs {
         val roi = viewModel.roi
         appBar.Update(AppBarUpdate(stringResource(R.string.review_inputs)))
         Await.CRA("", viewModel.craViewModel) { cra, _ ->
-            OverviewFromROI(viewModel::background, roi, cra, stringResource(R.string.overview), stringResource(R.string.review_boundary), polygon)
+            OverviewFromROI(viewModel::background, roi, cra, stringResource(R.string.overview), stringResource(R.string.review_shapes), polygon)
         }
     }
 }
