@@ -176,7 +176,7 @@ object Common {
                 setProgress(true)
             }
             else -> {
-                PolygonFile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), { uris, callback ->
+                PolygonFile.Result(stringResource(R.string.select_a_temporal_shapefile).format(temporal), false, { uris, callback ->
                     FileStream.makeStreams(context, viewModel::background, uris) { streams ->
                         viewModel.validateLocalCRA(streams.streams, streams.names, remoteCRAs, previous, false) { result ->
                             if (result.isFailure) {

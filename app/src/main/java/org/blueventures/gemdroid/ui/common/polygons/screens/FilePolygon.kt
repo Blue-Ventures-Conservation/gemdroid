@@ -28,7 +28,7 @@ object FilePolygon {
 
         val context = LocalContext.current
         Col.Col {
-            PolygonFile.Result(stringResource(R.string.upload_a_poly_file), { uris, callback ->
+            PolygonFile.Result(stringResource(R.string.upload_a_poly_file), true, { uris, callback ->
                 FileStream.makeStreams(context, model::background, uris) { streams ->
                     model.validatePolygonFile(streams, callback)
                 }

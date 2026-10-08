@@ -668,7 +668,7 @@ class CRADatasource(
                 return Result.failure(unzipRes.exceptionOrNull()!!)
             }
 
-            val gatherRes = Shapefile.polygonsAndClasses(workDir, unzipRes.getOrNull()!!, classNameProperty)
+            val gatherRes = Shapefile.polygonsAndClasses(workDir, unzipRes.getOrNull()!!, classNameProperty = classNameProperty)
             return when {
                 gatherRes.isFailure -> Result.failure(gatherRes.exceptionOrNull()!!)
                 else -> {

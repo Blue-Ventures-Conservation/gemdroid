@@ -20,8 +20,8 @@ import java.io.InputStreamReader
 import kotlin.math.abs
 
 object Shapefile {
-    fun polygons(workDir: File, paths: List<String>): Result<MultiPolyPts> {
-        val result = polygonsAndClasses(workDir, paths)
+    fun polygons(workDir: File, paths: List<String>, mustBeWGS84: Boolean = true): Result<MultiPolyPts> {
+        val result = polygonsAndClasses(workDir, paths, mustBeWGS84)
         return when {
             result.isFailure -> Result.failure(result.exceptionOrNull()!!)
             else -> {
@@ -31,11 +31,11 @@ object Shapefile {
         }
     }
 
-    fun polygonsAndClasses(workDir: File, paths: List<String>, classNameProperty: String = ""): Result<Pair<MultiPolyPts, List<String>>> {
+    fun polygonsAndClasses(workDir: File, paths: List<String>, mustBeWGS84: Boolean = true, classNameProperty: String = ""): Result<Pair<MultiPolyPts, List<String>>> {
         val polys = mutableListOf<List<List<LatLng>>>()
         val classNameVals = mutableListOf<String>()
 
-        val zipResult = parse(workDir, paths, MAX_VERTICES, true, {null}, { record ->
+        val zipResult = parse(workDir, paths, MAX_VERTICES, mustBeWGS84, recordf = { record ->
             if (classNameProperty.isEmpty()) {
                 null
             } else {
@@ -112,6 +112,8 @@ object Shapefile {
             }
         } catch (e: Exception) {
             Result.failure(e)
+        } finally {
+            FileService.deleteFiles(*paths.map { File(it) }.toTypedArray())
         }
     }
 
@@ -220,7 +222,8 @@ object Shapefile {
 
         val zipFile = File(workDir, "$shpName.zip")
 
-        val zipRes = FileService.zip(listOf(File(shp), File(shx), File(dbf), File(prj)), zipFile)
+        val toZip = listOf(shp, shx, dbf, prj).map { File(it) }
+        val zipRes = FileService.zip(toZip, zipFile)
         if (zipRes.isFailure) {
             return Result.failure(zipRes.exceptionOrNull()!!)
         }

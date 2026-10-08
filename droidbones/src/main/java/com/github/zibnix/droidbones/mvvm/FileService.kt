@@ -36,15 +36,20 @@ object FileService {
         }
     }
 
-    fun getFiles(dir: File, ext: String? = null): List<File> {
+    fun getFiles(dir: File, vararg extensions: String = emptyArray()): List<File> {
         return try {
             val fs = mutableListOf<File>()
             for (file in dir.listFiles() ?: emptyArray()) {
                 if (file.exists() && !file.isDirectory && file.length() > 0) {
-                    if (ext == null) {
+                    if (extensions.isEmpty()) {
                         fs.add(file)
-                    } else if (file.extension.equals(ext, ignoreCase = true)) {
-                        fs.add(file)
+                    } else {
+                        for (ext in extensions) {
+                            if (file.extension.equals(ext, ignoreCase = true)) {
+                                fs.add(file)
+                                break
+                            }
+                        }
                     }
                 }
             }
@@ -107,6 +112,21 @@ object FileService {
                 Result.failure(e)
             }
         }
+    }
+
+    fun deleteFiles(dir: File, vararg extensions: String): Result<Unit> {
+        return deleteFiles(*getFiles(dir, *extensions).toTypedArray())
+    }
+
+    fun deleteFiles(vararg files: File): Result<Unit> {
+        for (file in files) {
+            val result = deleteFile(file)
+            if (result.isFailure) {
+                return result
+            }
+        }
+
+        return Result.success(Unit)
     }
 
     fun deleteFile(file: File): Result<Unit> {

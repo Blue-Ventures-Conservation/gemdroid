@@ -407,4 +407,6 @@
     <string name="shapes">Shapes</string>
     <string name="cra_polygons">CRA Polygons</string>
     <string name="review_shapes">Review Shapes</string>
+    <string name="upload_shapefile">Upload Shapefile</string>
+    <string name="you_should_select_shapefile">You should select all of:</string>
 </resources>

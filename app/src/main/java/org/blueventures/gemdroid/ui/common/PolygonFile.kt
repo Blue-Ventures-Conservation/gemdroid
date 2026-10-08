@@ -22,11 +22,11 @@ typealias StreamValidator<T> = (List<Uri>, (Result<T>) -> Unit) -> Unit
 
 object PolygonFile {
     @Composable
-    fun <T> Result(title: String, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
+    fun <T> Result(title: String, includeKMLs: Boolean, validator: StreamValidator<T>, result: (Result<T>) -> Unit, progress: () -> Unit = {}) {
         val (uris, setUris) = remember { mutableStateOf<List<Uri>?>(null) }
 
         when (uris) {
-            null -> GetUris(title, setUris)
+            null -> GetUris(title, includeKMLs, setUris)
             else -> Validation(validator, uris, result, setUris, progress)
         }
     }
@@ -46,7 +46,7 @@ object PolygonFile {
     }
 
     @Composable
-    fun GetUris(title: String, setUris: (List<Uri>?) -> Unit) {
+    fun GetUris(title: String, includeKMLs: Boolean, setUris: (List<Uri>?) -> Unit) {
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments(), setUris)
 
         Column(
@@ -61,7 +61,7 @@ object PolygonFile {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.you_should_select_all_of),
+                text = if (includeKMLs) stringResource(R.string.you_should_select_all_of) else stringResource(R.string.you_should_select_shapefile),
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
@@ -79,19 +79,26 @@ object PolygonFile {
             )
         }
         Spacer(modifier = Modifier.height(0.dp))
-        Butt.Text(stringResource(R.string.select_polygon_file)) {
-            launcher.launch(arrayOf(
+        Butt.Text(if (includeKMLs) stringResource(R.string.select_polygon_file) else stringResource(R.string.upload_shapefile)) {
+            var mimes = arrayOf(
                 "application/zip",
                 "application/octet-stream",
                 "x-gis/x-shapefile",
-                "application/vnd.google-earth.kml+xml",
-                "application/vnd.google-earth.kmz",
-                "application/kml",
-                "application/kmz",
-                "application/xml",
-                "text/xml",
-                "application/text"
-            ))
+            )
+
+            if (includeKMLs) {
+                mimes = mimes.plus(arrayOf(
+                    "application/vnd.google-earth.kml+xml",
+                    "application/vnd.google-earth.kmz",
+                    "application/kml",
+                    "application/kmz",
+                    "application/xml",
+                    "text/xml",
+                    "application/text"
+                ))
+            }
+
+            launcher.launch(mimes)
         }
     }
 }
