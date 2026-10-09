@@ -39,6 +39,8 @@ import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
 import org.blueventures.gemdroid.data.Rectangle
 import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.model.analysis.cra.CRADatasource.Companion.classNumberPropertyKey
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateClasses
+import org.blueventures.gemdroid.ui.analysis.cra.screens.CreateClasses.TextInput
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.ClickContent
@@ -280,17 +282,59 @@ object Capture {
     @Composable
     fun CaptureDialog(model: Model, onDismiss: Click, onCapture: (CRAClass) -> Unit) {
         val (choice, setChoice) = remember { mutableStateOf<CRAClass?>(null) }
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
-            text = { ClassChoices(model.craClasses, choice, setChoice) },
-            confirmButton = {
-                Butt.Text(stringResource(R.string.capture), choice != null) {
-                    choice?.let { onCapture(it) }
+        val (createRadioTap, setCreateRadioTap) = remember { mutableStateOf<Unit?>(null) }
+        val (doNewClass, setDoNewClass) = remember { mutableStateOf<Unit?>(null) }
+        when {
+            doNewClass == null -> {
+                val classChoices = model.craClasses.toMutableList()
+                val addClassNumber = -999999
+                classChoices.add(CRAClass(addClassNumber, stringResource(R.string.add_another_class)))
+                AlertDialog(
+                    onDismissRequest = onDismiss,
+                    title = { Text(text = stringResource(R.string.choose_a_cra_class)) },
+                    text = { ClassChoices(classChoices, choice) { chosen ->
+                        if (chosen?.number?.equals(addClassNumber) == true) {
+                            setCreateRadioTap(Unit)
+                        } else {
+                            setCreateRadioTap(null)
+                        }
+                        setChoice(chosen)
+                    }},
+                    confirmButton = {
+                        Butt.Text(stringResource(if (createRadioTap == null) R.string.capture else R.string.add), choice != null) {
+                            choice?.let { chosen ->
+                                if (chosen.number == addClassNumber) {
+                                    setDoNewClass(Unit)
+                                } else {
+                                    onCapture(chosen)
+                                }
+                            }
+                        }
+                    },
+                    dismissButton = { Butt.Text(stringResource(R.string.cancel), click = onDismiss) }
+                )
+            }
+            else -> {
+                val newClassDone = { setDoNewClass(null) }
+                CreateClassesDialog(model, newClassDone) { newClassName ->
+                    val classChoices = model.craClasses.toMutableList()
+
+                    var max = Int.MIN_VALUE
+                    for (cc in classChoices) {
+                        if (cc.number > max) {
+                            max = cc.number
+                        }
+                    }
+
+                    val newClass = CRAClass(max + 1, newClassName)
+                    classChoices.add(newClass)
+                    model.craClasses = classChoices
+                    setCreateRadioTap(null)
+                    setChoice(newClass)
+                    newClassDone()
                 }
-            },
-            dismissButton = { Butt.Text(stringResource(R.string.cancel), click = onDismiss) }
-        )
+            }
+        }
     }
 
     @Composable
@@ -300,6 +344,35 @@ object Capture {
             .verticalScroll(rememberScrollState())) {
             Rad.InnerIo(classes, choice, setChoice) { _, craClass ->  craClass.name }
         }
+    }
+
+    @Composable
+    fun CreateClassesDialog(model: Model, onDismiss: Click, onCreate: (String) -> Unit) {
+        val input = remember { mutableStateOf(TextInput()) }
+        val placeholder = stringResource(R.string.please_provide_a_name)
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = stringResource(R.string.name_your_class)) },
+            text = {
+                Column(modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .verticalScroll(rememberScrollState())) {
+                    CreateClasses.ClassRow(placeholder, input.value)
+                }
+            },
+            confirmButton = {
+                Butt.Text(stringResource(R.string.done_button)) {
+                    if (input.value.value.isEmpty()) {
+                        model.snack(placeholder)
+                    } else {
+                        onCreate(input.value.value)
+                    }
+                }
+            },
+            dismissButton = {
+                Butt.Text(stringResource(R.string.cancel), click = onDismiss)
+            }
+        )
     }
 
     @Composable

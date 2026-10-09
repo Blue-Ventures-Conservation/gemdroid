@@ -409,4 +409,7 @@
     <string name="review_shapes">Review Shapes</string>
     <string name="upload_shapefile">Upload Shapefile</string>
     <string name="you_should_select_shapefile">You should select all of:</string>
+    <string name="add_another_class">Add Another Class</string>
+    <string name="name_your_class">Name Your Class</string>
+    <string name="add">Add</string>
 </resources>
