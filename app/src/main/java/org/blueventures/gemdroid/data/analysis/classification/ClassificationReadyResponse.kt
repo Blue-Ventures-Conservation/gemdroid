@@ -9,12 +9,14 @@ data class ClassificationReadyResponse(
     @param:Json(name = "clot_ready") val clotReady: Boolean,
     @param:Json(name = "hhot_ready") val hhotReady: Boolean,
     @param:Json(name = "hlot_ready") val hlotReady: Boolean,
+    @param:Json(name = "final_mask_ready") val finalMaskReady: Boolean,
     @param:Json(name = "chot_op") val chotOp: String,
     @param:Json(name = "clot_op") val clotOp: String,
     @param:Json(name = "hhot_op") val hhotOp: String,
     @param:Json(name = "hlot_op") val hlotOp: String,
+    @param:Json(name = "final_mask_op") val finalMaskOp: String,
 ) {
-    fun isReady() = chotReady && clotReady && hhotReady && hlotReady
+    fun isReady() = chotReady && clotReady && hhotReady && hlotReady && finalMaskReady
     companion object : Serializer<ClassificationReadyResponse>() {
         private val adapter = make<ClassificationReadyResponse>()
         override fun fromFile(file: File) = fromFile(adapter, file)

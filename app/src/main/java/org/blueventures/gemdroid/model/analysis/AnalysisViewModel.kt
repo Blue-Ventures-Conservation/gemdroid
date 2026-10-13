@@ -21,6 +21,7 @@ import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.com
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.exportsFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hhotTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.hlotTileDir
+import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.maskTileDir
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.resultsFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.roiFile
 import org.blueventures.gemdroid.model.analysis.AnalysisDatasource.Companion.urlsFile
@@ -31,6 +32,7 @@ import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Downloads
 import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
+import org.blueventures.gemdroid.ui.theme.Black
 import org.blueventures.gemdroid.ui.theme.MildRed
 import java.io.File
 
@@ -77,7 +79,7 @@ class AnalysisViewModel(
     private var hhotUriJob: Job? = null
     private var hlotUriJob: Job? = null
 
-    private fun tileDirs() = listOf(chotTileDir(roiDir), clotTileDir(roiDir), hhotTileDir(roiDir), hlotTileDir(roiDir))
+    private fun tileDirs() = listOf(chotTileDir(roiDir), clotTileDir(roiDir), hhotTileDir(roiDir), hlotTileDir(roiDir), maskTileDir(roiDir))
 
     fun refreshStage(callback: (Stage) -> Unit) = scoped { repo.getStage(roiDir).collect(callback) }
     fun getROI(callback: (Result<ROI>) -> Unit) = loadFile(roiFile(roiDir), ROI.Companion, callback)
@@ -109,6 +111,12 @@ class AnalysisViewModel(
         }) { api, roi ->
             api.getVisualizeURLs(roi)
         }
+    }
+    override fun aofPolygonGroup(context: Context, aof: GeojsonMultiPolygon, callback: (Polygons.Group) -> Unit) {
+        val aofTitle = context.getString(R.string.area_of_focus)
+        background({
+            callback(Polygons.Group(aofTitle, listOf(Polygons.Named(aofTitle, GeojsonMultiPolygon.toState(aof))), Black.toArgb(), Black.toArgb(), startVisible = false))
+        })
     }
 
     fun saveExports(exports: ImageryExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion, callback)

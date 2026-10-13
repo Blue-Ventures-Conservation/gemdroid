@@ -34,7 +34,9 @@ object Polygons {
     )
 
     data class NamedOptions(val name: String, val options: List<PolygonOptions>)
-    data class NamedOptionsGroup(val menuTitle: String, val namedOptions: List<NamedOptions>, val startVisible: Boolean = true)
+    data class NamedOptionsGroup(val menuTitle: String, val namedOptions: List<NamedOptions>, val startVisible: Boolean = true) {
+        fun isEmpty() = namedOptions.isEmpty()
+    }
     data class PolygonPoint(val polygonName: String, val point: LatLng)
 
     abstract class Model {
@@ -94,7 +96,7 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Unit, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>) {
+    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Unit, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>, rememberCheckerState: Boolean = true) {
         val firstZ = 9999f
 
         val visibilities = mutableListOf<Boolean>()
@@ -110,9 +112,15 @@ object Polygons {
                 }
             }
 
-            checker?.let {
-                visibilities.add(it.state)
-                ShowPolygons(checker, zIndex, group)
+            if (checker != null) {
+                if (rememberCheckerState) {
+                    val (visible, setVisible) = remember { mutableStateOf(group.startVisible) }
+                    checker.state = visible
+                    checker.setState = setVisible
+                }
+
+                visibilities.add(checker.state)
+                ShowPolygons(checker.state, zIndex, group)
             }
         }
 
@@ -123,24 +131,18 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    private fun ShowPolygons(checker: Checker, zIndex: Float, group: NamedOptionsGroup) {
-        val (visible, setVisible) = remember { mutableStateOf(group.startVisible) }
-        checker.state = visible
-        checker.setState = setVisible
-
-        if (group.namedOptions.isNotEmpty()) {
-            for (namedOptions in group.namedOptions) {
-                for (opts in namedOptions.options) {
-                    Polygon(
-                        points = opts.points,
-                        fillColor = Color(opts.fillColor),
-                        strokeColor = Color(opts.strokeColor),
-                        strokePattern = opts.strokePattern,
-                        strokeWidth = opts.strokeWidth,
-                        visible = checker.state,
-                        zIndex = zIndex
-                    )
-                }
+    private fun ShowPolygons(visible: Boolean, zIndex: Float, group: NamedOptionsGroup) {
+        for (namedOptions in group.namedOptions) {
+            for (opts in namedOptions.options) {
+                Polygon(
+                    points = opts.points,
+                    fillColor = Color(opts.fillColor),
+                    strokeColor = Color(opts.strokeColor),
+                    strokePattern = opts.strokePattern,
+                    strokeWidth = opts.strokeWidth,
+                    visible = visible,
+                    zIndex = zIndex
+                )
             }
         }
     }

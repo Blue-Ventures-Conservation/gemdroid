@@ -36,7 +36,7 @@ open class Rectangle(open val width: Double, open val height: Double)  {
                for (y in 0 until cellsTall.toInt()) {
                    val ne = SphericalUtil.computeOffset(rowNE, cellSize * y, 180.0)
                    val sw = SphericalUtil.computeOffset(ne, cellHyp, 225.0)
-                   val cellOpts = optsFromPoints(pointsFromCorners(ne, sw), 0xFF) ?: return null
+                   val cellOpts = gridOptsFromPoints(pointsFromCorners(ne, sw)) ?: return null
                    grid.add(cellOpts)
                }
            }
@@ -56,8 +56,12 @@ open class Rectangle(open val width: Double, open val height: Double)  {
            )
        }
 
-       private fun optsFromPoints(points: List<LatLng>, alpha: Int = 0x7F): PolygonOptions? {
-           return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), alpha), 12f)
+       private fun gridOptsFromPoints(points: List<LatLng>): PolygonOptions? {
+            return optsFromPoints(points, 8f, 0x3C)
+       }
+
+       private fun optsFromPoints(points: List<LatLng>, strokeWidth: Float = 12f, alpha: Int = 0xFF): PolygonOptions? {
+           return opt(listOf(points), 0x00000000, ColorUtils.setAlphaComponent(Chartreuse.toArgb(), alpha), strokeWidth)
        }
    }
 }

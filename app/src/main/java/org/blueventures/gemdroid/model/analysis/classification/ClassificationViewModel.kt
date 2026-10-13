@@ -71,15 +71,17 @@ class ClassificationViewModel(
     private var clotOp: String? = null
     private var hhotOp: String? = null
     private var hlotOp: String? = null
+    private var finalMaskOp: String? = null
     fun clearCompositeOps() {
         chotOp = null
         clotOp = null
         hhotOp = null
         hlotOp = null
+        finalMaskOp = null
     }
 
     fun getClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
-        if (chotOp == null || clotOp == null || hhotOp == null || hlotOp == null) {
+        if (chotOp == null || clotOp == null || hhotOp == null || hlotOp == null || finalMaskOp == null) {
             loadVisualizeFile { res ->
                 if (res.isSuccess) {
                     val urls = res.getOrNull()!!
@@ -87,6 +89,7 @@ class ClassificationViewModel(
                     clotOp = urls.clotImageOp
                     hhotOp = urls.hhotImageOp
                     hlotOp = urls.hlotImageOp
+                    finalMaskOp = urls.finalMaskImageOp
                 }
                 fetchClassificationReady(callback)
             }
@@ -96,7 +99,7 @@ class ClassificationViewModel(
     }
 
     private fun fetchClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
-        readyJob = getRemote(readyJob, makeClassificationReady(chotOp ?: "", clotOp ?: "", hhotOp ?: "", hlotOp ?: ""), callback) { api, ready ->
+        readyJob = getRemote(readyJob, makeClassificationReady(chotOp ?: "", clotOp ?: "", hhotOp ?: "", hlotOp ?: "", finalMaskOp ?: ""), callback) { api, ready ->
             api.classificationReady(ready)
         }
     }
@@ -109,6 +112,7 @@ class ClassificationViewModel(
                 clotOp = resp.clotOp
                 hhotOp = resp.hhotOp
                 hlotOp = resp.hlotOp
+                finalMaskOp = resp.finalMaskOp
 
                 if (!resp.isReady()) {
                     callback(Result.failure(Throwable()))
@@ -120,7 +124,7 @@ class ClassificationViewModel(
         }
     }
 
-    private fun makeClassificationReady(chotOp: String, clotOp: String, hhotOp: String, hlotOp: String) = ClassificationReady(chotOp, clotOp, hhotOp, hlotOp, roi)
+    private fun makeClassificationReady(chotOp: String, clotOp: String, hhotOp: String, hlotOp: String, finalMaskOp: String) = ClassificationReady(chotOp, clotOp, hhotOp, hlotOp, finalMaskOp, roi)
 
     fun getClassification(callback: (ApiResult<ClassificationURLs>) -> Unit) {
         classificationJob = getRemote(classificationJob, makeClassificationROI(), callback) { api, roi ->

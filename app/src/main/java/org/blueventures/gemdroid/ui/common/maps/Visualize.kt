@@ -3,9 +3,11 @@ package org.blueventures.gemdroid.ui.common.maps
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.R
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.GetRemote
@@ -20,6 +22,7 @@ object Visualize {
         fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit)
         fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
         fun saveVisualizeURLsFile(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit)
+        fun aofPolygonGroup(context: Context, aof: GeojsonMultiPolygon, callback: (Polygons.Group) -> Unit)
     }
 
     @Composable
@@ -36,6 +39,7 @@ object Visualize {
         capture: Capture.Model? = null,
         next: FloatingNext? = null,
     ) {
+        val d = stringResource(R.string.elevation_water_mask)
         if (visualizer != null) {
             GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
                 Maps.Screen(appBar, title, attemptGps, center, initialZoom, storage, object : Layers.Model<VisualizeURLs>() {
@@ -46,10 +50,42 @@ object Visualize {
                     override fun tileDir(i: Int) = visualizer.tileDir(i)
                     override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                     override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
-                }, draw, poly, capture, next)
+                }, draw, areaOfFocusPolygonsModel(visualizer, urls, poly), capture, next)
             }
         } else {
             Maps.NoLayers(appBar, title, attemptGps, center, initialZoom, storage, draw, poly, capture, next)
+        }
+    }
+
+    private fun areaOfFocusPolygonsModel(visualizer: Visualizer, urls: VisualizeURLs, poly: Polygons.Model?): Polygons.Model {
+        return object: Polygons.Model() {
+            override val touchEnabled: Boolean = poly?.touchEnabled ?: true
+            override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
+                poly?.polygonGroups(context) { groups ->
+                    urls.areaOfFocus?.let {
+                        visualizer.aofPolygonGroup(context, urls.areaOfFocus) { group ->
+                            val list = groups.toMutableList()
+                            list.add(group)
+                            callback(list)
+                        }
+                    } ?: run {
+                        callback(groups)
+                    }
+                } ?: run {
+                    urls.areaOfFocus?.let {
+                        visualizer.aofPolygonGroup(context, urls.areaOfFocus) { group ->
+                            callback(listOf(group))
+                        }
+                    } ?: run {
+                        callback(emptyList())
+                    }
+                }
+            }
+            override fun onTouch(point: Polygons.PolygonPoint?): @Composable (() -> Unit) = @Composable {
+                poly?.onTouch(point) ?: run {
+                    Polygons.PlaceMarker(point)
+                }
+            }
         }
     }
 

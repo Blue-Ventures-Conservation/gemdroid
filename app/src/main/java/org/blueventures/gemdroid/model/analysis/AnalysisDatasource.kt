@@ -50,6 +50,7 @@ class AnalysisDatasource(
         private const val clotTilesDir = "clot_tiles"
         private const val hhotTilesDir = "hhot_tiles"
         private const val hlotTilesDir = "hlot_tiles"
+        private const val maskTilesDir = "final_mask_tiles"
         private val visualizeTileDirs = arrayOf(chotTilesDir, clotTilesDir, hhotTilesDir, hlotTilesDir)
 
         // Downloads
@@ -69,6 +70,7 @@ class AnalysisDatasource(
         fun clotTileDir(roiDir: File) = File(visDir(roiDir), clotTilesDir)
         fun hhotTileDir(roiDir: File) = File(visDir(roiDir), hhotTilesDir)
         fun hlotTileDir(roiDir: File) = File(visDir(roiDir), hlotTilesDir)
+        fun maskTileDir(roiDir: File) = File(visDir(roiDir), maskTilesDir)
         fun compositesAssessedFile(roiDir: File) = File(roiDir, compositeAssessedFile)
     }
 }

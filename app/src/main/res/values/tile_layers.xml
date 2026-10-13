@@ -5,6 +5,7 @@
         <item>@string/cont_low_tide</item>
         <item>@string/hist_high_tide</item>
         <item>@string/hist_low_tide</item>
+        <item>@string/elevation_water_mask</item>
     </string-array>
     <string-array name="classification_layers">
         <item>@string/contemporary_classification</item>

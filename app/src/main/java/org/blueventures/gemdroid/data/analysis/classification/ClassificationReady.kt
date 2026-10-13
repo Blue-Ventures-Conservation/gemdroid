@@ -8,5 +8,6 @@ data class ClassificationReady(
     @param:Json(name = "contemporary_low_tide_op") val clotOp: String,
     @param:Json(name = "historical_high_tide_op") val hhotOp: String,
     @param:Json(name = "historical_low_tide_op") val hlotOp: String,
+    @param:Json(name = "final_mask_op") val finalMaskOp: String,
     @param:Json(name = "roi") val roi: ROI,
 )

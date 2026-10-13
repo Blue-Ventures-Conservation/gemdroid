@@ -50,6 +50,7 @@ import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.Clear
+import org.blueventures.gemdroid.ui.theme.MediumGrey
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
@@ -109,7 +110,7 @@ class DynamicsViewModel(
             val boundary = Polygons.Group(coarseBoundaryTitle, listOf(Polygons.Named(roi.name, roi.boundaryPolyToState())), Clear.toArgb(), dashes = true)
             val polys = mutableListOf<Polygons.Named>()
             for (poly in polygons) polys.add(Polygons.Named(poly.name, GeojsonMultiPolygon.toState(poly.polygon)))
-            listOf(boundary, Polygons.Group(subRegionsTitle, polys, Clear.toArgb(), 0x7FB4B4B4, true))
+            listOf(boundary, Polygons.Group(subRegionsTitle, polys, Clear.toArgb(), MediumGrey.toArgb(), true))
         }, callback)
     }
 

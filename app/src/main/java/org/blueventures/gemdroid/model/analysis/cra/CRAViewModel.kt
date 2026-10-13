@@ -12,6 +12,8 @@ import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
+import org.blueventures.gemdroid.data.MultiPolyPts
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.analysis.BVClass
 import org.blueventures.gemdroid.data.analysis.CRAClass
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
@@ -34,6 +36,7 @@ import org.blueventures.gemdroid.ui.common.Await
 import org.blueventures.gemdroid.ui.common.maps.Capture
 import org.blueventures.gemdroid.ui.common.maps.Polygons
 import org.blueventures.gemdroid.ui.common.maps.Visualize
+import org.blueventures.gemdroid.ui.theme.Black
 import org.blueventures.gemdroid.ui.theme.Chartreuse
 import java.io.File
 import java.io.InputStream
@@ -231,22 +234,65 @@ class CRAViewModel(
     override val capturedCollection
         get() = GeojsonPolygonFeatureCollection(features = capturedFeatures, properties = mapOf(collectionClassesPropertyKey to craClasses))
     val capturedFeatures = mutableListOf<GeojsonPolygonFeature>()
+
+    private var areaOfFocus: GeojsonMultiPolygon? = null
     override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) {
+        getAreaOfFocus { aof ->
+            craPolygonGroups(context, aof, callback)
+        }
+    }
+
+    private fun craPolygonGroups(context: Context, aof: GeojsonMultiPolygon?, callback: (List<Polygons.Group>) -> Unit) {
+        val inBoundsCRAs = context.getString(R.string.cras_inside_aof)
+        val outOfBoundsCRAs = context.getString(R.string.cras_outside_aof)
         background({
-            val polygons = mutableListOf<Polygons.Named>()
-            capturedCollection.features.forEach { feature ->
+            val inBoundsPolygons = mutableListOf<Polygons.Named>()
+            val outOfBoundsPolygons = mutableListOf<Polygons.Named>()
+            capturedFeatures.forEach { feature ->
                 identity(feature)?.let { stringID ->
-                    polygons.add(Polygons.Named(stringID, GeojsonMultiPolygon.toState(GeojsonMultiPolygon(listOf(feature.geometry.coordinates)))))
+                    val multipolygon = GeojsonMultiPolygon.toState(GeojsonMultiPolygon(listOf(feature.geometry.coordinates)))
+                    val namedPoly = Polygons.Named(stringID, multipolygon)
+
+                    if (checkForContainment(aof, multipolygon)) {
+                        inBoundsPolygons.add(namedPoly)
+                    } else {
+                        outOfBoundsPolygons.add(namedPoly)
+                    }
                 }
             }
 
-            if (polygons.isEmpty()) {
-                emptyList()
-            } else {
-                val color = Chartreuse.toArgb()
-                listOf(Polygons.Group("CRAs", polygons, color, color))
-            }
+            val groups = mutableListOf<Polygons.Group>()
+
+            val chartreuse = Chartreuse.toArgb()
+            groups.add(Polygons.Group(inBoundsCRAs, inBoundsPolygons, chartreuse, chartreuse))
+            val black = Black.toArgb()
+            groups.add(Polygons.Group(outOfBoundsCRAs, outOfBoundsPolygons, black, black))
+
+            groups
         }, callback)
+    }
+    private fun getAreaOfFocus(callback: (GeojsonMultiPolygon?) -> Unit) {
+        if (areaOfFocus == null) {
+            visualizer?.loadVisualizeURLsFile { result ->
+                areaOfFocus = if (result.isSuccess) {
+                    result.getOrNull()!!.areaOfFocus
+                } else {
+                    null
+                }
+
+                callback(areaOfFocus)
+            }
+        } else {
+            callback(areaOfFocus)
+        }
+    }
+    private fun checkForContainment(aof: GeojsonMultiPolygon?, multipolygon: MultiPolyPts): Boolean {
+        return aof?.let {
+            val aof = GeojsonMultiPolygon.toState(it)
+            PolygonUtils.polyContainsPoly(aof, multipolygon)
+        } ?: run {
+            true
+        }
     }
 
     fun getDefaultBVClasses() = BVClass.entries.filter { it != BVClass.CCMII }
@@ -258,13 +304,27 @@ class CRAViewModel(
     var currentID = 1
         get() = field++
     override var craClasses: List<CRAClass> = emptyList()
-    override fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
+    override fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Int?>) -> Unit) {
+        getAreaOfFocus { aof ->
+            val contained = checkForContainment(aof, listOf(listOf(polygon)))
+            recordCRAAndSave(craClass, polygon) { result ->
+                if (result.isFailure) {
+                    callback(Result.failure(result.exceptionOrNull()!!))
+                } else {
+                    callback(Result.success(if (contained) null else R.string.added_cra_is_outside_your_aof))
+                }
+            }
+        }
+    }
+
+    private fun recordCRAAndSave(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit) {
         capturedFeatures.add(GeojsonPolygonFeature(
             geometry = GeojsonPolygon.fromState(listOf(polygon)),
             properties = makeCRAProperties(currentID, craClass)
         ))
         saveLocallyCreatedCRAFile(callback)
     }
+
     private fun makeCRAProperties(id: Int, craClass: CRAClass) = mapOf(
         classIDPropertyKey to id,
         classNamePropertyKey to craClass.name,

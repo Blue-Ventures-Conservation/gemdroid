@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.data.analysis
 
 import com.squareup.moshi.Json
+import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
@@ -11,6 +12,7 @@ data class VisualizeURLs(
     @param:Json(name = "clot_url") val clotURL: String,
     @param:Json(name = "hhot_url") val hhotURL: String,
     @param:Json(name = "hlot_url") val hlotURL: String,
+    @param:Json(name = "final_mask_url") val finalMaskURL: String? = null,
     @param:Json(name = "buff_dist") val buffDist: Int,
     @param:Json(name = "created_at") override val createdAt: Int, // seconds
     @param:Json(name = "timeout") override val timeout: Int, // seconds
@@ -18,13 +20,16 @@ data class VisualizeURLs(
     @param:Json(name = "clot_image_op") val clotImageOp: String? = null,
     @param:Json(name = "hhot_image_op") val hhotImageOp: String? = null,
     @param:Json(name = "hlot_image_op") val hlotImageOp: String? = null,
+    @param:Json(name = "final_mask_image_op") val finalMaskImageOp: String? = null,
+    @param:Json(name = "area_of_focus") val areaOfFocus: GeojsonMultiPolygon? = null,
 ): URLs {
-    override fun ordered(i: Int): String {
+    override fun ordered(i: Int): String? {
         return when(i) {
             0 -> chotURL
             1 -> clotURL
             2 -> hhotURL
             3 -> hlotURL
+            4 -> finalMaskURL
             else -> chotURL
         }
     }

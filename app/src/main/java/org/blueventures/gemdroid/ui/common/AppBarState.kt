@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.ui.theme.DarkSlate
+import org.blueventures.gemdroid.ui.theme.Slate
 
 data class AppBarState(
     val settings: Click = {},
@@ -48,7 +48,7 @@ fun BasicActions(settings: Click?, signOut: Click) {
                 settings()
             }
         }
-        HorizontalDivider(color = DarkSlate, thickness = 1.dp)
+        HorizontalDivider(color = Slate, thickness = 1.dp)
         ActionItem(label = stringResource(R.string.logout_label)) {
             setMenu(false)
             signOut()

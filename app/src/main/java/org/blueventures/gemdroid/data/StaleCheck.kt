@@ -1,7 +1,7 @@
 package org.blueventures.gemdroid.data
 
 interface URLs: Expires {
-    fun ordered(i: Int): String
+    fun ordered(i: Int): String?
 }
 
 interface Expires {

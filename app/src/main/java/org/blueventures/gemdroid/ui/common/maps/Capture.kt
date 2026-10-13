@@ -51,7 +51,7 @@ import org.blueventures.gemdroid.ui.common.SnackFun
 
 data class NamedRectangle(val name: String, override val width: Double, override val height: Double): Rectangle(width, height)
 object Capture {
-    data class State(val shape: NamedRectangle, val checker: Maps.Checker, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
+    data class State(val shape: NamedRectangle, val inBoundsChecker: Maps.Checker, val outOfBoundsChecker: Maps.Checker, val center: LatLng? = null, val showGrid: Unit? = null, val doCapture: Unit? = null, val doEdit: String? = null, val maybeDone: Unit? = null)
 
     interface UI {
         val snack: SnackFun
@@ -68,7 +68,7 @@ object Capture {
         var craClasses: List<CRAClass>
 
         fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
-        fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Unit>) -> Unit)
+        fun capture(craClass: CRAClass, polygon: List<LatLng>, callback: (Result<Int?>) -> Unit)
         fun identity(feature: GeojsonPolygonFeature): String?
         fun currentClass(id: String): String?
         fun updateClass(id: String, newClass: CRAClass, callback: (Result<Unit>) -> Unit)
@@ -107,7 +107,7 @@ object Capture {
 
     @Composable
     fun prepareState(model: Model, cameraPositionState: CameraPositionState): MutableState<State> {
-        val state = remember { mutableStateOf(State(model.currentShape(), Maps.Checker())) }
+        val state = remember { mutableStateOf(State(model.currentShape(), Maps.Checker(), Maps.Checker())) }
         LaunchedEffect(cameraPositionState) {
             snapshotFlow { cameraPositionState.position.target }
                 .collect { state.value = state.value.copy(center = it) }
@@ -120,33 +120,65 @@ object Capture {
     fun Display(model: Model, state: MutableState<State>, checkers: MutableList<Maps.Checker>, lastTouch: MutableState<LatLng?>) {
         val polyModel = model.polyModel(state)
 
-        val (groupResult, setGroupResult) = remember { mutableStateOf<Result<Polygons.NamedOptionsGroup>?>(null) }
+        val (inBoundsVisible, setInBoundsVisible) = remember { mutableStateOf(true) }
+        state.value.inBoundsChecker.state = inBoundsVisible
+        state.value.inBoundsChecker.setState = setInBoundsVisible
+        val (outOfBoundsVisible, setOutOfBoundsVisible) = remember { mutableStateOf(true) }
+        state.value.outOfBoundsChecker.state = outOfBoundsVisible
+        state.value.outOfBoundsChecker.setState = setOutOfBoundsVisible
+        val (groupPair, setGroupsResult) = remember { mutableStateOf<Result<Pair<Polygons.NamedOptionsGroup, Polygons.NamedOptionsGroup>>?>(null) }
         when {
-            groupResult == null -> getGroup(LocalContext.current, polyModel, setGroupResult)
-            groupResult.isSuccess -> {
-                val group = groupResult.getOrNull()!!
-                state.value.checker.name = group.menuTitle
-                if (!checkers.contains(state.value.checker)) {
-                    checkers.add(state.value.checker)
+            groupPair == null -> getGroups(LocalContext.current, polyModel, setGroupsResult)
+            groupPair.isSuccess -> {
+                val pair = groupPair.getOrNull()!!
+                val inBounds = pair.first
+                val outOfBounds = pair.second
+
+                state.value.inBoundsChecker.name = inBounds.menuTitle
+                state.value.outOfBoundsChecker.name = outOfBounds.menuTitle
+
+                val groups = mutableListOf<Polygons.NamedOptionsGroup>()
+                val checks = mutableListOf<Maps.Checker>()
+                groups.add(inBounds)
+                checks.add(state.value.inBoundsChecker)
+
+                checkers.remove(state.value.inBoundsChecker)
+                if(!inBounds.isEmpty() && !checkers.contains(state.value.inBoundsChecker)) {
+                    checkers.add(state.value.inBoundsChecker)
                 }
-                Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, listOf(group), listOf(state.value.checker), lastTouch)
+
+                groups.add(outOfBounds)
+                checks.add(state.value.outOfBoundsChecker)
+
+                checkers.remove(state.value.outOfBoundsChecker)
+                if(!outOfBounds.isEmpty() && !checkers.contains(state.value.outOfBoundsChecker)) {
+                    checkers.add(state.value.outOfBoundsChecker)
+                }
+
+                Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, groups, checks, lastTouch, false)
             }
             else -> {
-                checkers.remove(state.value.checker)
+                checkers.remove(state.value.inBoundsChecker)
+                checkers.remove(state.value.outOfBoundsChecker)
             }
         }
 
         val context = LocalContext.current.applicationContext
         state.value.doCapture?.let {
             val onDismiss = { state.value = state.value.copy(doCapture = null) }
+            val context = LocalContext.current.applicationContext
             CaptureDialog(model, onDismiss) { craClass ->
                 optsFromState(model.cellSize, state.value.center, state.value.shape)?.first?.points?.let { polygon ->
                     model.capture(craClass, polygon) { result ->
                         when {
                             result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                             else -> {
+                                result.getOrNull()?.let { msgID ->
+                                    model.snack(context.getString(msgID))
+                                }
+
                                 onDismiss()
-                                setGroupResult(null)
+                                setGroupsResult(null)
                             }
                         }
                     }
@@ -161,7 +193,7 @@ object Capture {
                     result.isFailure -> model.snack(context.getString(R.string.failed_to_save_please_try_again))
                     else -> {
                         onDismiss()
-                        setGroupResult(null)
+                        setGroupsResult(null)
                     }
                 }
             }
@@ -194,10 +226,12 @@ object Capture {
         }
     }
 
-    private fun getGroup(context: Context, polyModel: Polygons.Model, callback: (Result<Polygons.NamedOptionsGroup>) -> Unit) {
+    private fun getGroups(context: Context, polyModel: Polygons.Model, callback: (Result<Pair<Polygons.NamedOptionsGroup, Polygons.NamedOptionsGroup>>) -> Unit) {
         polyModel.polygonOptions(context) { groups ->
-            if (groups.isNotEmpty()) {
-                callback(Result.success(groups.first()))
+            if (groups.size > 1) {
+                val inBounds = groups[0]
+                val outOfBounds = groups[1]
+                callback(Result.success(Pair(inBounds, outOfBounds)))
             } else {
                 callback(Result.failure(Throwable()))
             }

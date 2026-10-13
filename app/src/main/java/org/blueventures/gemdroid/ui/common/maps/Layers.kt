@@ -24,14 +24,16 @@ object Layers {
         abstract fun getRemote(callback: (ApiResult<T>) -> Unit)
         abstract fun save(urls: T, callback: (Result<Unit>) -> Unit)
 
-        fun tileOpts(index: Int, urls: T): TileOverlayOptions {
-            return TileOverlayOptions().tileProvider(
-                CachingUrlTileProvider(
-                    parentDir,
-                    tileDir(index),
-                    urls.ordered(index),
-                )
-            ).zIndex((layerNames.size - index).toFloat())
+        fun tileOpts(index: Int, urls: T): TileOverlayOptions? {
+            return urls.ordered(index)?.let {
+                TileOverlayOptions().tileProvider(
+                    CachingUrlTileProvider(
+                        parentDir,
+                        tileDir(index),
+                        it,
+                    )
+                ).zIndex((layerNames.size - index).toFloat())
+            }
         }
     }
 
@@ -66,7 +68,7 @@ object Layers {
 
             chk?.let { checker ->
                 val opts = model.tileOpts(index, urls)
-                opts.tileProvider?.let { provider ->
+                opts?.tileProvider?.let { provider ->
                     Overlay(provider, checker, opts)
                 }
             }

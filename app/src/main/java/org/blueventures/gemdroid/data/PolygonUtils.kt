@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.Gap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
 
@@ -125,6 +126,37 @@ object PolygonUtils {
         }
 
         return builder.build().center
+    }
+
+    fun polyContainsPoly(container: MultiPolyPts, other: MultiPolyPts): Boolean {
+        if (container.isEmpty()) {
+            return false
+        }
+
+        for (polygon in other) {
+            for ((j, ring) in polygon.withIndex()) {
+                if (j > 0) break
+                for (pt in ring) {
+                    for (cpoly in container) {
+                        if (cpoly.isEmpty()) {
+                            continue
+                        }
+
+                        for (ring in cpoly.subList(1, cpoly.size)) {
+                            if (PolyUtil.containsLocation(pt, ring, true)) {
+                                return false
+                            }
+                        }
+
+                        if (PolyUtil.containsLocation(pt, cpoly.first(), true)) {
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+
+        return false
     }
 
     data class NamedPolygon(
