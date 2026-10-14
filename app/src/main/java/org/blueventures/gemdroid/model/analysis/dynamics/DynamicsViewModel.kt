@@ -57,7 +57,6 @@ import java.io.File
 class DynamicsViewModel(
     private val repo: DynamicsRepository = DynamicsRepository()
 ): ApiViewModel(repo), CollectPolygons.Model {
-    lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cras: ContemporaryAndHistoricalRemoteCRAFileInfo
     lateinit var targetClasses: List<String>
     lateinit var roiDir: File
@@ -65,22 +64,25 @@ class DynamicsViewModel(
     lateinit var urls: DynamicsURLs
     lateinit var analysisRegion: RegionStats
     lateinit var analysisClass: ClassDynamics
-    var visualizer: Visualize.Visualizer? = null
+    lateinit var visualizer: Visualize.Visualizer
+    lateinit var boundsGetter: Visualize.BoundsGetter
+    lateinit var craAwaiter: Await.CRAAwaiter
     var alreadyDownloaded = false
     var combinedName: String? = null
 
     override var drawnPoints = emptyList<LatLng>()
     override fun visualizer() = visualizer
+    override fun boundsGetter() = boundsGetter
 
-    override fun center() = PolygonUtils.centerFromMultiPoly(roi.boundaryPolyToState())
     override var polygonName = ""
     override var filePoly: List<List<List<LatLng>>> = emptyList()
 
     override val polygons = mutableListOf<PolygonUtils.NamedPolygon>()
 
-    fun init(awaiter: Await.CRAAwaiter, vis: Visualize.Visualizer) {
-        craAwaiter = awaiter
+    fun init(vis: Visualize.Visualizer, bounds: Visualize.BoundsGetter, awaiter: Await.CRAAwaiter, ) {
         visualizer = vis
+        boundsGetter = bounds
+        craAwaiter = awaiter
     }
 
     var subregionsFinalized = false

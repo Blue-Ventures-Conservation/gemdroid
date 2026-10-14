@@ -44,11 +44,12 @@ import java.io.InputStream
 class CRAViewModel(
     private val repo: CRARepository = CRARepository()
 ): Capture.Data, Await.CRAAwaiter, ApiViewModel(repo) {
+    lateinit var visualizer: Visualize.Visualizer
+    lateinit var boundsGetter: Visualize.BoundsGetter
     lateinit var grouper: PolygonGrouper
 
     var roiDir = File("")
     var roi: ROI = ROI()
-    var visualizer: Visualize.Visualizer? = null
     var historicalCRA: LocalOrRemoteCRAFile? = null
     var contemporaryCRA = LocalOrRemoteCRAFile()
     var historicalChoice = HistoricalChoice.SEPARATE
@@ -59,9 +60,10 @@ class CRAViewModel(
             historicalCRA = hist
         }
 
-    fun init(visualizer: Visualize.Visualizer, grouper: PolygonGrouper) {
-        this.visualizer = visualizer
-        this.grouper = grouper
+    fun init(vis: Visualize.Visualizer, bounds: Visualize.BoundsGetter, grp: PolygonGrouper) {
+        visualizer = vis
+        boundsGetter = bounds
+        grouper = grp
     }
 
     fun loadLocallyCreatedCRAFile(callback: (Result<GeojsonPolygonFeatureCollection>) -> Unit) = loadFile(creationGeojson(roiDir), GeojsonPolygonFeatureCollection.Companion, callback)

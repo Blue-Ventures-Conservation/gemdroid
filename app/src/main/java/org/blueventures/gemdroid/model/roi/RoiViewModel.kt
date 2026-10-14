@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.DrawnPolygonsFile
 import org.blueventures.gemdroid.data.FileStream
@@ -19,6 +20,7 @@ import org.blueventures.gemdroid.model.settings.SettingsDatasource.Companion.for
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.maps.Polygons
+import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygon
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.MildRed
@@ -159,7 +161,7 @@ class RoiViewModel(
     }
 
     override fun visualizer() = null
-    override fun center() = coarseModel.center()
+    override fun boundsGetter() = coarseModel.boundsGetter()
 
     override var polygonName = ""
     override val polygons = mutableListOf<PolygonUtils.NamedPolygon>()
@@ -231,7 +233,13 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Mo
     override var drawnPoints = emptyList<LatLng>()
 
     override fun visualizer() = null
-    override fun center() = PolygonUtils.centerFromRing(drawnPoints)
+    override fun boundsGetter() = object : Visualize.BoundsGetter {
+        override fun getInitialLatLngBounds(callback: (Result<LatLngBounds>) -> Unit) {
+            viewModel.background({
+                PolygonUtils.bounds(listOf(listOf(drawnPoints)))
+            }, callback)
+        }
+    }
     override fun appBarTitle(title: String) = title
     override fun edit() = viewModel.imported
     override fun clearEdit() = viewModel.clearImported()

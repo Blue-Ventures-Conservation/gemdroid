@@ -26,6 +26,7 @@ import org.blueventures.gemdroid.model.analysis.classification.ClassificationDat
 import org.blueventures.gemdroid.model.analysis.classification.separability.SeparabilityViewModel
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.Await
+import org.blueventures.gemdroid.ui.common.maps.Visualize
 import org.blueventures.gemdroid.ui.theme.toHexString
 import java.io.File
 
@@ -33,6 +34,7 @@ class ClassificationViewModel(
     repo: ClassificationRepository = ClassificationRepository()
 ): ApiViewModel(repo) {
     lateinit var sepViewModel: SeparabilityViewModel
+    lateinit var boundsGetter: Visualize.BoundsGetter
     lateinit var craAwaiter: Await.CRAAwaiter
     lateinit var cras: ContemporaryAndHistoricalRemoteCRAFileInfo
 
@@ -50,9 +52,10 @@ class ClassificationViewModel(
 
     lateinit var urls: ClassificationURLs
 
-    fun init(activity: ComponentActivity, awaiter: Await.CRAAwaiter) {
+    fun init(activity: ComponentActivity, bounds: Visualize.BoundsGetter, awaiter: Await.CRAAwaiter) {
         sepViewModel = activity.viewModels<SeparabilityViewModel>().value
         sepViewModel.init(awaiter)
+        boundsGetter = bounds
         craAwaiter = awaiter
     }
 

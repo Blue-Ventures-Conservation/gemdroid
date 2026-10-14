@@ -37,9 +37,12 @@ import androidx.core.app.ActivityCompat
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -95,15 +98,14 @@ object Maps {
         appBar: AppBar,
         title: String,
         attemptGps: Boolean = false,
-        center: LatLng? = null,
-        initialZoom: Float? = null,
         storage: Storage? = null,
+        bounds: LatLngBounds? = null,
         draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         next: FloatingNext? = null,
     ) {
-        Screen<URLs>(appBar, title, attemptGps, center, initialZoom, storage, null, draw, poly, capture, next)
+        Screen<URLs>(appBar, title, attemptGps, storage, bounds, null, draw, poly, capture, next)
     }
 
     @OptIn(ExperimentalPermissionsApi::class)
@@ -112,9 +114,8 @@ object Maps {
         appBar: AppBar,
         title: String,
         attemptGps: Boolean = false,
-        center: LatLng? = null,
-        initialZoom: Float? = null,
         storage: Storage? = null,
+        bounds: LatLngBounds? = null,
         layers: Layers.Model<T>? = null,
         draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
@@ -128,10 +129,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                MapType(appBar, title, granted, center, initialZoom, storage, layers, draw, poly, capture, next)
+                MapType(appBar, title, granted, storage, bounds, layers, draw, poly, capture, next)
             }
         } else {
-            MapType(appBar, title, false, center, initialZoom, storage, layers, draw, poly, capture, next)
+            MapType(appBar, title, false, storage, bounds, layers, draw, poly, capture, next)
         }
     }
 
@@ -140,9 +141,8 @@ object Maps {
         appBar: AppBar,
         title: String,
         gps: Boolean,
-        center: LatLng?,
-        initialZoom: Float?,
         storage: Storage?,
+        bounds: LatLngBounds?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Polygons.Model?,
@@ -153,7 +153,7 @@ object Maps {
         if (storage != null && mapType == null) {
             storage.getMapType(LocalContext.current.applicationContext, setMapType)
         } else {
-            Checkers(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, mapType ?: MapType.HYBRID, next)
+            Checkers(appBar, title, gps, storage, bounds, layers, draw, poly, capture, mapType ?: MapType.HYBRID, next)
         }
     }
 
@@ -162,9 +162,8 @@ object Maps {
         appBar: AppBar,
         title: String,
         gps: Boolean,
-        center: LatLng?,
-        initialZoom: Float?,
         storage: Storage?,
+        bounds: LatLngBounds?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Polygons.Model?,
@@ -186,7 +185,7 @@ object Maps {
                 setPolyStateGathered(true)
             }
         } else {
-            Display(appBar, title, gps, center, initialZoom, storage, layers, draw, poly, capture, mapType, checkers, polygonGroups, next)
+            Display(appBar, title, gps, storage, bounds, layers, draw, poly, capture, mapType, checkers, polygonGroups, next)
         }
     }
 
@@ -195,9 +194,8 @@ object Maps {
         appBar: AppBar,
         title: String,
         gps: Boolean,
-        center: LatLng?,
-        initialZoom: Float?,
         storage: Storage?,
+        bounds: LatLngBounds?,
         layers: Layers.Model<T>?,
         draw: Draw.Model?,
         poly: Polygons.Model?,
@@ -207,8 +205,11 @@ object Maps {
         polygonGroups: List<Polygons.NamedOptionsGroup>,
         next: FloatingNext?,
     ) {
-        val initialPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
-        val cameraPositionState = rememberCameraPositionState(init = { position = initialPosition })
+        val zero = LatLng(0.0, 0.0)
+        val center = bounds?.center ?: zero
+        MapsInitializer.initialize(LocalContext.current.applicationContext)
+        val update = if (bounds != null) CameraUpdateFactory.newLatLngBounds(bounds, 32) else CameraUpdateFactory.newLatLngZoom(zero, 0f)
+        val cameraPositionState = rememberCameraPositionState(init = { move(update) })
         val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = false, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
         val touchState = remember { mutableStateOf<LatLng?>(null) }
@@ -255,7 +256,7 @@ object Maps {
                 }
             }
 
-            MapButtons(storage, initialPosition, cameraPositionState, properties, setProperties)
+            MapButtons(storage, update, center, cameraPositionState, properties, setProperties)
 
             draw?.let {
                 DrawMapActions(draw, drawState)
@@ -293,7 +294,7 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapButtons(storage: Storage?, initialPosition: CameraPosition, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
+    fun BoxScope.MapButtons(storage: Storage?, initialUpdate: CameraUpdate, center: LatLng, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
         val contents = mutableListOf(ClickContent({
             val values = MapType.entries.toTypedArray()
@@ -313,7 +314,7 @@ object Maps {
 
         val scope = rememberCoroutineScope()
         contents.add(0, ClickContent({
-            zoomToLocation(scope, cameraPositionState, initialPosition.target, initialPosition.zoom)
+            zoomToLocation(scope, cameraPositionState, initialUpdate, center)
         }, {
             Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
         }))
@@ -325,7 +326,7 @@ object Maps {
                     fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                         if (location != null) {
                             val userLatLng = LatLng(location.latitude, location.longitude)
-                            zoomToLocation(scope, cameraPositionState, userLatLng, 15f)
+                            zoomToLocation(scope, cameraPositionState, CameraUpdateFactory.newLatLngZoom(userLatLng, 15f), userLatLng)
                         }
                     }
                 }, {
@@ -337,32 +338,16 @@ object Maps {
         FloatingButtons(Alignment.BottomStart, contents)
     }
 
-    private fun zoomToLocation(scope: CoroutineScope, cameraPositionState: CameraPositionState, newPosition: LatLng, maxZoom: Float) {
-        val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(newPosition) == true
+    private fun zoomToLocation(scope: CoroutineScope, cameraPositionState: CameraPositionState, update: CameraUpdate, center: LatLng) {
+        val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(center) == true
         val minZoom = 5f
-        val positionZoom = if (isContained) maxZoom else minZoom
         scope.launch {
             try {
                 if (!isContained) {
-                    cameraPositionState.animate(
-                        update = CameraUpdateFactory.zoomTo(minZoom),
-                        durationMs = 800
-                    )
+                    cameraPositionState.animate(CameraUpdateFactory.zoomTo(minZoom), 800)
                 }
 
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newCameraPosition(
-                        CameraPosition.fromLatLngZoom(newPosition, positionZoom)
-                    ),
-                    durationMs = 1250
-                )
-
-                if (!isContained) {
-                    cameraPositionState.animate(
-                        update = CameraUpdateFactory.zoomTo(maxZoom),
-                        durationMs = 800
-                    )
-                }
+                cameraPositionState.animate(update, 1250)
             } catch (_: Exception) {
                 // pass
             }

@@ -6,9 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.api.ApiResult
+import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
+import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.analysis.CompositesAssessed
 import org.blueventures.gemdroid.data.analysis.ImageryExports
 import org.blueventures.gemdroid.data.analysis.Tasks
@@ -38,7 +40,7 @@ import java.io.File
 
 class AnalysisViewModel(
     private val repo: AnalysisRepository = AnalysisRepository()
-): PolygonGrouper, Visualize.Visualizer, Downloads.VisualizeHolder, ApiViewModel(repo) {
+): PolygonGrouper, Visualize.Visualizer, Visualize.BoundsGetter, Downloads.VisualizeHolder, ApiViewModel(repo) {
     lateinit var craViewModel: CRAViewModel
     lateinit var classViewModel: ClassificationViewModel
     lateinit var dynamicsViewModel: DynamicsViewModel
@@ -64,11 +66,11 @@ class AnalysisViewModel(
 
     fun init(activity: ComponentActivity) {
         craViewModel = activity.viewModels<CRAViewModel>().value
-        craViewModel.init(this, this)
+        craViewModel.init(this, this, this)
         classViewModel = activity.viewModels<ClassificationViewModel>().value
-        classViewModel.init(activity, craViewModel)
+        classViewModel.init(activity, this, craViewModel)
         dynamicsViewModel = activity.viewModels<DynamicsViewModel>().value
-        dynamicsViewModel.init(craViewModel, this)
+        dynamicsViewModel.init(this, this, craViewModel)
     }
 
     private var visualizeURLsJob: Job? = null
@@ -117,6 +119,12 @@ class AnalysisViewModel(
         background({
             callback(Polygons.Group(aofTitle, listOf(Polygons.Named(aofTitle, GeojsonMultiPolygon.toState(aof))), Black.toArgb(), Black.toArgb(), startVisible = false))
         })
+    }
+
+    override fun getInitialLatLngBounds(callback: (Result<LatLngBounds>) -> Unit) {
+        background({
+            PolygonUtils.bounds(roi.boundaryPolyToState())
+        }, callback)
     }
 
     fun saveExports(exports: ImageryExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion, callback)

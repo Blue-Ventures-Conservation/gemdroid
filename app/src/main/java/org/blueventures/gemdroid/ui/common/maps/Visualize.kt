@@ -2,10 +2,11 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.analysis.VisualizeURLs
@@ -25,35 +26,43 @@ object Visualize {
         fun aofPolygonGroup(context: Context, aof: GeojsonMultiPolygon, callback: (Polygons.Group) -> Unit)
     }
 
+    interface BoundsGetter {
+        fun getInitialLatLngBounds(callback: (Result<LatLngBounds>) -> Unit)
+    }
+
     @Composable
     fun Screen(
         visualizer: Visualizer?,
+        boundsGetter: BoundsGetter,
         appBar: AppBar,
         title: String,
         attemptGps: Boolean = false,
-        center: LatLng? = null,
-        initialZoom: Float? = null,
         storage: Maps.Storage? = null,
         draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
         next: FloatingNext? = null,
     ) {
-        val d = stringResource(R.string.elevation_water_mask)
-        if (visualizer != null) {
-            GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
-                Maps.Screen(appBar, title, attemptGps, center, initialZoom, storage, object : Layers.Model<VisualizeURLs>() {
-                    override val initUrls = urls
-                    override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
-                    override val parentDir = visualizer.parentDir()
+        val (boundsResult, setBoundsResult) = remember { mutableStateOf<Result<LatLngBounds?>?>(null) }
+        when {
+            boundsResult == null -> boundsGetter.getInitialLatLngBounds(setBoundsResult)
+            else -> {
+                if (visualizer != null) {
+                    GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
+                        Maps.Screen(appBar, title, attemptGps, storage, boundsResult.getOrNull(), object : Layers.Model<VisualizeURLs>() {
+                            override val initUrls = urls
+                            override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
+                            override val parentDir = visualizer.parentDir()
 
-                    override fun tileDir(i: Int) = visualizer.tileDir(i)
-                    override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
-                    override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
-                }, draw, areaOfFocusPolygonsModel(visualizer, urls, poly), capture, next)
+                            override fun tileDir(i: Int) = visualizer.tileDir(i)
+                            override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
+                            override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
+                        }, draw, areaOfFocusPolygonsModel(visualizer, urls, poly), capture, next)
+                    }
+                } else {
+                    Maps.NoLayers(appBar, title, attemptGps, storage, boundsResult.getOrNull(), draw, poly, capture, next)
+                }
             }
-        } else {
-            Maps.NoLayers(appBar, title, attemptGps, center, initialZoom, storage, draw, poly, capture, next)
         }
     }
 
@@ -103,22 +112,21 @@ object Visualize {
                 }
             }
         }
-        
+
         return Pair(null, true)
     }
 
     @Composable
     fun Capture(
         visualizer: Visualizer?,
+        boundsGetter: BoundsGetter,
         appBar: AppBar,
         title: String,
         attemptGps: Boolean = true,
-        center: LatLng? = null,
-        initialZoom: Float? = null,
         storage: Maps.Storage? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
     ) {
-        Screen(visualizer, appBar, title, attemptGps, center, initialZoom, storage, null, poly, capture)
+        Screen(visualizer, boundsGetter, appBar, title, attemptGps, storage, null, poly, capture)
     }
 }

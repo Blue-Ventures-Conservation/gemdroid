@@ -3,11 +3,13 @@ package org.blueventures.gemdroid.ui.analysis.classification.screens
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.api.ApiResult
+import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
-import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
 import org.blueventures.gemdroid.model.analysis.classification.ClassificationViewModel
 import org.blueventures.gemdroid.ui.analysis.classification.Classification
@@ -51,16 +53,21 @@ object Map {
     fun Classify(viewModel: ClassificationViewModel, appBar: AppBar, details: Click) {
         GetRemote.Save(viewModel::loadClassificationFile, viewModel::getClassification, viewModel::saveClassificationFile, errorHandler = Classification::errHandler) { urls ->
             viewModel.urls = urls
+            val (boundsResult, setBoundsResult) = remember { mutableStateOf<Result<LatLngBounds?>?>(null) }
+            when {
+                boundsResult == null -> viewModel.boundsGetter.getInitialLatLngBounds(setBoundsResult)
+                else -> {
+                    Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.classification)), storage = Maps.Storage.fromViewModel(viewModel), bounds = boundsResult.getOrNull(), layers = object : Layers.Model<ClassificationURLs>() {
+                        override val initUrls = urls
+                        override val layerNames = stringArrayResource(R.array.classification_layers).toList()
+                        override val parentDir = viewModel.roiDir
 
-            Maps.Screen(appBar, viewModel.roi.appBarTitle(stringResource(R.string.classification)), storage = Maps.Storage.fromViewModel(viewModel), center = PolygonUtils.centerFromMultiPoly(viewModel.roi.boundaryPolyToState()), layers = object : Layers.Model<ClassificationURLs>() {
-                override val initUrls = urls
-                override val layerNames = stringArrayResource(R.array.classification_layers).toList()
-                override val parentDir = viewModel.roiDir
-
-                override fun tileDir(i: Int) = viewModel.tileDirs()[i]
-                override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
-                override fun save(urls: ClassificationURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveClassificationFile(urls, callback)
-            }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_classifications_details, details))
+                        override fun tileDir(i: Int) = viewModel.tileDirs()[i]
+                        override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
+                        override fun save(urls: ClassificationURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveClassificationFile(urls, callback)
+                    }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_classifications_details, details))
+                }
+            }
         }
     }
 }

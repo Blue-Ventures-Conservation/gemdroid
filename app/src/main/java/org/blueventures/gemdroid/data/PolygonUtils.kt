@@ -159,6 +159,25 @@ object PolygonUtils {
         return false
     }
 
+    fun bounds(multi: MultiPolyPts): Result<LatLngBounds> {
+        try {
+            val builder = LatLngBounds.Builder()
+            for (polygon in multi) {
+                if (polygon.isNotEmpty()) {
+                    val outerRing = polygon.first()
+                    for (point in outerRing) {
+                        builder.include(point)
+                    }
+                }
+            }
+
+            val bounds = builder.build()
+            return Result.success(bounds)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
     data class NamedPolygon(
         @param:Json(name = "name") val name: String,
         @param:Json(name = "geometry") val polygon: GeojsonMultiPolygon,

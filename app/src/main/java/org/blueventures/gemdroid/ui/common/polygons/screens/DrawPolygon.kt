@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.google.android.gms.maps.model.LatLng
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
@@ -17,7 +16,7 @@ import org.blueventures.gemdroid.ui.common.maps.Visualize
 object DrawPolygon {
     interface Model : Draw.Data {
         fun visualizer(): Visualize.Visualizer?
-        fun center(): LatLng?
+        fun boundsGetter(): Visualize.BoundsGetter
         fun polygonDrawn()
         fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit)
     }
@@ -25,7 +24,7 @@ object DrawPolygon {
     @Composable
     fun Screen(model: Model, appBar: AppBar, snack: SnackFun, storage: Maps.Storage?, @StringRes polygonType: Int, attemptGps: Boolean, next: Click) {
         val title = stringResource(R.string.draw_polygon).format(stringResource(polygonType))
-        Visualize.Screen(model.visualizer(), appBar, title, attemptGps, center = model.center(), storage = storage, draw = Draw.Model(model, snack) {
+        Visualize.Screen(model.visualizer(), model.boundsGetter(), appBar, title, attemptGps, storage = storage, draw = Draw.Model(model, snack) {
             model.polygonDrawn()
             next()
         }, poly = object : Polygons.Model() {
