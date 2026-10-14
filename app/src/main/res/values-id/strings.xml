@@ -420,4 +420,5 @@
     <string name="elevation_water_mask"><![CDATA[Elevation & Water Mask]]></string>
     <string name="zoom_to_your_gps_location">Zoom to your GPS location</string>
     <string name="zoom_to_your_area_of_interest">Zoom to your Area of Interest</string>
+    <string name="make_sure_your_cras_are_not_masked"><![CDATA[Please make sure that your CRAs are not being masked out by the Water & Elevation mask!\n\nYou may need to copy your project and create the CRAs again if you created them within the app.]]></string>
 </resources>

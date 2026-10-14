@@ -54,10 +54,10 @@ object Classification {
         val craErr = CRA.errHandler(ctx, code, message)
         return if (craErr.first != null) {
             craErr
+        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("no training data") == true) {
+            Pair(ctx.getString(R.string.make_sure_your_cras_are_not_masked), false)
         } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("classifier training failed") == true) {
             Pair(ctx.getString(R.string.classifier_training_failed), false)
-        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("composite cache unavailable") == true) {
-            Pair(ctx.getString(R.string.please_wait_the_composites_are_being_saved), false)
         } else {
             Pair(null, true)
         }

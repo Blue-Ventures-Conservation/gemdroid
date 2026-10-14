@@ -22,7 +22,6 @@ import org.blueventures.gemdroid.ui.common.backHandler
 import org.blueventures.gemdroid.ui.common.maps.Maps
 import org.blueventures.gemdroid.ui.common.polygons.CollectPolygons
 import org.blueventures.gemdroid.ui.theme.SkyBlue
-import java.net.HttpURLConnection
 
 object Dynamics {
     object Routes {
@@ -91,8 +90,6 @@ object Dynamics {
         val classificationErr = Classification.errHandler(ctx, code, message)
         return if (classificationErr.first != null) {
             classificationErr
-        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("classification cache unavailable") == true) {
-            Pair(ctx.getString(R.string.please_wait_the_classification_is_being_saved), false)
         } else {
             Pair(null, true)
         }
