@@ -63,7 +63,7 @@ object CreateClasses {
                         DoneDialog(viewModel, inputs.toList(), next) { setShowDoneDialog(null) }
                     }
                 }
-                FloatingButtons(ClickContent({
+                FloatingButtons(contents = listOf(ClickContent({
                     inputs.add(TextInput())
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_another_land_cover_class))
@@ -71,7 +71,7 @@ object CreateClasses {
                     setShowDoneDialog(Unit)
                 }) {
                     Icon(Icons.Filled.Done, contentDescription = stringResource(R.string.done_creating_land_cover_classes))
-                })
+                }))
             }
         }
     }

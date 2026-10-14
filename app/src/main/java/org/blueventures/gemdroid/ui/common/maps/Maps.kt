@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.ui.common.maps
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -22,6 +24,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,23 +32,30 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.URLs
 import org.blueventures.gemdroid.model.api.ApiViewModel
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Click
+import org.blueventures.gemdroid.ui.common.ClickContent
 import org.blueventures.gemdroid.ui.common.FloatingButton
+import org.blueventures.gemdroid.ui.common.FloatingButtons
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.maps.Capture.CaptureMapActions
 import org.blueventures.gemdroid.ui.common.maps.Draw.DrawMapActions
@@ -197,7 +207,7 @@ object Maps {
     ) {
         val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
         val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
-        val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = gps, zoomControlsEnabled = false)) }
+        val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = false, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
         val touchState = remember { mutableStateOf<LatLng?>(null) }
         val drawState = Draw.prepareState()
@@ -243,7 +253,7 @@ object Maps {
                 }
             }
 
-            MapTypeButton(storage, properties, setProperties)
+            MapButtons(storage, cameraPositionState, properties, setProperties)
 
             draw?.let {
                 DrawMapActions(draw, drawState)
@@ -281,9 +291,9 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapTypeButton(storage: Storage?, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
+    fun BoxScope.MapButtons(storage: Storage?, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
-        FloatingButton({
+        val contents = mutableListOf(ClickContent({
             val values = MapType.entries.toTypedArray()
             val size = values.size
 
@@ -295,9 +305,60 @@ object Maps {
 
             setProperties(MapProperties(isMyLocationEnabled = properties.isMyLocationEnabled, mapType = mt))
             storage?.setMapType(context, mt)
-        }, Alignment.BottomStart) {
+        }, {
             Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
+        }))
+
+        if (properties.isMyLocationEnabled) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+                val scope = rememberCoroutineScope()
+                contents.add(0, ClickContent({
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                        if (location != null) {
+                            val userLatLng = LatLng(location.latitude, location.longitude)
+                            val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(userLatLng) == true
+                            val minZoom = 5f
+                            val maxZoom = 15f
+                            val positionZoom = if (isContained) maxZoom else minZoom
+                            scope.launch {
+                                try {
+                                    if (!isContained) {
+                                        // 1. Zoom out at the current location
+                                        cameraPositionState.animate(
+                                            update = CameraUpdateFactory.zoomTo(minZoom),
+                                            durationMs = 800
+                                        )
+                                    }
+
+                                    // 2. Animate to the new target location (while zoomed out or adjust position)
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newCameraPosition(
+                                            CameraPosition.fromLatLngZoom(userLatLng, positionZoom)
+                                        ),
+                                        durationMs = 1250
+                                    )
+
+                                    if (!isContained) {
+                                        // 3. Zoom back in at the new location
+                                        cameraPositionState.animate(
+                                            update = CameraUpdateFactory.zoomTo(maxZoom),
+                                            durationMs = 800
+                                        )
+                                    }
+                                } catch (e: Exception) {
+                                    // pass
+                                }
+                            }
+                        }
+                    }
+                }, {
+                    Icon(Icons.Filled.MyLocation, stringResource(R.string.zoom_to_your_gps_location))
+                }))
+            }
         }
+
+        FloatingButtons(Alignment.BottomStart, contents)
     }
 
     @Composable

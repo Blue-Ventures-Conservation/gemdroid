@@ -92,7 +92,7 @@ object Draw {
 
         val pleaseDraw = stringResource(R.string.please_create_polygon)
         val tooBig = stringResource(R.string.polygon_sizing)
-        FloatingButtons(ClickContent({
+        FloatingButtons(contents = listOf(ClickContent({
             drawState.value = drawState.value.copy(drawing = !drawState.value.drawing)
         }) {
             if (drawState.value.drawing) {
@@ -121,7 +121,7 @@ object Draw {
             }
         }) {
             Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.i_m_done_drawing_let_s_go_to_the_next_screen))
-        })
+        }))
     }
 
     @Composable

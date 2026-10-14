@@ -255,7 +255,7 @@ object Capture {
         val usingSnack = stringResource(R.string.using_s_polygon)
         val createCRAsFirst = stringResource(R.string.please_create_some_cras_before_tapping_the_done_button)
         val gridShowing = state.value.showGrid != null
-        FloatingButtons(ClickContent({
+        FloatingButtons(contents = listOf(ClickContent({
             state.value = state.value.copy(doCapture = Unit)
         }) {
             Icon(Icons.Filled.PhotoLibrary, contentDescription = stringResource(R.string.capture_the_current_area))
@@ -277,7 +277,7 @@ object Capture {
             }
         }) {
             Icon(Icons.Filled.DoneAll, contentDescription = stringResource(R.string.finished_creating_cras))
-        })
+        }))
     }
 
     @Composable

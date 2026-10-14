@@ -21,13 +21,13 @@ fun BoxScope.FloatingButton(click: Click, align: Alignment = Alignment.BottomEnd
 }
 
 @Composable
-fun BoxScope.FloatingButtons(vararg clickContents: ClickContent) {
+fun BoxScope.FloatingButtons(alignment: Alignment = Alignment.BottomEnd, contents: List<ClickContent>) {
     Column(Modifier
         .padding(16.dp, 12.dp, 16.dp, 24.dp)
-        .align(Alignment.BottomEnd),
-        Arrangement.spacedBy(16.dp, Alignment.Bottom)) {
-        for (clickContent in clickContents) {
-            FloatingActionButton(clickContent.click, content = clickContent.content)
+        .align(alignment),
+        Arrangement.spacedBy(16.dp)) {
+        for (cc in contents) {
+            FloatingActionButton(cc.click, content = cc.content)
         }
     }
 }
