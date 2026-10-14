@@ -426,6 +426,10 @@ object Capture {
                             Info.Txt("$count", 14.sp)
                         }
                     }
+                    Info.Row {
+                        Info.Txt(stringResource(R.string.total), 14.sp, truncate = true)
+                        Info.Txt("${model.capturedCollection.features.size}", 14.sp)
+                    }
                     Text(text = stringResource(R.string.if_you_are_all_done_click_the_finish_button_below))
                 }
             },

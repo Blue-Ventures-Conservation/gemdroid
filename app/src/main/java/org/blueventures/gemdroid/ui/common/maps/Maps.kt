@@ -64,6 +64,7 @@ import org.blueventures.gemdroid.ui.common.FloatingButtons
 import org.blueventures.gemdroid.ui.common.RequestPermission
 import org.blueventures.gemdroid.ui.common.maps.Capture.CaptureMapActions
 import org.blueventures.gemdroid.ui.common.maps.Draw.DrawMapActions
+import kotlin.math.min
 
 object Maps {
     interface Storage {
@@ -314,7 +315,7 @@ object Maps {
         val scope = rememberCoroutineScope()
         if (center != null) {
             contents.add(0, ClickContent({
-                zoomToLocation(scope, cameraPositionState, initialUpdate, center)
+                zoomToLocation(scope, initialUpdate, cameraPositionState, center)
             }, {
                 Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
             }))
@@ -327,7 +328,7 @@ object Maps {
                     fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                         if (location != null) {
                             val userLatLng = LatLng(location.latitude, location.longitude)
-                            zoomToLocation(scope, cameraPositionState, CameraUpdateFactory.newLatLngZoom(userLatLng, 15f), userLatLng)
+                            zoomToLocation(scope, CameraUpdateFactory.newLatLngZoom(userLatLng, 15f), cameraPositionState, userLatLng)
                         }
                     }
                 }, {
@@ -339,7 +340,7 @@ object Maps {
         FloatingButtons(Alignment.BottomStart, contents)
     }
 
-    private fun zoomToLocation(scope: CoroutineScope, cameraPositionState: CameraPositionState, update: CameraUpdate, center: LatLng) {
+    private fun zoomToLocation(scope: CoroutineScope, update: CameraUpdate, cameraPositionState: CameraPositionState, center: LatLng) {
         var isContained = false
         cameraPositionState.projection?.let { projection ->
             val bounds = projection.visibleRegion.latLngBounds
@@ -348,13 +349,11 @@ object Maps {
                 isContained = SphericalUtil.computeDistanceBetween(center, cameraPositionState.position.target) < 500_000
             }
         }
-        val minZoom = 5f
-        val currentZoom = cameraPositionState.position.zoom
-        val zoomTo = if (currentZoom < minZoom) currentZoom else minZoom
+        val minZoom = min(5f, cameraPositionState.position.zoom)
         scope.launch {
             try {
                 if (!isContained) {
-                    cameraPositionState.animate(CameraUpdateFactory.zoomTo(zoomTo), 800)
+                    cameraPositionState.animate(CameraUpdateFactory.zoomTo(minZoom), 800)
                 }
 
                 cameraPositionState.animate(update, 1250)
