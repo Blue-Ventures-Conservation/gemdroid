@@ -206,7 +206,6 @@ object Maps {
         next: FloatingNext?,
     ) {
         val zero = LatLng(0.0, 0.0)
-        val center = bounds?.center ?: zero
         MapsInitializer.initialize(LocalContext.current.applicationContext)
         val update = if (bounds != null) CameraUpdateFactory.newLatLngBounds(bounds, 32) else CameraUpdateFactory.newLatLngZoom(zero, 0f)
         val cameraPositionState = rememberCameraPositionState(init = { move(update) })
@@ -256,7 +255,7 @@ object Maps {
                 }
             }
 
-            MapButtons(storage, update, center, cameraPositionState, properties, setProperties)
+            MapButtons(storage, update, bounds?.center, cameraPositionState, properties, setProperties)
 
             draw?.let {
                 DrawMapActions(draw, drawState)
@@ -294,7 +293,7 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapButtons(storage: Storage?, initialUpdate: CameraUpdate, center: LatLng, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
+    fun BoxScope.MapButtons(storage: Storage?, initialUpdate: CameraUpdate, center: LatLng?, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
         val contents = mutableListOf(ClickContent({
             val values = MapType.entries.toTypedArray()
@@ -313,11 +312,13 @@ object Maps {
         }))
 
         val scope = rememberCoroutineScope()
-        contents.add(0, ClickContent({
-            zoomToLocation(scope, cameraPositionState, initialUpdate, center)
-        }, {
-            Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
-        }))
+        if (center != null) {
+            contents.add(0, ClickContent({
+                zoomToLocation(scope, cameraPositionState, initialUpdate, center)
+            }, {
+                Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
+            }))
+        }
 
         if (properties.isMyLocationEnabled) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -344,14 +345,16 @@ object Maps {
             val bounds = projection.visibleRegion.latLngBounds
             isContained = bounds.contains(center)
             if (!isContained) {
-                isContained = SphericalUtil.computeDistanceBetween(center, bounds.center) < 400_000
+                isContained = SphericalUtil.computeDistanceBetween(center, cameraPositionState.position.target) < 500_000
             }
         }
         val minZoom = 5f
+        val currentZoom = cameraPositionState.position.zoom
+        val zoomTo = if (currentZoom < minZoom) currentZoom else minZoom
         scope.launch {
             try {
                 if (!isContained) {
-                    cameraPositionState.animate(CameraUpdateFactory.zoomTo(minZoom), 800)
+                    cameraPositionState.animate(CameraUpdateFactory.zoomTo(zoomTo), 800)
                 }
 
                 cameraPositionState.animate(update, 1250)
