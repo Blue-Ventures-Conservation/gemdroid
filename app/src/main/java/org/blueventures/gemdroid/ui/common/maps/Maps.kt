@@ -207,8 +207,8 @@ object Maps {
         polygonGroups: List<Polygons.NamedOptionsGroup>,
         next: FloatingNext?,
     ) {
-        val cameraPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
-        val cameraPositionState = rememberCameraPositionState(init = { position = cameraPosition })
+        val initialPosition = CameraPosition.fromLatLngZoom(center ?: LatLng(0.0, 0.0), if (center == null) 0f else initialZoom ?: 9f)
+        val cameraPositionState = rememberCameraPositionState(init = { position = initialPosition })
         val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = false, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
         val touchState = remember { mutableStateOf<LatLng?>(null) }
@@ -255,7 +255,7 @@ object Maps {
                 }
             }
 
-            MapButtons(storage, center, cameraPositionState, properties, setProperties)
+            MapButtons(storage, initialPosition, cameraPositionState, properties, setProperties)
 
             draw?.let {
                 DrawMapActions(draw, drawState)
@@ -293,7 +293,7 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapButtons(storage: Storage?, center: LatLng?, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
+    fun BoxScope.MapButtons(storage: Storage?, initialPosition: CameraPosition, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
         val contents = mutableListOf(ClickContent({
             val values = MapType.entries.toTypedArray()
@@ -312,13 +312,11 @@ object Maps {
         }))
 
         val scope = rememberCoroutineScope()
-        center?.let {
-            contents.add(0, ClickContent({
-                zoomToLocation(scope, cameraPositionState, center, 9f)
-            }, {
-                Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
-            }))
-        }
+        contents.add(0, ClickContent({
+            zoomToLocation(scope, cameraPositionState, initialPosition.target, initialPosition.zoom)
+        }, {
+            Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
+        }))
 
         if (properties.isMyLocationEnabled) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
