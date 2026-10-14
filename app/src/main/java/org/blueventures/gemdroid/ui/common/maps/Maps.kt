@@ -40,9 +40,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.SphericalUtil
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -339,7 +339,14 @@ object Maps {
     }
 
     private fun zoomToLocation(scope: CoroutineScope, cameraPositionState: CameraPositionState, update: CameraUpdate, center: LatLng) {
-        val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(center) == true
+        var isContained = false
+        cameraPositionState.projection?.let { projection ->
+            val bounds = projection.visibleRegion.latLngBounds
+            isContained = bounds.contains(center)
+            if (!isContained) {
+                isContained = SphericalUtil.computeDistanceBetween(center, bounds.center) < 400_000
+            }
+        }
         val minZoom = 5f
         scope.launch {
             try {
