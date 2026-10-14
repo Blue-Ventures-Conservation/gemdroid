@@ -101,12 +101,12 @@ object Maps {
         attemptGps: Boolean = false,
         storage: Storage? = null,
         bounds: LatLngBounds? = null,
-        draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
+        draw: Draw.Model? = null,
         next: FloatingNext? = null,
     ) {
-        Screen<URLs>(appBar, title, attemptGps, storage, bounds, null, draw, poly, capture, next)
+        Screen<URLs>(appBar, title, attemptGps, storage, bounds, poly, capture, null, draw, next)
     }
 
     @OptIn(ExperimentalPermissionsApi::class)
@@ -117,10 +117,10 @@ object Maps {
         attemptGps: Boolean = false,
         storage: Storage? = null,
         bounds: LatLngBounds? = null,
-        layers: Layers.Model<T>? = null,
-        draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
+        layers: Layers.Model<T>? = null,
+        draw: Draw.Model? = null,
         next: FloatingNext? = null,
     ) {
         if (attemptGps) {
@@ -130,10 +130,10 @@ object Maps {
                 description = stringResource(R.string.gps_rationale_description),
                 optional = true
             ) { granted ->
-                MapType(appBar, title, granted, storage, bounds, layers, draw, poly, capture, next)
+                MapType(appBar, title, granted, storage, bounds, poly, capture, layers, draw, next)
             }
         } else {
-            MapType(appBar, title, false, storage, bounds, layers, draw, poly, capture, next)
+            MapType(appBar, title, false, storage, bounds, poly, capture, layers, draw, next)
         }
     }
 
@@ -144,17 +144,17 @@ object Maps {
         gps: Boolean,
         storage: Storage?,
         bounds: LatLngBounds?,
-        layers: Layers.Model<T>?,
-        draw: Draw.Model?,
         poly: Polygons.Model?,
         capture: Capture.Model?,
+        layers: Layers.Model<T>?,
+        draw: Draw.Model?,
         next: FloatingNext?,
     ) {
         val (mapType, setMapType) = remember { mutableStateOf<MapType?>(null) }
         if (storage != null && mapType == null) {
             storage.getMapType(LocalContext.current.applicationContext, setMapType)
         } else {
-            Checkers(appBar, title, gps, storage, bounds, layers, draw, poly, capture, mapType ?: MapType.HYBRID, next)
+            Checkers(appBar, title, gps, storage, bounds, poly, capture, layers, draw, mapType ?: MapType.HYBRID, next)
         }
     }
 
@@ -165,28 +165,31 @@ object Maps {
         gps: Boolean,
         storage: Storage?,
         bounds: LatLngBounds?,
-        layers: Layers.Model<T>?,
-        draw: Draw.Model?,
         poly: Polygons.Model?,
         capture: Capture.Model?,
+        layers: Layers.Model<T>?,
+        draw: Draw.Model?,
         mapType: MapType,
         next: FloatingNext?,
     ) {
         val checkers = remember { mutableListOf<Checker>() }
-        if (checkers.isEmpty() && layers != null) {
-            Layers.checkers(layers, checkers)
-        }
 
         val polygonGroups = remember { mutableListOf<Polygons.NamedOptionsGroup>() }
         val (polyStateGathered, setPolyStateGathered) = remember { mutableStateOf(false) }
-        if (poly != null && !polyStateGathered) {
+        if (!polyStateGathered && poly != null) {
             Polygons.checkers(LocalContext.current, poly) { pair ->
                 checkers.addAll(pair.first)
                 polygonGroups.addAll(pair.second)
                 setPolyStateGathered(true)
             }
         } else {
-            Display(appBar, title, gps, storage, bounds, layers, draw, poly, capture, mapType, checkers, polygonGroups, next)
+            val (layersStateGathered, setLayersStateGathered) = remember { mutableStateOf(false) }
+            if (!layersStateGathered && layers != null) {
+                Layers.checkers(layers, checkers)
+                setLayersStateGathered(true)
+            }
+
+            Display(appBar, title, gps, storage, bounds, poly, capture, layers, draw, mapType, checkers, polygonGroups, next)
         }
     }
 
@@ -197,10 +200,10 @@ object Maps {
         gps: Boolean,
         storage: Storage?,
         bounds: LatLngBounds?,
-        layers: Layers.Model<T>?,
-        draw: Draw.Model?,
         poly: Polygons.Model?,
         capture: Capture.Model?,
+        layers: Layers.Model<T>?,
+        draw: Draw.Model?,
         mapType: MapType,
         checkers: MutableList<Checker>,
         polygonGroups: List<Polygons.NamedOptionsGroup>,

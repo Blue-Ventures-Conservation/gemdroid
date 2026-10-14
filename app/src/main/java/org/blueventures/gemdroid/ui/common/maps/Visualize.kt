@@ -38,9 +38,9 @@ object Visualize {
         title: String,
         attemptGps: Boolean = false,
         storage: Maps.Storage? = null,
-        draw: Draw.Model? = null,
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
+        draw: Draw.Model? = null,
         next: FloatingNext? = null,
     ) {
         val (boundsResult, setBoundsResult) = remember { mutableStateOf<Result<LatLngBounds?>?>(null) }
@@ -49,18 +49,19 @@ object Visualize {
             else -> {
                 if (visualizer != null) {
                     GetRemote.Save(visualizer::loadVisualizeURLsFile, visualizer::getVisualizeURLs, visualizer::saveVisualizeURLsFile, false, Visualize::errHandler) { urls ->
-                        Maps.Screen(appBar, title, attemptGps, storage, boundsResult.getOrNull(), object : Layers.Model<VisualizeURLs>() {
-                            override val initUrls = urls
-                            override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
-                            override val parentDir = visualizer.parentDir()
+                        Maps.Screen(appBar, title, attemptGps, storage, boundsResult.getOrNull(), areaOfFocusPolygonsModel(visualizer, urls, poly),
+                            capture, object : Layers.Model<VisualizeURLs>() {
+                                override val initUrls = urls
+                                override val layerNames = stringArrayResource(R.array.false_color_layers).toList()
+                                override val parentDir = visualizer.parentDir()
 
-                            override fun tileDir(i: Int) = visualizer.tileDir(i)
-                            override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
-                            override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
-                        }, draw, areaOfFocusPolygonsModel(visualizer, urls, poly), capture, next)
+                                override fun tileDir(i: Int) = visualizer.tileDir(i)
+                                override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
+                                override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
+                            }, draw, next)
                     }
                 } else {
-                    Maps.NoLayers(appBar, title, attemptGps, storage, boundsResult.getOrNull(), draw, poly, capture, next)
+                    Maps.NoLayers(appBar, title, attemptGps, storage, boundsResult.getOrNull(), poly, capture, draw, next)
                 }
             }
         }
@@ -127,6 +128,6 @@ object Visualize {
         poly: Polygons.Model? = null,
         capture: Capture.Model? = null,
     ) {
-        Screen(visualizer, boundsGetter, appBar, title, attemptGps, storage, null, poly, capture)
+        Screen(visualizer, boundsGetter, appBar, title, attemptGps, storage, poly, capture, null)
     }
 }

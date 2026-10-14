@@ -142,9 +142,11 @@ object Capture {
                 groups.add(inBounds)
                 checks.add(state.value.inBoundsChecker)
 
+                var checkersIndex = 0
                 checkers.remove(state.value.inBoundsChecker)
                 if(!inBounds.isEmpty() && !checkers.contains(state.value.inBoundsChecker)) {
-                    checkers.add(state.value.inBoundsChecker)
+                    checkers.add(checkersIndex, state.value.inBoundsChecker)
+                    checkersIndex = 1
                 }
 
                 groups.add(outOfBounds)
@@ -152,7 +154,7 @@ object Capture {
 
                 checkers.remove(state.value.outOfBoundsChecker)
                 if(!outOfBounds.isEmpty() && !checkers.contains(state.value.outOfBoundsChecker)) {
-                    checkers.add(state.value.outOfBoundsChecker)
+                    checkers.add(checkersIndex, state.value.outOfBoundsChecker)
                 }
 
                 Polygons.Display(polyModel.touchEnabled, polyModel::onTouch, groups, checks, lastTouch, false)
