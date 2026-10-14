@@ -419,4 +419,5 @@
     <string name="cras_outside_aof">CRAs Outside AOF</string>
     <string name="elevation_water_mask"><![CDATA[Elevation & Water Mask]]></string>
     <string name="zoom_to_your_gps_location">Zoom to your GPS location</string>
+    <string name="zoom_to_your_area_of_interest">Zoom to your Area of Interest</string>
 </resources>

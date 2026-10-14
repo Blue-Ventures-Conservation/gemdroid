@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Checkbox
@@ -45,6 +46,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
@@ -253,7 +255,7 @@ object Maps {
                 }
             }
 
-            MapButtons(storage, cameraPositionState, properties, setProperties)
+            MapButtons(storage, center, cameraPositionState, properties, setProperties)
 
             draw?.let {
                 DrawMapActions(draw, drawState)
@@ -291,7 +293,7 @@ object Maps {
     }
 
     @Composable
-    fun BoxScope.MapButtons(storage: Storage?, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
+    fun BoxScope.MapButtons(storage: Storage?, center: LatLng?, cameraPositionState: CameraPositionState, properties: MapProperties, setProperties: (MapProperties) -> Unit) {
         val context = LocalContext.current.applicationContext
         val contents = mutableListOf(ClickContent({
             val values = MapType.entries.toTypedArray()
@@ -309,47 +311,23 @@ object Maps {
             Icon(Icons.Filled.Map, stringResource(R.string.next_base_map))
         }))
 
+        val scope = rememberCoroutineScope()
+        center?.let {
+            contents.add(0, ClickContent({
+                zoomToLocation(scope, cameraPositionState, center, 9f)
+            }, {
+                Icon(Icons.Filled.LocationOn, stringResource(R.string.zoom_to_your_area_of_interest))
+            }))
+        }
+
         if (properties.isMyLocationEnabled) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-                val scope = rememberCoroutineScope()
                 contents.add(0, ClickContent({
                     fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                         if (location != null) {
                             val userLatLng = LatLng(location.latitude, location.longitude)
-                            val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(userLatLng) == true
-                            val minZoom = 5f
-                            val maxZoom = 15f
-                            val positionZoom = if (isContained) maxZoom else minZoom
-                            scope.launch {
-                                try {
-                                    if (!isContained) {
-                                        // 1. Zoom out at the current location
-                                        cameraPositionState.animate(
-                                            update = CameraUpdateFactory.zoomTo(minZoom),
-                                            durationMs = 800
-                                        )
-                                    }
-
-                                    // 2. Animate to the new target location (while zoomed out or adjust position)
-                                    cameraPositionState.animate(
-                                        update = CameraUpdateFactory.newCameraPosition(
-                                            CameraPosition.fromLatLngZoom(userLatLng, positionZoom)
-                                        ),
-                                        durationMs = 1250
-                                    )
-
-                                    if (!isContained) {
-                                        // 3. Zoom back in at the new location
-                                        cameraPositionState.animate(
-                                            update = CameraUpdateFactory.zoomTo(maxZoom),
-                                            durationMs = 800
-                                        )
-                                    }
-                                } catch (e: Exception) {
-                                    // pass
-                                }
-                            }
+                            zoomToLocation(scope, cameraPositionState, userLatLng, 15f)
                         }
                     }
                 }, {
@@ -359,6 +337,38 @@ object Maps {
         }
 
         FloatingButtons(Alignment.BottomStart, contents)
+    }
+
+    private fun zoomToLocation(scope: CoroutineScope, cameraPositionState: CameraPositionState, newPosition: LatLng, maxZoom: Float) {
+        val isContained = cameraPositionState.projection?.visibleRegion?.latLngBounds?.contains(newPosition) == true
+        val minZoom = 5f
+        val positionZoom = if (isContained) maxZoom else minZoom
+        scope.launch {
+            try {
+                if (!isContained) {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.zoomTo(minZoom),
+                        durationMs = 800
+                    )
+                }
+
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.fromLatLngZoom(newPosition, positionZoom)
+                    ),
+                    durationMs = 1250
+                )
+
+                if (!isContained) {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.zoomTo(maxZoom),
+                        durationMs = 800
+                    )
+                }
+            } catch (_: Exception) {
+                // pass
+            }
+        }
     }
 
     @Composable
