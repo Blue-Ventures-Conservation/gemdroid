@@ -26,6 +26,7 @@ data class ClassificationURLs(
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class Classified(
     @param:Json(name = "url") val url: String,
     @param:Json(name = "resubstitution_accuracy") val resubstitutionAccuracy: Float,
