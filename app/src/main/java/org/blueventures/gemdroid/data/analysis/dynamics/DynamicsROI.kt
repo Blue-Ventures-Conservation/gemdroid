@@ -1,9 +1,11 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.data.roi.ROI
 
+@JsonClass(generateAdapter = true)
 data class DynamicsROI(
     @param:Json(name = "target_classes") val targetClass: List<String>,
     @param:Json(name = "combined_name") val combinedName: String?,

@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
@@ -186,7 +185,7 @@ class DynamicsViewModel(
             back()
         }
     }
-    fun getDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
+    fun getDynamicsReady(callback: (Result<DynamicsReadyResponse>) -> Unit) {
         if (contOp == null || histOp == null) {
             loadClassificationFile { res ->
                 if (res.isSuccess) {
@@ -200,7 +199,7 @@ class DynamicsViewModel(
             fetchDynamicsReady(callback)
         }
     }
-    private fun fetchDynamicsReady(callback: (ApiResult<DynamicsReadyResponse>) -> Unit) {
+    private fun fetchDynamicsReady(callback: (Result<DynamicsReadyResponse>) -> Unit) {
         readyJob = getRemote(readyJob, makeDynamicsReady(contOp ?: "", histOp ?: ""), callback) { api, ready ->
             api.dynamicsReady(ready)
         }
@@ -223,7 +222,7 @@ class DynamicsViewModel(
         }
     }
 
-    fun getDynamics(callback: (ApiResult<DynamicsURLs>) -> Unit) {
+    fun getDynamics(callback: (Result<DynamicsURLs>) -> Unit) {
         dynamicsJob = getRemote(dynamicsJob, makeDynamicsROI(), callback) { api, roi ->
             api.dynamics(roi)
         }
@@ -233,9 +232,9 @@ class DynamicsViewModel(
 
     fun saveExports(exports: DynamicsExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir, targetClasses), exports, DynamicsExports.Companion, callback)
     fun loadExports(callback: (Result<DynamicsExports>) -> Unit) = loadFile(exportsFile(roiDir, targetClasses), DynamicsExports.Companion, callback)
-    fun getExports(callback: (ApiResult<DynamicsExports>) -> Unit) {
+    fun getExports(callback: (Result<DynamicsExports>) -> Unit) {
         exportsJobs = getRemote(exportsJobs, makeDynamicsROI(), { result ->
-            if (result is ApiResult.Success) {
+            if (result.isSuccess) {
                 deleteFile(resultsFile(roiDir, targetClasses)) { callback(result) }
             } else {
                 callback(result)
@@ -273,7 +272,7 @@ class DynamicsViewModel(
 
     fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir, targetClasses), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir, targetClasses), callback)
-    fun getResults(exports: DynamicsExports, callback: (ApiResult<TasksResults>) -> Unit) {
+    fun getResults(exports: DynamicsExports, callback: (Result<TasksResults>) -> Unit) {
         val taskList = mutableListOf<String>()
 
         if (exports.csv != null) {

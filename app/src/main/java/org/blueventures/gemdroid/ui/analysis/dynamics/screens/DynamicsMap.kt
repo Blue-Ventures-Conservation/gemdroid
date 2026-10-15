@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.dynamics.DynamicsURLs
@@ -36,7 +35,7 @@ object DynamicsMap {
                         override val parentDir = viewModel.classDir()
 
                         override fun tileDir(i: Int) = viewModel.tileDirs()[i]
-                        override fun getRemote(callback: (ApiResult<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
+                        override fun getRemote(callback: (Result<DynamicsURLs>) -> Unit) = viewModel.getDynamics(callback)
                         override fun save(urls: DynamicsURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveDynamicsFile(urls, callback)
                     }, poly = object : Polygons.Model() {
                         override val touchEnabled = true

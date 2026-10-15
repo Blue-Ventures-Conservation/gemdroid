@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.classification.ClassificationURLs
@@ -63,7 +62,7 @@ object Map {
                         override val parentDir = viewModel.roiDir
 
                         override fun tileDir(i: Int) = viewModel.tileDirs()[i]
-                        override fun getRemote(callback: (ApiResult<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
+                        override fun getRemote(callback: (Result<ClassificationURLs>) -> Unit) = viewModel.getClassification(callback)
                         override fun save(urls: ClassificationURLs, callback: (Result<Unit>) -> Unit) = viewModel.saveClassificationFile(urls, callback)
                     }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_classifications_details, details))
                 }

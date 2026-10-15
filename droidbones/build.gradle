@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
-    id 'kotlin-parcelize'
     id 'org.jetbrains.kotlin.plugin.compose'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -18,8 +18,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            optimization {
+                enable = true // Enables code and resource optimizations.
+            }
         }
     }
     compileOptions {
@@ -59,6 +60,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.2'
+    ksp 'com.squareup.moshi:moshi-kotlin-codegen:1.15.2'
     implementation 'com.squareup.retrofit2:converter-moshi:3.0.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.5.0'
     testImplementation 'junit:junit:4.13.2'

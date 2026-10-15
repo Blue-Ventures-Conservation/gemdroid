@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.model.analysis.classification
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.Tasks
@@ -83,7 +82,7 @@ class ClassificationViewModel(
         finalMaskOp = null
     }
 
-    fun getClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
+    fun getClassificationReady(callback: (Result<ClassificationReadyResponse>) -> Unit) {
         if (chotOp == null || clotOp == null || hhotOp == null || hlotOp == null || finalMaskOp == null) {
             loadVisualizeFile { res ->
                 if (res.isSuccess) {
@@ -101,7 +100,7 @@ class ClassificationViewModel(
         }
     }
 
-    private fun fetchClassificationReady(callback: (ApiResult<ClassificationReadyResponse>) -> Unit) {
+    private fun fetchClassificationReady(callback: (Result<ClassificationReadyResponse>) -> Unit) {
         readyJob = getRemote(readyJob, makeClassificationReady(chotOp ?: "", clotOp ?: "", hhotOp ?: "", hlotOp ?: "", finalMaskOp ?: ""), callback) { api, ready ->
             api.classificationReady(ready)
         }
@@ -129,7 +128,7 @@ class ClassificationViewModel(
 
     private fun makeClassificationReady(chotOp: String, clotOp: String, hhotOp: String, hlotOp: String, finalMaskOp: String) = ClassificationReady(chotOp, clotOp, hhotOp, hlotOp, finalMaskOp, roi)
 
-    fun getClassification(callback: (ApiResult<ClassificationURLs>) -> Unit) {
+    fun getClassification(callback: (Result<ClassificationURLs>) -> Unit) {
         classificationJob = getRemote(classificationJob, makeClassificationROI(), callback) { api, roi ->
             api.classification(roi)
         }
@@ -139,9 +138,9 @@ class ClassificationViewModel(
 
     fun saveExports(exports: ClassificationExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ClassificationExports.Companion, callback)
     fun loadExports(callback: (Result<ClassificationExports>) -> Unit) = loadFile(exportsFile(roiDir), ClassificationExports.Companion, callback)
-    fun getExports(callback: (ApiResult<ClassificationExports>) -> Unit) {
+    fun getExports(callback: (Result<ClassificationExports>) -> Unit) {
         exportsJobs = getRemote(exportsJobs, makeClassificationROI(), { result ->
-            if (result is ApiResult.Success) {
+            if (result.isSuccess) {
                 deleteFile(resultsFile(roiDir)) { callback(result) }
             } else {
                 callback(result)
@@ -163,7 +162,7 @@ class ClassificationViewModel(
 
     fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
-    fun getResults(exports: ClassificationExports, callback: (ApiResult<TasksResults>) -> Unit) {
+    fun getResults(exports: ClassificationExports, callback: (Result<TasksResults>) -> Unit) {
         statusJob = getRemote(statusJob, Tasks(listOf(exports.contemporary.name, exports.historical.name)), callback) { api, tasks ->
             api.tasksResults(tasks)
         }

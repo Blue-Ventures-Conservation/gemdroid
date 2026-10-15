@@ -1,9 +1,11 @@
 package org.blueventures.gemdroid.data.analysis.cra
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.roi.ROI
 
 // Sent to the backend when requesting separability charts
+@JsonClass(generateAdapter = true)
 data class CraROI(
     @param:Json(name = "time_period") val timePeriod: Int,
     @param:Json(name = "storage_key") val key: String,

@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.model.analysis.classification.separability
 
-import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.api.Api
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
 import org.blueventures.gemdroid.model.api.ApiDatasource
@@ -35,9 +34,9 @@ class SeparabilityDatasource(
         val separationFile: String
         val scatterFile: String
         val correlationFile: String
-        suspend fun separation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
-        suspend fun scatter(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
-        suspend fun correlation(api: Api.Service, craROI: CraROI): ApiResult<Map<String, Any>>
+        suspend fun separation(api: Api.Service, craROI: CraROI): Result<Map<String, Any>>
+        suspend fun scatter(api: Api.Service, craROI: CraROI): Result<Map<String, Any>>
+        suspend fun correlation(api: Api.Service, craROI: CraROI): Result<Map<String, Any>>
 
         fun contemporary() = this is ContemporaryHighTide || this is ContemporaryLowTide
         fun historical() = !contemporary()

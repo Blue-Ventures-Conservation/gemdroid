@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringArrayResource
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLngBounds
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
@@ -14,14 +13,13 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.GetRemote
 import org.blueventures.gemdroid.ui.common.maps.Maps.FloatingNext
 import java.io.File
-import java.net.HttpURLConnection
 
 object Visualize {
     interface Visualizer {
         fun parentDir(): File
         fun tileDir(i: Int): File
         fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit)
-        fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit)
+        fun getVisualizeURLs(callback: (Result<VisualizeURLs>) -> Unit)
         fun saveVisualizeURLsFile(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit)
         fun aofPolygonGroup(context: Context, aof: GeojsonMultiPolygon, callback: (Polygons.Group) -> Unit)
     }
@@ -56,7 +54,7 @@ object Visualize {
                                 override val parentDir = visualizer.parentDir()
 
                                 override fun tileDir(i: Int) = visualizer.tileDir(i)
-                                override fun getRemote(callback: (ApiResult<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
+                                override fun getRemote(callback: (Result<VisualizeURLs>) -> Unit) = visualizer.getVisualizeURLs(callback)
                                 override fun save(urls: VisualizeURLs, callback: (Result<Unit>) -> Unit) = visualizer.saveVisualizeURLsFile(urls, callback)
                             }, draw, next)
                     }
@@ -87,7 +85,9 @@ object Visualize {
                             callback(listOf(group))
                         }
                     } ?: run {
-                        callback(emptyList())
+                        visualizer.loadVisualizeURLsFile {
+                            callback(emptyList())
+                        }
                     }
                 }
             }
@@ -99,18 +99,16 @@ object Visualize {
         }
     }
 
-    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
-        if (code == HttpURLConnection.HTTP_BAD_REQUEST) {
-            message?.let { msg ->
-                return when {
-                    msg.contains("no historical images") -> {
-                        Pair(ctx.getString(R.string.too_few_historical_images), false)
-                    }
-                    msg.contains("no contemporary images") -> {
-                        Pair(ctx.getString(R.string.too_few_contemporary_images), false)
-                    }
-                    else -> Pair(null, true)
+    fun errHandler(ctx: Context, message: String?): Pair<String?, Boolean> {
+        message?.let { msg ->
+            return when {
+                msg.contains("no historical images") -> {
+                    Pair(ctx.getString(R.string.too_few_historical_images), false)
                 }
+                msg.contains("no contemporary images") -> {
+                    Pair(ctx.getString(R.string.too_few_contemporary_images), false)
+                }
+                else -> Pair(null, true)
             }
         }
 

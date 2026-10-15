@@ -236,7 +236,11 @@ class CoarsePolygonModel(private val viewModel: RoiViewModel): CollectPolygon.Mo
     override fun boundsGetter() = object : Visualize.BoundsGetter {
         override fun getInitialLatLngBounds(callback: (Result<LatLngBounds>) -> Unit) {
             viewModel.background({
-                PolygonUtils.bounds(listOf(listOf(drawnPoints)))
+                if (drawnPoints.isNotEmpty()) {
+                    PolygonUtils.bounds(listOf(listOf(drawnPoints)))
+                } else {
+                    PolygonUtils.bounds(filePoly)
+                }
             }, callback)
         }
     }

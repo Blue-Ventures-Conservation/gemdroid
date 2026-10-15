@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.IORepository
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -18,7 +17,7 @@ open class ApiRepository(
 ): IORepository() {
     fun getIdToken() = goFlow { datasource.getIdToken() }
     fun uriFromStorage(path: String) = goFlow { datasource.uriFromStorage(path) }
-    fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> ApiResult<O>) = goFlow { datasource.getRemote(body, call) }
+    fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> Result<O>) = goFlow { datasource.getRemote(body, call) }
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S) = goFlow { datasource.loadFile(file, serializer) }
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = goFlow { datasource.saveFile(file, data, serializer) }
     fun deleteFile(file: File) = goFlow { datasource.deleteFile(file) }

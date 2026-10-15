@@ -2,9 +2,11 @@ package org.blueventures.gemdroid.data.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import java.io.File
 
 // Returned from the backend when awaiting results of a CRA table ingestion
+@JsonClass(generateAdapter = true)
 data class Success(
     @param:Json(name = "success") val success: Boolean
 ) {

@@ -1,12 +1,14 @@
 package org.blueventures.gemdroid.data.analysis
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
 // Returned by the backend after receiving an ROI and preparing imagery
+@JsonClass(generateAdapter = true)
 data class VisualizeURLs(
     @param:Json(name = "chot_url") val chotURL: String,
     @param:Json(name = "clot_url") val clotURL: String,
@@ -35,7 +37,7 @@ data class VisualizeURLs(
     }
 
     companion object : Serializer<VisualizeURLs>() {
-        private val adapter = make<VisualizeURLs>()
+        private val adapter = moshiAdapter<VisualizeURLs>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: VisualizeURLs) = toFile(adapter, file, data)
     }

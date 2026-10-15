@@ -1,8 +1,10 @@
 package org.blueventures.gemdroid.data.analysis.classification
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.roi.ROI
 
+@JsonClass(generateAdapter = true)
 data class ClassificationReady(
     @param:Json(name = "contemporary_high_tide_op") val chotOp: String,
     @param:Json(name = "contemporary_low_tide_op") val clotOp: String,

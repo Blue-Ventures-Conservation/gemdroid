@@ -2,9 +2,8 @@ package com.github.zibnix.droidbones.mvvm
 
 import com.github.zibnix.droidbones.NoStack
 import com.github.zibnix.droidbones.R
+import com.github.zibnix.droidbones.api.BaseApi
 import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -300,6 +299,6 @@ object FileService {
     }
 
     inline fun <reified T> adapter(): JsonAdapter<T> {
-        return Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(T::class.java)
+        return BaseApi.moshi.adapter(T::class.java)
     }
 }

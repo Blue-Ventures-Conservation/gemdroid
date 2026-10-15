@@ -2,6 +2,7 @@ package org.blueventures.gemdroid.data.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import java.io.File
 
 /**
@@ -12,6 +13,7 @@ import java.io.File
  *
  * A CRA file is saved on device to keep track of the CRAs in use for an ROI.
  */
+@JsonClass(generateAdapter = true)
 data class ContemporaryAndHistoricalRemoteCRAFileInfo(
     @param:Json(name = "hist_shp") val historicalCRA: RemoteCRAFileInfo? = null,
     @param:Json(name = "cont_shp") val contemporaryCRA: RemoteCRAFileInfo,

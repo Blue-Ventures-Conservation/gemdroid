@@ -6,7 +6,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.github.zibnix.droidbones.NoStack
-import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
@@ -36,7 +35,7 @@ open class ApiDatasource(
         storage.reference.child(path).downloadUrl.complete(cont)
     }
 
-    suspend fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> ApiResult<O>) = call(api, body)
+    suspend fun <I, O> getRemote(body: I, call: suspend (Api.Service, I) -> Result<O>) = call(api, body)
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S) = serializer.fromFile(file)
     fun <T, S : Serializer<T>> saveFile(file: File, data: T, serializer: S) = serializer.toFile(file, data)
     fun deleteFile(file: File) = FileService.deleteFile(file)

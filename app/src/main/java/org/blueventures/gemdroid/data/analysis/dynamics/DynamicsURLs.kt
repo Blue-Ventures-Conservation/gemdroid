@@ -1,10 +1,12 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.Serializer
 import org.blueventures.gemdroid.data.URLs
 import java.io.File
 
+@JsonClass(generateAdapter = true)
 data class DynamicsURLs(
     @param:Json(name = "loss_url") val lossURL: String,
     @param:Json(name = "persistence_url") val persistenceURL: String,
@@ -19,17 +21,19 @@ data class DynamicsURLs(
     }
 
     companion object : Serializer<DynamicsURLs>() {
-        private val adapter = make<DynamicsURLs>()
+        private val adapter = moshiAdapter<DynamicsURLs>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: DynamicsURLs) = toFile(adapter, file, data)
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class RegionStats(
     @param:Json(name = "name") val name: String,
     @param:Json(name = "all_classes") val allClasses: List<ClassDynamics>,
 )
 
+@JsonClass(generateAdapter = true)
 data class ClassDynamics(
     @param:Json(name = "name") val name: String,
     @param:Json(name = "cont") val contArea: Double,
@@ -40,11 +44,13 @@ data class ClassDynamics(
     @param:Json(name = "conversions") val conversions: ClassConversions,
 )
 
+@JsonClass(generateAdapter = true)
 data class ClassConversions(
     @param:Json(name = "to") val to: List<Conversion>,
     @param:Json(name = "from") val from: List<Conversion>,
 )
 
+@JsonClass(generateAdapter = true)
 data class Conversion(
     @param:Json(name = "area") val area: Double,
     @param:Json(name = "name") val name: String,

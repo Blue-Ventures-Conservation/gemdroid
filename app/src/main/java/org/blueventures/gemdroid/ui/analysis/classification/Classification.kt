@@ -14,7 +14,6 @@ import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import java.net.HttpURLConnection
 
 object Classification {
     object Routes {
@@ -50,13 +49,13 @@ object Classification {
         }
     }
 
-    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
-        val craErr = CRA.errHandler(ctx, code, message)
+    fun errHandler(ctx: Context, message: String?): Pair<String?, Boolean> {
+        val craErr = CRA.errHandler(ctx, message)
         return if (craErr.first != null) {
             craErr
-        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("no training data") == true) {
+        } else if (message?.contains("no training data") == true) {
             Pair(ctx.getString(R.string.make_sure_your_cras_are_not_masked), false)
-        } else if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("classifier training failed") == true) {
+        } else if (message?.contains("classifier training failed") == true) {
             Pair(ctx.getString(R.string.classifier_training_failed), false)
         } else {
             Pair(null, true)

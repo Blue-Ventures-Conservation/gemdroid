@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.model.api
 import android.content.Context
 import android.net.Uri
 import androidx.datastore.preferences.core.Preferences
-import com.github.zibnix.droidbones.api.ApiResult
 import com.github.zibnix.droidbones.mvvm.IOViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +12,7 @@ import org.blueventures.gemdroid.data.analysis.TasksResults
 import java.io.File
 
 open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOViewModel(repo) {
-    fun <T> apiWithToken(prev: Job?, flow: Flow<ApiResult<T>>, callback: (ApiResult<T>) -> Unit) = withToken(prev, ::apiErr, flow, callback)
+    fun <T> apiWithToken(prev: Job?, flow: Flow<Result<T>>, callback: (Result<T>) -> Unit) = withToken(prev, ::resErr, flow, callback)
 
     fun <T> resultWithToken(prev: Job?, flow: Flow<Result<T>>, callback: (Result<T>) -> Unit) = withToken(prev, ::resErr, flow, callback)
 
@@ -31,7 +30,7 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
 
     fun uriFromStorage(prev: Job?, path: String, callback: (Result<Uri>) -> Unit) = resultWithToken(prev, repo.uriFromStorage(path), callback)
 
-    fun <I, O> getRemote(prev: Job?, body: I, callback: (ApiResult<O>) -> Unit, call: suspend (Api.Service, I) -> ApiResult<O>) = apiWithToken(prev, repo.getRemote(body, call), callback)
+    fun <I, O> getRemote(prev: Job?, body: I, callback: (Result<O>) -> Unit, call: suspend (Api.Service, I) -> Result<O>) = apiWithToken(prev, repo.getRemote(body, call), callback)
     fun <T, S : Serializer<T>> loadFile(file: File, serializer: S, callback: (Result<T>) -> Unit) {
         scoped { repo.loadFile(file, serializer).collect(callback) }
     }
@@ -50,7 +49,6 @@ open class ApiViewModel(private val repo: ApiRepository = ApiRepository()): IOVi
     fun <T> write(context: Context, key: Preferences.Key<T>, value: T, callback: () -> Unit = {}) = scoped { repo.write(context, key, value).collect { callback() } }
 
     companion object {
-        fun <T> apiErr(err: Throwable) = ApiResult.Error<T>(null, err.message)
         fun <T> resErr(err: Throwable) = Result.failure<T>(err)
     }
 }

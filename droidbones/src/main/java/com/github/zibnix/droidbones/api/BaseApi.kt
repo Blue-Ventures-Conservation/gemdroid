@@ -1,57 +1,35 @@
 package com.github.zibnix.droidbones.api
 
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.CallAdapter
-import retrofit2.HttpException
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
 object BaseApi {
+    val moshi: Moshi = Moshi.Builder().build()
 
     /**
      * timeout in seconds
      */
-    fun authResultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Pair<TokenInterceptor, Retrofit> {
-        return authRetrofit(baseUrl, timeout, debug, json, ResultCallAdapterFactory.create(), *factories)
-    }
-
-    /**
-     * timeout in seconds
-     */
-    fun authRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Pair<TokenInterceptor, Retrofit> {
+    fun authRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true): Pair<TokenInterceptor, Retrofit> {
         val builder = client(timeout, debug, json)
         val tokenIntercept = TokenInterceptor()
         builder.addInterceptor(tokenIntercept)
-        return Pair(tokenIntercept, retrofit(baseUrl, builder, *factories))
+        return Pair(tokenIntercept, retrofit(baseUrl, builder))
     }
 
     /**
      * timeout in seconds
      */
-    fun resultRetrofit(baseUrl: String, timeout: Long, debug: Boolean = true, json: Boolean = true, vararg factories: CallAdapter.Factory): Retrofit {
-        return retrofit(baseUrl, client(timeout, debug, json), ResultCallAdapterFactory.create(), *factories)
-    }
-
-    /**
-     * timeout in seconds
-     */
-    fun retrofit(baseUrl: String, httpBuilder: OkHttpClient.Builder, vararg factories: CallAdapter.Factory): Retrofit {
+    fun retrofit(baseUrl: String, httpBuilder: OkHttpClient.Builder): Retrofit {
         val builder = Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(httpBuilder.build())
-            .addConverterFactory(MoshiConverterFactory.create(
-                Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-            ))
-
-        for (factory in factories) {
-            builder.addCallAdapterFactory(factory)
-        }
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(ResultCallAdapterFactory.create())
 
         return builder.build()
     }
@@ -76,21 +54,5 @@ object BaseApi {
         }
 
         return builder
-    }
-
-    fun <T : Any> handleResponse(execute: () -> Response<T>): ApiResult<T> {
-        return try {
-            val response = execute()
-            val body = response.body()
-            if (response.isSuccessful && body != null) {
-                ApiResult.Success(body)
-            } else {
-                ApiResult.Error(response.code(), response.message())
-            }
-        } catch (e: HttpException) {
-            ApiResult.Error(e.code(), e.message())
-        } catch (e: Throwable) {
-            ApiResult.Error(null, e.message)
-        }
     }
 }

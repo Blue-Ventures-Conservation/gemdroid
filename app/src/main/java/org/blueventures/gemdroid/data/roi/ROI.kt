@@ -1,6 +1,7 @@
 package org.blueventures.gemdroid.data.roi
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.GeojsonMultiPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.MultiPolyPts
@@ -10,6 +11,7 @@ import org.blueventures.gemdroid.model.roi.RoiDatasource.Companion.shouldUseS2
 import java.io.File
 
 // Saved on device based on user input when creating an ROI
+@JsonClass(generateAdapter = true)
 data class ROI(
     @param:Json(name = "buff_dist") val buffDist: Int = -1,
     @param:Json(name = "name") val name: String = "",
@@ -54,7 +56,7 @@ data class ROI(
     }
 
     companion object : Serializer<ROI>() {
-        private val adapter = make<ROI>()
+        private val adapter = moshiAdapter<ROI>()
 
         fun fromState(
             name: String,
@@ -161,7 +163,7 @@ data class SinglePolyROI(
     @param:Json(name = "region_uuid") val regionUUID: String? = null,
 ) {
     companion object : Serializer<SinglePolyROI>() {
-        private val adapter = make<SinglePolyROI>()
+        private val adapter = moshiAdapter<SinglePolyROI>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: SinglePolyROI) = toFile(adapter, file, data)
     }

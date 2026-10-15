@@ -1,8 +1,10 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.roi.ROI
 
+@JsonClass(generateAdapter = true)
 data class DynamicsReady(
     @param:Json(name = "contemporary_classification_image_op") val contImageOp: String,
     @param:Json(name = "historical_classification_image_op") val histImageOp: String,

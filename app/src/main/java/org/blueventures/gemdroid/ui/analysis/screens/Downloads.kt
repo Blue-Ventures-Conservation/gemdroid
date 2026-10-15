@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.ui.analysis.screens
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.model.analysis.AnalysisViewModel
@@ -29,7 +28,7 @@ object Downloads {
             object : Downloads.ExportList {
                 override fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = viewModel.saveResults(results, callback)
                 override fun loadResults(callback: (Result<TasksResults>) -> Unit) = viewModel.loadResults(callback)
-                override fun getResults(callback: (ApiResult<TasksResults>) -> Unit) = viewModel.getResults(exports, callback)
+                override fun getResults(callback: (Result<TasksResults>) -> Unit) = viewModel.getResults(exports, callback)
                 override fun list(): List<Downloads.NamedExport> {
                     return listOf(
                         object : Downloads.NamedExport {

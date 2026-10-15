@@ -1,9 +1,11 @@
 package org.blueventures.gemdroid.data.analysis
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
+@JsonClass(generateAdapter = true)
 data class TasksResults(
     @param:Json(name = "results") val results: List<TaskStatus>
 ) {
@@ -20,12 +22,13 @@ data class TasksResults(
     }
 
     companion object : Serializer<TasksResults>() {
-        private val adapter = make<TasksResults>()
+        private val adapter = moshiAdapter<TasksResults>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: TasksResults) = toFile(adapter, file, data)
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class TaskStatus(
     @param:Json(name = "success") val success: Boolean,
     @param:Json(name = "error") val error: String?,

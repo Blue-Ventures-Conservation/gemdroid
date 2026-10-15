@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.analysis.TasksResults
 import org.blueventures.gemdroid.ui.theme.LightGreen
@@ -43,7 +42,7 @@ object Downloads {
     interface ExportList {
         fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit)
         fun loadResults(callback: (Result<TasksResults>) -> Unit)
-        fun getResults(callback: (ApiResult<TasksResults>) -> Unit)
+        fun getResults(callback: (Result<TasksResults>) -> Unit)
         fun list(): List<NamedExport>
     }
 
@@ -51,7 +50,7 @@ object Downloads {
     fun <T> Screen(
         holder: VisualizeHolder?,
         getLocal: ((Result<T>) -> Unit) -> Unit,
-        getRemote: (Boolean, (ApiResult<T>) -> Unit) -> Unit,
+        getRemote: (Boolean, (Result<T>) -> Unit) -> Unit,
         save: (T, callback: (Result<Unit>) -> Unit) -> Unit,
         clear: Click,
         convert: @Composable (T) -> ExportList,
@@ -148,8 +147,8 @@ object Downloads {
                 } else {
                     exports.getResults { result ->
                         stop()
-                        if (result is ApiResult.Success) {
-                            val data = result.data!!
+                        if (result.isSuccess) {
+                            val data = result.getOrNull()!!
                             exports.saveResults(data) {
                                 setResults(data)
                             }

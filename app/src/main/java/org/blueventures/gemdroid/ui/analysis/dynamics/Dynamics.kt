@@ -86,8 +86,8 @@ object Dynamics {
         }
     }
 
-    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
-        val classificationErr = Classification.errHandler(ctx, code, message)
+    fun errHandler(ctx: Context, message: String?): Pair<String?, Boolean> {
+        val classificationErr = Classification.errHandler(ctx, message)
         return if (classificationErr.first != null) {
             classificationErr
         } else {

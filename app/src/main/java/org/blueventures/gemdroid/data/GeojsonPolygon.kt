@@ -4,10 +4,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.SphericalUtil
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.PolygonUtils.HECTARE_IN_METERS
 import java.io.File
 
 typealias PolyPts = List<List<LatLng>>
+
+@JsonClass(generateAdapter = true)
 data class GeojsonPolygon(
     @param:Json(name = "coordinates") val coordinates: List<List<List<Double>>>,
     @param:Json(name = "type") val type: String = "Polygon",
@@ -77,7 +80,7 @@ data class GeojsonPolygon(
             return ring
         }
 
-        val adapter = make<GeojsonPolygon>()
+        val adapter = moshiAdapter<GeojsonPolygon>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: GeojsonPolygon) = toFile(adapter, file, data)
     }

@@ -26,7 +26,6 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
-import java.net.HttpURLConnection
 
 object CRA {
     object Routes {
@@ -161,8 +160,8 @@ object CRA {
         }
     }
 
-    fun errHandler(ctx: Context, code: Int?, message: String?): Pair<String?, Boolean> {
-        return if (code == HttpURLConnection.HTTP_BAD_REQUEST && message?.contains("missing asset") == true) {
+    fun errHandler(ctx: Context, message: String?): Pair<String?, Boolean> {
+        return if (message?.contains("missing asset") == true) {
             Pair(ctx.getString(R.string.cra_not_found), false)
         } else {
             Pair(null, true)

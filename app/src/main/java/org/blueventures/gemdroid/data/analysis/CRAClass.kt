@@ -1,3 +1,10 @@
 package org.blueventures.gemdroid.data.analysis
 
-data class CRAClass(val number: Int, val name: String)
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+data class CRAClass(
+    @param:Json(name = "number") val number: Int,
+    @param:Json(name = "name") val name: String
+)

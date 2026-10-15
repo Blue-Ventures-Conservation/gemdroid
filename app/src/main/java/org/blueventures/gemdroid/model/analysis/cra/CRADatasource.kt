@@ -4,8 +4,6 @@ import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import androidx.compose.ui.graphics.toArgb
 import com.github.zibnix.droidbones.NoStack
-import com.github.zibnix.droidbones.api.ApiResult
-import com.github.zibnix.droidbones.api.apiResultCheck
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -456,9 +454,10 @@ class CRADatasource(
         if (needed.isFailure) return Result.failure(needed.exceptionOrNull()!!)
         if (!needed.getOrNull()!!) return Result.success(Unit)
         val result = api.ingestCRA(CRAKey(key, cra.isShapefile, cra.overwrite))
-        val err = apiResultCheck(result)
-        if (err != null) return Result.failure(err)
-        val data = result.data!!
+        if (result.isFailure) {
+            return Result.failure(result.exceptionOrNull()!!)
+        }
+        val data = result.getOrNull()!!
         if (!data.success) return Result.failure(NoStack(R.string.gee_ingestion_failed))
         cra.eeUploadName = data.name
         return Result.success(Unit)
@@ -467,9 +466,10 @@ class CRADatasource(
     private suspend fun ingestNeeded(name: String?, key: String): Result<Boolean> {
         if (name == null || name == "") return Result.success(true)
         val result = awaitCRAIngestion(name, key)
-        val err = apiResultCheck(result)
-        if (err != null) return Result.failure(err)
-        return Result.success(result.data!!.ingestNeeded())
+        if (result.isFailure) {
+            return Result.failure(result.exceptionOrNull()!!)
+        }
+        return Result.success(result.getOrNull()!!.ingestNeeded())
     }
 
     suspend fun uploadOneIngestOther(toUpload: LocalOrRemoteCRAFile, toIngest: LocalOrRemoteCRAFile): Result<Unit> {
@@ -570,8 +570,8 @@ class CRADatasource(
         val hist = cras.historicalCRA
         val cont = cras.contemporaryCRA
 
-        var contResult: ApiResult<Success>? = null
-        var histResult: ApiResult<Success>? = null
+        var contResult: Result<Success>? = null
+        var histResult: Result<Success>? = null
 
         // returns when all children coroutines are complete
         coroutineScope {
@@ -581,10 +581,15 @@ class CRADatasource(
             launch { contResult = awaitCRAIngestion(cont.tableUploadOperationName, cont.storageKey()) }
         }
 
-        val err = apiResultCheck(contResult, histResult)
-        if (err != null) return Result.failure(err)
+        if (contResult?.isFailure == true) {
+            return Result.failure(contResult.exceptionOrNull()!!)
+        }
 
-        if (contResult?.data?.success != true || (histResult != null && histResult.data?.success != true)) {
+        if (histResult?.isFailure == true) {
+            return Result.failure(histResult.exceptionOrNull()!!)
+        }
+
+        if (contResult?.getOrNull()?.success != true || (histResult != null && histResult.getOrNull()?.success != true)) {
             return Result.failure(Throwable())
         }
 

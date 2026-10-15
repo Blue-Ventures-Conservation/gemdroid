@@ -3,7 +3,6 @@ package org.blueventures.gemdroid.ui.common.maps
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.maps.android.compose.GoogleMapComposable
@@ -21,7 +20,7 @@ object Layers {
         abstract val parentDir: File
 
         abstract fun tileDir(i: Int): File
-        abstract fun getRemote(callback: (ApiResult<T>) -> Unit)
+        abstract fun getRemote(callback: (Result<T>) -> Unit)
         abstract fun save(urls: T, callback: (Result<Unit>) -> Unit)
 
         fun tileOpts(index: Int, urls: T): TileOverlayOptions? {
@@ -49,8 +48,8 @@ object Layers {
         val (urls, setUrls) = remember { mutableStateOf(model.initUrls) }
         if (staleCheck(urls)) {
             model.getRemote { result ->
-                if (result is ApiResult.Success) {
-                    val data = result.data!!
+                if (result.isSuccess) {
+                    val data = result.getOrNull()!!
                     model.save(data) {}
                     setUrls(data)
                 }

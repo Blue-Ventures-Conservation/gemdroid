@@ -1,9 +1,11 @@
 package org.blueventures.gemdroid.data.analysis.classification
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.roi.ROI
 
 // Sent to the backend when requesting classification
+@JsonClass(generateAdapter = true)
 data class ClassificationROI(
     @param:Json(name = "contemporary_storage_key") val contemporaryStorageKey: String,
     @param:Json(name = "historical_storage_key") val historicalStorageKey: String,

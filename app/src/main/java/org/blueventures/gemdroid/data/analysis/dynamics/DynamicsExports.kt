@@ -1,11 +1,13 @@
 package org.blueventures.gemdroid.data.analysis.dynamics
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import org.blueventures.gemdroid.data.Expires
 import org.blueventures.gemdroid.data.Export
 import org.blueventures.gemdroid.data.Serializer
 import java.io.File
 
+@JsonClass(generateAdapter = true)
 data class DynamicsExports(
     @param:Json(name = "csv") val csv: Export?,
     @param:Json(name = "loss") val loss: Export,
@@ -15,7 +17,7 @@ data class DynamicsExports(
     @param:Json(name = "timeout") override val timeout: Int, // seconds
 ): Expires {
     companion object : Serializer<DynamicsExports>() {
-        private val adapter = make<DynamicsExports>()
+        private val adapter = moshiAdapter<DynamicsExports>()
         override fun fromFile(file: File) = fromFile(adapter, file)
         override fun toFile(file: File, data: DynamicsExports) = toFile(adapter, file, data)
     }

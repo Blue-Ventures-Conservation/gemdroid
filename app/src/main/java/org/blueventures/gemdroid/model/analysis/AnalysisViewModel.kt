@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.toArgb
-import com.github.zibnix.droidbones.api.ApiResult
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.R
@@ -99,16 +98,16 @@ class AnalysisViewModel(
         }}
     }
     override fun loadVisualizeURLsFile(callback: (Result<VisualizeURLs>) -> Unit) = loadFile(urlsFile(roiDir), VisualizeURLs.Companion, callback)
-    override fun getVisualizeURLs(callback: (ApiResult<VisualizeURLs>) -> Unit) {
-        visualizeURLsJob = getRemote(visualizeURLsJob, roi, { apiResult ->
-            if (apiResult is ApiResult.Success) {
-                val buffer = apiResult.data!!.buffDist
+    override fun getVisualizeURLs(callback: (Result<VisualizeURLs>) -> Unit) {
+        visualizeURLsJob = getRemote(visualizeURLsJob, roi, { result ->
+            if (result.isSuccess) {
+                val buffer = result.getOrNull()!!.buffDist
                 roi = roi.copy(buffDist = buffer)
                 saveFile(roiFile(roiDir), roi, ROI.Companion) {
-                    callback(apiResult)
+                    callback(result)
                 }
             } else {
-                callback(apiResult)
+                callback(result)
             }
         }) { api, roi ->
             api.getVisualizeURLs(roi)
@@ -129,9 +128,9 @@ class AnalysisViewModel(
 
     fun saveExports(exports: ImageryExports, callback: (Result<Unit>) -> Unit) = saveFile(exportsFile(roiDir), exports, ImageryExports.Companion, callback)
     fun loadExports(callback: (Result<ImageryExports>) -> Unit) = loadFile(exportsFile(roiDir), ImageryExports.Companion, callback)
-    fun getExports(visualize: Boolean, callback: (ApiResult<ImageryExports>) -> Unit) {
+    fun getExports(visualize: Boolean, callback: (Result<ImageryExports>) -> Unit) {
         exportsJob = getRemote(exportsJob, roi.copy(visualize = visualize), { result ->
-            if (result is ApiResult.Success) {
+            if (result.isSuccess) {
                 scoped { deleteFile(resultsFile(roiDir)) { callback(result) } }
             } else {
                 callback(result)
@@ -143,7 +142,7 @@ class AnalysisViewModel(
 
     fun saveResults(results: TasksResults, callback: (Result<Unit>) -> Unit) = saveResults(resultsFile(roiDir), results, callback)
     fun loadResults(callback: (Result<TasksResults>) -> Unit) = loadResults(resultsFile(roiDir), callback)
-    fun getResults(exports: ImageryExports, callback: (ApiResult<TasksResults>) -> Unit) {
+    fun getResults(exports: ImageryExports, callback: (Result<TasksResults>) -> Unit) {
         statusJob = getRemote(statusJob, Tasks(listOf(exports.chot.name, exports.clot.name, exports.hhot.name, exports.hlot.name)), callback) { api, tasks ->
             api.tasksResults(tasks)
         }

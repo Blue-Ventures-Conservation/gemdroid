@@ -2,8 +2,11 @@ package org.blueventures.gemdroid.data
 
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 typealias MultiPolyPts = List<List<List<LatLng>>>
+
+@JsonClass(generateAdapter = true)
 data class GeojsonMultiPolygon(
     @param:Json(name = "coordinates") val coordinates: List<List<List<List<Double>>>>,
     @param:Json(name = "type") val type: String = "MultiPolygon",

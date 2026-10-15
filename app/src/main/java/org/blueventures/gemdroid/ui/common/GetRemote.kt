@@ -1,34 +1,30 @@
 package org.blueventures.gemdroid.ui.common
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.github.zibnix.droidbones.NoStack
-import com.github.zibnix.droidbones.api.ApiResult
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.Expires
 import org.blueventures.gemdroid.data.staleCheck
-import java.net.HttpURLConnection
 
 /**
  * Functions in this file will load from the network when loading locally fails.
  *
  * This means that even though there may be locally cached data, when the API data changes, that local file load
- * can fail and we'll just fetch the updated format from the server without showing errors to the user.
+ * can fail, and we'll just fetch the updated format from the server without showing errors to the user.
  */
 object GetRemote {
     @Composable
     fun <T> Save(
         getLocal: ((Result<T>) -> Unit) -> Unit,
-        getRemote: ((ApiResult<T>) -> Unit) -> Unit,
+        getRemote: ((Result<T>) -> Unit) -> Unit,
         save: (T, (Result<Unit>) -> Unit) -> Unit,
         checkExpires: Boolean = false,
         // returns a message to display and whether the request should be retried
-        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
+        errorHandler: RemoteErrHandler = { _, _ -> Pair(null, true) },
         saveFail: ((T) -> Unit)? = null,
         screen: @Composable (T) -> Unit
     ) {
@@ -58,15 +54,15 @@ object GetRemote {
     @Composable
     fun <T> Display(
         getLocal: ((Result<T>) -> Unit) -> Unit,
-        getRemote: ((ApiResult<T>) -> Unit) -> Unit,
+        getRemote: ((Result<T>) -> Unit) -> Unit,
         checkExpires: Boolean = false,
         // returns a message to display and whether the request should be retried
-        errorHandler: RemoteErrHandler = { _, _, _ -> Pair(null, true) },
+        errorHandler: RemoteErrHandler = { _, _ -> Pair(null, true) },
         setLocal: @Composable (T) -> Unit,
         setRemote: @Composable (T) -> Unit,
     ) {
         val (localResult, setLocalResult) = remember { mutableStateOf<Result<T>?>(null) }
-        val (remoteResult, setRemoteResult) = remember { mutableStateOf<ApiResult<T>?>(null) }
+        val (remoteResult, setRemoteResult) = remember { mutableStateOf<Result<T>?>(null) }
 
         Orient.Unspecified()
 
@@ -99,33 +95,22 @@ object GetRemote {
                     getRemote(setRemoteResult)
                 }
             }
-            remoteResult is ApiResult.Error -> {
-                if (remoteResult.code == HttpURLConnection.HTTP_FORBIDDEN) {
-                    BasicMessage(message = stringResource(R.string.access_email_rationale)) { context ->
-                        context.startActivity(Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:") // Only email apps handle this.
-                            putExtra(Intent.EXTRA_EMAIL, arrayOf("bv.gemapp@gmail.com"))
-                            putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.access_email_subject))
-                            putExtra(Intent.EXTRA_TEXT, context.getString(R.string.access_email_body))
-                        })
+            remoteResult.isFailure -> {
+                val p = errorHandler(LocalContext.current, remoteResult.exceptionOrNull()!!.message)
+
+                if (p.second) {
+                    RefreshableError(p.first) { stop ->
+                        getRemote { result ->
+                            stop()
+                            setRemoteResult(result)
+                        }
                     }
                 } else {
-                    val p = errorHandler(LocalContext.current, remoteResult.code, remoteResult.message)
-
-                    if (p.second) {
-                        RefreshableError(p.first) { stop ->
-                            getRemote { result ->
-                                stop()
-                                setRemoteResult(result)
-                            }
-                        }
-                    } else {
-                        BasicMessage(message = p.first ?: stringResource(R.string.unrecoverable_error))
-                    }
+                    BasicMessage(message = p.first ?: stringResource(R.string.unrecoverable_error))
                 }
             }
             else -> {
-                val data = remoteResult.data!!
+                val data = remoteResult.getOrNull()!!
                 setLocalResult(Result.success(data))
                 setRemote(data)
             }

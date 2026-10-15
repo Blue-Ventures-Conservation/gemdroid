@@ -174,13 +174,11 @@ object Maps {
     ) {
         val checkers = remember { mutableListOf<Checker>() }
 
-        val polygonGroups = remember { mutableListOf<Polygons.NamedOptionsGroup>() }
-        val (polyStateGathered, setPolyStateGathered) = remember { mutableStateOf(false) }
-        if (!polyStateGathered && poly != null) {
+        val (polygonGroups, setPolygonGroups) = remember { mutableStateOf<List<Polygons.NamedOptionsGroup>?>(null) }
+        if (poly != null && polygonGroups == null) {
             Polygons.checkers(LocalContext.current, poly) { pair ->
                 checkers.addAll(pair.first)
-                polygonGroups.addAll(pair.second)
-                setPolyStateGathered(true)
+                setPolygonGroups(pair.second)
             }
         } else {
             val (layersStateGathered, setLayersStateGathered) = remember { mutableStateOf(false) }
@@ -189,7 +187,7 @@ object Maps {
                 setLayersStateGathered(true)
             }
 
-            Display(appBar, title, gps, storage, bounds, poly, capture, layers, draw, mapType, checkers, polygonGroups, next)
+            Display(appBar, title, gps, storage, bounds, poly, capture, layers, draw, mapType, checkers, polygonGroups ?: emptyList(), next)
         }
     }
 

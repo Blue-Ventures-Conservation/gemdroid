@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.model.analysis.classification.separability
 
-import com.github.zibnix.droidbones.api.ApiResult
 import kotlinx.coroutines.Job
 import org.blueventures.gemdroid.data.JSONMap
 import org.blueventures.gemdroid.data.analysis.cra.CraROI
@@ -34,7 +33,7 @@ class SeparabilityViewModel(
 
     private var chartJob: Job? = null
 
-    fun getSeparation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
+    fun getSeparation(callback: (Result<Map<String, Any>>) -> Unit) {
         chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
             timePeriod.separation(api, roi)
         }
@@ -42,7 +41,7 @@ class SeparabilityViewModel(
     fun saveSeparationFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = saveFile(separationFile(roiDir, timePeriod), data, JSONMap, callback)
     fun loadSeparationFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(separationFile(roiDir, timePeriod), JSONMap, callback)
 
-    fun getScatter(callback: (ApiResult<Map<String, Any>>) -> Unit) {
+    fun getScatter(callback: (Result<Map<String, Any>>) -> Unit) {
         chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
             timePeriod.scatter(api, roi)
         }
@@ -50,7 +49,7 @@ class SeparabilityViewModel(
     fun saveScatterFile(data: Map<String, Any>, callback: (Result<Unit>) -> Unit) = saveFile(scatterFile(roiDir, timePeriod), data, JSONMap, callback)
     fun loadScatterFile(callback: (Result<Map<String, Any>>) -> Unit) = loadFile(scatterFile(roiDir, timePeriod), JSONMap, callback)
 
-    fun getCorrelation(callback: (ApiResult<Map<String, Any>>) -> Unit) {
+    fun getCorrelation(callback: (Result<Map<String, Any>>) -> Unit) {
         chartJob = getRemote(chartJob, makeCraROI(timePeriod.apiVal), callback) { api, roi ->
             timePeriod.correlation(api, roi)
         }

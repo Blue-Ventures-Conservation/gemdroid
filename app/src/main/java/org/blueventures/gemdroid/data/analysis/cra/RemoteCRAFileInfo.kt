@@ -2,8 +2,10 @@ package org.blueventures.gemdroid.data.analysis.cra
 
 import com.github.zibnix.droidbones.mvvm.FileService
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import java.io.File
 
+@JsonClass(generateAdapter = true)
 data class ClassCount(
     @param:Json(name = "class_name") val className: String,
     @param:Json(name = "class_number") var classNumber: Int,
@@ -12,6 +14,7 @@ data class ClassCount(
 
 // Saved in Cloud Storage alongside the zip to keep track of
 // the parsed/selected fields used for analysis
+@JsonClass(generateAdapter = true)
 data class RemoteCRAFileInfo(
     @param:Json(name = "shp_storage_key") val shapefileStorageKey: String?,
     @param:Json(name = "json_storage_key") val jsonStorageKey: String?,
