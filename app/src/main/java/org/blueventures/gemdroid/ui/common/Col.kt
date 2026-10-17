@@ -81,7 +81,7 @@ object Col {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .clickable { click() },
+                .safeClickable(onClick = click)
         ) {
             Text(modifier = Modifier
                 .padding(16.dp)

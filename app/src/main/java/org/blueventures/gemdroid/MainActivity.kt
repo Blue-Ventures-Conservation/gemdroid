@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -120,6 +122,12 @@ fun GEMTheme(activity: ComponentActivity, settingsModel: SettingsViewModel, anal
             NavHost(
                 navController = nav,
                 startDestination = if (welcomeShown) Roi.Routes.list else Welcome.Routes.landing,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { ExitTransition.None },
+                predictivePopEnterTransition = { EnterTransition.None },
+                predictivePopExitTransition = { ExitTransition.None },
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()

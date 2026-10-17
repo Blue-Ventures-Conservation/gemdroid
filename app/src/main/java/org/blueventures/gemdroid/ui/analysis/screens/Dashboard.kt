@@ -1,6 +1,5 @@
 package org.blueventures.gemdroid.ui.analysis.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,25 +31,20 @@ import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
 import org.blueventures.gemdroid.ui.common.Col
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
+import org.blueventures.gemdroid.ui.common.safeClickable
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 
 object Dashboard {
     @Composable
-    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, review: Click, clazz: Click, dyn: Click) {
-        Effect.Once { viewModel.dynamicsViewModel.polygons.clear() }
-        Layout(viewModel, appBar, snack, back, next, falseColor, review, clazz, dyn)
-    }
-
-    @Composable
-    fun Layout(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
+    fun Screen(viewModel: AnalysisViewModel, appBar: AppBar, snack: SnackFun, back: Click, next: Click, falseColor: Click, properties: Click, clazz: Click, dyn: Click) {
+        viewModel.dynamicsViewModel.polygons.clear()
+        val (roi, setROI) = remember { mutableStateOf<ROI?>(null) }
         Roi.Loader(viewModel::getROI, snack, back) { loadedRoi ->
-            appBar.Update(AppBarUpdate(viewModel.roi.appBarTitle(stringResource(R.string.analysis))))
-            val (roi, setROI) = remember { mutableStateOf<ROI?>(null) }
+            appBar.Update(AppBarUpdate(loadedRoi.appBarTitle(stringResource(R.string.analysis))))
             val (stage, setStage) = remember { mutableStateOf<Stage?>(null) }
             when {
                 roi == null && loadedRoi.regionUUID == null -> {
@@ -60,7 +54,9 @@ object Dashboard {
                         setROI(updatedROI)
                     }
                 }
-                roi == null -> setROI(loadedRoi)
+                roi == null -> {
+                    setROI(loadedRoi)
+                }
                 stage == null -> {
                     Progress()
                     viewModel.roi = roi
@@ -175,7 +171,7 @@ object Dashboard {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { row() },
+                .safeClickable(onClick = row),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = title, fontSize = 24.sp, modifier = Modifier.padding(24.dp))

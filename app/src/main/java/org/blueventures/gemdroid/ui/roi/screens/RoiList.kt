@@ -45,10 +45,8 @@ import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.AppBarUpdate
 import org.blueventures.gemdroid.ui.common.Butt
 import org.blueventures.gemdroid.ui.common.Click
-import org.blueventures.gemdroid.ui.common.Effect
 import org.blueventures.gemdroid.ui.common.FloatingButton
 import org.blueventures.gemdroid.ui.common.Info
-import org.blueventures.gemdroid.ui.common.Once
 import org.blueventures.gemdroid.ui.common.Progress
 import org.blueventures.gemdroid.ui.common.Roi
 import org.blueventures.gemdroid.ui.common.SnackFun
@@ -62,22 +60,8 @@ object RoiList {
 
     @Composable
     fun Screen(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
-        val (wentNext, setWentNext) = remember { mutableStateOf(false) }
-        if (!wentNext) {
-            Effect.Once { viewModel.clearState() }
-            Layout(viewModel, dirHolder, filesDir, appBar, snack, {
-                setWentNext(true)
-                next()
-            }) {
-                setWentNext(true)
-                floating()
-            }
-        }
-    }
-
-    @Composable
-    fun Layout(viewModel: RoiViewModel, dirHolder: DirHolder, filesDir: File, appBar: AppBar, snack: SnackFun, next: Click, floating: Click) {
         appBar.Update(AppBarUpdate(title = stringResource(R.string.my_projects)))
+        viewModel.clearState()
 
         val (rois, setRois) = remember { mutableStateOf<Result<List<File>>?>(null) }
 
@@ -87,7 +71,7 @@ object RoiList {
                 viewModel.refreshRois(filesDir, setRois)
             }
             rois.isFailure -> {
-                snack.Once(rois.exceptionOrNull()!!.localized(LocalContext.current))
+                snack(rois.exceptionOrNull()!!.localized(LocalContext.current))
             }
             else -> {
                 val list = rois.getOrNull()!!

@@ -12,12 +12,12 @@ import org.blueventures.gemdroid.ui.analysis.classification.Classification.Route
 import org.blueventures.gemdroid.ui.analysis.cra.CRA
 import org.blueventures.gemdroid.ui.analysis.cra.CRA.Routes.purpose
 import org.blueventures.gemdroid.ui.analysis.dynamics.Dynamics
-import org.blueventures.gemdroid.ui.analysis.screens.Shapes
 import org.blueventures.gemdroid.ui.analysis.screens.Dashboard
 import org.blueventures.gemdroid.ui.analysis.screens.Downloads
 import org.blueventures.gemdroid.ui.analysis.screens.FalseColorDescription
 import org.blueventures.gemdroid.ui.analysis.screens.ReviewInputs
 import org.blueventures.gemdroid.ui.analysis.screens.Satellite
+import org.blueventures.gemdroid.ui.analysis.screens.Shapes
 import org.blueventures.gemdroid.ui.common.AppBar
 import org.blueventures.gemdroid.ui.common.SnackFun
 import org.blueventures.gemdroid.ui.common.backHandler
@@ -56,7 +56,7 @@ object Analysis {
                 }
             }, falseColor = {
                 nav.navigate(Routes.visualize)
-            }, review = {
+            }, properties = {
                 nav.navigate(Routes.review_inputs)
             }, clazz = {
                 nav.navigate(map)
