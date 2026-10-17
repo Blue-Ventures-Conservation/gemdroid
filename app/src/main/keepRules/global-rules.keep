@@ -143,6 +143,12 @@
 #-keep class androidx.work.** { *; }
 #-dontwarn androidx.work.**
 
+# Preserve runtime-visible annotations required for inspecting metadata
+#-keepattributes RuntimeVisibleAnnotations
+
+# Keep Kotlin metadata to ensure kotlin.reflect functions correctly
+#-keep class kotlin.Metadata { *; }
+
 -keepclassmembers class org.nocrala.tools.gis.data.esri.shapefile.ShapeFileReader {
     private java.io.BufferedInputStream is;
 }
