@@ -56,7 +56,7 @@ object Classification {
         } else if (message?.contains("no training data") == true) {
             Pair(ctx.getString(R.string.make_sure_your_cras_are_not_masked), false)
         } else if (message?.contains("classifier training failed") == true) {
-            Pair(ctx.getString(R.string.classifier_training_failed), false)
+            Pair(ctx.getString(R.string.make_sure_your_cras_have_multiple_classes), false)
         } else {
             Pair(null, true)
         }

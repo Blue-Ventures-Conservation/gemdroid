@@ -14,12 +14,15 @@ import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +36,7 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Polygon
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.launch
 import org.blueventures.gemdroid.R
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.GeojsonPolygonFeatureCollection
@@ -413,16 +417,27 @@ object Capture {
 
     @Composable
     fun MaybeDoneDialog(model: Model, onDismiss: Click, onDone: Click) {
+        var representedClasses = 0
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(text = stringResource(R.string.finish_and_upload_your_cras)) },
             text = {
-                Column(modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                    )
                     Text(text = stringResource(R.string.your_cras_are_as_follows))
                     model.craClasses.forEach { craClass ->
                         val count = model.capturedCollection.intPropertyCount(classNumberPropertyKey, craClass.number)
+                        if (count > 0) {
+                            representedClasses += 1
+                        }
                         Info.Row {
                             Info.Txt(craClass.name + ": ", 14.sp, truncate = true)
                             Info.Txt("$count", 14.sp)
@@ -436,7 +451,16 @@ object Capture {
                 }
             },
             confirmButton = {
-                Butt.Text(stringResource(R.string.finished), click = onDone)
+                val moreThanOne = stringResource(R.string.please_create_cras_for_more_than_one_class)
+                Butt.Text(stringResource(R.string.finished)) {
+                    if (representedClasses > 1) {
+                        onDone()
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(moreThanOne)
+                        }
+                    }
+                }
             },
             dismissButton = {
                 Butt.Text(stringResource(R.string.cancel), click = onDismiss)
