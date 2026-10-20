@@ -14,8 +14,8 @@ android {
         applicationId "org.blueventures.gemdroid"
         minSdk 24
         targetSdk 37
-        versionCode 46
-        versionName "2.0.10"
+        versionCode 47
+        versionName "2.0.11"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
