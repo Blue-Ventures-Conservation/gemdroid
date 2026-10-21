@@ -40,7 +40,7 @@ object DynamicsMap {
                     }, poly = object : Polygons.Model() {
                         override val touchEnabled = true
                         override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) { viewModel.polygonGroups(context, callback) }
-                        override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { Polygons.PlaceMarker(point) }
+                        override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { Polygons.PlaceMarker(point); false }
                     }, next = Maps.FloatingNext(Icons.Filled.TableChart, R.string.view_dynamics_details, details))
                 }
             }

@@ -213,7 +213,7 @@ object Maps {
         val cameraPositionState = rememberCameraPositionState(init = { move(update) })
         val uiSettings by remember { mutableStateOf(MapUiSettings(compassEnabled = true, myLocationButtonEnabled = false, zoomControlsEnabled = false)) }
         val (properties, setProperties) = remember { mutableStateOf(MapProperties(isMyLocationEnabled = gps, mapType = mapType)) }
-        val touchState = remember { mutableStateOf<LatLng?>(null) }
+        val lastTouch = remember { mutableStateOf<LatLng?>(null) }
         val drawState = Draw.prepareState()
         var captureState: MutableState<Capture.State>? = null
         if (capture != null) {
@@ -228,14 +228,14 @@ object Maps {
                 properties = properties,
                 uiSettings = uiSettings,
                 onMapClick = { pt ->
-                    touchState.value = pt
+                    lastTouch.value = pt
                 }) {
                 layers?.let {
                     Layers.Display(layers, checkers)
                 }
 
                 poly?.let {
-                    Polygons.Display(poly.touchEnabled, poly::onTouch, polygonGroups, checkers, touchState)
+                    Polygons.Display(poly.touchEnabled, poly::onTouch, polygonGroups, checkers, lastTouch)
                 }
 
                 // drawing and capturing are currently mutually exclusive
@@ -243,7 +243,7 @@ object Maps {
                 draw?.let {
                     Draw.Display(draw, drawState, cameraPositionState)
                 } ?: capture?.let {
-                    Capture.Display(capture,  captureState!!, checkers, touchState)
+                    Capture.Display(capture,  captureState!!, checkers, lastTouch)
                 }
 
                 if (checkers.isNotEmpty()) {

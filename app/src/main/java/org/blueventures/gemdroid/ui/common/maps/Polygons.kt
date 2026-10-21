@@ -42,7 +42,8 @@ object Polygons {
     abstract class Model {
         abstract val touchEnabled: Boolean
         abstract fun polygonGroups(context: Context, callback: (List<Group>) -> Unit)
-        abstract fun onTouch(point: PolygonPoint?): @Composable () -> Unit
+        // the boolean return from the composable here indicates whether the touch was consumed and the point should be forgotten
+        abstract fun onTouch(point: PolygonPoint?): @Composable () -> Boolean
 
         fun polygonOptions(context: Context, callback: (List<NamedOptionsGroup>) -> Unit) {
             polygonGroups(context) { polyGroups ->
@@ -96,7 +97,7 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Unit, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>, rememberCheckerState: Boolean = true) {
+    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Boolean, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>, rememberCheckerState: Boolean = true) {
         val firstZ = 9999f
 
         val visibilities = mutableListOf<Boolean>()
@@ -149,8 +150,7 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    private fun Touch(onTouch: (PolygonPoint?) -> @Composable () -> Unit, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
-        val (polyPt, setPolyPt) = remember { mutableStateOf<PolygonPoint?>(null) }
+    private fun Touch(onTouch: (PolygonPoint?) -> @Composable () -> Boolean, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
         if (lastTouch.value != null) {
             val point = lastTouch.value!!
             var name: String? = null
@@ -169,12 +169,12 @@ object Polygons {
             }
 
             if (name != null) {
-                setPolyPt(PolygonPoint(name, point))
+                if (onTouch(PolygonPoint(name, point)).invoke()) {
+                    lastTouch.value = null
+                }
             } else {
-                setPolyPt(null)
+                lastTouch.value = null
             }
         }
-
-        onTouch(polyPt).invoke()
     }
 }

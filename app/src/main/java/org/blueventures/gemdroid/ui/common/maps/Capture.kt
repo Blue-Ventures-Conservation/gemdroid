@@ -99,7 +99,14 @@ object Capture {
             return object : Polygons.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = data.polygonGroups(context, callback)
-                override fun onTouch(point: Polygons.PolygonPoint?) = @Composable { if (point != null) { state.value = state.value.copy(doEdit = point.polygonName) }}
+                override fun onTouch(point: Polygons.PolygonPoint?) = @Composable {
+                    if (point == null) {
+                        false
+                    } else {
+                        state.value = state.value.copy(doEdit = point.polygonName)
+                        true
+                    }
+                }
             }
         }
         override fun currentShape() = shapeOrder[shapeCursor]
