@@ -116,7 +116,7 @@ class AnalysisViewModel(
     override fun aofPolygonGroup(context: Context, aof: GeojsonMultiPolygon, callback: (Polygons.Group) -> Unit) {
         val aofTitle = context.getString(R.string.area_of_focus)
         background({
-            callback(Polygons.Group(aofTitle, listOf(Polygons.Named(aofTitle, GeojsonMultiPolygon.toState(aof))), Black.toArgb(), Black.toArgb(), startVisible = false))
+            callback(Polygons.Group(aofTitle, listOf(Polygons.Named(aofTitle, GeojsonMultiPolygon.toState(aof))), Black.toArgb(), startVisible = false))
         })
     }
 

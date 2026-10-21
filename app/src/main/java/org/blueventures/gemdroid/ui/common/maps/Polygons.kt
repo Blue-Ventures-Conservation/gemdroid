@@ -7,6 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolygonOptions
@@ -18,17 +19,19 @@ import com.google.maps.android.compose.rememberUpdatedMarkerState
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.PolygonUtils
 import org.blueventures.gemdroid.ui.common.maps.Maps.Checker
+import org.blueventures.gemdroid.ui.theme.Black
+import org.blueventures.gemdroid.ui.theme.Clear
 import org.blueventures.gemdroid.ui.theme.LightGreen
+import org.blueventures.gemdroid.ui.theme.MediumGrey
 import org.blueventures.gemdroid.ui.theme.SkyBlue
 import org.blueventures.gemdroid.ui.theme.blend
 
 object Polygons {
-    data class Named(val name: String, val polygon: MultiPolyPts)
+    data class Named(val name: String, val polygon: MultiPolyPts, val color: Int? = null)
     data class Group(
         val menuTitle: String,
         val polygons: List<Named>,
         val color: Int? = null,
-        val strokeColor: Int = 0x7F000000,
         val dashes: Boolean = false,
         val startVisible: Boolean = true
     )
@@ -54,14 +57,30 @@ object Polygons {
                     val group = polyGroups[groupIndex]
                     val opts = mutableListOf<NamedOptions>()
 
-                    val groupColor = if (group.color == null) {
-                        blend(SkyBlue, LightGreen, groupIndex - groupOffset, polyGroups.size, 0x7F)
-                    } else {
-                        groupOffset += 1
-                        ColorUtils.setAlphaComponent(group.color, 0x7F)
+                    val groupStroke: Int
+                    val groupFill: Int
+                    when (group.color) {
+                        null -> {
+                            groupStroke = blend(SkyBlue, LightGreen, groupIndex - groupOffset, polyGroups.size)
+                            groupFill = ColorUtils.setAlphaComponent(groupStroke, 0x7F)
+                        }
+                        else -> {
+                            groupOffset += 1
+                            val pair = polygonColor(group.color, group.dashes)
+                            groupStroke = pair.first
+                            groupFill = pair.second
+                        }
                     }
+
                     group.polygons.forEach { poly ->
-                        PolygonUtils.opts(poly.polygon, groupColor, group.strokeColor, dashes = group.dashes)?.let { opt ->
+                        var stroke = groupStroke
+                        var fill = groupFill
+                        if (poly.color != null) {
+                            val pair = polygonColor(poly.color, group.dashes)
+                            stroke = pair.first
+                            fill = pair.second
+                        }
+                        PolygonUtils.opts(poly.polygon, fill, stroke, dashes = group.dashes)?.let { opt ->
                             opts.add(NamedOptions(poly.name, opt))
                         }
                     }
@@ -71,6 +90,27 @@ object Polygons {
                 callback(optGroups)
             }
         }
+    }
+
+    private fun polygonColor(color: Int, dashes: Boolean): Pair<Int, Int> {
+        val stroke: Int
+        val fill: Int
+        when (color) {
+            Clear.toArgb() -> {
+                stroke = if (dashes) {
+                    MediumGrey.toArgb()
+                } else {
+                    Black.toArgb()
+                }
+                fill = color
+            }
+            else -> {
+                stroke = color
+                fill = ColorUtils.setAlphaComponent(stroke, 0x7F)
+            }
+        }
+
+        return Pair(stroke, fill)
     }
 
     fun checkers(context: Context, model: Model, callback: (Pair<MutableList<Checker>, List<NamedOptionsGroup>>) -> Unit) {

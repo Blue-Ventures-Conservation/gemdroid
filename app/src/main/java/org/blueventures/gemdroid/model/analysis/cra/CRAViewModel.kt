@@ -265,10 +265,8 @@ class CRAViewModel(
 
             val groups = mutableListOf<Polygons.Group>()
 
-            val chartreuse = Chartreuse.toArgb()
-            groups.add(Polygons.Group(inBoundsCRAs, inBoundsPolygons, chartreuse, chartreuse))
-            val black = Black.toArgb()
-            groups.add(Polygons.Group(outOfBoundsCRAs, outOfBoundsPolygons, black, black))
+            groups.add(Polygons.Group(inBoundsCRAs, inBoundsPolygons, Chartreuse.toArgb()))
+            groups.add(Polygons.Group(outOfBoundsCRAs, outOfBoundsPolygons, Black.toArgb()))
 
             groups
         }, callback)

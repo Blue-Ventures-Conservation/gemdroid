@@ -20,6 +20,7 @@ import org.blueventures.gemdroid.data.GeojsonPolygon
 import org.blueventures.gemdroid.data.GeojsonPolygonFeature
 import org.blueventures.gemdroid.data.MultiPolyPts
 import org.blueventures.gemdroid.data.Regexp
+import org.blueventures.gemdroid.data.analysis.BVClassColors.makeColorPalette
 import org.blueventures.gemdroid.data.analysis.cra.BothFieldsCounted
 import org.blueventures.gemdroid.data.analysis.cra.CRAKey
 import org.blueventures.gemdroid.data.analysis.cra.ClassCount
@@ -745,10 +746,15 @@ class CRADatasource(
                 return null
             }
 
+            val distinctClasses = polys.classes.distinct()
+            val palette = makeColorPalette(distinctClasses)
+
             val named = mutableListOf<Polygons.Named>()
             for ((index, poly) in polys.polys.withIndex()) {
                 val name = polys.classes[index]
-                named.add(Polygons.Named(name, listOf(poly)))
+                val classIndex = distinctClasses.indexOf(name)
+                val classColor = palette[classIndex]
+                named.add(Polygons.Named(name, listOf(poly), classColor.toArgb()))
             }
 
             return Polygons.Group(menuTitle, named, Chartreuse.toArgb())
