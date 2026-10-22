@@ -45,8 +45,8 @@ object Polygons {
     abstract class Model {
         abstract val touchEnabled: Boolean
         abstract fun polygonGroups(context: Context, callback: (List<Group>) -> Unit)
-        // the boolean return from the composable here indicates whether the touch was consumed and the point should be forgotten
-        abstract fun onTouch(point: PolygonPoint?): @Composable () -> Boolean
+        // The boolean return from the composable indicates if the touch should be cleared
+        abstract fun onTouch(point: PolygonPoint): @Composable () -> Boolean
 
         fun polygonOptions(context: Context, callback: (List<NamedOptionsGroup>) -> Unit) {
             polygonGroups(context) { polyGroups ->
@@ -125,19 +125,18 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    fun PlaceMarker(polygonPoint: PolygonPoint?) {
-        if (polygonPoint != null) {
-            val state = rememberUpdatedMarkerState(polygonPoint.point)
-            LaunchedEffect(polygonPoint) {
-                state.showInfoWindow()
-            }
-            MarkerInfoWindow(state = state, title = polygonPoint.polygonName)
+    fun placeMarker(polygonPoint: PolygonPoint): Boolean {
+        val state = rememberUpdatedMarkerState(polygonPoint.point)
+        LaunchedEffect(polygonPoint) {
+            state.showInfoWindow()
         }
+        MarkerInfoWindow(state = state, title = polygonPoint.polygonName)
+        return false
     }
 
     @Composable
     @GoogleMapComposable
-    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint?) -> @Composable () -> Boolean, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>, rememberCheckerState: Boolean = true) {
+    fun Display(touchEnabled: Boolean, onTouch: (PolygonPoint) -> @Composable () -> Boolean, groups: List<NamedOptionsGroup>, checkers: List<Checker>, lastTouch: MutableState<LatLng?>, rememberCheckerState: Boolean = true) {
         val firstZ = 9999f
 
         val visibilities = mutableListOf<Boolean>()
@@ -190,7 +189,7 @@ object Polygons {
 
     @Composable
     @GoogleMapComposable
-    private fun Touch(onTouch: (PolygonPoint?) -> @Composable () -> Boolean, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
+    private fun Touch(onTouch: (PolygonPoint) -> @Composable () -> Boolean, optGroups: List<NamedOptionsGroup>, visibilities: List<Boolean>, lastTouch: MutableState<LatLng?>) {
         if (lastTouch.value != null) {
             val point = lastTouch.value!!
             var name: String? = null
@@ -212,8 +211,6 @@ object Polygons {
                 if (onTouch(PolygonPoint(name, point)).invoke()) {
                     lastTouch.value = null
                 }
-            } else {
-                lastTouch.value = null
             }
         }
     }

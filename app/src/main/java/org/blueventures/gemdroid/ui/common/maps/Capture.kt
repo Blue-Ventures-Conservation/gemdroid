@@ -99,13 +99,10 @@ object Capture {
             return object : Polygons.Model() {
                 override val touchEnabled = true
                 override fun polygonGroups(context: Context, callback: (List<Polygons.Group>) -> Unit) = data.polygonGroups(context, callback)
-                override fun onTouch(point: Polygons.PolygonPoint?) = @Composable {
-                    if (point == null) {
-                        false
-                    } else {
-                        state.value = state.value.copy(doEdit = point.polygonName)
-                        true
-                    }
+                override fun onTouch(point: Polygons.PolygonPoint) = @Composable {
+                    state.value = state.value.copy(doEdit = point.polygonName)
+                    // clear point state so that the edit window can be closed
+                    true
                 }
             }
         }

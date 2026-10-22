@@ -91,13 +91,8 @@ object Visualize {
                     }
                 }
             }
-            override fun onTouch(point: Polygons.PolygonPoint?) = @Composable {
-                if (poly != null) {
-                    poly.onTouch(point).invoke()
-                } else {
-                    Polygons.PlaceMarker(point)
-                    false
-                }
+            override fun onTouch(point: Polygons.PolygonPoint) = @Composable {
+                poly?.onTouch(point)?.invoke() ?: false
             }
         }
     }
